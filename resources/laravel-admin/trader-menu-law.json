@@ -1,0 +1,22 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "ระบบงานคดีผลิตภัณฑ์อุตสาหกรรม",
+        "icon": "mdi mdi-scale-balance",
+        "items": [
+
+            {
+                "title": "law-trader-book-search",
+                "display": "สืบค้นข้อมูลห้องสมุด",
+                "icon": "mdi mdi-bookmark",
+                "url": "\/law\/book\/search"
+            },
+            {
+                "title": "law-trader-cases-offender",
+                "display": "สืบค้นประวัติการกระทำความผิด",
+                "icon": "mdi mdi-book-multiple",
+                "url": "\/law\/cases\/offender"
+            }
+        ]
+    }]
+}

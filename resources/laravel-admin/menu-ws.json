@@ -1,0 +1,25 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "เว็บเซอร์วิส",
+        "items": [{
+                "title": "api_service",
+                "display": "API ที่ให้บริการ",
+                "icon": "mdi mdi-network",
+                "url": "\/ws\/api_service"
+            },
+            {
+                "title": "web_service",
+                "display": "ผู้ใช้งานเว็บเซอร์วิส",
+                "icon": "mdi mdi-account-network",
+                "url": "\/ws\/web_service"
+            },
+            {
+                "title": "ws-log",
+                "display": "ประวัติการเรียกใช้เว็บเซอร์วิส",
+                "icon": "mdi mdi-server-network",
+                "url": "\/ws\/log"
+            }
+        ]
+    }]
+}

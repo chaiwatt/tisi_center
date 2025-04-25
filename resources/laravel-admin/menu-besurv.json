@@ -1,0 +1,52 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "ข้อมูลพื้นฐาน (กต.)",
+            "items": [
+              {
+                  "title": "tis_unit",
+                  "display": "ตั้งค่าหน่วยนับของมาตรฐาน",
+                  "icon": "mdi mdi-message-settings-variant",
+                  "url": "\/besurv\/tis_unit"
+              },
+              {
+                  "title": "inspector",
+                  "display": "หน่วยงานตรวจ",
+                  "icon": "mdi mdi-home-modern",
+                  "url": "\/besurv\/inspector"
+              },
+              {
+                  "title": "MasterLawOperations",
+                  "display": "ตั้งค่าการดำเนินการทางกฏหมาย",
+                  "icon": "glyphicon glyphicon-tower",
+                  "url": "\/setting-law-operations"
+              },
+              {
+                  "title": "TisUserEsurvs",
+                  "display": "ตั้งค่ากลุ่มงานย่อยตามมาตรฐาน",
+                  "icon": "mdi mdi-lock-open",
+                  "url": "\/besurv\/tis-user-esurvs"
+              },
+              {
+                "title": "results_product",
+                "display": "ตั้งค่ารายการผลทดสอบผลิตภัณฑ์",
+                "icon": "mdi mdi-relative-scale",
+                "url": "\/resurv\/results_product"
+                },
+            {
+                "title": "signers",
+                "display": "ข้อมูลผู้ลงนาม",
+                "icon": "mdi mdi-vector-square",
+                "url": "\/besurv\/signers"
+            },
+            {
+                "title": "qrcodes",
+                "display": "ตั้งค่าการประกาศ",
+                "icon": "mdi mdi-message-settings-variant",
+                "url": "\/besurv\/qrcodes"
+            }
+            ]
+        }
+    ]
+}

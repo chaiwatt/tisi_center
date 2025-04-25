@@ -1,0 +1,41 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "สืบค้นข้อมูล",
+        "icon": "mdi mdi-search-web",
+        "file": "new-menu-search.json",
+        "items": [                   
+            {
+                "title": "juristic",
+                "display": "นิติบุคคล",
+                "icon": "mdi mdi-search-web",
+                "url": "\/ws\/juristic"
+            },
+            {
+                "title": "personal",
+                "display": "บุคคลธรรมดา",
+                "icon": "mdi mdi-account-search",
+                "url": "\/ws\/personal"
+            },
+            {
+                "title": "rd-vat",
+                "display": "ผู้ประกอบการ VAT",
+                "icon": "mdi mdi-magnify-plus",
+                "url": "\/ws\/rd-vat"
+            },
+            {
+                "title": "industry",
+                "display": "โรงงานอุตสาหกรรม",
+                "icon": "mdi mdi-find-replace",
+                "url": "\/ws\/industry"
+            },
+            {
+                "title": "license-report",
+                "display": "ใบอนุญาต",
+                "icon": "mdi mdi-file-find",
+                "url": "\/law\/search\/license-report"
+            }
+        ]
+    }]
+}
+

@@ -1,0 +1,22 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "ข่าวประชาสัมพันธ์",
+            "items": [
+              {
+                  "title": "blog-category",
+                  "display": "หมวดหมู่ข่าว",
+                  "icon": "mdi mdi-microsoft",
+                  "url": "blog-category"
+              },
+              {
+                  "title": "blog",
+                  "display": "ข่าว",
+                  "icon": "mdi mdi-newspaper",
+                  "url": "blog"
+              }
+            ]
+        }
+    ]
+}

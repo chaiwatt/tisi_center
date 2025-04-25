@@ -1,0 +1,45 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "รับรองระบบงาน",
+        "icon": "mdi mdi-scale-balance",
+        "items": [                
+            {
+                "title": "applicant",
+                "display" : "ยื่นคำขอรับใบรับรองระบบงาน (Lab)",
+                "icon": "mdi mdi-test-tube",
+                "url": "\/certify\/applicant"
+            },
+            {
+                "title": "applicantibs",
+                "display" : "ยื่นคำขอรับใบรับรองระบบงาน (IB)",
+                "icon": "mdi mdi-palette-advanced",
+                "url": "\/certify\/applicantibs"
+            },
+            {
+                "title": "applicantcbs",
+                "display" : "ยื่นคำขอรับใบรับรองระบบงาน (CB)",
+                "icon": "mdi mdi-odnoklassniki",
+                "url": "\/certify\/applicantcbs"
+            },
+            {
+                "title": "applicant_cb",
+                "display": "ยื่นคำขอรับใบรับรองระบบงาน (CB) ใหม่",
+                "icon": "mdi mdi-odnoklassniki",
+                "url": "\/certify\/applicant_cb"
+            },
+            {
+                "title": "experts",
+                "display": "ทะเบียนผู้เชี่ยวชาญ",
+                "icon": "mdi mdi-nut",
+                "url": "\/experts"
+            },
+            {
+                "title": "acc-auditors",
+                "display" : "ผู้ตรวจประเมิน",
+                "icon": "mdi mdi-human-child",
+                "url": "\/gta-auditors"
+            }
+        ]
+    }]
+}

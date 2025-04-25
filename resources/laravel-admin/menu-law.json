@@ -1,0 +1,49 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "งานคดี",
+        "items": [{
+                "title": "bs_laws",
+                "display": "ข้อมูลพื้นฐาน",
+                "sub_menus":[
+                    {
+                        "title": "law-departments",
+                        "display": "หน่วยงานต้นเรื่อง",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/department"
+                    },
+                    {
+                        "title": "law-sections",
+                        "display": "จัดการมาตราความผิด",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/section"
+                    },
+                    {
+                        "title": "law-process-product",
+                        "display": "ดำเนินการผลิตภัณฑ์",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/process-product"
+                    },
+                    {
+                        "title": "law-resource",
+                        "display": "แหล่งที่มาของราคาผลิตภัณฑ์",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/resource"
+                    },
+                    {
+                        "title": "law-reward-group",
+                        "display": "กลุ่มผู้มีสิทธิ์ได้รับเงินรางวัล",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/reward-group"
+                    },
+                    {
+                        "title": "law-type-file",
+                        "display": "หมวดหมู่เอกสาร",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/type-file"
+                    }
+                ]
+            }
+        ]
+    }]
+}

@@ -1,0 +1,22 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "การเงิน",
+        "icon": "mdi mdi-currency-usd",
+        "file": "new-menu-accounting.json",
+        "items": [
+            {
+                "title": "accounting-basic-banks",
+                "display": "ธนาคาร",
+                "icon": "mdi mdi-bank",
+                "url": "\/accounting\/basic\/banks"
+            },
+            {
+                "title": "accounting-receipt-info",
+                "display": "ข้อมูลผู้รับใบเสร็จเงิน",
+                "icon": "mdi mdi-bank",
+                "url": "\/accounting\/receipt-info"
+            }
+        ]
+    }]
+}

@@ -1,0 +1,28 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "ตรวจติดตามใบรับรอง",
+        "icon": "mdi mdi-scale-balance",
+        "items": [
+
+            {
+                "title": "tracking-lab",
+                "display" : "ตรวจติดตามใบรับรอง (LAB)",
+                "icon": "mdi mdi-odnoklassniki",
+                "url": "\/certify\/tracking-labs"
+            },
+            {
+                "title": "tracking-ib",
+                "display" : "ตรวจติดตามใบรับรอง (IB)",
+                "icon": "mdi mdi-odnoklassniki",
+                "url": "\/certify\/tracking-ib"
+            },
+            {
+                "title": "tracking-cb",
+                "display" : "ตรวจติดตามใบรับรอง (CB)",
+                "icon": "mdi mdi-odnoklassniki",
+                "url": "\/certify\/tracking-cb"
+            }
+        ]
+    }]
+}

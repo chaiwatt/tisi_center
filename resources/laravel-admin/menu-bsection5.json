@@ -1,0 +1,65 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "ข้อมูลพื้นฐาน (ขึ้นทะเบียน ม.5)",
+            "items": [
+                {
+                    "title": "branchgroup",
+                    "display": "หมวดสาขา/สาขา",
+                    "icon": "mdi mdi-checkbox-multiple-blank",
+                    "url": "\/basic\/branch-groups"
+                },
+                {
+                    "title": "branch",
+                    "display": "รายสาขา",
+                    "icon": "mdi mdi-layers",
+                    "url": "\/basic\/branches"
+                },
+                {
+                    "title": "testmethod",
+                    "display": "\u0e27\u0e34\u0e18\u0e35\u0e17\u0e14\u0e2a\u0e2d\u0e1a",
+                    "icon": "mdi mdi-file-document",
+                    "url": "\/bsection5\/test_method"
+                },
+                {
+                    "title": "testtools",
+                    "display": "\u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e21\u0e37\u0e2d\u0e17\u0e14\u0e2a\u0e2d\u0e1a",
+                    "icon": "mdi mdi-wrench",
+                    "url": "\/bsection5\/test_tools"
+                },
+                {
+                    "title": "bsection5-unit",
+                    "display": "\u0e2b\u0e19\u0e48\u0e27\u0e22",
+                    "icon": "mdi mdi-ruler",
+                    "url": "\/bsection5\/basic\/unit"
+                },
+                {
+                    "title": "bsection5-testitem",
+                    "display": "รายการทดสอบ",
+                    "icon": "mdi mdi-calendar-text",
+                    "url": "\/bsection5\/test_item"
+                },
+                {
+                    "title": "bsection5-workgroup",
+                    "display": "กลุ่มงาน LAB",
+                    "icon": "mdi mdi-calendar-text",
+                    "url": "\/bsection5\/workgroup"
+                },
+                {
+                    "title": "bsection5-workgroup-ib",
+                    "display": "กลุ่มงาน IB",
+                    "icon": "mdi mdi-calendar-text",
+                    "url": "\/bsection5\/workgroup-ib"
+                },
+                {
+                    "title": "bsection5-standard",
+                    "display": "มาตรฐานรับรองระบบงาน",
+                    "icon": "mdi mdi-calendar-text",
+                    "url": "\/bsection5\/standards"
+                }
+
+            ]
+        }
+    ]
+}

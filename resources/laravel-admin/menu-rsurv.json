@@ -1,0 +1,40 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "รายงาน",
+            "items": [
+              {
+                  "title": "report_volume",
+                  "display": "รายงานแจ้งปริมาณการผลิต",
+                  "icon": "mdi mdi-cart-plus",
+                  "url": "\/rsurv\/report_volume"
+              },
+              {
+                  "title": "report_change",
+                  "display": "รายงานแจ้งเปลี่ยนแปลง",
+                  "icon": "mdi mdi-wrap",
+                  "url": "\/rsurv\/report_change"
+              },
+              {
+                  "title": "report_quality_control",
+                  "display": "รายงานแจ้งผลการประเมิน QC",
+                  "icon": "mdi mdi-checkbox-marked-circle-outline",
+                  "url": "\/rsurv\/report_quality_control"
+              },
+              {
+                  "title": "report_inspection",
+                  "display": "รายงานแจ้งผลทดสอบ",
+                  "icon": "mdi mdi-playlist-check",
+                  "url": "\/rsurv\/report_inspection"
+              },
+              {
+                  "title": "report_calibrate",
+                  "display": "รายงานแจ้งผลการสอบเทียบ",
+                  "icon": "mdi mdi-speedometer",
+                  "url": "\/rsurv\/report_calibrate"
+              }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "รับ-แจ้งผลการทดสอบ (LAB)",
+        "icon": "mdi mdi-scale-balance",
+        "items": [
+
+            {
+                "title": "report_product",
+                "display" : "รับ - แจ้งผลการทดสอบ (สำหรับ LAB)",
+                "icon": "mdi mdi-test-tube",
+                "url": "\/resurv\/report_product"
+            }
+        ]
+    }]
+}

@@ -1,0 +1,40 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "ระบบที่ 4",
+            "items": [
+              {
+                  "title": "receive_change",
+                  "display": "ระบบรับคำขอการทำผลิตภัณฑ์เพื่อส่งออก (20 ตรี)",
+                  "icon": "mdi mdi-wrap",
+                  "url": "\/asurv\/accept_export"
+              },
+              {
+                  "title": "receive_quality_control",
+                  "display": "ระบบรับคำขอการทำผลิตภัณฑ์เพื่อใช้ในประเทศ (20 ทวิ)",
+                  "icon": "mdi mdi-checkbox-marked-circle-outline",
+                  "url": "\/asurv\/accept_import"
+              },
+              {
+                  "title": "receive_applicant_21bi",
+                  "display": "ระบบรับคำขอการนำเข้าผลิตภัณฑ์เพื่อใช้ในประเทศ (21 ทวิ)",
+                  "icon": "mdi mdi-checkbox-marked-circle-outline",
+                  "url": "\/asurv\/receive_applicant_21bis"
+              },
+              {
+                  "title": "receive_inspection",
+                  "display": "ระบบรับแจ้งปริมาณการทำผลิตภัณฑ์เพื่อส่งออก (20 ตรี)",
+                  "icon": "mdi mdi-playlist-check",
+                  "url": "\/asurv\/report_export"
+              },
+              {
+                "title": "standard",
+                "display": "ระบบรับแจ้งปริมาณการทำผลิตภัณฑ์เพื่อใช้ในประเทศ (20 ทวิ)",
+                "icon": "mdi mdi-chemical-weapon",
+                "url": "\/asurv\/report_import"
+              }
+            ]
+        }
+    ]
+}

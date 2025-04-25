@@ -1,0 +1,121 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "กำหนดมาตรฐาน (กก.)",
+        "items": [{
+                "title": "standard",
+                "display": "มาตรฐาน (มอก.)",
+                "icon": "mdi mdi-chemical-weapon",
+                "url": "\/tis\/standard"
+            },
+            {
+                "title": "set_standard",
+                "display": "กำหนดมาตรฐาน (มอก.)",
+                "icon": "mdi mdi-layers",
+                "url": "\/tis\/set_standard"
+            },
+            {
+                "title": "standardproduct-name",
+                "display": "จัดการชื่อผลิตภัณฑ์อุตสาหกรรม",
+                "icon": "mdi mdi-layers",
+                "url": "\/tis\/product_name"
+            },
+            {
+                "title": "public_draft",
+                "display": "เผยแพร่/เวียนร่างมาตรฐาน",
+                "icon": "mdi mdi-nfc-tap",
+                "url": "\/tis\/public_draft"
+            },
+            {
+                "title": "comment_standard_reviews",
+                "display": "ให้ข้อคิดเห็นต่อการทบทวนมาตรฐาน(บุคคลภายนอก)",
+                "icon": "mdi mdi-view-headline",
+                "url": "\/tis\/comment_standard_reviews\/create"
+            },
+            {
+                "title": "comment_standard_drafts",
+                "display": "ให้ข้อคิดเห็นต่อร่างมาตรฐาน(บุคคลภายนอก)",
+                "icon": "mdi mdi-stackexchange",
+                "url": "\/tis\/comment_standard_drafts\/create"
+            },
+            {
+                "title": "idea_public",
+                "display": "ข้อเสนอให้กำหนดมาตรฐาน(บุคคลภายนอก)",
+                "icon": "mdi mdi-bell-outline",
+                "url": "\/idea-public\/ideas\/create"
+            },
+            {
+                "title": "comment-standard-reviews",
+                "display": "สรุปข้อคิดเห็นต่อการทบทวนมาตรฐาน",
+                "icon": "mdi mdi-receipt",
+                "url": "\/tis\/comment_standard_reviews"
+            },
+            {
+                "title": "report_comment_standard_drafts",
+                "display": "สรุปข้อคิดเห็นต่อร่างมาตรฐาน",
+                "icon": "mdi mdi-library-books",
+                "url": "\/idea-public\/create"
+            },
+            {
+                "title": "idea_public",
+                "display": "สรุปข้อเสนอให้กำหนดมาตรฐาน",
+                "icon": "mdi mdi-format-list-numbers",
+                "url": "\/idea-public"
+            },
+            {
+                "title": "standard_report",
+                "display": "รายงานข้อมูลมาตรฐานที่เปิดใช้ในปัจจุบัน",
+                "icon": "mdi mdi-television-guide",
+                "url": "\/tis\/standard_report"
+            },
+            {
+                "title": "board",
+                "display": "ข้อมูลผู้ทรงคุณวุฒิ",
+                "icon": "mdi mdi-voice",
+                "url": "\/tis\/board"
+            },
+            {
+                "title": "appoint",
+                "display": "แต่งตั้งคณะกรรมการ",
+                "icon": "mdi mdi-human-greeting",
+                "url": "\/tis\/appoint"
+            },
+            {
+                "title": "report_performance",
+                "display": "รายงานแผน-ผลการปฏิบัติงาน (งาน,เงิน)",
+                "icon": "mdi mdi-briefcase",
+                "url": "\/tis\/report_performance"
+            },
+            {
+                "title": "note_std_draft",
+                "display": "ระบบเวียนร่างและประกาศรับฟังความคิดเห็นร่างกฎกระทรวง",
+                "icon": "mdi mdi-microphone",
+                "url": "\/tis\/note_std_draft"
+            },
+            {
+                "title": "listen_std_draft",
+                "display": "ระบบรับฟังความคิดเห็นต่อร่างกฎกระทรวง",
+                "icon": "mdi mdi-phone-in-talk",
+                "url": "\/tis\/listen_std_draft"
+            },
+            {
+                "title": "CommentStandardReviewsAndDrafts",
+                "display": "ระบบสรุปผลความคิดเห็นต่อร่างกฎกระทรวง",
+                "icon": "mdi mdi-file-document",
+                "url": "\/tis\/comment-standard-reviews-and-drafts"
+            },
+            {
+                "title": "import-comment",
+                "display": "นำเข้าข้อมูล ความคิดเห็นต่อร่างกฎกระทรวง",
+                "icon": "mdi mdi-file-import",
+                "url": "\/tis\/import_comment"
+            },
+            {
+                "title": "ListenStdDraftResults",
+                "display": "สรุปผลความคิดเห็นต่อร่างกฎกระทรวง",
+                "icon": "mdi mdi-file-document-box",
+                "url": "\/tis\/listen-std-draft-results"
+            }
+        ]
+    }]
+}

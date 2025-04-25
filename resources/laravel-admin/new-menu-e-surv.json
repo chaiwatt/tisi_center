@@ -1,0 +1,300 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "ระบบตรวจการอิเล็กทรอนิกส์",
+        "url": "\/esurv",
+        "icon": "mdi mdi-clipboard-text",
+        "file": "new-menu-e-surv.json",
+        "items": [{
+                "title": "esurv_basic",
+                "display": "ข้อมูลพื้นฐาน",
+                "sub_menus":[
+                    {
+                        "title": "tis_unit",
+                        "display": "ตั้งค่าหน่วยนับของมาตรฐาน",
+                        "icon": "mdi mdi-message-settings-variant",
+                        "url": "\/besurv\/tis_unit"
+                    },
+                    {
+                        "title": "inspector",
+                        "display": "หน่วยงานตรวจ",
+                        "icon": "mdi mdi-home-modern",
+                        "url": "\/besurv\/inspector"
+                    },
+                    {
+                        "title": "MasterLawOperations",
+                        "display": "ตั้งค่าการดำเนินการทางกฏหมาย",
+                        "icon": "glyphicon glyphicon-tower",
+                        "url": "\/setting-law-operations"
+                    },
+                    {
+                        "title": "TisUserEsurvs",
+                        "display": "ตั้งค่ากลุ่มงานย่อยตามมาตรฐาน",
+                        "icon": "mdi mdi-lock-open",
+                        "url": "\/besurv\/tis-user-esurvs"
+                    },
+                    {
+                        "title": "results_product",
+                        "display": "ตั้งค่ารายการผลทดสอบผลิตภัณฑ์",
+                        "icon": "mdi mdi-relative-scale",
+                        "url": "\/resurv\/results_product"
+                    },
+                    {
+                        "title": "signers",
+                        "display": "ข้อมูลผู้ลงนาม",
+                        "icon": "mdi mdi-vector-square",
+                        "url": "\/besurv\/signers"
+                    },
+                    {
+                        "title": "qrcodes",
+                        "display": "ตั้งค่าการประกาศ",
+                        "icon": "mdi mdi-message-settings-variant",
+                        "url": "\/besurv\/qrcodes"
+                    }
+                ]
+            },
+            {
+                "title": "esurv_esurv_condition",
+                "display": "รับแจ้งตามเงื่อนไข",
+                "sub_menus":[
+                    {
+                        "title": "receive_volume",
+                        "display": "รับแจ้งปริมาณการผลิต",
+                        "icon": "mdi mdi-cart-plus",
+                        "url": "\/esurv\/receive_volume"
+                    },
+                    {
+                        "title": "receive_change",
+                        "display": "รับแจ้งการเปลี่ยนแปลง",
+                        "icon": "mdi mdi-wrap",
+                        "url": "\/esurv\/receive_change"
+                    }
+                ]
+            },          
+            {
+                "title": "esurv_esurv_self_declaration",
+                "display": "Self Declaration",
+                "sub_menus":[
+                    {
+                        "title": "receive_quality_control",
+                        "display": "รับแจ้งผลการประเมิน QC",
+                        "icon": "mdi mdi-checkbox-marked-circle-outline",
+                        "url": "\/esurv\/receive_quality_control"
+                    }, 
+                    {
+                        "title": "receive_inspection",
+                        "display": "รับแจ้งผลการทดสอบ",
+                        "icon": "mdi mdi-playlist-check",
+                        "url": "\/esurv\/receive_inspection"
+                    },
+                    {
+                        "title": "receive_calibrate",
+                        "display": "รับแจ้งผลการสอบเทียบ",
+                        "icon": "mdi mdi-speedometer",
+                        "url": "\/esurv\/receive_calibrate"
+                    }
+                ]
+            },  
+            {
+                "title": "esurv_esurv",
+                "display": "การตรวจติดตาม",
+                "sub_menus":[
+                    {
+                        "title": "follow_up",
+                        "display": "ตรวจติดตามผล",
+                        "icon": "mdi mdi-instagram",
+                        "url": "\/esurv\/follow_up"
+                    },
+                    {
+                        "title": "control_performance",
+                        "display": "บันทึกการตรวจควบคุมคุณภาพ",
+                        "icon": "mdi mdi-wrap",
+                        "url": "\/csurv\/control_performance"
+                    },
+                    {
+                        "title": "control_check",
+                        "display": "บันทึกการตรวจควบคุมฯ",
+                        "icon": "mdi mdi-checkbox-marked-circle-outline",
+                        "url": "\/csurv\/control_check"
+                    },
+                    {
+                        "title": "control_freeze",
+                        "display": "บันทึกการยึด อายัดผลิตภัณฑ์อุตสาหกรรม",
+                        "icon": "mdi mdi-playlist-check",
+                        "url": "\/csurv\/control_freeze"
+                    },
+                    {
+                        "title": "control_follow",
+                        "display": "การทำแผนตรวจติดตาม",
+                        "icon": "mdi mdi-chemical-weapon",
+                        "url": "\/csurv\/control_follow"
+                    },
+                    {
+                        "title": "lawoperation",
+                        "display": "บันทึกการดำเนินการทางกฏหมาย (สำหรับเจ้าหน้าที่กฏหมาย)",
+                        "icon": "mdi mdi-book-minus",
+                        "url": "\/esurv\/law-operation"
+                    },
+                    {
+                        "title": "license_cancel",
+                        "display": "ยกเลิกใบอนุญาต",
+                        "icon": "mdi mdi-close-octagon",
+                        "url": "\/esurv\/license_cancel"
+                    },
+                    {
+                        "title": "save_example",
+                        "display": "ใบรับ-นำส่งตัวอย่าง",
+                        "icon": "mdi mdi-flask",
+                        "url": "\/ssurv\/save_example"
+                    },
+                    {
+                        "title": "report_product",
+                        "display": "รับ-แจ้งผลการทดสอบ (สำหรับ LAB)",
+                        "icon": "mdi mdi-flask-outline",
+                        "url": "\/resurv\/report_product"
+                    },
+                    {
+                        "title": "assign_product",
+                        "display": "มอบหมายงานประเมินผล (จาก LAB)",
+                        "icon": "mdi mdi-share",
+                        "url": "\/resurv\/assign_product"
+                    },
+                    {
+                        "title": "test_product",
+                        "display": "ประเมินผลทดสอบ (จาก LAB)",
+                        "icon": "mdi mdi-flag-checkered",
+                        "url": "\/resurv\/test_product"
+                    }
+                ]
+            },
+            {
+                "title": "esurv_esurv_other",
+                "display": "ข้อมูลอื่นๆ",
+                "sub_menus":[
+                    {
+                        "title": "other",
+                        "display": "ดูการแจ้งข้อมูลอื่นๆ",
+                        "icon": "mdi mdi-comment-question-outline",
+                        "url": "\/esurv\/other"
+                    },
+                    {
+                        "title": "tisi_license_notification",
+                        "display" : "แจ้งข้อมูลใบอนุญาต",
+                        "icon": "mdi mdi-alert-circle",
+                        "url": "\/esurv\/tisi_license_notification"
+                    }
+                ]
+            }, 
+            {
+                "title": "esurv_esurv_20",
+                "display": "รับคําขอ/รับแจ้ง 20 ตรี, 20 ทวิ",
+                "sub_menus":[
+                    {
+                        "title": "accept_export",
+                        "display": "รับคำขอการทำผลิตภัณฑ์เพื่อส่งออก (20 ตรี)",
+                        "icon": "mdi mdi-wrap",
+                        "url": "\/asurv\/accept_export"
+                    },
+                    {
+                        "title": "accept_import",
+                        "display": "รับคำขอการทำผลิตภัณฑ์เพื่อใช้ในประเทศ (20 ทวิ)",
+                        "icon": "mdi mdi-checkbox-marked-circle-outline",
+                        "url": "\/asurv\/accept_import"
+                    },
+                    {
+                        "title": "report_export",
+                        "display": "รับแจ้งปริมาณการทำผลิตภัณฑ์เพื่อส่งออก (20 ตรี)",
+                        "icon": "mdi mdi-playlist-check",
+                        "url": "\/asurv\/report_export"
+                    },
+                    {
+                        "title": "report_import",
+                        "display": "รับแจ้งปริมาณการทำผลิตภัณฑ์เพื่อใช้ในประเทศ (20 ทวิ)",
+                        "icon": "mdi mdi-food-variant",
+                        "url": "\/asurv\/report_import"
+                    }
+                ]
+            },
+            {
+                "title": "esurv_esurv_21",
+                "display": "รับคําขอ/รับแจ้ง 21 ตรี, 21 ทวิ",
+                "sub_menus":[
+                    {
+                        "title": "accept21_export",
+                        "display": "รับคำขอการนำเข้าผลิตภัณฑ์เพื่อส่งออก (21 ตรี)",
+                        "icon": "mdi mdi-wrap",
+                        "url": "\/asurv\/accept21_export"
+                    },
+                    {
+                        "title": "accept21_import",
+                        "display": "รับคำขอการนำเข้าผลิตภัณฑ์เพื่อใช้ในประเทศ (21 ทวิ)",
+                        "name" : "มาตรา 21 วรรคสอง",
+                        "icon": "mdi mdi-checkbox-marked-circle-outline",
+                        "url": "\/asurv\/accept21_import"
+                    },
+                    {
+                        "title": "accept21own_import",
+                        "display": "รับคำขอการนำเข้าผลิตภัณฑ์เพื่อนำมาใช้เอง (21)",
+                        "icon": "mdi mdi-checkbox-marked-circle-outline",
+                        "url": "\/asurv\/accept21own_import"
+                    },
+                    {
+                        "title": "report21_export",
+                        "display": "รับแจ้งปริมาณการนำเข้าเพื่อส่งออก (21 ตรี)",
+                        "icon": "mdi mdi-playlist-check",
+                        "url": "\/asurv\/report21_export"
+                    },
+                    {
+                        "title": "report21_import",
+                        "display": "รับแจ้งปริมาณการนำเข้าเพื่อใช้ในราชอาณาจักร (21 ทวิ)",
+                        "icon": "mdi mdi-food-variant",
+                        "url": "\/asurv\/report21_import"
+                    },
+                    {
+                        "title": "report21own_import",
+                        "display": "รับแจ้งปริมาณการนำเข้าเพื่อนำมาใช้เอง (21)",
+                        "name" : "มาตรา 21 วรรคสอง",
+                        "icon": "mdi mdi-food-variant",
+                        "url": "\/asurv\/report21own_import"
+                    }
+                ]
+            },
+            {
+                "title": "esurv_report",
+                "display": "รายงาน",
+                "sub_menus":[
+                    {
+                        "title": "report_volume",
+                        "display": "รายงานแจ้งปริมาณการผลิต",
+                        "icon": "mdi mdi-cart-plus",
+                        "url": "\/rsurv\/report_volume"
+                    },
+                    {
+                        "title": "report_change",
+                        "display": "รายงานแจ้งเปลี่ยนแปลง",
+                        "icon": "mdi mdi-wrap",
+                        "url": "\/rsurv\/report_change"
+                    },
+                    {
+                        "title": "report_quality_control",
+                        "display": "รายงานแจ้งผลการประเมิน QC",
+                        "icon": "mdi mdi-checkbox-marked-circle-outline",
+                        "url": "\/rsurv\/report_quality_control"
+                    },
+                    {
+                        "title": "report_inspection",
+                        "display": "รายงานแจ้งผลทดสอบ",
+                        "icon": "mdi mdi-playlist-check",
+                        "url": "\/rsurv\/report_inspection"
+                    },
+                    {
+                        "title": "report_calibrate",
+                        "display": "รายงานแจ้งผลการสอบเทียบ",
+                        "icon": "mdi mdi-speedometer",
+                        "url": "\/rsurv\/report_calibrate"
+                    }
+                ]
+            }
+        ]
+    }]
+}

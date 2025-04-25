@@ -1,0 +1,52 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "ผู้ใช้งาน",
+            "items": [
+                {
+                    "title": "user",
+                    "display": "เจ้าหน้าที่",
+                    "icon": "mdi mdi-account-settings",
+                    "url": "\/users"
+                },
+                {
+                    "title": "user_deleted",
+                    "display": "เจ้าหน้าที่ที่ถูกลบ",
+                    "icon": "mdi mdi-account-minus",
+                    "url": "\/user/deleted"
+                },
+                {
+                    "title": "user-sso",
+                    "display": "ผู้ประกอบการ (SSO)",
+                    "icon": "mdi mdi-account-circle",
+                    "url": "\/sso\/user-sso"
+                },
+                {
+                    "title": "user-sso-report-edit-production",
+                    "display": "รายงานการแก้ไขข้อมูลผู้ประกอบการ (SSO)",
+                    "icon": "mdi mdi-account-switch",
+                    "url": "\/sso\/user-sso-report-edit-production"
+                },
+                {
+                    "title": "user-sso-report-edit-test",
+                    "display": "รายงานการแก้ไขข้อมูลผู้ประกอบการ (SSO)",
+                    "icon": "mdi mdi-account-switch",
+                    "url": "\/sso\/user-sso-report-edit-test"
+                },
+                {
+                    "title": "trader",
+                    "display": "ผู้ประกอบการ",
+                    "icon": "mdi mdi-account-star",
+                    "url": "\/basic\/trader"
+                },
+                {
+                    "title": "soko",
+                    "display": "ผู้ประกอบการ (สก.)",
+                    "icon": "mdi mdi-account-multiple-plus",
+                    "url": "\/basic\/soko"
+                }
+            ]
+        }
+    ]
+}

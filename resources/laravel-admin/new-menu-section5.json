@@ -1,0 +1,196 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "ระบบขึ้นทะเบียนตาม ม.5",
+        "icon": "mdi mdi-bookmark-plus",
+        "url": "\/accepting-request-section5",
+        "file": "new-menu-section5.json",
+        "items": [{
+                "title": "section5_basic",
+                "display": "ข้อมูลพื้นฐาน",
+                "sub_menus":[
+                    {
+                        "title": "branchgroup",
+                        "display": "หมวดสาขา/สาขา",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/basic\/branch-groups"
+                    },
+                    {
+                        "title": "branch",
+                        "display": "รายสาขา",
+                        "icon": "mdi mdi-layers",
+                        "url": "\/basic\/branches"
+                    },
+                    {
+                        "title": "testmethod",
+                        "display": "\u0e27\u0e34\u0e18\u0e35\u0e17\u0e14\u0e2a\u0e2d\u0e1a",
+                        "icon": "mdi mdi-file-document",
+                        "url": "\/bsection5\/test_method"
+                    },
+                    {
+                        "title": "testtools",
+                        "display": "\u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e21\u0e37\u0e2d\u0e17\u0e14\u0e2a\u0e2d\u0e1a",
+                        "icon": "mdi mdi-wrench",
+                        "url": "\/bsection5\/test_tools"
+                    },
+                    {
+                        "title": "bsection5-unit",
+                        "display": "\u0e2b\u0e19\u0e48\u0e27\u0e22",
+                        "icon": "mdi mdi-ruler",
+                        "url": "\/bsection5\/basic\/unit"
+                    },
+                    {
+                        "title": "bsection5-testitem",
+                        "display": "รายการทดสอบ",
+                        "icon": "mdi mdi-calendar-text",
+                        "url": "\/bsection5\/test_item"
+                    },
+                    {
+                        "title": "bsection5-workgroup",
+                        "display": "กลุ่มงาน LAB",
+                        "icon": "mdi mdi-calendar-text",
+                        "url": "\/bsection5\/workgroup"
+                    },
+                    {
+                        "title": "bsection5-workgroup-ib",
+                        "display": "กลุ่มงาน IB",
+                        "icon": "mdi mdi-calendar-text",
+                        "url": "\/bsection5\/workgroup-ib"
+                    },
+                    {
+                        "title": "bsection5-standard",
+                        "display": "มาตรฐานรับรองระบบงาน",
+                        "icon": "mdi mdi-calendar-text",
+                        "url": "\/bsection5\/standards"
+                    }
+                ]
+            },
+            {
+                "title": "section5_application_ins",
+                "display": "คำขอขึ้นทะเบียน ผู้ตรวจ และผู้ประเมิน",
+                "sub_menus":[
+                    {
+                        "title": "application-inspectors-accept",
+                        "display": "ตรวจสอบคำขอผู้ตรวจ และผู้ประเมิน",
+                        "icon": "mdi mdi mdi-account-multiple",
+                        "url": "section5\/application_inspectors_accept"
+                    },
+                    {
+                        "title": "application-inspectors-audit",
+                        "display": "บันทึกผลตรวจผู้ตรวจ และผู้ประเมิน",
+                        "icon": "mdi mdi-format-list-numbers",
+                        "url": "section5\/application-inspectors-audit"
+                    },
+                    {
+                        "title": "application-inspectors-agreement",
+                        "display": "ขึ้นทะเบียนผู้ตรวจ และผู้ประเมิน",
+                        "icon": "mdi mdi-format-list-numbers",
+                        "url": "section5\/application-inspectors-agreement"
+                    },
+                    {
+                        "title": "manage-inspector",
+                        "display": "รายชื่อผู้ตรวจ/ผู้ประเมิน",
+                        "icon": "mdi mdi-format-list-numbers",
+                        "url": "section5\/inspectors"
+                    }
+                ]
+            },
+            {
+                "title": "section5_application_ibcb",
+                "display": "คำขอขึ้นทะเบียน IB/CB",
+                "sub_menus":[
+                    {
+                        "title": "application-ibcb-accept",
+                        "display": "ตรวจสอบคำขอ IB/CB",
+                        "icon": "mdi mdi-human-handsup",
+                        "url": "section5\/application_ibcb_accept"
+                    },
+                    {
+                        "title": "application-ibcb-audit",
+                        "display": "บันทึกผลตรวจประเมิน IB/CB",
+                        "icon": "mdi mdi-human-handsup",
+                        "url": "section5\/application-ibcb-audit"
+                    },
+                    {
+                        "title": "application-ibcb-approve",
+                        "display": "ผลการเสนอพิจารณาอนุมัติ IB/CB",
+                        "icon": "mdi mdi-file-document",
+                        "url": "section5\/application-ibcb-board-approve"
+                    },
+                    {
+                        "title": "manage-ibcb",
+                        "display": "รายชื่อหน่วยตรวจสอบ IB/CB",
+                        "icon": "mdi mdi-format-list-numbers",
+                        "url": "section5\/ibcb"
+                    }
+                ]
+            },
+            {
+                "title": "section5_application_lab",
+                "display": "คำขอขึ้นทะเบียน LAB",
+                "sub_menus":[
+                    {
+                        "title": "application-lab-accept",
+                        "display": "ตรวจสอบคำขอ (LAB)",
+                        "icon": "mdi mdi-human-handsup",
+                        "url": "section5\/application_lab_accept"
+                    },
+                    {
+                        "title": "application-lab-audit",
+                        "display": "บันทึกผลตรวจประเมิน (LAB)",
+                        "icon": "mdi mdi-magnify",
+                        "url": "\/section5\/application_lab_audit"
+                    },
+                    {
+                        "title": "application-lab-approve",
+                        "display": "ผลการเสนอพิจารณาอนุมัติ (LAB)",
+                        "icon": "mdi mdi-file-document",
+                        "url": "section5\/application-lab-board-approve"
+                    },
+                    {
+                        "title": "manage-lab",
+                        "display": "รายชื่อหน่วยตรวจสอบ (LAB)",
+                        "icon": "mdi mdi-format-list-numbers",
+                        "url": "section5\/labs"
+                    }
+                ]
+            },
+            {
+                "title": "section5_report",
+                "display": "รายงาน",
+                "sub_menus":[
+                    {
+                        "title": "report-factory-inspection",
+                        "display": "รายงานการตรวจโรงงาน",
+                        "icon": "mdi mdi mdi-factory",
+                        "url": "section5\/report-factory-inspection"
+                    },
+                    {
+                        "title": "report-product-lab",
+                        "display": "รายงานการทดสอบผลิตภัณฑ์ (กค.)",
+                        "icon": "mdi mdi-test-tube",
+                        "url": "section5\/report-product-lab"
+                    },
+                    {
+                        "title": "report-example-lab",
+                        "display": "รายงานการทดสอบผลิตภัณฑ์ (กต.)",
+                        "icon": "mdi mdi-thermometer",
+                        "url": "section5\/report-example-lab"
+                    },
+                    {
+                        "title": "report-standard-branch",
+                        "display": "รายงานรายสาขาแยกกตามมาตรฐานมอก.",
+                        "icon": "mdi mdi-thermometer",
+                        "url": "section5\/report-standard-branch"
+                    },
+                    {
+                        "title": "report-labs",
+                        "display": "รายงานคำขอรับการแต่งตั้งเป็นผู้ตรวจสอบ LAB",
+                        "icon": "mdi mdi-chevron-double-right",
+                        "url": "section5\/report-labs"
+                    }
+                ]
+            }
+        ]
+    }]
+}

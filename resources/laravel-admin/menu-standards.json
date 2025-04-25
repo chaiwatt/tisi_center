@@ -1,0 +1,66 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "กำหนดมาตรฐานรับรอง",
+            "items": [
+              {
+                  "title": "standardsoffers",
+                  "display": "ความเห็นกำหนดมาตรฐาน",
+                  "icon": "mdi mdi-chevron-double-right",
+                  "url": "\/bcertify\/standards-offers"
+              },
+              {
+                  "title": "standarddrafts",
+                  "display": "ร่างแผนกำหนดมาตรฐาน",
+                  "icon": "mdi mdi-chevron-double-right",
+                  "url": "\/certify\/standard-drafts"
+              },
+              {
+                  "title": "StandardPlans",
+                  "display": "ทำแผนกำหนดมาตรฐาน",
+                  "icon": "mdi mdi-chevron-double-right",
+                  "url": "\/certify\/standard-plans"
+              },
+              {
+                    "title": "certifystandard",
+                    "display": "มาตรฐานรับรอง",
+                    "icon": "mdi mdi-chevron-double-right",
+                    "url": "\/certify\/standards"
+                },
+              {
+                  "title": "standardconfirmplans",
+                  "display": "พิจารณาแผนกำหนดมาตรฐาน",
+                  "icon": "mdi mdi-chevron-double-right",
+                  "url": "\/certify\/standard-confirmplans"
+              },
+              {
+                  "title": "setstandard",
+                  "display": "กำหนดมาตรฐานรับรอง",
+                  "icon": "mdi mdi-chevron-double-right",
+                  "url": "\/certify\/set-standards"
+              },
+              {
+                  "title": "meetingstandards",
+                  "display": "นัดหมายการประชุม",
+                  "icon": "mdi mdi-chevron-double-right",
+                  "url": "\/certify\/meeting-standards"
+              },
+              {
+                  "title": "report-standard-status",
+                  "display": "รายงานจัดทำมาตรฐาน",
+                  "icon": "mdi mdi-chevron-double-right",
+                  "url": "\/certify\/report\/standard-status"
+              },
+              {
+                  "title": "gazette",
+                  "display": "ประกาศราชกิจจานุเบกษา",
+                  "icon": "mdi mdi-chevron-double-right",
+                  "url": "\/certify\/gazette"
+              }
+
+
+            ]
+        }
+    ]
+}

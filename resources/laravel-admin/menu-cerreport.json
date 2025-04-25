@@ -1,0 +1,51 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "รายงาน",
+            "items": [
+                {
+                    "title": "cerreport-epayments",
+                    "display": "รายงาน e-Payment",
+                    "icon": "mdi mdi-checkbox-multiple-blank",
+                    "url": "\/cerreport\/epayments"
+                }, {
+                    "title": "cerreport-payins",
+                    "display": "รายงาน Pay In",
+                    "icon": "mdi mdi-cash",
+                    "url": "\/cerreport\/payins"
+                }, {
+                    "title": "cerreport-certificate",
+                    "display": "ติดตามใบรับรอง",
+                    "icon": "mdi mdi-certificate",
+                    "url": "\/cerreport\/certificates"
+                }, {
+                    "title": "cerreport-certificate-export",
+                    "display": "สถิติการออกใบรับรอง",
+                    "icon": "mdi mdi-nut",
+                    "url": "\/cerreport\/certificate_export"
+                }, {
+                    "title": "cerreport-certified-formula",
+                    "display": "คำขอตาม มอก.",
+                    "icon": "mdi mdi-checkerboard",
+                    "url": "\/cerreport\/certified-formula"
+                }, {
+                    "title": "cerreport-applicant",
+                    "display": "ประวัติการส่งอีเมล",
+                    "icon": "mdi mdi-email-open",
+                    "url": "\/cerreport\/certify-applicant"
+                }, {
+                    "title": "cerreport-logesignaures",
+                    "display": "ประวัติการลงนามใบอนุญาตอิเล็กทรอนิกส์",
+                    "icon": "mdi mdi-email-open",
+                    "url": "\/cerreport\/logesignaures"
+                }, {
+                    "title": "cerreport-system-certification",
+                    "display": "รายงานข้อมูลใบรับรองระบบงาน",
+                    "icon": "mdi mdi-email-open",
+                    "url": "\/cerreport\/system-certification"
+                }
+            ]
+        }
+    ]
+}

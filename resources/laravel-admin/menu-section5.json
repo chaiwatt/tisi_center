@@ -1,0 +1,81 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "รับคำขอสำหรับ IB และ LAB",
+        "items": [
+            {
+                "title": "application-inspectors-accept",
+                "display": "ตรวจสอบคำขอขึ้นทะเบียน ผู้ตรวจ และผู้ประเมิน",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/application_inspectors_accept"
+            },
+            {
+                "title": "application-inspectors-audit",
+                "display": "อนุมัติผลตรวจประเมิน (IB)",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/application-inspectors-audit"
+            },
+            {
+                "title": "application-inspectors-agreement",
+                "display": "ขึ้นทะเบียนผู้ตรวจ และผู้ประเมิน (IB)",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/application-inspectors-agreement"
+            },
+            {
+                "title": "manage-inspector",
+                "display": "รายชื่อผู้ตรวจ/ผู้ประเมิน (IB)",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/inspectors"
+            },
+            {
+                "title": "application-ibcb-accept",
+                "display": "ระบบรับคำขอเป็น IB/CB",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/application_ibcb_accept"
+            },
+            {
+                "title": "application-ibcb-audit",
+                "display": "บันทึกผลตรวจประเมิน IB/CB",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/application-ibcb-audit"
+            },
+            {
+                "title": "application-ibcb-approve",
+                "display": "ระบบผลการเสนอพิจารณาอนุมัติ IB/CB",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/application-ibcb-board-approve"
+            },
+            {
+                "title": "manage-ibcb",
+                "display": "รายชื่อหน่วยตรวจสอบ IB/CB",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/ibcb"
+            },
+            {
+                "title": "application-lab-accept",
+                "display": "รับคำขอเป็นผู้ตรวจสอบ (LAB)",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/application_lab_accept"
+            },
+            {
+                "title": "application-lab-audit",
+                "display": "ระบบตรวจประเมินหน่วยตรวจสอบผลิตภัณฑ์อุตสาหกรรม (LAB)",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "\/section5\/application_lab_audit"
+            },
+            {
+                "title": "application-lab-approve",
+                "display": "ผลการเสนอพิจารณาอนุมัติ (LAB)",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/application-lab-board-approve"
+            },
+            {
+                "title": "manage-lab",
+                "display": "รายชื่อหน่วยตรวจสอบ (LAB)",
+                "icon": "mdi mdi-arrange-send-to-back",
+                "url": "section5\/labs"
+            }
+
+        ]
+    }]
+}

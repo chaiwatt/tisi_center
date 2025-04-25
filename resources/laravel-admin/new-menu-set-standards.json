@@ -1,0 +1,125 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "ระบบมาตรฐาน มตช.",
+            "icon": "mdi mdi-table-edit",
+            "file": "new-menu-set-standards.json",
+            "items": [
+                {
+                    "title": "set_std_basic",
+                    "display": "ข้อมูลพื้นฐาน",
+                    "sub_menus":[
+                        {
+                            "title": "committee",
+                            "display": "คณะกรรมการเฉพาะด้าน",
+                            "icon": "mdi mdi-account-multiple-outline",
+                            "url": "\/committee\/"
+                        },
+                        {
+                            "title": "registerexperts",
+                            "display": "พิจารณาคำขอผู้เชี่ยวชาญ",
+                            "icon": "mdi mdi-account-multiple",
+                            "url": "\/certify\/register-experts"
+                        },{
+                            "title": "expertgroups",
+                            "display": "ข้อมูลพื้นฐานความเชี่ยวชาญ",
+                            "icon": "mdi mdi-chemical-weapon",
+                            "url": "\/basic\/expert-groups"
+                        },
+                        {
+                            "title": "Standardtypes",
+                            "display": "ประเภทมาตรฐานการรับรอง",
+                            "icon": "mdi mdi-chemical-weapon",
+                            "url": "\/bcertify\/standardtypes"
+                        },
+                        {
+                            "title": "meetingtypes",
+                            "display": "หัวข้อวาระการประชุม",
+                            "icon": "mdi mdi-vector-difference-ba",
+                            "url": "\/bcertify\/meetingtypes"
+                        }, 
+                        {
+                            "title": "bcertify-reason",
+                            "display": "เหตุผลและความจำเป็น",
+                            "icon": "mdi mdi-settings",
+                            "url": "\/bcertify\/reason"
+                        }
+                    ]
+                },
+                {
+                    "title": "set_std_basic",
+                    "display": "กำหนดมาตรฐาน",
+                    "sub_menus":[
+                        {
+                            "title": "standardsoffers",
+                            "display": "ความเห็นกำหนดมาตรฐาน",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/bcertify\/standards-offers"
+                        },
+                        {
+                            "title": "standarddrafts",
+                            "display": "ร่างแผนกำหนดมาตรฐาน",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/standard-drafts"
+                        },
+                        {
+                            "title": "StandardPlans",
+                            "display": "ทำแผนกำหนดมาตรฐาน",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/standard-plans"
+                        },
+                        {
+                            "title": "standardconfirmplans",
+                            "display": "พิจารณาแผนกำหนดมาตรฐาน",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/standard-confirmplans"
+                        },
+                        {
+                            "title": "setstandard",
+                            "display": "กำหนดมาตรฐานรับรอง",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/set-standards"
+                        },
+                        {
+                            "title": "meetingstandards",
+                            "display": "นัดหมายการประชุม",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/meeting-standards"
+                        },
+                        {
+                            "title": "certifystandard",
+                            "display": "มาตรฐานรับรอง",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/standards"
+                        },
+                        {
+                            "title": "gazette",
+                            "display": "ประกาศราชกิจจานุเบกษา",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/gazette"
+                        }
+                    ]
+                },
+                {
+                    "title": "set_std_report",
+                    "display": "รายงาน",
+                    "sub_menus":[
+                        {
+                            "title": "report-standard-status",
+                            "display": "รายงานการจัดทำมาตรฐาน",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/report\/standard-status"
+                        },
+                        {
+                            "title": "report-std-certifies",
+                            "display": "รายชื่อมาตรฐานการตรวจสอบและรับรอง",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "std-certifies"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

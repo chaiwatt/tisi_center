@@ -1,0 +1,137 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "\u0e40\u0e21\u0e19\u0e39\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19 (\u0e01\u0e01.)",
+            "items": [
+                {
+                    "title": "product_group",
+                    "display": "\u0e01\u0e25\u0e38\u0e48\u0e21\u0e1c\u0e25\u0e34\u0e15\u0e20\u0e31\u0e13\u0e11\u0e4c\/\u0e2a\u0e32\u0e02\u0e32",
+                    "icon": "mdi mdi-webpack",
+                    "url": "\/basic\/product_group"
+                },
+                {
+                    "title": "standard_type",
+                    "display": "\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e21\u0e32\u0e15\u0e23\u0e10\u0e32\u0e19",
+                    "icon": "mdi mdi-arrange-send-to-back",
+                    "url": "\/basic\/standard_type"
+                },
+                {
+                    "title": "cluster",
+                    "display": "\u0e2a\u0e16\u0e32\u0e19\u0e30\u0e02\u0e2d\u0e07\u0e21\u0e32\u0e15\u0e23\u0e10\u0e32\u0e19",
+                    "icon": "mdi mdi-checkerboard",
+                    "url": "\/basic\/cluster"
+                },
+                {
+                    "title": "method",
+                    "display": "\u0e27\u0e34\u0e18\u0e35\u0e08\u0e31\u0e14\u0e17\u0e33",
+                    "icon": "mdi mdi-matrix",
+                    "url": "\/basic\/method"
+                },
+                {
+                    "title": "industry_target",
+                    "display": "\u0e2d\u0e38\u0e15\u0e2a\u0e32\u0e01\u0e23\u0e23\u0e21\u0e40\u0e1b\u0e49\u0e32\u0e2b\u0e21\u0e32\u0e22",
+                    "icon": "mdi mdi-factory",
+                    "url": "\/basic\/industry_target"
+                },
+                {
+                    "title": "status_operation",
+                    "display": "\u0e02\u0e31\u0e49\u0e19\u0e15\u0e2d\u0e19\u0e01\u0e32\u0e23\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e07\u0e32\u0e19",
+                    "icon": "mdi mdi-chevron-double-up",
+                    "url": "\/basic\/status_operation"
+                },
+                {
+                    "title": "board_type",
+                    "display": "\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e02\u0e2d\u0e07\u0e04\u0e13\u0e30\u0e01\u0e23\u0e23\u0e21\u0e01\u0e32\u0e23",
+                    "icon": "mdi mdi-human-handsup",
+                    "url": "\/basic\/board_type"
+                },
+                {
+                    "title": "standard_format",
+                    "display": "\u0e23\u0e39\u0e1b\u0e41\u0e1a\u0e1a\u0e21\u0e32\u0e15\u0e23\u0e10\u0e32\u0e19",
+                    "icon": "mdi mdi-math-compass",
+                    "url": "\/basic\/standard_format"
+                },
+                {
+                    "title": "set_format",
+                    "display": "\u0e23\u0e39\u0e1b\u0e41\u0e1a\u0e1a\u0e01\u0e32\u0e23\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e21\u0e32\u0e15\u0e23\u0e10\u0e32\u0e19",
+                    "icon": "mdi mdi-keyboard-tab",
+                    "url": "\/basic\/set_format"
+                },
+                {
+                    "title": "config_term",
+                    "display": "\u0e15\u0e31\u0e49\u0e07\u0e04\u0e48\u0e32\u0e27\u0e32\u0e23\u0e30",
+                    "icon": "mdi mdi-message-settings-variant",
+                    "url": "\/basic\/config_term"
+                },
+                {
+                    "title": "department",
+                    "display": "\u0e2b\u0e19\u0e48\u0e27\u0e22\u0e07\u0e32\u0e19",
+                    "icon": "mdi mdi-home-map-marker",
+                    "url": "\/basic\/department"
+                },
+                {
+                    "title": "appoint_department",
+                    "display": "\u0e2b\u0e19\u0e48\u0e27\u0e22\u0e07\u0e32\u0e19\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e41\u0e15\u0e48\u0e07\u0e15\u0e31\u0e49\u0e07\u0e01\u0e23\u0e23\u0e21\u0e01\u0e32\u0e23",
+                    "icon": "mdi mdi-sword",
+                    "url": "\/basic\/appoint_department"
+                },
+                {
+                    "title": "ics",
+                    "display": "ICS",
+                    "icon": "mdi mdi-chemical-weapon",
+                    "url": "\/basic\/ics"
+                },
+                {
+                    "title": "Geography",
+                    "display": "\u0e20\u0e32\u0e04",
+                    "icon": "mdi mdi-map-marker",
+                    "url": "\/basic\/geography"
+                },
+                {
+                    "title": "province",
+                    "display": "\u0e08\u0e31\u0e07\u0e2b\u0e27\u0e31\u0e14",
+                    "icon": "mdi mdi-map-marker-circle",
+                    "url": "\/basic\/province"
+                },
+                {
+                    "title": "amphur",
+                    "display": "\u0e2d\u0e33\u0e40\u0e20\u0e2d",
+                    "icon": "mdi mdi-map-marker-radius",
+                    "url": "\/basic\/amphur"
+                },
+                {
+                    "title": "district",
+                    "display": "\u0e15\u0e33\u0e1a\u0e25",
+                    "icon": "mdi mdi-map-marker-multiple",
+                    "url": "\/basic\/district"
+                },
+                {
+                    "title": "staff_group",
+                    "display": "\u0e01\u0e25\u0e38\u0e48\u0e21\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48",
+                    "icon": "mdi mdi-lock-pattern",
+                    "url": "\/basic\/staff_group"
+                },
+                {
+                    "title": "IdeaPublic",
+                    "display": "\u0e01\u0e25\u0e38\u0e48\u0e21\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48",
+                    "icon": "glyphicon glyphicon-phone-alt",
+                    "url": "\/idea-public"
+                },
+                {
+                    "title": "promote_trader",
+                    "display": "\u0e2b\u0e21\u0e27\u0e14\u0e2a\u0e48\u0e07\u0e40\u0e2a\u0e23\u0e34\u0e21\u0e1c\u0e39\u0e49\u0e1b\u0e23\u0e30\u0e01\u0e2d\u0e1a\u0e01\u0e32\u0e23",
+                    "icon": "glyphicon glyphicon-flag",
+                    "url": "\/basic\/promote_trader"
+                },
+                {
+                    "title": "set_attach",
+                    "display": "\u0e0a\u0e37\u0e48\u0e2d\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e44\u0e1f\u0e25\u0e4c\u0e41\u0e19\u0e1a",
+                    "icon": "mdi mdi-file-document",
+                    "url": "\/basic\/set_attach"
+                }
+             
+            ]
+        }
+    ]
+}

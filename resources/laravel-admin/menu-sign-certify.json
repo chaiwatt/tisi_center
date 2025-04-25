@@ -1,0 +1,25 @@
+{
+  "menus": [
+    {
+            "section": "Modules",
+            "_comment": "ลงนามอิเล็กทรอนิกส์ (สก.)",
+            "items": [
+
+                 {
+                    "title": "SendCertificates",
+                    "display": "ส่งรองระบบงาน",
+                    "icon": "mdi mdi-file-document-box",
+                    "url": "\/certify\/send-certificates"
+                },
+                {
+                    "title": "signcertificates",
+                    "display": "ลงนามรับรองระบบงาน",
+                    "icon": "mdi mdi-account-edit",
+                    "url": "\/certify\/sign-certificates"
+                }
+          
+            ]
+
+    }
+  ]
+}

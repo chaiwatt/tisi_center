@@ -1,0 +1,34 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "ค้นหาข้อมูลบุคคลธรรมดาและนิติบุคคลผ่านกระทรวงอุตสาหกรรม",
+            "items": [
+              {
+                  "title": "juristic",
+                  "display": "นิติบุคคล",
+                  "icon": "mdi mdi-search-web",
+                  "url": "\/ws\/juristic"
+              },
+              {
+                  "title": "personal",
+                  "display": "บุคคลธรรมดา",
+                  "icon": "mdi mdi-account-search",
+                  "url": "\/ws\/personal"
+              },
+              {
+                  "title": "rd-vat",
+                  "display": "ผู้ประกอบการ VAT",
+                  "icon": "mdi mdi-magnify-plus",
+                  "url": "\/ws\/rd-vat"
+              },
+              {
+                  "title": "industry",
+                  "display": "โรงงานอุตสาหกรรม",
+                  "icon": "mdi mdi-find-replace",
+                  "url": "\/ws\/industry"
+              }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "รายงาน",
+        "icon": "mdi mdi-chart-areaspline",
+        "file": "new-menu-report.json",
+        "items": [            
+            {
+                "title": "report-power-bi",
+                "display": "รายงาน Power BI",
+                "icon": "mdi mdi-checkbox-multiple-blank",
+                "url": "\/report-power-bi"
+            }
+        ]
+    }]
+}

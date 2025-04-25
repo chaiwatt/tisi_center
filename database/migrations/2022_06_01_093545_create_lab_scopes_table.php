@@ -1,0 +1,49 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class CreateLabScopesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('section5_labs_scopes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('lab_id')->nullable();
+            $table->string('lab_code', 255)->nullable()->comment('ห้องปฏิบัติการ: รหัสปฏิบัติการ');
+            $table->integer('tis_id')->nullable()->comment('ID มอก.');
+            $table->string('tis_tisno')->nullable()->comment('เลขมอก.');
+            $table->integer('test_item_id')->nullable()->comment('ไอดีรายการทดสอบ');
+            $table->integer('test_tools_id')->nullable()->comment('ไอดีเครื่องมือทดสอบ');
+            $table->string('test_tools_no')->nullable()->comment('รหัส/หมายเลขเครื่องมือทดสอบ');
+            $table->text('capacity')->nullable()->comment('ขีดความสามารถ');
+            $table->text('range')->nullable()->comment('ช่วงการใช้งาน');
+            $table->text('true_value')->nullable()->comment('ความละเอียดที่อ่านได้');
+            $table->text('fault_value')->nullable()->comment('ความคลาดเคลื่อนที่ยอมรับ');
+            $table->tinyInteger('state')->nullable()->comment('สถานะ 1 = Active, 2 = Not Active');
+            $table->string('ref_lab_application_no', 255)->nullable()->comment('อ้างอิงเลขที่คำขอ');
+            
+            $table->timestamps();
+            $table->foreign('lab_id')
+                    ->references('id')
+                    ->on('section5_labs')
+                    ->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('section5_labs_scopes');
+    }
+}

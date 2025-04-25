@@ -1,0 +1,35 @@
+{
+  "menus": [
+    {
+      "section": "Modules",
+      "_comment": "ระบบที่ 3",
+      "items": [
+
+        {
+          "title": "receive_change",
+          "display": "ระบบบันทึกการตรวจระบบควบคุมคุณภาพ",
+          "icon": "mdi mdi-wrap",
+          "url": "\/csurv\/control_performance"
+        },
+        {
+          "title": "receive_quality_control",
+          "display": "ระบบบันทึกการตรวจควบคุมฯ",
+          "icon": "mdi mdi-checkbox-marked-circle-outline",
+          "url": "\/csurv\/control_check"
+        },
+        {
+          "title": "receive_inspection",
+          "display": "ระบบบันทึกการยึด อายัดผลิตภัณฑ์อุตสาหกรรม",
+          "icon": "mdi mdi-playlist-check",
+          "url": "\/csurv\/control_freeze"
+        },
+        {
+          "title": "standard",
+          "display": "ระบบการทำแผนตรวจติดตาม",
+          "icon": "mdi mdi-chemical-weapon",
+          "url": "\/csurv\/control_follow"
+        }
+      ]
+    }
+  ]
+}

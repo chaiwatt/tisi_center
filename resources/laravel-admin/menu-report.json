@@ -1,0 +1,34 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "รายงาน",
+            "items": [
+                {
+                    "title": "report-test-factory",
+                    "display": "รายงานผลตรวจติดตาม (IB)",
+                    "icon": "mdi mdi-checkbox-multiple-blank",
+                    "url": "\/report\/test-factory"
+                },
+                {
+                    "title": "report-test-product",
+                    "display": "รายงานทดสอบ LAB",
+                    "icon": "mdi mdi-checkbox-multiple-blank",
+                    "url": "\/report\/test-product"
+                },
+                {
+                    "title": "report-sso-login",
+                    "display": "รายงานการลงชื่อเข้าใช้งานของผปก.",
+                    "icon": "mdi mdi-checkbox-multiple-blank",
+                    "url": "\/report\/report-sso-login"
+                },
+                {
+                    "title": "report-user-login",
+                    "display": "รายงานการลงชื่อเข้าใช้งานของจนท.",
+                    "icon": "mdi mdi-checkbox-multiple-blank",
+                    "url": "\/report\/report-user-login"
+                }
+            ]
+        }
+    ]
+}

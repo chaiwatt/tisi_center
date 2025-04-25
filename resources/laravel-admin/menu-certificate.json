@@ -1,0 +1,66 @@
+{
+  "menus": [
+    {
+            "section": "Modules",
+            "_comment": "ตรวจติดตามใบรับรอง (สก.)",
+            "items": [
+                {
+                    "title": "trackinglabs",
+                    "display": "ติดตามรับรอง(LAB)",
+                    "icon": "mdi mdi-checkerboard",
+                    "url": "\/certificate\/tracking-labs"
+                },
+                {
+                    "title": "auditorlabs",
+                    "display": "ตั้งคณะผู้ตรวจ(LAB)",
+                    "icon": "mdi mdi-account-circle",
+                    "url": "\/certificate\/auditor-labs"
+                },
+                {
+                    "title": "assessmentlabs",
+                    "display": "ประเมินผล(LAB)",
+                    "icon": "mdi mdi-rhombus",
+                    "url": "\/certificate\/assessment-labs"
+                },
+                {
+                    "title": "trackingib",
+                    "display": "ติดตามรับรอง(IB)",
+                    "icon": "mdi mdi-checkerboard",
+                    "url": "\/certificate\/tracking-ib"
+                },
+                {
+                    "title": "auditorib",
+                    "display": "ตั้งคณะผู้ตรวจ(IB)",
+                    "icon": "mdi mdi-account-circle",
+                    "url": "\/certificate\/auditor-ibs"
+                },
+                {
+                    "title": "assessmentib",
+                    "display": "ประเมินผล(IB)",
+                    "icon": "mdi mdi-rhombus",
+                    "url": "\/certificate\/assessment-ib"
+                },
+                {
+                    "title": "trackingcb",
+                    "display": "ติดตามรับรอง(CB)",
+                    "icon": "mdi mdi-checkerboard",
+                    "url": "\/certificate\/tracking-cb"
+                },
+                {
+                    "title": "auditorcb",
+                    "display": "ตั้งคณะผู้ตรวจ(CB)",
+                    "icon": "mdi mdi-account-circle",
+                    "url": "\/certificate\/auditor-cbs"
+                },
+                {
+                    "title": "assessmentcb",
+                    "display": "ประเมินผล(CB)",
+                    "icon": "mdi mdi-rhombus",
+                    "url": "\/certificate\/assessment-cb"
+                }
+            ]
+
+    }
+  ]
+}
+ 

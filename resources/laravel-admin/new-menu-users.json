@@ -1,0 +1,69 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "ระบบจัดการผู้ใช้งาน",
+        "icon": "mdi mdi-account-multiple-outline",
+        "file": "new-menu-users.json",
+        "items": [{
+                "title": "user",
+                "display": "เจ้าหน้าที่",
+                "icon": "mdi mdi-account-settings",
+                "url": "\/users"
+            },
+            {
+                "title": "user_deleted",
+                "display": "เจ้าหน้าที่ที่ถูกลบ",
+                "icon": "mdi mdi-account-minus",
+                "url": "\/user/deleted"
+            },
+            {
+                "title": "report-user-login",
+                "display": "รายงานการลงชื่อเข้าใช้งานของจนท.",
+                "icon": "mdi mdi-checkbox-multiple-blank",
+                "url": "\/report\/report-user-login"
+            },
+            {
+                "title": "user-sso",
+                "display": "ผู้ประกอบการ (SSO)",
+                "icon": "mdi mdi-account-circle",
+                "url": "\/sso\/user-sso"
+            },
+            {
+                "title": "permission",
+                "display": "สิทธิ์การใช้งาน",
+                "icon": "mdi mdi-checkbox-multiple-blank",
+                "url": "\/role-management"
+            },
+            {
+                "title": "role-setting-group",
+                "display": "กลุ่มสิทธิ์ระบบงาน Url",
+                "icon": "mdi mdi-checkbox-multiple-blank",
+                "url": "\/role-setting-group"
+            },
+            {
+                "title": "user-sso-report-edit-production",
+                "display": "รายงานการแก้ไขข้อมูลผู้ประกอบการ (SSO)",
+                "icon": "mdi mdi-account-switch",
+                "url": "\/sso\/user-sso-report-edit-production"
+            },
+            {
+                "title": "report-roles",
+                "display": "รายงานการกำหนดสิทธิ์",
+                "icon": "mdi mdi-contacts",
+                "url": "\/report\/roles"
+            },
+            {
+                "title": "report-sso-login",
+                "display": "รายงานการลงชื่อเข้าใช้งานของผปก.",
+                "icon": "mdi mdi-checkbox-multiple-blank",
+                "url": "\/report\/report-sso-login"
+            },
+            {
+                "title": "report-elicense-roles",
+                "display": "รายงานการกำหนดสิทธิ์ (Elicense)",
+                "icon": "mdi mdi-contacts",
+                "url": "\/report\/elicense-roles"
+            }
+        ]
+    }]
+}

@@ -1,0 +1,62 @@
+@extends('layouts.master')
+@section('content')
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="white-box">
+                    <h3 class="box-title pull-left ">มอบหมายงานคดีผลิตภัณฑ์ฯ  </h3>
+                    @can('view-'.str_slug('law-cases-assign'))
+                        <a class="btn btn-default pull-right" href="{{ url('/law/cases/assigns') }}">
+                            <i class="icon-arrow-left-circle" aria-hidden="true"></i> กลับ
+                        </a>
+                    @endcan
+                    <div class="clearfix"></div>
+                    <hr>
+
+                    @if ($errors->any())
+                        <ul class="alert alert-danger">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+
+                    {!! Form::model($case, [
+                        'method' => 'PATCH',
+                        'url' => ['/law/cases/assigns', $case->id],
+                        'class' => 'form-horizontal',
+                        'files' => true,
+                        'id' => 'box-readonly'
+                    ]) !!}
+    
+   
+                        @include('laws.cases.assign.form')
+
+                        <div class="clearfix"></div>
+                        <a  href="{{ url("law/cases/assigns") }}"  class="btn btn-default btn-lg btn-block">
+                            <i class="fa fa-rotate-left"></i>
+                           <b>กลับ</b>
+                        </a>
+
+                    {!! Form::close() !!}
+
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('js')
+    <script>
+
+        $(document).ready(function() {
+            //Disable
+            $('#box-readonly').find('input, select, textarea').prop('disabled', true);
+            $('#box-readonly').find('button').remove();
+            $('#box-readonly').find('.show_tag_a').hide();
+            $('#box-readonly').find('.box_remove').remove();
+
+        });
+
+    </script>
+@endpush

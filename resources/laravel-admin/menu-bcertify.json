@@ -1,0 +1,221 @@
+{
+    "menus": [
+        {
+            "section": "Modules",
+            "_comment": "ข้อมูลพื้นฐานมาตรฐาน (สก.)",
+            "items": [
+              {
+                  "title": "bcertify_setting_running",
+                  "display": "ตั้งค่าเลขรัน",
+                  "icon": "mdi mdi-speedometer",
+                  "url": "\/bcertify\/setting_running"
+              },
+              {
+                  "title": "formula",
+                  "display": "มาตรฐาน",
+                  "icon": "mdi mdi-chemical-weapon",
+                  "url": "\/bcertify\/formula"
+              },
+              {
+                  "title": "signer",
+                  "display": "ผู้ลงนาม",
+                  "icon": "mdi mdi-account-edit",
+                  "url": "\/bcertify\/signer"
+              },
+              {
+                  "title": "lab_condition",
+                  "display": "สภาพห้องปฏิบัติการ",
+                  "icon": "mdi mdi-security-home",
+                  "url": "\/bcertify\/lab_condition"
+              },
+              {
+                  "title": "calibration_branch",
+                  "display": "สาขาการสอบเทียบ",
+                  "icon": "mdi mdi-share-variant",
+                  "url": "\/bcertify\/calibration_branch"
+              },
+              {
+                  "title": "calibration_group",
+                  "display": "หมวดหมู่รายการสอบเทียบ",
+                  "icon": "mdi mdi-chart-bubble",
+                  "url": "\/bcertify\/calibration_group"
+              },
+              {
+                  "title": "calibration_item",
+                  "display": "รายการสอบเทียบ",
+                  "icon": "mdi mdi-chart-timeline",
+                  "url": "\/bcertify\/calibration_item"
+              },
+              {
+                  "title": "test_branch",
+                  "display": "สาขาการทดสอบ",
+                  "icon": "mdi mdi-test-tube",
+                  "url": "\/bcertify\/test_branch"
+              },
+              {
+                  "title": "product_category",
+                  "display": "หมวดหมู่ผลิตภัณฑ์",
+                  "icon": "mdi mdi-webpack",
+                  "url": "\/bcertify\/product_category"
+              },
+              {
+                  "title": "product_item",
+                  "display": "รายการผลิตภัณฑ์",
+                  "icon": "mdi mdi-file-document-box",
+                  "url": "\/bcertify\/product_item"
+              },
+              {
+                  "title": "test_item",
+                  "display": "รายการทดสอบ",
+                  "icon": "mdi mdi-calendar-text",
+                  "url": "\/bcertify\/test_item"
+              },
+              {
+                  "title": "inspect_type",
+                  "display": "ประเภทการตรวจ (IB)",
+                  "icon": "mdi mdi-package-variant-closed",
+                  "url": "\/bcertify\/inspect_type"
+              },
+              {
+                  "title": "inspect_category",
+                  "display": "หมวดหมู่การตรวจ",
+                  "icon": "mdi mdi-book-multiple-variant",
+                  "url": "\/bcertify\/inspect_category"
+              },
+              {
+                  "title": "inspect_branch",
+                  "display": "สาขาการตรวจ",
+                  "icon": "mdi mdi-shuffle-variant",
+                  "url": "\/bcertify\/inspect_branch"
+              },
+              {
+                  "title": "inspect_kind",
+                  "display": "ชนิดและช่วงการตรวจ",
+                  "icon": "mdi mdi-link",
+                  "url": "\/bcertify\/inspect_kind"
+              },
+              {
+                  "title": "certification_branch",
+                  "display": "สาขาการรับรอง",
+                  "icon": "mdi mdi-unity",
+                  "url": "\/bcertify\/certification_branch"
+              },
+              {
+                  "title": "industry_type",
+                  "display": "ประเภทอุตสาหกรรม",
+                  "icon": "mdi mdi-factory",
+                  "url": "\/bcertify\/industry_type"
+              },
+              {
+                  "title": "iaf",
+                  "display": "IAF",
+                  "icon": "mdi mdi-message-alert",
+                  "url": "\/bcertify\/iaf"
+              },
+              {
+                  "title": "enms",
+                  "display": "Enms",
+                  "icon": "mdi mdi-message-processing",
+                  "url": "\/bcertify\/enms"
+              },
+              {
+                  "title": "ghg",
+                  "display": "GHG",
+                  "icon": "mdi mdi-message-reply-text",
+                  "url": "\/bcertify\/ghg"
+              },
+              {
+                  "title": "ghg_activity",
+                  "display": "กิจกรรมของ GHG",
+                  "icon": "mdi mdi-beach",
+                  "url": "\/bcertify\/ghg_activity"
+              },
+              {
+                  "title": "status_auditor",
+                  "display": "สถานะผู้ตรวจประเมิน",
+                  "icon": "mdi mdi-account-alert",
+                  "url": "\/bcertify\/status_auditor"
+              },
+              {
+                  "title": "status_progress",
+                  "display": "สถานะการดำเนินงาน",
+                  "icon": "mdi mdi-priority-high",
+                  "url": "\/bcertify\/status_progress"
+              },
+              {
+                  "title": "config_attach",
+                  "display": "ตั้งค่าเอกสารแนบ",
+                  "icon": "mdi mdi-attachment",
+                  "url": "\/bcertify\/config_attach"
+              },
+              {
+                  "title": "certification_scope",
+                  "display": "ขอบข่ายการรับรอง",
+                  "icon": "mdi mdi-vector-difference-ba",
+                  "url": "\/bcertify\/certification_scope"
+              },
+              {
+                  "title": "auditor",
+                  "display": "ผู้ตรวจประเมิน",
+                  "icon": "mdi mdi-vector-difference-ba",
+                  "url": "bcertify/auditor"
+              },
+              {
+                  "title": "certify_alert_setting",
+                  "display": "ตั้งค่าการแจ้งเตือนข้อมูลใบรับรอง",
+                  "icon": "mdi mdi-vector-difference-ba",
+                  "url": "certify/alert/setting"
+              },
+              {
+                  "title": "tisusercertify",
+                  "display": "ตั้งค่ากลุ่มงานตามมาตรฐานและสาขา",
+                  "icon": "mdi mdi-octagram",
+                  "url": "\/certify\/set-standard-user"
+              },
+              {
+                  "title": "costestimation",
+                  "display": "ตั้งค่าสาขาตามมาตรฐาน",
+                  "icon": "mdi mdi-cube-outline",
+                  "url": "\/certify\/Cost-Estimation"
+              },
+              {
+                  "title": "expertgroups",
+                  "display": "ข้อมูลพื้นฐานความเชี่ยวชาญ",
+                  "icon": "mdi mdi-chemical-weapon",
+                  "url": "\/basic\/expert-groups"
+              },
+              {
+                  "title": "Standardtypes",
+                  "display": "ประเภทมาตรฐานการรับรอง",
+                  "icon": "mdi mdi-chemical-weapon",
+                  "url": "\/bcertify\/standardtypes"
+              },
+              {
+                  "title": "meetingtypes",
+                  "display": "หัวข้อวาระการประชุม",
+                  "icon": "mdi mdi-vector-difference-ba",
+                  "url": "\/bcertify\/meetingtypes"
+              },
+              {
+                  "title": "bcertify-setting-fee",
+                  "display": "ตั้งค่าธรรมการขอรับใบรับรอง",
+                  "icon": "mdi mdi-settings",
+                  "url": "\/bcertify\/setting-fee"
+              },
+              {
+                  "title": "bcertify-reason",
+                  "display": "หมายเหตุและความจำเป็น",
+                  "icon": "glyphicon-adjust",
+                  "url": "\/bcertify\/reason"
+              },
+              {
+                "title": "bcertify-setting-config",
+                "display": "ตั้งค่าการตรวจติดตามใบรับรอง",
+                "icon": "mdi mdi-settings",
+                "url": "\/bcertify\/setting-config"
+              }
+
+            ]
+        }
+    ]
+}

@@ -1,0 +1,409 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "ระบบงานคดีผลิตภัณฑ์ฯ",
+        "icon": "mdi mdi-scale-balance",
+        "url": "\/law",
+        "file": "new-menu-law.json",
+        "items": [
+            {
+                "title": "law-dashboard",
+                "display": "Dashboard",
+                "icon": "mdi mdi-checkbox-multiple-blank",
+                "url": "\/law\/dashboard"
+            },
+            {
+                "title": "law-notifys",
+                "display": "แจ้งเตือน",
+                "icon": "mdi mdi-bell-ring",
+                "url": "\/law\/notifys"
+            },
+            {
+                "title": "bs_laws",
+                "display": "ข้อมูลพื้นฐาน",
+                "sub_menus":[
+                    {
+                        "title": "law-departments",
+                        "display": "หน่วยงานต้นเรื่อง",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/department"
+                    },
+                    {
+                        "title": "law-department-stakeholder",
+                        "display": "หน่วยงานผู้มีส่วนได้เสีย",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/department-stakeholder"
+                    },
+                    {
+                        "title": "law-sections",
+                        "display": "มาตราความผิด",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/section"
+                    },
+                    {
+                        "title": "law-process-product",
+                        "display": "ดำเนินการผลิตภัณฑ์",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/process-product"
+                    },          
+                    {
+                        "title": "law-offend-type",
+                        "display": "สาเหตุที่พบกระทำความผิด",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/offend-type"
+                    },
+                    {
+                        "title": "law-resource",
+                        "display": "แหล่งที่มาของราคาผลิตภัณฑ์",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/resource"
+                    },
+                    {
+                        "title": "law-reward-group",
+                        "display": "กลุ่มผู้มีสิทธิ์ได้รับเงินรางวัล",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/reward-group"
+                    },
+                    {
+                        "title": "law-type-file",
+                        "display": "หมวดหมู่เอกสาร",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/type-file"
+                    },
+                    {
+                        "title": "law-basic-job-type",
+                        "display": "ประเภทงาน",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/job-type"
+                    },
+                    {
+                        "title": "law-basic-category-operation",
+                        "display": "หมวดหมู่การดำเนินงาน",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/category-operation"
+                    },
+                    {
+                        "title": "law-basic-status-operation",
+                        "display": "สถานะการดำเนินงาน",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/status-operation"
+                    },
+                    {
+                        "title": "law-basic-listen-type",
+                        "display": "ประเภทแบบรับฟังความเห็นฯ",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/listen-type"
+                    },
+                    {
+                        "title": "law-basic-delivery",
+                        "display": "ประเภทการจัดส่ง",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/delivery"
+                    }
+                ]
+            },
+            {
+                "title": "track_laws",
+                "display": "รับงานเข้ากอง",
+                "sub_menus":[
+                    {
+                        "title": "law-track-receive",
+                        "display": "แจ้งงานเข้ากอง",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/track\/receive"
+                    },
+                    {
+                        "title": "law-track-operation",
+                        "display": "ผลการดำเนินการ",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/track\/operation"
+                    },
+                    {
+                        "title": "law-track-views",
+                        "display": "ติดตามงาน",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/track\/views"
+                    }
+                ]
+            },
+            {
+                "title": "case_laws",
+                "display": "งานคดี",
+                "sub_menus":[
+                    {
+                        "title": "law-cases-forms",
+                        "display": "แจ้งงานคดี",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/cases\/forms"
+                    },
+                    {
+                        "title": "law-cases-forms-approved",
+                        "display": "พิจารณางานคดี",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/cases\/forms_approved"
+                    },
+                    {
+                        "title": "law-cases-assign",
+                        "display": "มอบหมายงานคดี",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/cases\/assigns"
+                    },
+                    {
+                        "title": "law-cases-result",
+                        "display": "พิจารณาความผิด",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/cases\/results"
+                    },     
+                    {
+                        "title": "law-cases-compares",
+                        "display": "เปรียบเทียบปรับ",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/compares"
+                    },
+                    {
+                        "title": "law-cases-offender",
+                        "display": "สืบค้นประวัติการกระทำความผิด",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/offender"
+                    },
+                    {
+                        "title": "law-cases-payin",
+                        "display": "ใบแจ้งชำระเงิน (Payin)",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/payin"
+                    },
+                    {
+                        "title": "law-cases-payment",
+                        "display": "ตรวจสอบการชำระ",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/payment"
+                    },
+                    {
+                        "title": "law-cases-manage-licenses",
+                        "display": "ดำเนินการกับใบอนุญาต",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/manage_license"
+                    },
+                    {
+                        "title": "law-cases-manage-products",
+                        "display": "ดำเนินการกับผลิตภัณฑ์",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/manage-products"
+                    },
+                    {
+                        "title": "law-cases-operations",
+                        "display": "ดำเนินงานคดี",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/operations"
+                    },
+                    {
+                        "title": "law-cases-tracks",
+                        "display": "ติดตามงานคดี",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/tracks"
+                    },
+                    { 
+                        "title": "law-cases-delivery",
+                        "display": "บันทึกจัดส่งหนังสือ",
+                        "icon": "mdi mdi-book-multiple",
+                        "url": "\/law\/cases\/delivery"
+                    }             
+                ]
+            },
+            {
+                "title": "bribe_laws",
+                "display": "สินบน",
+                "sub_menus":[
+                    {
+                        "title": "law-reward-divsion-type",
+                        "display": "ประเภทการแบ่งเงิน",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/reward\/divsion-type"
+                    },{
+                        "title": "law-reward-reward-max",
+                        "display": "กำหนดเพดานเงินคำนวณ",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/reward\/reward_max"
+                    },{
+                        "title": "law-reward-reward",
+                        "display": "สัดส่วนผู้มีสิทธิ์ได้รับเงิน",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/reward\/reward"
+                    },{
+                        "title": "law-reward-calculations",
+                        "display": "คำนวณสินบน",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/reward\/calculations"
+                    },{
+                        "title": "law-reward-receipts",
+                        "display": "ใบสำคัญรับเงิน",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/reward\/receipts"
+                    },{
+                        "title": "law-reward-withdraws",
+                        "display": "เบิกเงินรางวัล",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/reward\/withdraws"
+                    }             
+                ]
+            },
+            {
+                "title": "listen_laws",
+                "display": "ร่างกฏกระทรวง",
+                "sub_menus":[
+                    {
+                        "title": "law-listen-ministry",
+                        "display": "จัดทำแบบรับฟังความเห็น",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/listen\/ministry"
+                    },
+                    {
+                        "title": "law-listen-ministry-response",
+                        "display": "ตรวจสอบข้อมูลความเห็น",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/listen\/ministry-response"
+                    },
+                    {
+                        "title": "law-listen-ministry-summary",
+                        "display": "สรุปความเห็น",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/listen\/ministry-summary"
+                    },
+                    {
+                        "title": "law-listen-ministry-track",
+                        "display": "ติดตาม/ประกาศราชกิจจา",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/listen\/ministry-track"
+                    }
+                ]
+            },
+            {
+                "title": "book_laws",
+                "display": "ห้องสมุดกฎหมาย",
+                "sub_menus":[
+                    {
+                        "title": "law-book-group",
+                        "display": "หมวดหมู่ห้องสมุด",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/book-group"
+                    },
+                    {
+                        "title": "law-book-type",
+                        "display": "ประเภทเอกสารห้องสมุด",
+                        "icon": "mdi mdi-checkbox-multiple-blank",
+                        "url": "\/law\/basic\/book-type"
+                    },
+                    {
+                        "title": "law-book-manage",
+                        "display": "จัดการข้อมูลห้องสมุด",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/book\/manage"
+                    },
+                    {
+                        "title": "law-book-search",
+                        "display": "สืบค้นข้อมูลห้องสมุด",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/book\/search"
+                    }
+                ]
+            },
+            {
+                "title": "report_laws",
+                "display": "รายงาน",
+                "sub_menus":[
+                    {
+                        "title": "law-report-log-working",
+                        "display": "ประวัติการดำเนินงาน",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/log-working"
+                    },
+                    {
+                        "title": "law-report-summary-track-person",
+                        "display": "สรุปภาพรวมผลงาน",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/summary-track-person"
+                    },
+                    {
+                        "title": "law-report-book-list",
+                        "display": "สรุปข้อมูลห้องสมุด",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/book-list"
+                    },
+                    {
+                        "title": "law-report-summary-law-cases",
+                        "display": "สรุปงานคดี",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/summary-law-cases"
+                    },
+                    {
+                        "title": "law-report-department-stakeholder",
+                        "display": "ผู้มีส่วนได้ส่วนเสีย",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/department-stakeholder"
+                    },
+                    {
+                        "title": "law-report-rewards",
+                        "display": "การเบิกจ่ายเงินสินบนรางวัล",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/rewards"
+                    },
+                    {
+                        "title": "law-report-rewards-persons",
+                        "display": "ผู้มีสิทธิ์ได้รับเงินรางวัล",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/rewards_persons"
+                    },
+                    {
+                        "title": "law-report-payments",
+                        "display": "การชำระเงินค่าปรับ",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/payments"
+                    },                  
+                    {
+                        "title": "law-report-summary-law-offender-cases",
+                        "display": "ประวัติกระทำความผิด",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/summary-law-offender-cases"
+                    },                  
+                    {
+                        "title": "law-report-listen-ministry-mail",
+                        "display": "ประวัติการส่งเมลร่างกฎกระทรวง",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/report\/listen\/ministry\/mail"
+                    }
+                ]
+            },
+            {
+                "title": "config_laws",
+                "display": "ตั้งค่า",
+                "sub_menus":[
+                    {
+                        "title": "law-config-sections",
+                        "display": "กำหนดอัตราโทษตามมาตราความผิด",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/config\/sections"
+                    },
+                    {
+                        "title": "law-config-notification",
+                        "display": "ตั้งค่าแจ้งเตือน",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/config\/notification"
+                    },
+                    {
+                        "title": "law-config-system-category",
+                        "display": "หมวดหมู่ระบบงานหลัก",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/config\/system-category"
+                    },
+                    {
+                        "title": "config-law",
+                        "display": "ตั้งค่าระบบงานคดี",
+                        "icon": "mdi mdi-bookmark",
+                        "url": "\/law\/config\/config-law"
+                    }
+                ]
+            }
+
+        ]
+    }]
+}

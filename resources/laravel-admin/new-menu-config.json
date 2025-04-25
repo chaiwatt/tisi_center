@@ -1,0 +1,100 @@
+{
+    "menus": [{
+        "section": "Modules",
+        "_comment": "ตั้งค่าระบบงาน",
+        "icon": "mdi mdi-settings",
+        "file": "new-menu-config.json",
+        "items": [
+            {
+                "title": "config",
+                "display": "ตั้งค่าระบบ",
+                "icon": "mdi mdi-wrench",
+                "url": "\/basic\/config"
+            },
+            {
+                "title": "feewaiver",
+                "display": "ตั้งค่ายกเว้นค่าธรรรมเนียม",
+                "icon": "mdi mdi-cash",
+                "url": "\/basic\/feewaiver"
+            },
+            {
+                "title": "SsoUrlGroup",
+                "display": "ตั้งค่ากลุ่ม URL SSO",
+                "icon": "mdi mdi-group",
+                "url": "\/config\/sso-url-group"
+            },
+            {
+                "title": "SsoUrl",
+                "display": "ตั้งค่า URL SSO",
+                "icon": "mdi mdi-link-variant",
+                "url": "\/config\/sso-url"
+            },
+            {
+                "title": "configs-evidence-systems",
+                "display": "ระบบงานหลัก",
+                "icon": "mdi mdi-file-multiple",
+                "url": "\/config\/evidence\/system"
+            },
+            {
+                "title": "configs-evidence-groups",
+                "display": "จัดการไฟล์แนบ",
+                "icon": "mdi mdi-file-cloud",
+                "url": "\/config\/evidence\/group"
+            },
+            {
+                "title": "configs-format-code",
+                "display": "ตั้งค่าเลขรัน",
+                "icon": "mdi mdi-clipboard-text",
+                "url": "\/config\/format-code"
+            },
+            {
+                "title": "configs-manual",
+                "display": "ตั้งค่าคู่มือ",
+                "icon": "mdi mdi-clipboard-text",
+                "url": "\/config\/manual"
+            },
+            {
+                "title": "configs-report-power-bi-group",
+                "display": "ตั้งค่ากลุ่มรายงานจาก Power BI",
+                "icon": "mdi mdi-printer-settings",
+                "url": "\/config\/report-power-bi-group"
+            },
+            {
+                "title": "configs-report-power-bi",
+                "display": "ตั้งค่ารายงานจาก Power BI",
+                "icon": "mdi mdi-printer",
+                "url": "\/config\/report-power-bi"
+            },
+            {
+                "title": "config",
+                "display": "File Manager",
+                "icon": "mdi mdi-file-cloud",
+                "url": "\/funtions\/file-manager"
+            },
+            {
+                "title": "mail-test",
+                "display": "ทดสอบส่งอีเมล",
+                "icon": "mdi mdi-gmail",
+                "url": "\/basic\/mail-test"
+            },
+            {
+                "title": "configs-faq",
+                "display": "จัดการพบปัญหาการใช้งาน",
+                "icon": "mdi mdi-help-circle",
+                "url": "\/config\/faqs"
+            },
+            {
+                "title": "basic-holiday",
+                "display": "ปฏิทินวันหยุด",
+                "icon": "mdi mdi-calendar",
+                "url": "\/basic\/holiday"
+            },
+            {
+                "title": "configs-format-code",
+                "display": "นำเข้าปฏิทิน (excel)",
+                "icon": "mdi mdi-download",
+                "url": "\/config\/import-holiday"
+            }
+        ]
+    }]
+}

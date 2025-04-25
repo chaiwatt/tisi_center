@@ -1,0 +1,150 @@
+{
+  "menus": [
+    {
+            "section": "Modules",
+            "_comment": "รับรองมาตรฐาน (สก.)",
+            "items": [
+                {
+                    "title": "committee",
+                    "display": "คณะกรรมการเฉพาะด้าน",
+                    "icon": "mdi mdi-account-multiple-outline",
+                    "url": "\/committee\/"
+                },
+                {
+                    "title": "board-auditor",
+                    "display": "แต่งตั้งคณะผู้ตรวจฯ",
+                    "icon": "mdi mdi-incognito",
+                    "url": "\/certify\/auditor"
+                },
+                {
+                  "title": "certificate",
+                  "display": "ใบรับรองระบบงาน",
+                  "icon": "mdi mdi-certificate",
+                  "url": "\/certificate\/"
+                },
+                {
+                    "title": "checkcertificateib",
+                    "display": "ใบรับรองระบบงาน IB",
+                    "icon": "mdi mdi-certificate",
+                    "url": "\/certify\/check_certificate-ib"
+                },
+                {
+                    "title": "checkcertificatecb",
+                    "display": "ใบรับรองระบบงาน CB",
+                    "icon": "mdi mdi-certificate",
+                    "url": "\/certify\/check_certificate-cb"
+                },
+                {
+                  "title": "certificate-export",
+                  "display": "ออกใบรับรองงาน",
+                  "icon": "mdi mdi-export",
+                  "url": "/certify/certificate-export"
+                },
+                {
+                    "title": "board_review",
+                    "display": "แต่งตั้งคณะทบทวนฯ",
+                    "icon": "mdi mdi-worker",
+                    "url": "\/certify\/board_review"
+                },
+                {
+                    "title": "certificate_expire_check",
+                    "display": "แจ้งเตือนข้อมูลใบรับรอง",
+                    "icon": "mdi mdi-information",
+                    "url": "\/certify\/alert\/check\/expire\/date"
+                },
+                {
+                    "title": "summary_request_service",
+                    "display": "รายงานสรุปคำขอรับบริการ",
+                    "icon": "mdi mdi-bookmark",
+                    "url": "\/certify\/request-service\/list"
+                },
+                {
+                    "title": "check_certificate",
+                    "display": "ตรวจสอบคำขอ",
+                    "icon": "mdi mdi-certificate",
+                    "url": "\/certify\/check_certificate"
+                },
+                {
+                    "title": "check_assessment",
+                    "display": "ตรวจประเมิน",
+                    "icon": "mdi mdi-certificate",
+                    "url": "\/certify\/check_assessment"
+                },
+                {
+                    "title": "estimated_cost",
+                    "display": "ประมาณค่าใช้จ่าย",
+                    "icon": "mdi mdi-certificate",
+                    "url": "\/certify\/estimated_cost"
+                },
+                {
+                    "title": "save_assessment",
+                    "display": "ข้อบกพร่อง/ข้อสังเกต",
+                    "icon": "mdi mdi-certificate",
+                    "url": "\/certify\/save_assessment"
+                },
+                {
+                  "title": "estimatedcostib",
+                  "display": "ประมาณค่าใช้จ่าย (IB)",
+                  "icon": "mdi mdi-calculator",
+                  "url": "\/certify\/estimated_cost-ib"
+                },
+                {
+                  "title": "auditorib",
+                  "display": "แต่งตั้งคณะผู้ตรวจประเมิน (IB)",
+                  "icon": "mdi mdi-account",
+                  "url": "\/certify\/auditor-ib"
+                },
+                {
+                  "title": "saveassessmentib",
+                  "display": "บันทึกผลการตรวจประเมิน (IB)",
+                  "icon": "mdi mdi-verified",
+                  "url": "\/certify\/save_assessment-ib"
+                },
+                {
+                  "title": "certificateexportib",
+                  "display": "ออกใบรับรอง (IB)",
+                  "icon": "mdi mdi-file-document",
+                  "url": "\/certify\/certificate-export-ib"
+                 },
+                 {
+                    "title": "estimatedcostcb",
+                    "display": "ประมาณค่าใช้จ่าย (CB)",
+                    "icon": "mdi mdi-calculator",
+                    "url": "\/certify\/estimated_cost-cb"
+                },
+                {
+                    "title": "auditorcb",
+                    "display": "แต่งตั้งคณะผู้ตรวจประเมิน (CB)",
+                    "icon": "mdi mdi-account",
+                    "url": "\/certify\/auditor-cb"
+                },
+                {
+                    "title": "saveassessmentcb",
+                    "display": "บันทึกผลการตรวจประเมิน (CB)",
+                  "icon": "mdi mdi-verified",
+                    "url": "\/certify\/save_assessment-cb"
+                },
+                {
+                    "title": "certificateexportcb",
+                    "display": "ออกใบรับรอง (CB)",
+                    "icon": "mdi mdi-file-document",
+                    "url": "\/certify\/certificate-export-cb"
+                },
+                {
+                    "title": "certificateexportlab",
+                    "display": "ออกใบรับรอง (LAB)",
+                    "icon": "glyphicon-asterisk",
+                    "url": "\/certify\/certificate-export-lab"
+                },
+                {
+                  "title": "registerexperts",
+                  "display": "ผู้เชี่ยวชาญ",
+                  "icon": "mdi mdi-account-multiple",
+                  "url": "\/certify\/register-experts"
+                }
+          
+            ]
+
+    }
+  ]
+}

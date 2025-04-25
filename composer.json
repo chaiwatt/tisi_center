@@ -1,0 +1,111 @@
+{
+    "name": "laravel/laravel",
+    "description": "The Laravel Framework.",
+    "keywords": ["framework", "laravel"],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": "^7.1.3",
+        "appzcoder/laravel-admin": "^2.1",
+        "arcanedev/log-viewer": "^4.5",
+        "balping/laravel-hashslug": "^2.2",
+        "doctrine/dbal": "^2.9",
+        "fideloper/proxy": "^4.0",
+        "google/apiclient": "2.12.1",
+        "intervention/image": "^2.4",
+        "kylekatarnls/laravel-carbon-2": "^1.0.0",
+        "kyslik/column-sortable": "^5.8",
+        "laravel/framework": "5.6.*",
+        "laravel/socialite": "^3.0",
+        "laravel/tinker": "^1.0",
+        "milon/barcode": "^5.1",
+        "nesbot/carbon": "2.0.0-beta.2 as 1.25.0",
+        "niklasravnsborg/laravel-pdf": "^3.1",
+        "orangehill/iseed": "^2.6",
+        "phpoffice/phpspreadsheet": "^1.8",
+        "phpoffice/phpword": "^0.17.0",
+        "simplesoftwareio/simple-qrcode": "2.0.0",
+        "spatie/laravel-activitylog": "^2.5",
+        "spatie/laravel-permission": "^2.12",
+        "symfony/translation-contracts": "^1.1.6",
+        "yajra/laravel-datatables-buttons": "^4.6",
+        "yajra/laravel-datatables-html": "^4.0",
+        "yajra/laravel-datatables-oracle": "8.x"
+    },
+    "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.2",
+        "filp/whoops": "^2.0",
+        "fzaninotto/faker": "^1.4",
+        "mockery/mockery": "^1.0",
+        "nunomaduro/collision": "^2.0",
+        "phpunit/phpunit": "^7.0",
+        "xethron/migrations-generator": "^2.0"
+    },
+    "autoload": {
+        "classmap": [
+            "database/seeds",
+            "database/factories"
+        ],
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/Helpers/Helper.php",
+            "app/Helpers/SuphawichHelper.php",
+            "app/Helpers/HelperAPI.php",
+            "app/Helpers/THSplitLib/segment.php",
+            "app/Helpers/HelperDGA.php",
+            "app/Helpers/HelperAPIPID.php",
+            "app/Helpers/HelperLaw.php"
+        ]
+    }, 
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": [
+                "laravel/dusk"
+            ]
+        },
+        "google/apiclient-services": [
+            "Drive",
+            "YouTube",
+            "YouTubeAnalytics",
+            "YouTubeReporting"
+        ]
+    },
+    "repositories": [{
+            "type": "composer",
+            "url": "https://packagist.org"
+        },
+        {
+            "packagist": false
+        }
+    ],
+    "scripts": {
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
+        ],
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
