@@ -388,7 +388,7 @@ class EstimatedCostController extends Controller
                                                             'labTestRequest',
                                                             'labCalRequest',
                                                             'certi_lab_attach_all61',
-                                                            'certi_lab_attach_all62',
+                                                            'certi_lab_attach_all62'
                                                         ));
     }
 
