@@ -119,7 +119,7 @@
         <!-- .row -->
         <div class="row">
             <div class="col-sm-12">
-                <button type="button" class="btn btn-primary" id="microservice_simulation" > จำลอง Micro Service 🐆
+                <button type="button" class="btn btn-primary" id="microservice_simulation" > รัน Micro Service 🐆
                 </button>
                 <div class="white-box">
                     <h3 class="box-title pull-left">ระบบตรวจสอบคำขอใบรับรองห้องปฏิบัติการ (LAB)</h3>
