@@ -422,7 +422,7 @@ class EstimatedCostController extends Controller
             $changedTransactions->push([
                 'message' => 'Number of lab types transactions has changed.',
                 'input_count' => $inputTransactionsCount,
-                'database_count' => $existingTransactionsCount,
+                'database_count' => $existingTransactionsCount
             ]);
         
         }else{
@@ -502,7 +502,6 @@ class EstimatedCostController extends Controller
                 }
             }
         }
-
 
         // return collection ของข้อมูลที่เปลี่ยนแปลง
         return $changedTransactions;
