@@ -434,7 +434,7 @@ class CheckCertificateLabController extends Controller
 
                         $api = json_decode($content,false);
 
-                    //    dd($setting_payment->data);
+                    //    dd($setting_payment->data,$api);
 
                     //    $host = parse_url($setting_payment->data, PHP_URL_HOST);
 

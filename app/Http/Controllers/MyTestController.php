@@ -803,7 +803,7 @@ class MyTestController extends Controller
   public function check_payin()
   {
   
-    $today = Carbon::today(); // กำหนดวันปัจจุบัน
+    $today = Carbon::now(); // กำหนดวันปัจจุบัน
 
     // $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
     //             ->where('invoiceEndDate', '>=', $today)
@@ -824,7 +824,7 @@ class MyTestController extends Controller
     })
     ->get();
 
-    // dd($transactionPayIns);
+    dd($transactionPayIns);
 
     foreach ($transactionPayIns as $transactionPayIn) {
         $ref1 = $transactionPayIn->ref1;

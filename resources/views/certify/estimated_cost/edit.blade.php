@@ -1180,31 +1180,24 @@ $attachs = json_decode($item->attachs);
 
         function submit_form(status) {
             
-            if(validateAddressesAndMainScope() == false){
-                alert('รูปแบบขอบข่ายไม่ถูกต้อง โปรดแก้ไข');
-                return
-            }
+            // if(validateAddressesAndMainScope() == false){
+            //     alert('รูปแบบขอบข่ายไม่ถูกต้อง โปรดแก้ไขsss');
+            //     return
+            // }
 
-            var lab_addresses_array = JSON.stringify(JSON.parse(sessionStorage.getItem('lab_addresses_array')) || []);
-            var lab_main_address = JSON.stringify(JSON.parse(sessionStorage.getItem('lab_main_address')) || {});
+            // var lab_addresses_array = JSON.stringify(JSON.parse(sessionStorage.getItem('lab_addresses_array')) || []);
+            // var lab_main_address = JSON.stringify(JSON.parse(sessionStorage.getItem('lab_main_address')) || {});
 
-            // console.log(JSON.parse(sessionStorage.getItem('lab_addresses_array')));
-            // console.log(JSON.parse(sessionStorage.getItem('lab_main_address')) || {});
-
-          
-            // เรียกใช้ฟังก์ชัน
-            var lab_addresses_json = JSON.parse(sessionStorage.getItem('lab_addresses_array')) || [];
-            var lab_main_address_json = JSON.parse(sessionStorage.getItem('lab_main_address')) || {};
+            // var lab_addresses_json = JSON.parse(sessionStorage.getItem('lab_addresses_array')) || [];
+            // var lab_main_address_json = JSON.parse(sessionStorage.getItem('lab_main_address')) || {};
 
      
-            var uniqueCalMainBranches = getUniqueCalMainBranches(lab_addresses_json, lab_main_address_json);
+            // var uniqueCalMainBranches = getUniqueCalMainBranches(lab_addresses_json, lab_main_address_json);
 
-            // console.log(uniqueCalMainBranches);
-            renderHiddenInputs(uniqueCalMainBranches);
+            // renderHiddenInputs(uniqueCalMainBranches);
 
-            // ใส่ค่าสตริง JSON ลงใน input fields แบบซ่อน
-            $('#lab_addresses_input').val(lab_addresses_array);
-            $('#lab_main_address_input').val(lab_main_address);
+            // $('#lab_addresses_input').val(lab_addresses_array);
+            // $('#lab_main_address_input').val(lab_main_address);
 
 
             Swal.fire({
