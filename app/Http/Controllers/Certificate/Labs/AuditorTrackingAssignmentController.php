@@ -11,6 +11,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Certificate\Tracking;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Certificate\TrackingAuditors;
+use App\Services\CreateTrackingCbMessageRecordPdf;
+use App\Services\CreateTrackingIbMessageRecordPdf;
 use App\Services\CreateTrackingLabMessageRecordPdf;
 use App\Models\Certify\MessageRecordTrackingTransaction;
 
@@ -69,13 +71,13 @@ class AuditorTrackingAssignmentController extends Controller
 
                 // แปลง certificate_type เป็นข้อความ
                 switch ($item->certificate_type) {
-                    case 0:
+                    case 1:
                         $item->certificate_type = 'CB';
                         break;
-                    case 1:
+                    case 2:
                         $item->certificate_type = 'IB';
                         break;
-                    case 2:
+                    case 3:
                         $item->certificate_type = 'LAB';
                         break;
                     default:
@@ -88,7 +90,7 @@ class AuditorTrackingAssignmentController extends Controller
                 return $item;
             });
 
-        
+       
                 
             return DataTables::of($query)
                 ->addIndexColumn()
@@ -100,13 +102,13 @@ class AuditorTrackingAssignmentController extends Controller
                     return $button1 . ' ' . $button2; // รวมปุ่มทั้งสองเข้าด้วยกัน
                 })
                 ->editColumn('certificate_type', function ($item) {
-                    // dd ($item);
+                    // dd ($item->certificate_type);
                     switch ($item->certificate_type) {
-                        case 0:
-                            return 'CB';
                         case 1:
-                            return 'IB';
+                            return 'CB';
                         case 2:
+                            return 'IB';
+                        case 3:
                             return 'LAB';
                         default:
                             return '-';
@@ -129,27 +131,72 @@ class AuditorTrackingAssignmentController extends Controller
 
     public function signDocument(Request $request)
     {
+
+        $messageRecordTransaction = MessageRecordTrackingTransaction::find($request->id);
         
         MessageRecordTrackingTransaction::find($request->id)->update([
             'approval' => 1
         ]);
 
-        $messageRecordTransaction = MessageRecordTrackingTransaction::find($request->id);
-        $messageRecordTransactions = MessageRecordTrackingTransaction::where('ba_tracking_id',$messageRecordTransaction->ba_tracking_id)
-                                ->whereNotNull('signer_id')
-                                ->where('approval',0)
-                                ->where('certificate_type',2)
-                                ->get();           
+        if($messageRecordTransaction->certificate_type == 1){
+            // CB
 
-        if($messageRecordTransactions->count() == 0){
-            
-            $board = TrackingAuditors::find($messageRecordTransaction->ba_tracking_id);
-            
-            $pdfService = new CreateTrackingLabMessageRecordPdf($board,"ia");
-            $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
-            $this->set_mail($board);
+            $messageRecordTransactions = MessageRecordTrackingTransaction::where('ba_tracking_id',$messageRecordTransaction->ba_tracking_id)
+                        ->whereNotNull('signer_id')
+                        ->where('approval',0)
+                        ->where('certificate_type',1)
+                        ->get();           
 
-        }     
+            if($messageRecordTransactions->count() == 0){
+                
+                $board = TrackingAuditors::find($messageRecordTransaction->ba_tracking_id);
+                
+                $pdfService = new CreateTrackingCbMessageRecordPdf($board,"ia");
+                $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
+                $this->set_mail($board);
+
+            }     
+
+        }elseif($messageRecordTransaction->certificate_type == 2){
+            // IB
+            $messageRecordTransactions = MessageRecordTrackingTransaction::where('ba_tracking_id',$messageRecordTransaction->ba_tracking_id)
+                        ->whereNotNull('signer_id')
+                        ->where('approval',0)
+                        ->where('certificate_type',2)
+                        ->get();           
+
+            if($messageRecordTransactions->count() == 0){
+                
+                $board = TrackingAuditors::find($messageRecordTransaction->ba_tracking_id);
+                
+                $pdfService = new CreateTrackingIbMessageRecordPdf($board,"ia");
+                $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
+                $this->set_mail($board);
+
+            }     
+        }elseif($messageRecordTransaction->certificate_type == 3){
+            // LAB
+
+            $messageRecordTransactions = MessageRecordTrackingTransaction::where('ba_tracking_id',$messageRecordTransaction->ba_tracking_id)
+                        ->whereNotNull('signer_id')
+                        ->where('approval',0)
+                        ->where('certificate_type',3)
+                        ->get();           
+
+            if($messageRecordTransactions->count() == 0){
+                
+                $board = TrackingAuditors::find($messageRecordTransaction->ba_tracking_id);
+                
+                $pdfService = new CreateTrackingLabMessageRecordPdf($board,"ia");
+                $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
+                $this->set_mail($board);
+
+            }     
+
+        }
+
+        
+
         
         return response()->json([
             'success' => true,

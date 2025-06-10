@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">แต่งตั้งคณะผู้ตรวจประเมิน (LAB) #{{ $auditor->id }}</h3>
+                    <h3 class="box-title pull-left">แต่งตั้งคณะผู้ตรวจประเมินติดตาม (LAB)#{{ $auditor->id }}</h3>
                     @can('view-'.str_slug('auditorlabs'))
                         <a class="btn btn-success pull-right" href="{{ app('url')->previous() }}">
                             <i class="icon-arrow-left-circle" aria-hidden="true"></i> กลับ
@@ -29,7 +29,7 @@
                         'id'=>'form_auditor'
                     ]) !!}
                       <div id="box-readonly">
-                              @include('certificate/labs/auditor-labs.form')
+                              @include('certificate.labs.auditor-labs.form')
                       </div>
                     {!! Form::close() !!}
 

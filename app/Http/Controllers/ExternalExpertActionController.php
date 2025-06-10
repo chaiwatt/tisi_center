@@ -136,12 +136,11 @@ class ExternalExpertActionController extends Controller
         $trackingApp = $assessment->tracking_to;
         $boardAuditor = TrackingAuditors::find( $assessment->tracking_id);
         $expertToken = $assessment->expert_token;
-        // dd($assessment->expert_token,$token);
+       
         if($token != $expertToken)
         {
             return redirect($url);
         }
-       
      
         $parts = explode('_', $expertToken);
         $randomString = $parts[0]; 
@@ -160,19 +159,16 @@ class ExternalExpertActionController extends Controller
             return redirect($url);
         }
 
-
-        // dd($assessment);
-
        
-        $trackingAuditor = TrackingAuditors::find( $assessment->tracking_id);
+        $trackingAuditor = TrackingAuditors::where("tracking_id", $trackingApp->id)->first();
    
-        $trackingApp = $assessment->tracking_to;
+        // $trackingApp = $assessment->tracking_to;
       
         $boardAuditorMsRecordInfo = $trackingAuditor->boardAuditorTrackingMsRecordInfos->first();
 
-        // dd($boardAuditorMsRecordInfo);
 
         $auditors_statuses= $trackingAuditor->auditors_status_many;
+       
         $statusAuditorMap = [];
 
         foreach ($auditors_statuses as $auditors_status)
@@ -208,8 +204,6 @@ class ExternalExpertActionController extends Controller
 
             return view('certificate.labs.assessment-labs.create-expert', compact('assessment','bug','statusAuditorMap','expiryDateTime','trackingApp'));
 
-            // dd($trackingApp,$assessment,$NoticeItems,$auditors,$app_no);  
-            // return view('certificate.labs.assessment-labs.create-expert', compact('app','NoticeItems','app_no','board_auditor_id','assessment','expiryDateTime'));
         }
     }
 

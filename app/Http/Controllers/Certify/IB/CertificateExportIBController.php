@@ -2,32 +2,34 @@
 
 namespace App\Http\Controllers\Certify\IB;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use HP;
-use Illuminate\Support\Facades\DB;
-use QrCode;
 use File;
-use Response;
-use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use QrCode;
 use App\User;
+use Response;
+use stdClass;
+use Carbon\Carbon;
+use App\Http\Requests;
+use App\CertificateExportIB;
+use Illuminate\Http\Request;
+use App\Mail\IB\IBExportMail;
+use App\Models\Besurv\Signer;
 use App\Models\Bcertify\Formula;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use App\Services\CreateIbScopePdf;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\Sso\User AS SSO_User;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+
 use App\Models\Certify\ApplicantIB\CertiIb;
+
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use App\Models\Certify\ApplicantIB\CertiIBCheck;
 use App\Models\Certify\ApplicantIB\CertiIBExport;
 use App\Models\Certify\ApplicantIB\CertiIBFileAll;
+use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
 use App\Models\Certify\ApplicantIB\CertiIbExportMapreq;
-use App\CertificateExportIB;
-use App\Models\Sso\User AS SSO_User;
-
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Mail;
-use App\Mail\IB\IBExportMail;
-use App\Models\Besurv\Signer;
-use stdClass;
 
 class CertificateExportIBController extends Controller
 {
@@ -134,7 +136,9 @@ class CertificateExportIBController extends Controller
             $app_token = $request->get('app_token');
 
             $app_no = [];
+            $certiIb = CertiIb::where('token', $app_token)->first();
             if( !empty($app_token) ){
+               
                 // $app_no = CertiIb::select(DB::raw("CONCAT(name,' ',app_no) AS title"),'id')
                 //                     ->where('token', $app_token )
                 //                     ->orderby('id','desc')
@@ -142,6 +146,7 @@ class CertificateExportIBController extends Controller
                  $requests =   CertiIb::where('token', $app_token)->first();
                  $app_no[$requests->id] = $requests->name . " ( $requests->app_no )";
             }else{
+               
                         //เจ้าหน้าที่ IB และไม่มีสิทธิ์ admin , ผอ , ผก , ลท.
                         if(in_array("27",auth()->user()->RoleListId) && auth()->user()->SetRolesAdminCertify() == "false" ){
                             $check = CertiIBCheck::where('user_id',auth()->user()->runrecno)->pluck('app_certi_ib_id'); // เช็คเจ้าหน้าที่ IB
@@ -162,7 +167,8 @@ class CertificateExportIBController extends Controller
                         }
  
             }
-            return view('certify/ib.certificate_export_ib.create',['app_no' => $app_no,'app_token' => $app_token,'attach_path'=> $this->attach_path]);
+            // dd('ok');
+            return view('certify/ib.certificate_export_ib.create',[ 'certiIb'=>$certiIb, 'app_no' => $app_no,'app_token' => $app_token,'attach_path'=> $this->attach_path]);
         }
         abort(403);
 
@@ -194,7 +200,7 @@ class CertificateExportIBController extends Controller
      */
     public function store(Request $request)
     {
-
+        // dd('ok');
         $model = str_slug('certificateexportib','-');
         if(auth()->user()->can('add-'.$model)) {
             $request->validate([
@@ -294,6 +300,26 @@ class CertificateExportIBController extends Controller
     
                 }
 
+                $pdfService = new CreateIbScopePdf($certi_ib);
+                $pdfContent = $pdfService->generatePdf();
+
+                $json = $this->copyScopeIbFromAttachement($certi_ib->id);
+                $copiedScopes = json_decode($json, true);
+
+                CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
+                    ->whereNotNull('attach_pdf')
+                    ->update(['state' => 0]);
+                CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
+                            ->orderBy('id','desc')
+                            ->first()
+                            ->update([
+                                'attach_pdf'            =>   $copiedScopes[0]['attachs'],
+                                'attach_pdf_client_name'=>   $copiedScopes[0]['file_client_name'],
+                                'state'                 =>   1
+
+                ]);
+
+
                 $this->save_certiib_export_mapreq($certi_ib->id,$export_ib->id);
 
                 $pathfileTemp = 'files/Tempfile/'.($requestData['app_no']);
@@ -314,6 +340,48 @@ class CertificateExportIBController extends Controller
         }
         abort(403);
     }
+
+    public function copyScopeIbFromAttachement($certiIbId)
+    {
+        $copiedScoped = null;
+        $fileSection = null;
+    
+        $app = CertiIb::find($certiIbId);
+    
+        $latestRecord = CertiIBAttachAll::where('app_certi_ib_id', $certiIbId)
+        ->where('file_section', 3)
+        ->where('table_name', 'app_certi_ib')
+        ->orderBy('created_at', 'desc') // เรียงลำดับจากใหม่ไปเก่า
+        ->first();
+    
+        $existingFilePath = 'files/applicants/check_files_ib/' . $latestRecord->file ;
+    
+        // ตรวจสอบว่าไฟล์มีอยู่ใน FTP และดาวน์โหลดลงมา
+        if (HP::checkFileStorage($existingFilePath)) {
+            $localFilePath = HP::getFileStoragePath($existingFilePath); // ดึงไฟล์ลงมาที่เซิร์ฟเวอร์
+            $no  = str_replace("RQ-","",$app->app_no);
+            $no  = str_replace("-","_",$no);
+            $dlName = 'scope_'.basename($existingFilePath);
+            $attach_path  =  'files/applicants/check_files_ib/'.$no.'/';
+    
+            if (file_exists($localFilePath)) {
+                $storagePath = Storage::putFileAs($attach_path, new \Illuminate\Http\File($localFilePath),  $dlName );
+                $filePath = $attach_path . $dlName;
+                if (Storage::disk('ftp')->exists($filePath)) {
+                    $list  = new  stdClass;
+                    $list->attachs =  $no.'/'.$dlName;
+                    $list->file_client_name =  $dlName;
+                    $scope[] = $list;
+                    $copiedScoped = json_encode($scope);
+                } 
+                unlink($localFilePath);
+            }
+        }
+    
+        return $copiedScoped;
+    }
+
+
     public function storeFile($files, $app_no = 'files_ib',$name =null)
     {
         $no  = str_replace("RQ-","",$app_no);
@@ -364,6 +432,7 @@ class CertificateExportIBController extends Controller
 
             $export_ib = CertiIBExport::findOrFail($id);
             $app_no = $export_ib->app_no ?? null;
+            $certiIb = CertiIb::where('id',$export_ib->app_certi_ib_id)->first(); 
 
 			if(is_null($export_ib->org_name)){ 
 
@@ -379,7 +448,8 @@ class CertificateExportIBController extends Controller
             $certiib_file_all  = $export_ib->CertiIBFileAll;
             
              $attach_path       = $this->attach_path;
-            return view('certify.ib.certificate_export_ib.edit', compact('export_ib','certiib_file_all','attach_path'));
+            //  dd($export_ib);
+            return view('certify.ib.certificate_export_ib.edit', compact('certiIb','export_ib','certiib_file_all','attach_path'));
         }
         abort(403);
     }
@@ -394,6 +464,7 @@ class CertificateExportIBController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // dd('ok');
         $model = str_slug('certificateexportib','-');
         if(auth()->user()->can('edit-'.$model)) {
 
@@ -496,6 +567,25 @@ class CertificateExportIBController extends Controller
                         }
                     }
                 }
+
+                // $pdfService = new CreateIbScopePdf($certi_ib);
+                // $pdfContent = $pdfService->generatePdf();
+
+                // $json = $this->copyScopeIbFromAttachement($certi_ib->id);
+                // $copiedScopes = json_decode($json, true);
+
+                // CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
+                //     ->whereNotNull('attach_pdf')
+                //     ->update(['state' => 0]);
+                // CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
+                //             ->orderBy('id','desc')
+                //             ->first()
+                //             ->update([
+                //                 'attach_pdf'            =>   $copiedScopes[0]['attachs'],
+                //                 'attach_pdf_client_name'=>   $copiedScopes[0]['file_client_name'],
+                //                 'state'                 =>   1
+
+                // ]);
 
                 $this->save_certiib_export_mapreq($certi_ib->id,$export_ib->id);
 

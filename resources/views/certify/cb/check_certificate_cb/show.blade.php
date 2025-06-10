@@ -520,9 +520,11 @@
                                     {!! $export_icon !!}    ออกใบรับรอง 
                             </a>
                         @elseif(!empty($certi_cb->certi_cb_export_mapreq_to))
-                            <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail-cb/".$certi_cb->token)}}" >
-                                <i class="fa fa-paperclip"></i>  แนบท้าย
-                            </a> 
+                            @if ($report->ability_confirm !== null)
+                                <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail-cb/".$certi_cb->token)}}" >
+                                    <i class="fa fa-paperclip"></i>  แนบท้าย
+                                </a> 
+                            @endif
                         @else 
                             
                                 {{-- {{ $report->ability_confirm}} --}}

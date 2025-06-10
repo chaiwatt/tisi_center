@@ -583,6 +583,7 @@ class StandardController extends Controller
 
     public function update_isbn(Request $request)
     {
+        // dd("ok");
         $requestData = $request->all();
         
         if(!empty($requestData['id'])){

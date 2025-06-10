@@ -47,9 +47,10 @@ class RunAllSchedules extends Command
         $this->call('check:cb-payin-two'); //อัพเดทสถานการจ่ายเงิน payin2 cb ผ่าน api
         $this->call('check:ib-payin-one-ib'); //อัพเดทสถานการจ่ายเงิน payin1 ib ผ่าน api
         $this->call('check:ib-payin-two'); 
-        
-        
-        
+
+        $this->call('check:tracking-ib-payin-one'); 
+        $this->call('check:tracking-cb-payin-one');
+
         
     }
 }

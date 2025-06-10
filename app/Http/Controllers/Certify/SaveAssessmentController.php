@@ -36,6 +36,7 @@ use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Certify\CertificateHistory;
 use App\Models\Bcertify\AuditorInformation;
 use App\Mail\Lab\CertifyCheckSaveAssessment;
+use App\Models\Bcertify\LabScopeTransaction;
 use App\Models\Certificate\LabReportTwoInfo;
 use App\Models\Certify\Applicant\Assessment;
 use App\Models\Certify\Applicant\NoticeItem;
@@ -2281,7 +2282,7 @@ class SaveAssessmentController extends Controller
             $boardAuditor = $assessment->board_auditor_to;
             $id = $boardAuditor->auditor_id;
             $labRequest = null;
-            
+        
             if($app_certi_lab->lab_type == 4){
                 $labRequest = LabCalRequest::where('app_certi_lab_id',$app_certi_lab->id)->where('type',1)->first();
             }else if($app_certi_lab->lab_type == 3)
@@ -2289,6 +2290,7 @@ class SaveAssessmentController extends Controller
                 $labRequest = LabTestRequest::where('app_certi_lab_id',$app_certi_lab->id)->where('type',1)->first();
             }
 
+         
             $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
                                                 ->where('certificate_type',2)
                                                 ->where('report_type',1)
@@ -2298,8 +2300,9 @@ class SaveAssessmentController extends Controller
                 ->where('status',1)
                 ->where('file_status',1)
                 ->get();
-                
+                // dd('okdd');
 
+            $labScopeTransaction = LabScopeTransaction::where('app_certi_lab_id',$app_certi_lab->id)->first();
             return view('certify.save_assessment.view-report', [
                 'labReportInfo' => $labReportInfo,
                 'data' => $data,
@@ -2310,6 +2313,7 @@ class SaveAssessmentController extends Controller
                 'labRequest' => $labRequest,
                 'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
                 'approveNoticeItems' => $approveNoticeItems,
+                'labScopeTransaction' => $labScopeTransaction,
                 'id' => $id
             ]);
         }

@@ -237,18 +237,6 @@
               table.draw();
            });
  
-        //    $('#checkall').change(function (event) {
-
-        //         if ($(this).prop('checked')) {//เลือกทั้งหมด
-        //             $('#myTable').find('input.item_checkbox').prop('checked', true);
-        //         } else {
-        //             $('#myTable').find('input.item_checkbox').prop('checked', false);
-        //         }
-
-        //  });
-
- 
-
             $(document).on('click', '#bulk_delete', function(){
 
                 var id = [];
@@ -287,12 +275,21 @@
                 }
             });
 
+                    if ($('#loadingOverlay').length === 0) {
+            $('body').append(`
+                <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+                    <div style="color: white; font-size: 24px; font-family: Arial, sans-serif; text-align: center;">Loading ...</div>
+                </div>
+            `);
+            // ยืนยันว่า overlay ซ่อนตั้งแต่เริ่มต้น
+            $('#loadingOverlay').hide();
+        }
         // jQuery คลิกที่ปุ่มและทำการดึงข้อมูลผ่าน AJAX
         $(document).on('click', '.btn-warning', function() {
             var transaction_id = $(this).data('transaction_id').trim(); 
             var signer_id = $(this).data('id'); // ดึง data-id จากปุ่ม
-            $('#signerModal').modal('show');
-            
+            // $('#signerModal').modal('show');
+              $('#loadingOverlay').show();
             $.ajax({
                 url: "{{ route('certificate.assessment_report_assignment.get_signer') }}", // URL ของ route
                 type: 'GET',
@@ -332,11 +329,16 @@
 
 
                     $('#signerModal').modal('show'); // แสดงโมดัล
+                     $('#loadingOverlay').hide();
                 },
                 error: function(xhr, status, error) {
                     console.log(error); // แสดง error ใน console (ถ้ามี)
                     $('#signerInfo').html("เกิดข้อผิดพลาดในการดึงข้อมูล");
                     $('#signerModal').modal('show');
+                },
+                complete: function() {
+                    // ซ่อน overlay เมื่อ AJAX เสร็จสิ้น
+                    $('#loadingOverlay').hide();
                 }
             });
         });

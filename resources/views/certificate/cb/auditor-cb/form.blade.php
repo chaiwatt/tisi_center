@@ -125,6 +125,125 @@
                         @endif
                     </div>
                 </div>
+
+
+
+                
+@if (isset($auditor))
+                    <div class="form-group">
+                          <label for="select_user_id" class="col-md-5 control-label">
+                            <span class="text-danger">*</span> ผู้ลงนาม
+                        </label>
+                        <div class="col-md-7">
+                            @if ($auditor->messageRecordTrackingTransactions->count() != 0)
+                                <table class="table color-bordered-table primary-bordered-table" style="margin-top: 10px">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 35%">ชื่อ-สกุล</th>
+                                            <th style="width: 45%">ตำแหน่ง</th>
+                                            <th style="width: 20%">สถานะ</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($auditor->messageRecordTrackingTransactions as $key => $item)
+                                                <tr>
+                                                
+                                                    <td>{{ $item->signer_name }}</td>
+                                                    <td>{{ $item->signer_position }}</td>
+                                                    <td>
+                                                        <span class="badge {{ $item->approval == 1 ? 'bg-success' : 'bg-danger' }}">
+                                                            {{ $item->approval == 1 ? 'ลงนามแล้ว' : 'รอดำเนินการ' }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                </table>
+                            @endif
+                        </div>
+                    </div>
+                @else
+
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('select_user_id', '<span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="select_user_id" id="select_user_id" class="form-control" required>
+                            <option value="" selected>- ผู้ลงนามท้ายขอบข่าย -</option>
+                            @foreach ($signers as $id => $signer)
+                                <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('signer_1', '<span class="text-danger">*</span> เจ้าหน้าที่ผู้รับผิดชอบ', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="signer_1" id="signer_1" class="form-control" required>
+                            <option value="" selected>- เจ้าหน้าที่ผู้รับผิดชอบ -</option>
+                            @foreach ($signers as $signer)
+                                <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                            
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('signer_2', '<span class="text-danger">*</span> ผู้ลงนาม (ผก.)', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="signer_2" id="signer_2" class="form-control" required>
+                            <option value="" selected>- ผู้ลงนาม -</option>
+                            @foreach ($signers as $signer)
+                                <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('signer_3', '<span class="text-danger">*</span> ผู้ลงนาม (ผอ. สก.)', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="signer_3" id="signer_3" class="form-control" required>
+                            <option value="" selected>- ผู้ลงนาม -</option>
+                            @foreach ($signers as $signer)
+                                <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('signer_4', '<span class="text-danger">*</span> ผู้ลงนาม (ลมอ. / ผอ. สก.)', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="signer_4" id="signer_4" class="form-control" required>
+                            <option value="" selected>- ผู้ลงนาม -</option>
+                            @foreach ($signers as $signer)
+                            <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                {{-- <div class="form-group">
+                    {!! HTML::decode(Form::label('ibAuditorTeam', '<span class="text-danger">*</span> คณะตรวจประเมิน', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="ibAuditorTeam" id="ibAuditorTeam" class="form-control" required>
+                            <option value="" selected>- คณะตรวจประเมิน -</option>
+                            @foreach ($ibAuditorTeams as $ibAuditorTeam)
+                            <option value="{{ $ibAuditorTeam->id }}" >{{ $ibAuditorTeam->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div> --}}
+@endif
+
+
+
+
+
+
+
+
+
                 <div class="form-group {{ $errors->has('attach') ? 'has-error' : ''}}">
                     {!! HTML::decode(Form::label('attach', '<span class="text-danger">*</span> กำหนดการตรวจประเมิน', ['class' => 'col-md-5 control-label'])) !!}
                     <div class="col-md-7">
@@ -155,6 +274,27 @@
                       @endif
                     </div>
                 </div>
+
+
+          <div class="form-group">
+                    <label for="attach" class="col-md-5 control-label">
+                        <span class="text-danger">*</span> บันทึกแต่งตั้ง
+                    </label>
+                    <div class="col-md-7">
+                        @if (isset($auditor))
+                            @if ($auditor->message_record_status == 1)
+                                <a class="button btn btn-warning" href="{{route('certificate.auditor-cbs.create-tracking-cb-message-record',['id' => $auditor->id])}}"><i class="fa fa-book" aria-hidden="true"> </i></a>
+                                @elseif($auditor->message_record_status == 2)
+                                <a class="button btn btn-info" href="{{route('certificate.auditor-cbs.view-tracking-cb-message-record',['id' => $auditor->id])}}"><i class="fa fa-book" aria-hidden="true"> </i></a>
+                            @endif
+                            
+                            @else
+                            -
+                        @endif
+                    
+                    </div>
+                </div>
+
 
          </div>
     </div>
@@ -330,6 +470,7 @@
 </div>
 
 <div class="row form-group" id="table_cost">
+     <input type="hidden" name="signaturesJson" id="signaturesJson">
           <div class="col-md-12">
               <div class="white-box" style="border: 2px solid #e5ebec;">
                   <legend><h4>ค่าใช้จ่าย</h4></legend>
@@ -446,6 +587,85 @@
                                 $('.bs-callout-info').toggleClass('hidden', !ok);
                                 $('.bs-callout-warning').toggleClass('hidden', ok);
                         })  .on('form:submit', function() {
+
+                               var selectUserId = $('#select_user_id').val();
+                                var signer1 = $('#signer_1').val();
+                                var signer2 = $('#signer_2').val();
+                                var signer3 = $('#signer_3').val();
+                                var signer4 = $('#signer_4').val();
+
+                                if (selectUserId === "") {
+                                    alert('กรุณาเลือกผู้ลงนามท้ายขอบข่าย');
+                                    return
+                                }
+
+                                if (![signer1, signer2, signer3, signer4].every(function(signer) { return signer !== ""; })) {
+                                    alert('กรุณาเลือกเจ้าหน้าที่ผู้ลงนาม');
+                                    return;
+                                }
+
+                                const signatures = [
+                                    {
+                                        id: 'Signature1',
+                                        enable: false,
+                                        show_name: false,
+                                        show_position: false,
+                                        signer_name: "",
+                                        signer_id: "",
+                                        signer_position: "ตำแหน่ง ผู้จัดการทั่วไป",    
+                                        line_space: 20
+                                    },
+                                    {
+                                        id: 'Signature2',
+                                        enable: false,
+                                        show_name: true,
+                                        show_position: false,
+                                        signer_name: "",
+                                        signer_id: "",
+                                        signer_position: "ตำแหน่ง ปฏิบัติราชการแทน",
+                                        line_space: 5
+                                    },
+                                    {
+                                        id: 'Signature3',
+                                        enable: false,
+                                        show_name: true,
+                                        show_position: true,
+                                        signer_name: "",
+                                        signer_id: "",
+                                        signer_position: "ตำแหน่ง นักเรียนโอลิมปิกเคมี",
+                                        line_space: 20
+                                    },
+                                    {
+                                        id: 'Signature4',
+                                        enable: false,
+                                        show_name: true,
+                                        show_position: true,
+                                        signer_name: "",
+                                        signer_id: "",
+                                        signer_position: "ตำแหน่ง กำลังจะสอบ ม.1",
+                                        line_space: 20
+                                    }
+                                ];
+
+                                // ดึงค่าที่ถูกเลือกและอัปเดต signatures
+                                for (let i = 1; i <= 4; i++) {
+                                    const selectElement = $(`#signer_${i}`);
+                                    const selectedId = selectElement.val();
+                                    const selectedName = selectElement.find('option:selected').text();
+                                    const selectedPosition = selectElement.find('option:selected').data('position');
+
+                                    // อัปเดตใน signatures
+                                    signatures[i - 1].signer_id = selectedId || "";
+                                    signatures[i - 1].signer_name = selectedName || "";
+                                    signatures[i - 1].signer_position = selectedPosition || "";
+                                }
+
+                                console.log("Updated signatures:", signatures);
+
+                                // return;
+
+                                $('#signaturesJson').val(JSON.stringify(signatures));
+
                                 // Text
                           $.LoadingOverlay("show", {
                                 image       : "",

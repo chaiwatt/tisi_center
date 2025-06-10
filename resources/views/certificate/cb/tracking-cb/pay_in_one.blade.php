@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left"> Pay-In ครั้งที่ 1 </h3>
+                    <h3 class="box-title pull-left"> Pay-In ครั้งที่ 1 (ติดตาม CB)</h3>
                     @can('view-'.str_slug('trackingcb'))
                         <a class="btn btn-success pull-right" href="{{  app('url')->previous() }}">
                             <i class="icon-arrow-left-circle"></i> กลับ
@@ -629,6 +629,7 @@ $SumCost = !empty($pay_in->auditors_to->SumCostConFirm) ? $pay_in->auditors_to->
                                             payin : '1'
                                         },
                                         success:function(data){
+                                            console.log(data)
                                             if(data.message === true){
                                                  $('#form_pay_in1').submit();
                                             }else{

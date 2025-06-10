@@ -31,12 +31,21 @@
         <div style="margin-top: 10px;font-weight:bold">1. ข้อมูลทั่วไป</div>
         <div style="margin-left: 15px">
             <div><span style="font-weight:bold">ชื่อห้องปฏิบัติการ :</span> <span>{{$certi_lab->lab_name}}</span> </div>
-            <div><span style="font-weight:bold">ตั้งอยู่เลขที่ :</span> <span> {{$labRequest->no}} หมู่ที่ {{$labRequest->moo}} 
-                @if(\Illuminate\Support\Str::contains($labRequest->province_name, 'กรุงเทพ'))
-                    แขวง{{$labRequest->tambol_name}} เขต{{$labRequest->amphur_name}} {{$labRequest->postal_code}} 
+            <div><span style="font-weight:bold">ตั้งอยู่เลขที่ :</span> <span> {{$labScopeTransaction->address_number}} หมู่ที่ {{$labScopeTransaction->village_no}} 
+                @if(\Illuminate\Support\Str::contains($labScopeTransaction->address_city_text, 'กรุงเทพ'))
+                    แขวง{{$labScopeTransaction->sub_district}} เขต{{$labScopeTransaction->address_district}} {{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
                 @else
-                    ตำบล{{$labRequest->tambol_name}} อำเภอ{{$labRequest->amphur_name}} {{$labRequest->postal_code}} 
+                    ตำบล{{$labScopeTransaction->sub_district}} อำเภอ{{$labScopeTransaction->address_district}} จังหวัด{{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
                 @endif</span> </div>
+
+
+                {{-- {{$labScopeTransaction->address_number}} หมู่ที่ {{$labScopeTransaction->village_no}} 
+                @if(\Illuminate\Support\Str::contains($labScopeTransaction->address_city_text, 'กรุงเทพ'))
+                    แขวง{{$labScopeTransaction->sub_district}} เขต{{$labScopeTransaction->address_district}} {{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
+                @else
+                    ตำบล{{$labScopeTransaction->sub_district}} อำเภอ{{$labScopeTransaction->address_district}} จังหวัด{{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
+                @endif --}}
+
             <div><span style="font-weight:bold">วันที่ยื่นคำขอ :</span> <span>11 ธันวาคม 2566</span> </div>
             <div><span style="font-weight:bold">สาขาและขอบข่าย :</span> <span>ตามเอกสารประกอบคำขอของ ห้องปฏิบัติการ{{$certi_lab->lab_name}} ลงวันที่ {{HP::formatDateThaiFullPoint($certi_lab->get_date)}} และ / หรือหนังสือขอแก้ไขขอบข่ายของ ห้องปฏิบัติการ ลงวันที่ {{HP::formatDateThaiFullPoint($notice->date_car)}} (ถ้ามี)/ ขอบข่าย ดังแนบ</span></div>
         </div>

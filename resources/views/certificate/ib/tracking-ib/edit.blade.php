@@ -8,6 +8,11 @@
     .form_group {
         margin-bottom: 10px;
     }
+
+       .swal-btn {
+        font-size: 16px !important;
+        padding: 10px 18px !important;
+    }
 </style>
 @endpush
 @section('content')
@@ -106,18 +111,45 @@
     </div>
 
     @elseif($tracking->status_id >= 2)  
-    @php
-     $reference_refno = !empty($cer->reference_refno) ? $cer->reference_refno  : $tracking->reference_refno;
-    @endphp
-    <div class="btn-group form_group">
-        <form action="{{ url('/certificate/auditor-ibs/create')}}" method="POST" style="display:inline;"  > 
-            {{ csrf_field() }}
-            {!! Form::hidden('refno', (!empty($reference_refno) ? $reference_refno  : null) , ['id' => 'ref_id', 'class' => 'form-control', 'placeholder'=>'' ]); !!}
-            <button class="btn btn-warning " type="submit" >
-                <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ
-            </button>
-        </form>
-    </div>
+        @php
+            $reference_refno = !empty($cer->reference_refno) ? $cer->reference_refno  : $tracking->reference_refno;
+            $doneDocAuditorAssigment = $tracking->doc_auditor_assignment;
+        @endphp
+
+
+        @if ($doneDocAuditorAssigment != null)
+            @if ($tracking->trackingDocReviewAuditor == null)
+                <div class="btn-group form_group">
+                    <button type="button" id="btn_doc_auditor" 
+                        class="btn {{ $doneDocAuditorAssigment == 1 ? 'btn-warning' : 'btn-info' }}">
+                        แต่งตั้งคณะผู้ตรวจเอกสาร
+                    </button>
+                </div>
+            @else
+                <div class="btn-group form_group">
+                    <a href="{{route("tracking.auditor_ib_doc_review_edit",['id' => $tracking->id])}}"
+                        class="btn 
+                            @if($doneDocAuditorAssigment == '0') btn-warning 
+                            @elseif($doneDocAuditorAssigment == '1') btn-danger 
+                            @elseif($doneDocAuditorAssigment == '2') btn-info 
+                            @else btn-secondary @endif">
+                        คณะผู้ตรวจเอกสาร 
+                    </a>
+                </div>
+            @endif
+        @endif
+{{-- {{$doneDocAuditorAssigment}} --}}
+        @if($doneDocAuditorAssigment == null || $doneDocAuditorAssigment == 2 )
+            <div class="btn-group form_group">
+                <form action="{{ url('/certificate/auditor-ibs/create')}}" method="POST" style="display:inline;"  > 
+                    {{ csrf_field() }}
+                    {!! Form::hidden('refno', (!empty($reference_refno) ? $reference_refno  : null) , ['id' => 'ref_id', 'class' => 'form-control', 'placeholder'=>'' ]); !!}
+                    <button class="btn btn-warning " type="submit" >
+                        <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ 
+                    </button>
+                </form>
+            </div>
+        @endif
     @endif
 
 {{-- @endif      --}}
@@ -357,7 +389,7 @@
     @endif  --}}
     
  
-    @if( $tracking->status_id == 6  || $tracking->status_id == 7 )    
+    {{-- @if( $tracking->status_id == 6  || $tracking->status_id == 7 )    
       <a  class="btn btn-warning form_group" href="{{ url("certificate/tracking-ib/append/$tracking->id")}}" >
              แนบท้าย
       </a> 
@@ -365,7 +397,18 @@
         <a  class="btn btn-info form_group" href="{{ url("certificate/tracking-ib/append/$tracking->id")}}" >
             <i class="fa fa-check-square-o"></i>   แนบท้าย
         </a>  
+    @endif  --}}
+{{-- {{$tracking->status_id}} --}}
+    @if( $tracking->status_id == 7 && $tracking->ability_confirm !== null )    
+      <a  class="btn btn-warning form_group" href="{{ url("certificate/tracking-ib/append/$tracking->id")}}" >
+             แนบท้าย
+      </a> 
+    @elseif( $tracking->status_id >= 8  )    
+        <a  class="btn btn-info form_group" href="{{ url("certificate/tracking-ib/append/$tracking->id")}}" >
+            <i class="fa fa-check-square-o"></i>   แนบท้าย
+        </a>  
     @endif 
+
 
 
   
@@ -508,7 +551,9 @@
     <script src="{{ asset('js/app.js') }}"></script>
  
     <script>
+        let tracking;
         $(document).ready(function(){
+             tracking = @json($tracking ?? []);
                 $('.check-readonly').prop('disabled', true);
                 $('.check-readonly').parent().removeClass('disabled');
                 $('.check-readonly').parent().css({"background-color": "rgb(238, 238, 238);","border-radius":"50%", "cursor": "not-allowed"});
@@ -574,6 +619,47 @@
  
              }
           });
+
+        $("#btn_doc_auditor").on("click", function() {
+            // const _token = $('input[name="_token"]').val();
+             var _token = $('meta[name="csrf-token"]').attr('content');
+            let trackingId = tracking.id;
+            console.log(trackingId);
+
+            Swal.fire({
+                title: "ต้องการแต่งตั้งทีมตรวจประเมินหรือไม่?",
+                icon: "question",
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: "แต่งตั้ง",
+                denyButtonText: "ไม่แต่งตั้ง",
+                cancelButtonText: "ยกเลิก",
+                customClass: {
+                    confirmButton: 'swal-btn', 
+                    denyButton: 'swal-btn', 
+                    cancelButton: 'swal-btn'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Swal.fire("แต่งตั้งเรียบร้อย!", "", "success");
+                    window.location.href = "/certificate/auditor_ib_doc_review/auditor_ib_doc_review/" + trackingId;
+                } else if (result.isDenied) {
+                    $.ajax({
+                        
+                        url: "{{route('tracking.bypass_ib_doc_auditor_assignment')}}",
+                        method: "POST",
+                        data: {
+                            trackingId: trackingId,
+                            _token: _token
+                        },
+                        success: function(result) {
+                            location.reload(); // รีโหลดหน้า
+                        }
+                    });
+                }
+            });
+        });
+
     </script>
 
 @endpush

@@ -791,12 +791,18 @@ class CheckCertificateLabController extends Controller
     {
 
 
+        // 
         // dd($request->all());
 
     //  try {
         $report = Report::findOrFail($id);
 
-        if(!is_null($report)){
+       
+
+        if($report !== null){
+           
+
+            
 
             $CertiLab = CertiLab::where('id',$report->app_certi_lab_id)->first();
 
@@ -835,6 +841,8 @@ class CheckCertificateLabController extends Controller
                         }
                     }
                 }
+
+                
                  //ประวัติการบันทึก สรุปรายงานและเสนออนุกรรมการฯ
                   $data_report = Report::select('meet_date','status','desc','save_date','start_date','end_date', 'created_by')
                                             ->where('id',$report->id)
@@ -862,12 +870,15 @@ class CheckCertificateLabController extends Controller
                                       'attach_pdf_client_name'    =>  $report->file_loa_client_name ?? '',
                                      ]);
                      //   ประวัติการแนบไฟล์ แนบท้าย
-                    if(!is_null($CertiLab->attach_pdf)){
+                   
+                    if($CertiLab->attach_pdf !== null){
+                        
                         if($CertiLab->purpose_type > 1){  //   ต่ออายุใบรับรอง , ขยายขอบข่าย , การเปลี่ยนแปลงมาตรฐาน
                             $certilab_id =  !empty($CertiLab->certificate_export_to2->certificate_for) ? $CertiLab->certificate_export_to2->certificate_for : $CertiLab->id;
                         }else{ // ยื่นขอครั้งแรก
                             $certilab_id =  $CertiLab->id;
                         }
+                        
                         CertLabsFileAll::where('app_certi_lab_id',$certilab_id)->update(['state' => 0]);
                         CertLabsFileAll::create([
                                                 'ref_id'                    =>  $report->id,
@@ -880,6 +891,7 @@ class CheckCertificateLabController extends Controller
                                                 'end_date'                  =>  $report->end_date ?? null,
                                                 'state' => 1
                                               ]);
+                        // dd((new Report)->getTable(),$report->id,$CertiLab);                      
                     }
 
                    $ao = new Report;
@@ -1873,7 +1885,7 @@ class CheckCertificateLabController extends Controller
           
            $lab_ids = [];
         if(!is_null($certi_lab)){
-            dd($request->all());
+            // dd($request->all());
          // ใบรับรอง และ ขอบข่าย    
           if(!is_null($certi_lab->certi_lab_export_mapreq_to)){
                   $certificate_no =  !empty($certi_lab->certi_lab_export_mapreq_to->certificate_export->certificate_no) ? $certi_lab->certi_lab_export_mapreq_to->certificate_export->certificate_no : null;

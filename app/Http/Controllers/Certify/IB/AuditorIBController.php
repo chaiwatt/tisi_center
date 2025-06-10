@@ -145,10 +145,9 @@ class AuditorIBController extends Controller
 
             $auditorib = new CertiIBAuditors;
             $auditors_status = [new CertiIBAuditorsStatus];
-            // if(!empty($request->certiib_id)){
-                $auditorib->app_certi_ib_id = $id;
-                $auditorib->certi_ib_change =  true;
-            // } 
+
+            $auditorib->app_certi_ib_id = $id;
+            $auditorib->certi_ib_change =  true;
 
             return view('certify.ib.auditor_ib.create',['app_no' => $app_no,
                                                         'ibAuditorTeams'=>$ibAuditorTeams,
@@ -829,6 +828,7 @@ private function convertThaiYearToAD($thaiDate)
 
 public function auditor_ib_doc_review_edit ($id)
 {
+    // dd($id);
     $model = str_slug('auditorib','-');
     if(auth()->user()->can('add-'.$model)) {
         $previousUrl = app('url')->previous();
@@ -907,7 +907,7 @@ public function cancel_doc_review_team(Request $request)
 
       $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 
-      $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
+    //   $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
 
 
       $uniqueAuditorIds = array_unique($auditorIds);
@@ -950,7 +950,7 @@ public function cancel_doc_review_team(Request $request)
       $data->get_date = HP::formatDateThaiFullNumThai($certi_ib->get_date);
 
       $data->date_range = $dateRange;
-      $data->statusAuditorMap = $statusAuditorMap;
+    //   $data->statusAuditorMap = $statusAuditorMap;
       $data->fix_text1 = <<<HTML
                   <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
                   <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ "การขอใบรับรอง การตรวจสอบและการออกใบรับรองตามวรรคหนึ่ง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด"</div>

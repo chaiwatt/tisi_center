@@ -2,27 +2,36 @@
 
 namespace App\Http\Controllers\Certificate\Cb;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
-use Yajra\Datatables\Datatables; 
-use HP; 
 use DB;
-use stdClass;
-use App\Models\Certify\ApplicantCB\CertiCBExport; 
-use App\Models\Certificate\Tracking;
-use App\Models\Certificate\TrackingAssigns;
-use App\Models\Certificate\TrackingReview;
-use App\Models\Certificate\TrackingAuditors;
-use App\Models\Certificate\TrackingAssessment;
-use App\Models\Certificate\TrackingAssessmentBug; 
-use App\Models\Certificate\TrackingHistory; 
-use App\Models\Certificate\TrackingInspection;
+use HP; 
 
+use stdClass;
+use Carbon\Carbon;
+use App\AttachFile;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Yajra\Datatables\Datatables; 
+use App\Http\Controllers\Controller;
+use App\Models\Certificate\Tracking;
 use Illuminate\Support\Facades\Mail; 
 use App\Mail\Tracking\SaveAssessmentMail;
 use App\Mail\Tracking\CheckSaveAssessment;
+use App\Mail\Tracking\MailToIbCbSurExpert;
+use App\Models\Certificate\TrackingReview;
+
+use App\Models\Certificate\TrackingAssigns;
+use App\Models\Certificate\TrackingAuditors;
+use App\Models\Certificate\TrackingHistory; 
 use App\Mail\Tracking\SaveAssessmentPastMail;
+use App\Models\Certificate\TrackingAssessment;
+use App\Models\Certificate\TrackingInspection;
+use App\Models\Certificate\TrackingCbReportOne;
+use App\Models\Certificate\TrackingCbReportTwo;
+use App\Models\Certificate\TrackingAuditorsDate;
+use App\Models\Certificate\TrackingAssessmentBug; 
+use App\Models\Certify\ApplicantCB\CertiCBExport; 
+use App\Models\Certify\ApplicantCB\CertiCBAttachAll;
+use App\Models\Certificate\SignAssessmentTrackingReportTransaction;
 
 class AssessmentCbController extends Controller
 {
@@ -174,7 +183,7 @@ class AssessmentCbController extends Controller
 
     public function store(Request $request)
     {
-   
+        // dd("ok");
         $model = str_slug('assessmentcb','-');
         if(auth()->user()->can('add-'.$model)) {
    // try {    
@@ -322,6 +331,7 @@ if($assessment->bug_report == 2){
                         $inspection->certificate_type    = 1;
                         $inspection->reference_refno     = $tracking->reference_refno;
                         $inspection->save();
+                        $this->addScopeFile($inspection);
                     }
                 }
 
@@ -362,6 +372,7 @@ if($assessment->bug_report == 2){
                 $inspection->certificate_type    = 1;
                 $inspection->reference_refno     = $tracking->reference_refno;
                 $inspection->save();
+                $this->addScopeFile($inspection);
             }
 
 
@@ -389,6 +400,40 @@ if($assessment->bug_report == 2){
         if(auth()->user()->can('edit-'.$model)) {
           $previousUrl = app('url')->previous();
           $assessment                   =  TrackingAssessment::findOrFail($id);
+
+          
+
+        // $assessment                   =  TrackingAssessment::findOrFail($id);
+        // dd($assessment );
+        $trackingAuditor = TrackingAuditors::find( $assessment->auditors_id);
+      
+
+
+        $auditors_statuses= $trackingAuditor->auditors_status_many;
+        $statusAuditorMap = [];
+
+         
+
+        foreach ($auditors_statuses as $auditors_status)
+        {
+            // dd($auditors_status->auditors_list_many);
+            $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+            $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
+            // dd($auditors);
+            // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+            if (!isset($statusAuditorMap[$statusAuditorId])) {
+                $statusAuditorMap[$statusAuditorId] = [];
+            }
+            // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+            foreach ($auditors as $auditor) {
+                
+                $statusAuditorMap[$statusAuditorId][] = $auditor->user_id;
+            }
+        }
+
+
+
+
           $assessment->name             =  !empty($assessment->certificate_export_to->CertiCbTo->name) ? $assessment->certificate_export_to->CertiCbTo->name : null;
           $assessment->laboratory_name  =  !empty($assessment->certificate_export_to->CertiCbTo->name_standard) ? $assessment->certificate_export_to->CertiCbTo->name_standard : null; 
           $assessment->auditor          =  !empty($assessment->auditors_to->auditor) ? $assessment->auditors_to->auditor : null;
@@ -401,9 +446,9 @@ if($assessment->bug_report == 2){
           }
           
           if(in_array($assessment->degree,[2,3,4,5,7,8])){
-            return view('certificate.cb.assessment-cb.form_assessment', compact('assessment'));
+            return view('certificate.cb.assessment-cb.form_assessment', compact('assessment','statusAuditorMap'));
           }else{
-            return view('certificate.cb.assessment-cb.edit', compact('assessment','bug'));
+            return view('certificate.cb.assessment-cb.edit', compact('assessment','bug','statusAuditorMap'));
           }
  
           
@@ -413,9 +458,141 @@ if($assessment->bug_report == 2){
 
     }
 
+     public function addScopeFile($inspection)
+ {
+             if($inspection->FileAttachScopeTo == null)
+        {
+           
+
+            $appId = $inspection->reference_refno;
+        
+
+            $certiCb = TrackingAssessment::where('reference_refno',$appId)->first()->certificate_export_to->applications;
+    
+            $certiCbFileAll = CertiCBAttachAll::where('app_certi_cb_id',$certiCb->id)
+                ->where('table_name','app_certi_cb')
+                ->where('file_section',3)
+                ->latest() // เรียงจาก created_at จากมากไปน้อย
+                ->first();
+    
+            $filePath = 'files/applicants/check_files_cb/' . $certiCbFileAll->file ;
+    
+            $localFilePath = HP::downloadFileFromTisiCloud($filePath);
+
+            // dd($certiIb ,$certiIbFileAll,$filePath,$localFilePath);
+
+            $check = AttachFile::where('systems','Center')
+                    ->where('ref_id',$inspection->id)
+                    ->where('ref_table',(new TrackingInspection)->getTable())
+                    ->where('section','file_scope')
+                    ->first();
+            if($check != null)
+            {
+                $check->delete();
+            }
+
+            $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+    
+            $uploadedFile = new \Illuminate\Http\UploadedFile(
+                $localFilePath,      // Path ของไฟล์
+                basename($localFilePath), // ชื่อไฟล์
+                mime_content_type($localFilePath), // MIME type
+                null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
+                true                // เป็นไฟล์ที่ valid แล้ว
+            );
+    
+            
+            $attach_path = "files/trackingcb";
+            // dd($attach_path.'/'.$inspection->reference_refno);
+            // ใช้ไฟล์ที่จำลองในการอัปโหลด
+            HP::singleFileUploadRefno(
+                $uploadedFile,
+                $attach_path.'/'.$inspection->reference_refno,
+                ( $tax_number),
+                (auth()->user()->FullName ?? null),
+                'Center',
+                (  (new TrackingInspection)->getTable() ),
+                $inspection->id,
+                'file_scope',
+                null
+            );
+
+        }
+ }
+
+    public function checkIsReportSigned(Request $request)
+    {
+        $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $request->tracking_report_info_id)
+            ->where('certificate_type', 0)
+            ->whereNotNull('signer_id')
+            ->where('report_type', 1)
+            ->count();
+
+        if ($signAssessmentTrackingReportTransactions == 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ยังไม่ได้สร้างรายงาน'
+            ]);
+        } else {
+            $ApprovedSignAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $request->tracking_report_info_id)
+                ->where('certificate_type', 0)
+                ->whereNotNull('signer_id')
+                ->where('approval', 1)
+                ->where('report_type', 1)
+                ->count();
+
+            if ($ApprovedSignAssessmentTrackingReportTransactions == $signAssessmentTrackingReportTransactions) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'ลงนามครบ'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'อยู่ระหว่างการลงนามรายงานที่ 1'
+                ]);
+            }
+        }
+    }
+
+    public function checkIsReportTwoSigned(Request $request)
+    {
+        $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $request->tracking_report_info_id)
+            ->where('certificate_type', 0)
+            ->whereNotNull('signer_id')
+            ->where('report_type', 2)
+            ->count();
+
+        if ($signAssessmentTrackingReportTransactions == 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ยังไม่ได้สร้างรายงาน'
+            ]);
+        } else {
+            $ApprovedSignAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $request->tracking_report_info_id)
+                ->where('certificate_type', 0)
+                ->whereNotNull('signer_id')
+                ->where('approval', 1)
+                ->where('report_type', 2)
+                ->count();
+
+            if ($ApprovedSignAssessmentTrackingReportTransactions == $signAssessmentTrackingReportTransactions) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'ลงนามครบ'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'อยู่ระหว่างการลงนามรายงานที่ 2'
+                ]);
+            }
+        }
+    }
 
     public function update(Request $request, $id)
     {
+        // dd('ok');
         $model = str_slug('assessmentcb','-');
         if(auth()->user()->can('edit-'.$model)) {
          
@@ -423,7 +600,10 @@ if($assessment->bug_report == 2){
             $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
             $request->request->add(['updated_by' => auth()->user()->getKey()]); //user update
                 $requestData = $request->all();
-                $requestData['report_date'] =  HP::convertDate($request->report_date,true) ?? null;
+                // $requestData['report_date'] =  HP::convertDate($request->report_date,true) ?? null;
+
+
+                $requestData['report_date'] = Carbon::now();
                 if($request->bug_report == 1){
                     $requestData['main_state'] = isset($request->main_state) ? 2 : 1;
                 }else{
@@ -439,27 +619,63 @@ if($assessment->bug_report == 2){
 
             $assessment->update($requestData);
         
-
+            
               // ข้อบกพร่อง/ข้อสังเกต
               if(isset($requestData["detail"]) && $assessment->bug_report == 1){
-                self::storeDetail($assessment,$requestData["detail"]);
+                $this->storeDetail($assessment,$requestData["detail"]);
               }
-    
-            // รายงานการตรวจประเมิน
-             if($request->file  && $request->hasFile('file')){
-                        HP::singleFileUploadRefno(
-                              $request->file('file') ,
-                              $this->attach_path.'/'.$assessment->reference_refno,
-                              ( $tax_number),
-                              (auth()->user()->FullName ?? null),
-                              'Center',
-                              (  (new TrackingAssessment)->getTable() ),
-                              $assessment->id,
-                              '1',
-                              null
-                        );
-             }
 
+            if(isset($requestData["detail"]) && $assessment->bug_report == 1){
+
+                $nowTimeStamp = Carbon::now()->addDays(15)->timestamp;
+                $encodedTimestamp = base64_encode($nowTimeStamp);
+                $token = Str::random(30) . '_' . $encodedTimestamp;
+                $notice_confirm_date = null;
+                if($request->submit_type == "confirm")
+                {
+                    $notice_confirm_date = Carbon::now()->addDays(1);
+                }
+
+                $check = TrackingAssessment::findOrFail($id);
+                if($check->expert_token != null)
+                {
+                    $token = $check->expert_token;
+                }
+
+
+                $check = TrackingAssessment::findOrFail($id);
+
+                if($check->submit_type == 'confirm')
+                {
+                    TrackingAssessment::findOrFail($id)->update([
+                        'expert_token' => $token,
+                        'notice_confirm_date' => $notice_confirm_date,
+                    ]);
+                }else{
+                    TrackingAssessment::findOrFail($id)->update([
+                        'submit_type' => $request->submit_type,
+                        'expert_token' => $token,
+                        'notice_confirm_date' => $notice_confirm_date,
+                    ]);
+                }
+              
+            }
+     
+            // รายงานการตรวจประเมิน รายงานที่ 1 ใช้จาก pdf
+            //  if($request->file  && $request->hasFile('file')){
+            //         HP::singleFileUploadRefno(
+            //                 $request->file('file') ,
+            //                 $this->attach_path.'/'.$assessment->reference_refno,
+            //                 ( $tax_number),
+            //                 (auth()->user()->FullName ?? null),
+            //                 'Center',
+            //                 (  (new TrackingAssessment)->getTable() ),
+            //                 $assessment->id,
+            //                 '1',
+            //                 null
+            //         );
+            //  }
+             
 
 if($assessment->bug_report == 2){
             // รายงาน Scope
@@ -559,6 +775,7 @@ if($assessment->bug_report == 2){
                         $inspection->certificate_type    = 1;
                         $inspection->reference_refno     = $tracking->reference_refno;
                         $inspection->save();
+                        $this->addScopeFile($inspection);
                     }
                   }
   
@@ -597,6 +814,7 @@ if($assessment->bug_report == 2){
                         $inspection->certificate_type    = 1;
                         $inspection->reference_refno     = $tracking->reference_refno;
                         $inspection->save();
+                        $this->addScopeFile($inspection);
                     }
 
 
@@ -606,6 +824,23 @@ if($assessment->bug_report == 2){
                      self::set_mail_past($assessment,$tracking->certificate_export_to);  
                }
           }
+
+        $check = TrackingCbReportOne::where('tracking_assessment_id',$assessment->id)->first();
+        if($check == null)
+        {
+            $trackingCbReportOne = new TrackingCbReportOne();
+            $trackingCbReportOne->tracking_assessment_id = $assessment->id;
+            $trackingCbReportOne->save();
+        }
+
+        $check2 = TrackingCbReportTwo::where('tracking_assessment_id',$assessment->id)->first();
+        if($check2 == null)
+        {
+            $trackingCbReportTwo = new TrackingCbReportTwo();
+            $trackingCbReportTwo->tracking_assessment_id = $assessment->id;
+            $trackingCbReportTwo->save();
+        }
+
     
         if($request->previousUrl){
             return redirect("$request->previousUrl")->with('message', 'เรียบร้อยแล้ว!');
@@ -636,6 +871,8 @@ if($assessment->bug_report == 2){
                     $bug->comment       = $request->comment[$bug->id] ?? @$bug->comment;
                     $bug->file_status   = $request->file_status[$bug->id] ??  @$bug->file_status;
                     $bug->file_comment  = $request->file_comment[$bug->id] ?? null;
+                    $bug->cause       = $request->cause[$bug->id] ?? @$bug->cause;
+                    $bug->owner_id = auth()->user()->runrecno;
                     $bug->save(); 
                 }
              }  
@@ -793,6 +1030,7 @@ if($assessment->bug_report == 2){
                     $inspection->certificate_type    = 1;
                     $inspection->reference_refno     = $tracking->reference_refno;
                     $inspection->save();
+                    $this->addScopeFile($inspection);
                 }
             }
      
@@ -834,6 +1072,7 @@ if($assessment->bug_report == 2){
                 $bug->no            = $detail["no"][$key] ?? null;
                 $bug->type          = $detail["type"][$key] ?? null;
                 $bug->reporter_id   = $detail["found"][$key] ?? null;
+                $bug->owner_id   = auth()->user()->runrecno;
                 $bug->save();
         }
     }
@@ -963,7 +1202,7 @@ if($assessment->bug_report == 2){
                                                             !empty($certi->created_by)? $certi->created_by:null,   
                                                             !empty($certi->agent_id)? $certi->agent_id:null, 
                                                             auth()->user()->getKey(),
-                                                            !empty($certi->DataEmailCertifyCenter) ? implode(",",$certi->DataEmailCertifyCenter)  : 'ib@tisi.mail.go.th',
+                                                            !empty($certi->DataEmailCertifyCenter) ? implode(",",$certi->DataEmailCertifyCenter)  : 'cb@tisi.mail.go.th',
                                                             $certi->email,
                                                             !empty($certi->DataEmailDirectorCBCC) ?  implode(",",$certi->DataEmailDirectorCBCC) : null,
                                                             !empty($certi->DataEmailDirectorCBReply) ? implode(",",$certi->DataEmailDirectorCBReply):  null
@@ -1185,5 +1424,497 @@ if($assessment->bug_report == 2){
                             ]);
    }
  
+   public function emailToExpert(Request $request)
+   {
+    // dd($request->all());
+
+       $assessment = TrackingAssessment::find($request->assessment_id);
+       $expertEmails = $request->selectedEmails;
+       $certi = $assessment->certificate_export_to->CertiCbTo;
+
+
+       $config = HP::getConfig();
+       $url_center  =  !empty($config->url_center) ? $config->url_center : url('');
+
+        $data_app = [
+                'certi'           => $certi,
+                'assessment'     => $assessment ,
+                'export'         => $data->certificate_export_to ?? '' ,
+                'url'            => $url_center.'/create-by-cb-expert-sur/' . $assessment->id .'?token='.$assessment->expert_token,
+                'email'          => !empty($certi->DataEmailCertifyCenter) ? $certi->DataEmailCertifyCenter : 'cb@tisi.mail.go.th',
+                                'email_cc'       => !empty($certi->DataEmailDirectorCBCC) ? $certi->DataEmailDirectorCBCC : [],
+                                'email_reply'    => !empty($certi->DataEmailDirectorCBReply) ? $certi->DataEmailDirectorCBReply : []
+            ];           
+
+    //  $log_email =  HP::getInsertCertifyLogEmail(!empty($assessment->reference_refno)? $assessment->reference_refno:null,    
+    //                                                         $assessment->tracking_id,
+    //                                                         (new Tracking)->getTable(),
+    //                                                         $assessment->id ?? null,
+    //                                                         (new TrackingAssessment)->getTable(),
+    //                                                         4,
+    //                                                          'แจ้งผลการประเมิน',
+    //                                                         view('mail.Tracking.mail_cb_ib_expert', $data_app),
+    //                                                         !empty($certi->created_by)? $certi->created_by:null,   
+    //                                                         !empty($certi->agent_id)? $certi->agent_id:null, 
+    //                                                         auth()->user()->getKey(),
+    //                                                         !empty($certi->DataEmailCertifyCenter) ? implode(",",$certi->DataEmailCertifyCenter)  : 'cb@tisi.mail.go.th',
+    //                                                         $certi->email,
+    //                                                         !empty($certi->DataEmailDirectorIBCC) ?  implode(",",$certi->DataEmailDirectorIBCC) : null,
+    //                                                         !empty($certi->DataEmailDirectorIBReply) ? implode(",",$certi->DataEmailDirectorIBReply):  null
+    //                                                     );
+
+                $log_email =  HP::getInsertCertifyLogEmail(!empty($$assessment->reference_refno)? $assessment->reference_refno:null,    
+                                                            $assessment->tracking_id,
+                                                            (new Tracking)->getTable(),
+                                                            $assessment->id ?? null,
+                                                            (new TrackingAssessment)->getTable(),
+                                                            4,
+                                                            'แจ้งผลการประเมิน',
+                                                            view('mail.Tracking.mail_cb_ib_expert', $data_app),
+                                                            !empty($certi->created_by)? $certi->created_by:null,   
+                                                            !empty($certi->agent_id)? $certi->agent_id:null, 
+                                                            auth()->user()->getKey(),
+                                                            !empty($certi->DataEmailCertifyCenter) ? implode(",",$certi->DataEmailCertifyCenter)  : 'cb@tisi.mail.go.th',
+                                                            $certi->email,
+                                                            !empty($certi->DataEmailDirectorCBCC) ?  implode(",",$certi->DataEmailDirectorCBCC) : null,
+                                                            !empty($certi->DataEmailDirectorCBReply) ? implode(",",$certi->DataEmailDirectorCBReply):  null
+                                                        );
+
+
+       $html = new MailToIbCbSurExpert($data_app);
+       $mail = Mail::to($expertEmails)->send($html);
+       if(is_null($mail) && !empty($log_email)){
+           HP::getUpdateCertifyLogEmail($log_email->id);
+       }
+   }
+
+   public function viewCbReportOne($assessment_id)
+   {
+    // dd('ok');
+       $assessment = TrackingAssessment::find($assessment_id);
+       $cbReportOne = TrackingCbReportOne::with('attachments')->where('tracking_assessment_id',$assessment_id)->first();
+       
+       $certi_cb = $assessment->certificate_export_to->applications;
+       $trackingAuditor = TrackingAuditors::find( $assessment->auditors_id);
+       $tracking = $assessment->tracking_to;
+       
+        $auditors_statuses= $trackingAuditor->auditors_status_many;
+       
+      $statusAuditorMap = [];
+      foreach ($auditors_statuses as $auditors_status)
+      {
+          $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+          $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
+
+          // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+          if (!isset($statusAuditorMap[$statusAuditorId])) {
+              $statusAuditorMap[$statusAuditorId] = [];
+          }
+          // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+          foreach ($auditors as $auditor) {
+              
+              $statusAuditorMap[$statusAuditorId][] = $auditor->id;
+          }
+      }
+
+    //   dd($certi_cb);
+
+        $trackingAuditorsDate = TrackingAuditorsDate::where('auditors_id',$trackingAuditor->id)->first();
+        $dateRange = "";
+
+        if (!empty($trackingAuditorsDate->start_date) && !empty($trackingAuditorsDate->end_date)) {
+            if ($trackingAuditorsDate->start_date == $trackingAuditorsDate->end_date) {
+                // ถ้าเป็นวันเดียวกัน
+                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date);
+            } else {
+                // ถ้าเป็นคนละวัน
+                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date) . 
+                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->end_date);
+            }
+        }
+
+
+        
+        $data = new stdClass();
+    
+        $data->header_text1 = '';
+        $data->header_text2 = '';
+        $data->header_text3 = '';
+        $data->header_text4 = $certi_cb->app_no;
+        // $data->lab_type = $certi_cb->lab_type == 3 ? 'ทดสอบ' : ($certi_cb->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+        $data->tracking = $certi_cb->tracking;
+        // $data->scope_branch = $scope_branch;
+        $data->tracking = $tracking;
+        // $data->app_no = 'ทดสอบ ๑๖๗๑';
+        $data->certificate_no = '13-LB0037';
+        $data->register_date = HP::formatDateThaiFullNumThai($certi_cb->created_at);
+        $data->get_date = HP::formatDateThaiFullNumThai($certi_cb->get_date);
+        // $data->experts = $experts;
+
+        $data->date_range = $dateRange;
+        $data->statusAuditorMap = $statusAuditorMap;
+
+
+        // $labRequest = null;
+        //CB = 0
+        $signAssessmentReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$cbReportOne->id)
+                                        ->where('certificate_type',0)
+                                        ->where('report_type',1)
+                                        ->get();
+        $labInformation = $certi_cb->information;
+    //    dd($certi_cb);
+    // dd($certi_cb->basic_province);
+        return view('certificate.cb.assessment-cb.report-one.view-report-one', [
+            'data' => $data,
+            'assessment' => $assessment,
+            'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
+            'tracking' => $tracking,
+            'certi_cb' => $certi_cb,
+            'trackingAuditor' => $trackingAuditor,
+            'cbReportOne' => $cbReportOne,
+            'trackingAuditorsDate' => $trackingAuditorsDate
+        ]);
+
+       
+   }
+
+   public function updateCbReportOne(Request $request)
+   {
+        // $submit_type = $payload['submit_type'] ?? null;
+        $signers = json_decode($request->input('signer'), true);
+        $assessment = (object) (json_decode($request->input('assessment')) ?? []);
+
+        // dd( $request->file('references'));
+       
+        $data = json_decode($request->input('data'), true); // แปลง JSON String เป็น Array
+        $id = $request->id;
+        $assessment = TrackingAssessment::find($id);
+
+        $attachments = $request->file('references');
+        $attachedFiles = [];
+        if ($attachments) {
+            foreach ($attachments as $index => $file) {
+                if ($file->isValid()) {
+                    $path = $file->store('references', 'public');
+                    $attachedFiles[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'size' => $file->getSize(),
+                        'mime' => $file->getMimeType()
+                    ];
+                }
+            }
+        } 
+
+//    dd(json_decode($request->persons));
+        $insertData = [
+            'tracking_assessment_id' => $id,
+            'eval_riteria_text' => $data[0]['eval_riteria_text'] ?? null,
+            'background_history' => $data[0]['background_history'] ?? null, // แปลงเป็น JSON หากเป็น array
+            'insp_proc' => $data[0]['insp_proc'] ?? null,
+            'evaluation_key_point' => $data[0]['evaluation_key_point'] ?? null,
+            'observation' => $data[0]['observation'] ?? null,
+            'evaluation_result' => $data[0]['evaluation_result'] ?? null,
+            'auditor_suggestion' => $data[0]['auditor_suggestion'] ?? null,
+            'persons' => $request->persons ?? null,
+            'attached_files' => !empty($attachedFiles) ? json_encode($attachedFiles) : null,
+            'status' => $request->status, 
+        ];
+
+        foreach ($data[0]['evaluation_detail'] as $key => $value) {
+            $insertData["{$key}_chk"] = $value['chk'] ?? false;
+            $insertData["{$key}_eval_select"] = $value['eval_select'] ?? null;
+            $insertData["{$key}_comment"] = $value['comment'] ?? null;
+        }
+
+        // dd($insertData);
+
+        try {
+            $trackingCbReportOne = TrackingCbReportOne::updateOrCreate(
+                ['tracking_assessment_id' => $id],
+                $insertData
+            );
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to save data: ' . $e->getMessage()], 500);
+        }
+
+        
+        $config = HP::getConfig();
+        $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+        SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $trackingCbReportOne->id)
+                                            ->where('certificate_type',0)
+                                            ->where('report_type',1)
+                                            ->delete();
+        foreach ($signers as $signer) {
+            // ตรวจสอบความถูกต้องของข้อมูล
+            if (!isset($signer['signer_id'], $signer['signer_name'], $signer['signer_position'])) {
+                continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
+            }
+
+            SignAssessmentTrackingReportTransaction::create([
+                'tracking_report_info_id' => $trackingCbReportOne->id,
+                'signer_id' => $signer['signer_id'],
+                'signer_name' => $signer['signer_name'],
+                'signer_position' => $signer['signer_position'],
+                'signer_order' => $signer['id'],
+                'view_url' => $url . '/certificate/assessment-cb/view-cb-info/'. $assessment->id ,
+                'certificate_type' => 0,
+                'app_id' => $assessment->reference_refno,
+            ]);
+        }
+
+        $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+        
+        $attachments = $request->file('references');
+        // dd($attachments);
+        // $attachedFiles = [];
+        if ($attachments && $request->hasFile('references')) {
+            // dd($attachments);
+            foreach ($attachments as $index => $file) {
+                if ($file->isValid()) {
+                    // เรียกใช้ HP::singleFileUploadRefno
+                    HP::singleFileUploadRefno(
+                        $file,
+                        $this->attach_path.'/'.$assessment->reference_refno,
+                        $tax_number, // tax_number
+                        auth()->user()->FullName ?? null, // ชื่อผู้ใช้
+                        'Center', // คงที่
+                        (new TrackingCbReportOne)->getTable(), // ชื่อตาราง
+                        $trackingCbReportOne->id, // tracking_assessment_id
+                        '11111', // คงที่
+                        null // ตัวเลือกเพิ่มเติม
+                    );
+                } 
+            }
+        } 
+
+        if($request->previousUrl){
+            return redirect("$request->previousUrl")->with('message', 'เรียบร้อยแล้ว!');
+        }else{
+            return redirect('certificate/assessment-cb')->with('message', 'เรียบร้อยแล้ว!');
+        }
+        // $ibReportInfo = TrackingCbReportOne::where('tracking_assessment_id',$id)->first()->update($insertData);
+        // dd($insertData);
+
+           return response()->json([
+                                 'assessment'=> $assessment ?? [] 
+                             ]);
+   }
+
+   public function viewCbReportTwo($assessment_id)
+   {
+    // dd('ok');
+       $assessment = TrackingAssessment::find($assessment_id);
+       $cbReportTwo = TrackingCbReportTwo::with('attachments')->where('tracking_assessment_id',$assessment_id)->first();
+       
+       $certi_cb = $assessment->certificate_export_to->applications;
+       $trackingAuditor = TrackingAuditors::find( $assessment->auditors_id);
+       $tracking = $assessment->tracking_to;
+       
+        $auditors_statuses= $trackingAuditor->auditors_status_many;
+       
+      $statusAuditorMap = [];
+      foreach ($auditors_statuses as $auditors_status)
+      {
+          $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+          $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
+
+          // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+          if (!isset($statusAuditorMap[$statusAuditorId])) {
+              $statusAuditorMap[$statusAuditorId] = [];
+          }
+          // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+          foreach ($auditors as $auditor) {
+              
+              $statusAuditorMap[$statusAuditorId][] = $auditor->id;
+          }
+      }
+
+    //   dd($certi_cb);
+
+        $trackingAuditorsDate = TrackingAuditorsDate::where('auditors_id',$trackingAuditor->id)->first();
+        $dateRange = "";
+
+        if (!empty($trackingAuditorsDate->start_date) && !empty($trackingAuditorsDate->end_date)) {
+            if ($trackingAuditorsDate->start_date == $trackingAuditorsDate->end_date) {
+                // ถ้าเป็นวันเดียวกัน
+                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date);
+            } else {
+                // ถ้าเป็นคนละวัน
+                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date) . 
+                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->end_date);
+            }
+        }
+
+
+        
+        $data = new stdClass();
+    
+        $data->header_text1 = '';
+        $data->header_text2 = '';
+        $data->header_text3 = '';
+        $data->header_text4 = $certi_cb->app_no;
+        // $data->lab_type = $certi_cb->lab_type == 3 ? 'ทดสอบ' : ($certi_cb->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+        $data->tracking = $certi_cb->tracking;
+        // $data->scope_branch = $scope_branch;
+        $data->tracking = $tracking;
+        // $data->app_no = 'ทดสอบ ๑๖๗๑';
+        $data->certificate_no = '13-LB0037';
+        $data->register_date = HP::formatDateThaiFullNumThai($certi_cb->created_at);
+        $data->get_date = HP::formatDateThaiFullNumThai($certi_cb->get_date);
+        // $data->experts = $experts;
+
+        $data->date_range = $dateRange;
+        $data->statusAuditorMap = $statusAuditorMap;
+
+
+        // $labRequest = null;
+        //CB = 0
+        $signAssessmentReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$cbReportTwo->id)
+                                        ->where('certificate_type',0)
+                                        ->where('report_type',2)
+                                        ->get();
+        $labInformation = $certi_cb->information;
+    //    dd($certi_cb);
+    // dd($certi_cb->basic_province);
+        return view('certificate.cb.assessment-cb.report-two.view-report-two', [
+            'data' => $data,
+            'assessment' => $assessment,
+            'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
+            'tracking' => $tracking,
+            'certi_cb' => $certi_cb,
+            'trackingAuditor' => $trackingAuditor,
+            'cbReportTwo' => $cbReportTwo,
+            'trackingAuditorsDate' => $trackingAuditorsDate
+        ]);
+
+       
+   }
+
+   public function updateCbReportTwo(Request $request)
+   {
+        // $submit_type = $payload['submit_type'] ?? null;
+        $signers = json_decode($request->input('signer'), true);
+        $assessment = (object) (json_decode($request->input('assessment')) ?? []);
+
+        // dd( $request->file('references'));
+       
+        $data = json_decode($request->input('data'), true); // แปลง JSON String เป็น Array
+        $id = $request->id;
+        $assessment = TrackingAssessment::find($id);
+
+        $attachments = $request->file('references');
+        $attachedFiles = [];
+        if ($attachments) {
+            foreach ($attachments as $index => $file) {
+                if ($file->isValid()) {
+                    $path = $file->store('references', 'public');
+                    $attachedFiles[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'size' => $file->getSize(),
+                        'mime' => $file->getMimeType()
+                    ];
+                }
+            }
+        } 
+
+//    dd(json_decode($request->persons));
+        $insertData = [
+            'tracking_assessment_id' => $id,
+            'eval_riteria_text' => $data[0]['eval_riteria_text'] ?? null,
+            'background_history' => $data[0]['background_history'] ?? null, // แปลงเป็น JSON หากเป็น array
+            'insp_proc' => $data[0]['insp_proc'] ?? null,
+            'evaluation_key_point' => $data[0]['evaluation_key_point'] ?? null,
+            'observation' => $data[0]['observation'] ?? null,
+            'evaluation_result' => $data[0]['evaluation_result'] ?? null,
+            'auditor_suggestion' => $data[0]['auditor_suggestion'] ?? null,
+            'persons' => $request->persons ?? null,
+            'attached_files' => !empty($attachedFiles) ? json_encode($attachedFiles) : null,
+            'status' => $request->status, 
+        ];
+
+        foreach ($data[0]['evaluation_detail'] as $key => $value) {
+            $insertData["{$key}_chk"] = $value['chk'] ?? false;
+            $insertData["{$key}_eval_select"] = $value['eval_select'] ?? null;
+            $insertData["{$key}_comment"] = $value['comment'] ?? null;
+        }
+
+        // dd($insertData);
+
+        try {
+            $trackingCbReportTwo = TrackingCbReportTwo::updateOrCreate(
+                ['tracking_assessment_id' => $id],
+                $insertData
+            );
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to save data: ' . $e->getMessage()], 500);
+        }
+
+        
+        $config = HP::getConfig();
+        $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+        SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $trackingCbReportTwo->id)
+                                            ->where('certificate_type',0)
+                                            ->where('report_type',2)
+                                            ->delete();
+        foreach ($signers as $signer) {
+            // ตรวจสอบความถูกต้องของข้อมูล
+            if (!isset($signer['signer_id'], $signer['signer_name'], $signer['signer_position'])) {
+                continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
+            }
+
+            SignAssessmentTrackingReportTransaction::create([
+                'tracking_report_info_id' => $trackingCbReportTwo->id,
+                'signer_id' => $signer['signer_id'],
+                'signer_name' => $signer['signer_name'],
+                'signer_position' => $signer['signer_position'],
+                'signer_order' => $signer['id'],
+                'view_url' => $url . '/certificate/assessment-cb/view-cb-info/'. $assessment->id ,
+                'certificate_type' => 0,
+                'report_type' => 2,
+                'app_id' => $assessment->reference_refno,
+            ]);
+        }
+
+        $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+        
+        $attachments = $request->file('references');
+        // dd($attachments);
+        // $attachedFiles = [];
+        if ($attachments && $request->hasFile('references')) {
+            // dd($attachments);
+            foreach ($attachments as $index => $file) {
+                if ($file->isValid()) {
+                    // เรียกใช้ HP::singleFileUploadRefno
+                    HP::singleFileUploadRefno(
+                        $file,
+                        $this->attach_path.'/'.$assessment->reference_refno,
+                        $tax_number, // tax_number
+                        auth()->user()->FullName ?? null, // ชื่อผู้ใช้
+                        'Center', // คงที่
+                        (new TrackingCbReportOne)->getTable(), // ชื่อตาราง
+                        $trackingCbReportOne->id, // tracking_assessment_id
+                        '11111', // คงที่
+                        null // ตัวเลือกเพิ่มเติม
+                    );
+                } 
+            }
+        } 
+
+        if($request->previousUrl){
+            return redirect("$request->previousUrl")->with('message', 'เรียบร้อยแล้ว!');
+        }else{
+            return redirect('certificate/assessment-cb')->with('message', 'เรียบร้อยแล้ว!');
+        }
+        // $ibReportInfo = TrackingCbReportOne::where('tracking_assessment_id',$id)->first()->update($insertData);
+        // dd($insertData);
+
+           return response()->json([
+                                 'assessment'=> $assessment ?? [] 
+                             ]);
+   }
 
 }

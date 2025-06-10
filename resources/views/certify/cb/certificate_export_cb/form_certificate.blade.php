@@ -60,8 +60,8 @@
                 {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-3 control-label  label-height'])) !!}
                 <div class="col-md-9">
                        <div class="  input-group">
-                        {!! Form::text('name_standard_en', !empty($export_cb->name_standard_en)? $export_cb->name_standard_en:null, ['class' => 'form-control','id'=>'name_standard_en','required' => true]) !!}
-                        <span class="input-group-addon bg-secondary "> EN </span>
+                        {!! Form::text('name_standard_en', !empty($export_cb->name_en)? $export_cb->name_en:null, ['class' => 'form-control','id'=>'name_standard_en','required' => true]) !!}
+                        <span class="input-group-addon bg-secondary "> EN</span>
                       </div>
                     {!! $errors->first('name_standard_en', '<p class="help-block">:message</p>') !!}
                 </div>
@@ -174,7 +174,7 @@
                     {!! HTML::decode(Form::label('province_name', '<span class="text-danger">*</span> จังหวัด'.':'.'<br/><span class=" font_size">(Province)</span>', ['class' => 'col-md-6 control-label  label-height'])) !!}
                     <div class="col-md-6  form-group">
                           <div class="  input-group">
-                            {!! Form::text('province_name', !empty($export_cb->province_name)? $export_cb->province_name:null, ['class' => 'form-control','id'=>'province_name','required' => true]) !!}
+                            {!! Form::text('province_name', !empty(trim($export_cb->province_name))? $export_cb->province_name:null, ['class' => 'form-control','id'=>'province_name','required' => true]) !!}
                             <span class="input-group-addon bg-secondary "> TH </span>
                           </div>
                         {!! $errors->first('province_name', '<p class="help-block">:message</p>') !!}
@@ -225,7 +225,7 @@
                     {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-6 control-label  label-height'])) !!}
                     <div class="col-md-6  form-group">
                           <div class="  input-group">
-                            {!! Form::text('district_name_en', !empty($export_cb->district_name_en)? $export_cb->district_name_en:null, ['class' => 'form-control','id'=>'district_name_en','required' => true]) !!}
+                            {!! Form::text('district_name_en', !empty($export_cb->district_name_en)? $export_cb->district_name_en:$certiCb->cb_district_eng, ['class' => 'form-control','id'=>'district_name_en','required' => true]) !!}
                             <span class="input-group-addon bg-secondary "> EN </span>
                           </div>
                         {!! $errors->first('district_name_en', '<p class="help-block">:message</p>') !!}
@@ -281,7 +281,7 @@
               {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-3 control-label  label-height'])) !!}
               <div class="col-md-7">
                      <div class="input-group">
-                      {!! Form::text('accereditatio_no_en', !empty($export_cb->accereditatio_no_en)? $export_cb->accereditatio_no_en:null, ['class' => 'form-control','id'=>'accereditatio_no_en','required' => true]) !!}
+                      {!! Form::text('accereditatio_no_en', !empty($export_cb->accereditatio_no)? $export_cb->accereditatio_no:null, ['class' => 'form-control','id'=>'accereditatio_no_en','required' => true]) !!}
                       <span class="input-group-addon bg-secondary "> EN </span>
                     </div>
                   {!! $errors->first('formula_en', '<p class="help-block">:message</p>') !!}

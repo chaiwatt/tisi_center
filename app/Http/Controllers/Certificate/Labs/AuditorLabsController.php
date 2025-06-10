@@ -280,7 +280,9 @@ class AuditorLabsController extends Controller
         TrackingAuditors::find($boardTrackingAutitorId)->update([
           'message_record_status' => 1
         ]);
-        $check = MessageRecordTrackingTransaction::where('ba_tracking_id',$boardTrackingAutitorId)->get();
+        $check = MessageRecordTrackingTransaction::where('ba_tracking_id',$boardTrackingAutitorId)
+        ->where('certificate_type',3)
+        ->get();
         if($check->count() == 0){
             $signatures = json_decode($request->input('signaturesJson'), true);
             $viewUrl = url('/certificate/auditor-labs/view-lab-tracking-message-record/'.$boardTrackingAutitorId);
@@ -292,7 +294,7 @@ class AuditorLabsController extends Controller
                         MessageRecordTrackingTransaction::create([
                             'ba_tracking_id' => $boardTrackingAutitorId,
                             'signer_id' => $signature['signer_id'],
-                            'certificate_type' => 2,
+                            'certificate_type' => 3,
                             'certificate_export_id' => $certilabExportId,
                             'view_url' => $viewUrl,
                             'signature_id' => $signature['id'],
@@ -322,7 +324,9 @@ class AuditorLabsController extends Controller
             }
         }else{
           // dd('sss');
-          MessageRecordTrackingTransaction::where('ba_tracking_id',$boardTrackingAutitorId)->update([
+          MessageRecordTrackingTransaction::where('ba_tracking_id',$boardTrackingAutitorId)
+          ->where('certificate_type',3)
+          ->update([
                 'approval' => 0
             ]);
         }
@@ -845,10 +849,6 @@ class AuditorLabsController extends Controller
     public function SaveTrackingLabMessageRecord(Request $request)
     {
       $trackingAuditor  =  TrackingAuditors::findOrFail($request->id);
-      
-
-
-      // dd($request->all());
          // สร้างและบันทึกข้อมูลโดยตรง
          $record = new BoardAuditorTrackingMsRecordInfo([
             'tracking_auditor_id' => $request->id,
@@ -865,11 +865,9 @@ class AuditorLabsController extends Controller
         TrackingAuditors::find($request->id)->update([
             'message_record_status' => 2
         ]);
-
         
         $this->sendMailToSigner($trackingAuditor,$trackingAuditor->certificate_export_to); 
 
-        // return redirect()->route('certify.auditor.index');
 
     }
 
@@ -884,8 +882,6 @@ class AuditorLabsController extends Controller
       $trackingAuditor = TrackingAuditors::find($id);
       
       $boardAuditorMsRecordInfo = $trackingAuditor->boardAuditorTrackingMsRecordInfos->first();
-
-      // dd($boardAuditorMsRecordInfo);
 
       $auditors_statuses= $trackingAuditor->auditors_status_many;
       $statusAuditorMap = [];
@@ -905,10 +901,6 @@ class AuditorLabsController extends Controller
               $statusAuditorMap[$statusAuditorId][] = $auditor->id;
           }
       }
-
-    //   dd($statusAuditorMap,$trackingAuditor);
-
-
       
       $tracking = Tracking::find($trackingAuditor->tracking_id);
 

@@ -42,8 +42,28 @@ class  TrackingInspection extends Model
         return $trackingAssessment->certificate_export_to->applications;
       }
       return null;
-     
+    }
+
+    public function certiIb()
+    {
       
+      $trackingAssessment = TrackingAssessment::where('reference_refno',$this->reference_refno)->first();
+      if($trackingAssessment != null)
+      {
+        return $trackingAssessment->certificate_export_to->applications;
+      }
+      return null;
+    }
+
+        public function certiCb()
+    {
+      
+      $trackingAssessment = TrackingAssessment::where('reference_refno',$this->reference_refno)->first();
+      if($trackingAssessment != null)
+      {
+        return $trackingAssessment->certificate_export_to->applications;
+      }
+      return null;
     }
  
 

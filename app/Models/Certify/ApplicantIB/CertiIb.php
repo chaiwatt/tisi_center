@@ -13,6 +13,7 @@ use App\Models\Basic\Amphur;
 use App\Models\Basic\District;
 use App\Models\Basic\Province;
 use Kyslik\ColumnSortable\Sortable;
+use App\Models\Bcertify\PurposeType;
 use App\Models\Sso\User AS SSO_User;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Certificate\IbDocReviewAuditor;
@@ -100,9 +101,14 @@ class CertiIb extends Model
                              'require_scope_update',
                              'scope_view_signer_id',
                              'scope_view_status',
+                             'transferer_user_id',
+                            'transferer_export_id'
                             ];
 
-
+public function purposeType()
+{
+    return $this->belongsTo(PurposeType::class, 'standard_change');
+}  
 
 public function basic_province() {
     return $this->belongsTo(Province::class, 'province_id');

@@ -104,7 +104,7 @@ class CertificateExportController extends Controller
 
     public function create($lang)
     {
-
+// dd('ok');
 //        $data = [
 //            'foo' => 'bar'
 //        ];

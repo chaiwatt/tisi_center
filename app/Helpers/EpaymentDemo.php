@@ -449,7 +449,125 @@ class EpaymentDemo
 
       return response()->json($response);
      }
-     
+     else if(Str::contains($ref1, 'SurIB') && $out == 'json')
+        {
+          
+          $tracking = Tracking::where('reference_refno',$app_no)->first();
+          $certib_export = CertiIBExport::find($tracking->ref_id);
+
+          $response['pid']                = $pid;
+          $response['Ref1']               = $tracking->reference_refno;
+          $response['returnCode']         = '000';
+          $response['appno']              = $tracking->reference_refno;
+          $response['bus_name']           = $certib_export->name_unit;
+          $response['address']            = $certib_export->address;
+          $response['allay']              = $certib_export->allay;
+          $response['village_no']         = $certib_export->village_no;
+          $response['road']               = $certib_export->road;
+          $response['district_id']        = $certib_export->district_name ?? null;
+          $response['amphur_id']          = $certib_export->amphur_name ?? null;
+          $response['province_id']        = $certib_export->province_name ?? null;
+          $response['postcode']           = $certib_export->postcode;
+          $response['email']              = $certib_export->applications->email ?? null;
+          $response['app_check']          = "30000";
+          $response['vatid']              = "0125542005151";
+          $response['Perpose']            =  null;
+          $response['AmountCert']         = "5000";
+          $response['billNo']             = "64020900000163";
+          $response['CGDRef1']            = "6402090000016310";
+          $response['CGDRef2']            = "64041072";
+            // $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
+            // $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+            // กำหนดวันเริ่มต้นเป็นปัจจุบัน
+            $response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+            // กำหนดวันสิ้นสุดโดยเพิ่ม 30 วัน
+            $response['invoiceEndDate'] = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');
+          $response['allPaymentAmount']   = "36,000.00";
+          $response['amount_bill']        = "36,000.00";
+          $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
+          $response['barcodeString']      = "|099400015951015%0D6402090000016310%0D64041072%0D3600000";
+          $response['barcodeSub']         = "|099400015951015 6402090000016310 64041072 3600000";
+          $response['QRCodeString']       = "|099400015951015%0D6402090000016310%0D64041072%0D3600000";
+          $response['status']             = "0";
+          $response['auditor']            = "คณะ";
+
+          $epay =  EpaymentBillTest::where('Ref1',$ref1)->first();
+          if(is_null($epay)){
+            $epay = new EpaymentBillTest;
+          }
+          $epay->Ref1               =   $ref1;
+          $epay->CGDRef1            =  '6402090000016310';
+          $epay->Status             =  0;
+          $epay->PaymentDate        =  date('Y-m-d H:i:s'); 
+          $epay->InvoiceCode        = '0-0000000000000000000000'; 
+          $epay->ReceiptCode        =  '123456';
+          $epay->ReceiptCreateDate  = date('Y-m-d H:i:s'); 
+          $epay->Amount             =  "36000.00";
+          $epay->save();
+
+          return response()->json($response);
+        }
+
+        else if(Str::contains($ref1, 'SurCB') && $out == 'json')
+        {
+          // dd($ref1);
+          $tracking = Tracking::where('reference_refno',$app_no)->first();
+          $certcb_export = CertiCBExport::find($tracking->ref_id);
+
+          $response['pid']                = $pid;
+          $response['Ref1']               = $tracking->reference_refno;
+          $response['returnCode']         = '000';
+          $response['appno']              = $tracking->reference_refno;
+          $response['bus_name']           = $certcb_export->name_unit;
+          $response['address']            = $certcb_export->address;
+          $response['allay']              = $certcb_export->allay;
+          $response['village_no']         = $certcb_export->village_no;
+          $response['road']               = $certcb_export->road;
+          $response['district_id']        = $certcb_export->district_name ?? null;
+          $response['amphur_id']          = $certcb_export->amphur_name ?? null;
+          $response['province_id']        = $certcb_export->province_name ?? null;
+          $response['postcode']           = $certcb_export->postcode;
+          $response['email']              = $certcb_export->applications->email ?? null;
+          $response['app_check']          = "30000";
+          $response['vatid']              = "0125542005151";
+          $response['Perpose']            =  null;
+          $response['AmountCert']         = "5000";
+          $response['billNo']             = "64020900000163";
+          $response['CGDRef1']            = "6402090000016310";
+          $response['CGDRef2']            = "64041072";
+            // $response['invoiceStartDate']   = "2021-07-07T16:02:00.00+07:00";
+            // $response['invoiceEndDate']     = "2021-08-06T00:00:00.00+07:00";
+            // กำหนดวันเริ่มต้นเป็นปัจจุบัน
+            $response['invoiceStartDate'] = Carbon::now()->format('Y-m-d\TH:i:s.00P');
+            // กำหนดวันสิ้นสุดโดยเพิ่ม 30 วัน
+            $response['invoiceEndDate'] = Carbon::now()->addDays(30)->format('Y-m-d\TH:i:s.00P');
+          $response['allPaymentAmount']   = "36,000.00";
+          $response['amount_bill']        = "36,000.00";
+          $response['allAmountTH']        = "สามหมื่นหกพันบาทถ้วน";
+          $response['barcodeString']      = "|099400015951015%0D6402090000016310%0D64041072%0D3600000";
+          $response['barcodeSub']         = "|099400015951015 6402090000016310 64041072 3600000";
+          $response['QRCodeString']       = "|099400015951015%0D6402090000016310%0D64041072%0D3600000";
+          $response['status']             = "0";
+          $response['auditor']            = "คณะ";
+
+          $epay =  EpaymentBillTest::where('Ref1',$ref1)->first();
+         
+          if(is_null($epay)){
+           
+            $epay = new EpaymentBillTest;
+          }
+          $epay->Ref1               =   $ref1;
+          $epay->CGDRef1            =  '6402090000016310';
+          $epay->Status             =  0;
+          $epay->PaymentDate        =  date('Y-m-d H:i:s'); 
+          $epay->InvoiceCode        = '0-0000000000000000000000'; 
+          $epay->ReceiptCode        =  '123456';
+          $epay->ReceiptCreateDate  = date('Y-m-d H:i:s'); 
+          $epay->Amount             =  "36000.00";
+          $epay->save();
+  // dd($epay,$ref1);
+          return response()->json($response);
+        }
      
      else if($out == 'pdf'){
             $arrContextOptions=array(

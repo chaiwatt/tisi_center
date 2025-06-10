@@ -7,6 +7,7 @@ use HP;
 use App\User;
 use stdClass;
 use Carbon\Carbon;
+use App\AttachFile;
 use App\CertificateExport;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -16,8 +17,8 @@ use Yajra\Datatables\Datatables;
 use App\Http\Controllers\Controller;
 use App\Models\Certificate\Tracking;
 use Illuminate\Support\Facades\Mail; 
-use App\Models\Bcertify\LabCalRequest;
 
+use App\Models\Bcertify\LabCalRequest;
 use App\Models\Bcertify\LabTestRequest;
 use App\Mail\Tracking\MailToLabSurExpert;
 use App\Mail\Tracking\SaveAssessmentMail;
@@ -31,7 +32,10 @@ use App\Mail\Tracking\SaveAssessmentPastMail;
 use App\Models\Certificate\TrackingAssessment;
 use App\Models\Certificate\TrackingInspection;
 use App\Models\Certificate\TrackingAuditorsDate;
+use App\Models\Certificate\TrackingLabReportOne;
+use App\Models\Certificate\TrackingLabReportTwo;
 use App\Models\Certificate\TrackingLabReportInfo;
+use App\Models\Certify\Applicant\CertLabsFileAll;
 use App\Models\Bcertify\BoardAuditoExpertTracking;
 use App\Models\Certificate\TrackingAssessmentBug; 
 use App\Models\Certificate\SignAssessmentTrackingReportTransaction;
@@ -330,7 +334,10 @@ class AssessmentLabsController extends Controller
                         $export->status_id  = 4;
                         $export->save();
 
-                        $inspection =   TrackingInspection::where('ref_id',$export->id)  ->where('ref_table',(new CertificateExport)->getTable())   ->where('certificate_type',3)  ->where('reference_refno',$export->reference_refno)->first();
+                        $inspection =   TrackingInspection::where('ref_id',$export->id)  ->where('ref_table',(new CertificateExport)->getTable())
+                        ->where('certificate_type',3)
+                        ->where('reference_refno',$export->reference_refno)
+                        ->first();
                         if(is_null($inspection)){
                          $inspection = new TrackingInspection;
                         }
@@ -339,6 +346,7 @@ class AssessmentLabsController extends Controller
                         $inspection->certificate_type    = 3;
                         $inspection->reference_refno     = $export->reference_refno;
                         $inspection->save();
+                        $this->addScopeFile($inspection);
                     }
                 }
 
@@ -379,6 +387,7 @@ class AssessmentLabsController extends Controller
                 $inspection->certificate_type    = 3;
                 $inspection->reference_refno     = $export->reference_refno;
                 $inspection->save();
+                 $this->addScopeFile($inspection);
             }
 
 
@@ -387,9 +396,17 @@ class AssessmentLabsController extends Controller
   
         }
 
-        $trackingLabReportInfo = new TrackingLabReportInfo();
-        $trackingLabReportInfo->tracking_assessment_id = $assessment->id;
-        $trackingLabReportInfo->save();
+        // $trackingLabReportInfo = new TrackingLabReportInfo();
+        // $trackingLabReportInfo->tracking_assessment_id = $assessment->id;
+        // $trackingLabReportInfo->save();
+
+        $trackingLabReportOne = new TrackingLabReportOne();
+        $trackingLabReportOne->tracking_assessment_id = $assessment->id;
+        $trackingLabReportOne->save();
+
+        $trackingLabReportTwo = new TrackingLabReportTwo();
+        $trackingLabReportTwo->tracking_assessment_id = $assessment->id;
+        $trackingLabReportTwo->save();
 
         if($request->previousUrl){
             return redirect("$request->previousUrl")->with('message', 'เรียบร้อยแล้ว!');
@@ -408,6 +425,7 @@ class AssessmentLabsController extends Controller
     {
         // dd('edit');
         $assessment                   =  TrackingAssessment::findOrFail($id);
+        // dd($assessment );
         $trackingAuditor = TrackingAuditors::find( $assessment->auditors_id);
       
         $boardAuditorMsRecordInfo = $trackingAuditor->boardAuditorTrackingMsRecordInfos->first();
@@ -454,8 +472,10 @@ class AssessmentLabsController extends Controller
     
           
           if(in_array($assessment->degree,[2,3,4,5,7,8])){
+            // dd('a');
             return view('certificate.labs.assessment-labs.form_assessment', compact('assessment','statusAuditorMap'));
           }else{
+            // dd(count($assessment->tracking_assessment_bug_many));
             return view('certificate.labs.assessment-labs.edit', compact('assessment','bug','statusAuditorMap'));
           }
  
@@ -466,6 +486,76 @@ class AssessmentLabsController extends Controller
 
     }
 
+
+    public function checkIsReportSigned(Request $request)
+    {
+        $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $request->tracking_report_info_id)
+            ->where('certificate_type', 2)
+            ->whereNotNull('signer_id')
+            ->where('report_type', 1)
+            ->count();
+
+        if ($signAssessmentTrackingReportTransactions == 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ยังไม่ได้สร้างรายงาน'
+            ]);
+        } else {
+            $ApprovedSignAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $request->tracking_report_info_id)
+                ->where('certificate_type', 2)
+                ->whereNotNull('signer_id')
+                ->where('approval', 1)
+                ->where('report_type', 1)
+                ->count();
+
+            if ($ApprovedSignAssessmentTrackingReportTransactions == $signAssessmentTrackingReportTransactions) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'ลงนามครบ'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'อยู่ระหว่างการลงนามรายงานที่ 1'
+                ]);
+            }
+        }
+    }
+
+    public function checkIsReportTwoSigned(Request $request)
+    {
+        $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $request->tracking_report_info_id)
+            ->where('certificate_type', 2)
+            ->whereNotNull('signer_id')
+            ->where('report_type', 2)
+            ->count();
+
+        if ($signAssessmentTrackingReportTransactions == 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ยังไม่ได้สร้างรายงาน'
+            ]);
+        } else {
+            $ApprovedSignAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $request->tracking_report_info_id)
+                ->where('certificate_type', 2)
+                ->whereNotNull('signer_id')
+                ->where('approval', 1)
+                ->where('report_type', 2)
+                ->count();
+
+            if ($ApprovedSignAssessmentTrackingReportTransactions == $signAssessmentTrackingReportTransactions) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'ลงนามครบ'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'อยู่ระหว่างการลงนามรายงานที่ 2'
+                ]);
+            }
+        }
+    }
 
     public function update(Request $request, $id)
     {
@@ -486,6 +576,7 @@ class AssessmentLabsController extends Controller
             }
             $tb         = new TrackingAssessment;
             $assessment = TrackingAssessment::findOrFail($id);
+            // dd($assessment,$request->submit_type);
             $requestData['vehicle']        = isset($request->vehicle) ? $request->vehicle : null;
 
             if(is_null($assessment->created_by)){
@@ -649,6 +740,7 @@ class AssessmentLabsController extends Controller
                         $inspection->ref_table          = (new CertificateExport)->getTable();
                         $inspection->certificate_type   =  3;
                         $inspection->save();
+                        $this->addScopeFile($inspection);
 
                         }
   
@@ -679,6 +771,7 @@ class AssessmentLabsController extends Controller
                             $inspection->ref_table          = (new CertificateExport)->getTable();
                             $inspection->certificate_type   =  3;
                             $inspection->save();
+                            $this->addScopeFile($inspection);
 
                             }
 
@@ -689,13 +782,22 @@ class AssessmentLabsController extends Controller
                }
           }
 
-          $trackingLabReportInfo = TrackingLabReportInfo::where('tracking_assessment_id',$assessment->id)->first();
+          $trackingLabReportOne = TrackingLabReportOne::where('tracking_assessment_id',$assessment->id)->first();
 
-          if($trackingLabReportInfo == null)
+          if($trackingLabReportOne == null)
           {
-            $trackingLabReportInfo = new TrackingLabReportInfo();
-            $trackingLabReportInfo->tracking_assessment_id = $assessment->id;
-            $trackingLabReportInfo->save();
+            $trackingLabReportOne = new TrackingLabReportOne();
+            $trackingLabReportOne->tracking_assessment_id = $assessment->id;
+            $trackingLabReportOne->save();
+          }
+
+        $trackingLabReportTwo = TrackingLabReportTwo::where('tracking_assessment_id',$assessment->id)->first();
+
+          if($trackingLabReportTwo == null)
+          {
+            $trackingLabReportTwo = new TrackingLabReportTwo();
+            $trackingLabReportTwo->tracking_assessment_id = $assessment->id;
+            $trackingLabReportTwo->save();
           }
 
 
@@ -894,6 +996,8 @@ class AssessmentLabsController extends Controller
                     $inspection->certificate_type    = 3;
                     $inspection->reference_refno     = $tracking->reference_refno;
                     $inspection->save();
+
+                    $this->addScopeFile($inspection);
                 }
             }
      
@@ -913,7 +1017,62 @@ class AssessmentLabsController extends Controller
     
     }
     
+ public function addScopeFile($inspection)
+ {
+    
+    if($inspection->FileAttachScopeTo == null)
+        {
+           
+            $appId = $inspection->reference_refno;
 
+            $certiLab = TrackingAssessment::where('reference_refno',$appId)->first()->certificate_export_to->applications;
+    
+            $certiLabFileAll = CertLabsFileAll::where('app_certi_lab_id',$certiLab->id)
+                ->latest() // เรียงจาก created_at จากมากไปน้อย
+                ->first();
+                
+            $filePath = 'files/applicants/check_files/' . $certiLabFileAll->attach_pdf ;
+    
+            $localFilePath = HP::downloadFileFromTisiCloud($filePath);
+
+    // dd($certiLab,$inspection,$localFilePath);
+            $check = AttachFile::where('systems','Center')
+                    ->where('ref_id',$inspection->id)
+                    ->where('ref_table',(new TrackingInspection)->getTable())
+                    ->where('section','file_scope')
+                    ->first();
+
+            if($check != null)
+            {
+                $check->delete();
+            }
+    
+            $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+    
+            $uploadedFile = new \Illuminate\Http\UploadedFile(
+                $localFilePath,      // Path ของไฟล์
+                basename($localFilePath), // ชื่อไฟล์
+                mime_content_type($localFilePath), // MIME type
+                null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
+                true                // เป็นไฟล์ที่ valid แล้ว
+            );
+    
+            $attach_path = "files/trackinglabs";
+            // ใช้ไฟล์ที่จำลองในการอัปโหลด
+            HP::singleFileUploadRefno(
+                $uploadedFile,
+                $attach_path.'/'.$inspection->reference_refno,
+                ( $tax_number),
+                (auth()->user()->FullName ?? null),
+                'Center',
+                (  (new TrackingInspection)->getTable() ),
+                $inspection->id,
+                'file_scope',
+                null
+            );
+    
+        }
+ }
 
     public function data_certi($id) {                   
         $auditor = TrackingAuditors::findOrFail($id);  
@@ -1349,9 +1508,114 @@ class AssessmentLabsController extends Controller
    }
 
 
+//    viewLabReportOneInfo
+
+   public function viewLabReportOne($assessment_id)
+   {
+    // dd('ok');
+       $assessment = TrackingAssessment::find($assessment_id);
+       $labReportOne = TrackingLabReportOne::with('attachments')->where('tracking_assessment_id',$assessment_id)->first();
+       
+       $certi_lab = $assessment->certificate_export_to->CertiLabTo;
+       $trackingAuditor = TrackingAuditors::find( $assessment->auditors_id);
+       $tracking = $assessment->tracking_to;
+       
+        $auditors_statuses= $trackingAuditor->auditors_status_many;
+       
+      $statusAuditorMap = [];
+      foreach ($auditors_statuses as $auditors_status)
+      {
+          $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+          $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
+
+          // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+          if (!isset($statusAuditorMap[$statusAuditorId])) {
+              $statusAuditorMap[$statusAuditorId] = [];
+          }
+          // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+          foreach ($auditors as $auditor) {
+              
+              $statusAuditorMap[$statusAuditorId][] = $auditor->id;
+          }
+      }
+
+        $trackingAuditorsDate = TrackingAuditorsDate::where('auditors_id',$trackingAuditor->id)->first();
+        $dateRange = "";
+
+        if (!empty($trackingAuditorsDate->start_date) && !empty($trackingAuditorsDate->end_date)) {
+            if ($trackingAuditorsDate->start_date == $trackingAuditorsDate->end_date) {
+                // ถ้าเป็นวันเดียวกัน
+                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date);
+            } else {
+                // ถ้าเป็นคนละวัน
+                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date) . 
+                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->end_date);
+            }
+        }
+
+
+        $scope_branch = "";
+        if ($certi_lab->lab_type == 3){
+            $scope_branch =$certi_lab->BranchTitle;
+        }else if($certi_lab->lab_type == 4)
+        {
+            $scope_branch = $certi_lab->ClibrateBranchTitle;
+        }
+
+        
+        $data = new stdClass();
+    
+        $data->header_text1 = '';
+        $data->header_text2 = '';
+        $data->header_text3 = '';
+        $data->header_text4 = $certi_lab->app_no;
+        $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+        $data->lab_name = $certi_lab->lab_name;
+        $data->scope_branch = $scope_branch;
+        $data->tracking = $tracking;
+        // $data->app_no = 'ทดสอบ ๑๖๗๑';
+        $data->certificate_no = '13-LB0037';
+        $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+        $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+        // $data->experts = $experts;
+
+        $data->date_range = $dateRange;
+        $data->statusAuditorMap = $statusAuditorMap;
+
+
+        $labRequest = null;
+
+            
+        if($certi_lab->lab_type == 4){
+            $labRequest = LabCalRequest::where('app_certi_lab_id',$certi_lab->id)->where('type',1)->first();
+        }else if($certi_lab->lab_type == 3)
+        {
+            $labRequest = LabTestRequest::where('app_certi_lab_id',$certi_lab->id)->where('type',1)->first();
+        }
+        
+        $signAssessmentReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$labReportOne->id)
+                                        ->where('certificate_type',2)
+                                        ->where('report_type',1)
+                                        ->get();
+        $labInformation = $certi_lab->information;
+        // dd('a');
+        return view('certificate.labs.assessment-labs.report-one.view-report-one', [
+            'data' => $data,
+            'assessment' => $assessment,
+            'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
+            'tracking' => $tracking,
+            'certi_lab' => $certi_lab,
+            'labRequest' => $labRequest,
+            'labReportOne' => $labReportOne,
+            'labInformation' => $labInformation[0]
+        ]);
+
+       
+   }
 
    public function viewLabInfo($assessment_id)
    {
+ 
     // http://127.0.0.1:8081/certify/save_assessment/create-lab-info/1375
        // สำหรับ admin และเจ้าหน้าที่ lab
      //   if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
@@ -1465,6 +1729,7 @@ class AssessmentLabsController extends Controller
         
         $signAssessmentReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$labReportInfo->id)
                                         ->where('certificate_type',2)
+                                        ->where('report_type',1)
                                         ->get();
         $labInformation = $certi_lab->information;
         return view('certificate.labs.assessment-labs.view-report', [
@@ -1480,6 +1745,514 @@ class AssessmentLabsController extends Controller
 
        
    }
+
+
+
+
+    public function updateLabReportOne(Request $request)
+    {
+        //    dd('ok');
+        // ดึง payload และแปลง JSON เป็น array
+        $payload = json_decode($request->input('payload'), true);
+
+        // ดึงข้อมูลจาก payload
+        $id = $payload['id'] ?? null;
+        $data = $payload['data'] ?? [];
+        $persons = $payload['persons'] ?? [];
+        $assessment = (object) ($payload['assessment'] ?? []);
+        $signers = $payload['signer'] ?? [];
+        $submit_type = $payload['submit_type'] ?? null;
+       
+         $id = $assessment->id;
+
+        //  dd($signer);
+
+        // เตรียมข้อมูลสำหรับบันทึก
+        $recordData = [
+            'tracking_assessment_id' => $id, // ใช้ id จาก payload
+            'book_no_text' => isset($data['book_no_text']) ? $data['book_no_text'] : null,
+            'audit_observation_text' => isset($data['audit_observation_text']) ? $data['audit_observation_text'] : null,
+            'chk_impartiality_yes' => isset($data['chk_impartiality_yes']) && $data['chk_impartiality_yes'] ? 'true' : null,
+            'chk_impartiality_no' => isset($data['chk_impartiality_no']) && $data['chk_impartiality_no'] ? 'true' : null,
+            'impartiality_text' => isset($data['impartiality_text']) ? $data['impartiality_text'] : null,
+            'chk_confidentiality_yes' => isset($data['chk_confidentiality_yes']) && $data['chk_confidentiality_yes'] ? 'true' : null,
+            'chk_confidentiality_no' => isset($data['chk_confidentiality_no']) && $data['chk_confidentiality_no'] ? 'true' : null,
+            'confidentiality_text' => isset($data['confidentiality_text']) ? $data['confidentiality_text'] : null,
+            'chk_structure_yes' => isset($data['chk_structure_yes']) && $data['chk_structure_yes'] ? 'true' : null,
+            'chk_structure_no' => isset($data['chk_structure_no']) && $data['chk_structure_no'] ? 'true' : null,
+            'structure_text' => isset($data['structure_text']) ? $data['structure_text'] : null,
+            'chk_res_general_yes' => isset($data['chk_res_general_yes']) && $data['chk_res_general_yes'] ? 'true' : null,
+            'chk_res_general_no' => isset($data['chk_res_general_no']) && $data['chk_res_general_no'] ? 'true' : null,
+            'res_general_text' => isset($data['res_general_text']) ? $data['res_general_text'] : null,
+            'chk_res_personnel_yes' => isset($data['chk_res_personnel_yes']) && $data['chk_res_personnel_yes'] ? 'true' : null,
+            'chk_res_personnel_no' => isset($data['chk_res_personnel_no']) && $data['chk_res_personnel_no'] ? 'true' : null,
+            'res_personnel_text' => isset($data['res_personnel_text']) ? $data['res_personnel_text'] : null,
+            'chk_res_facility_yes' => isset($data['chk_res_facility_yes']) && $data['chk_res_facility_yes'] ? 'true' : null,
+            'chk_res_facility_no' => isset($data['chk_res_facility_no']) && $data['chk_res_facility_no'] ? 'true' : null,
+            'res_facility_text' => isset($data['res_facility_text']) ? $data['res_facility_text'] : null,
+            'chk_res_equipment_yes' => isset($data['chk_res_equipment_yes']) && $data['chk_res_equipment_yes'] ? 'true' : null,
+            'chk_res_equipment_no' => isset($data['chk_res_equipment_no']) && $data['chk_res_equipment_no'] ? 'true' : null,
+            'res_equipment_text' => isset($data['res_equipment_text']) ? $data['res_equipment_text'] : null,
+            'chk_res_traceability_yes' => isset($data['chk_res_traceability_yes']) && $data['chk_res_traceability_yes'] ? 'true' : null,
+            'chk_res_traceability_no' => isset($data['chk_res_traceability_no']) && $data['chk_res_traceability_no'] ? 'true' : null,
+            'res_traceability_text' => isset($data['res_traceability_text']) ? $data['res_traceability_text'] : null,
+            'chk_res_external_yes' => isset($data['chk_res_external_yes']) && $data['chk_res_external_yes'] ? 'true' : null,
+            'chk_res_external_no' => isset($data['chk_res_external_no']) && $data['chk_res_external_no'] ? 'true' : null,
+            'res_external_text' => isset($data['res_external_text']) ? $data['res_external_text'] : null,
+            'chk_proc_review_yes' => isset($data['chk_proc_review_yes']) && $data['chk_proc_review_yes'] ? 'true' : null,
+            'chk_proc_review_no' => isset($data['chk_proc_review_no']) && $data['chk_proc_review_no'] ? 'true' : null,
+            'proc_review_text' => isset($data['proc_review_text']) ? $data['proc_review_text'] : null,
+            'chk_proc_method_yes' => isset($data['chk_proc_method_yes']) && $data['chk_proc_method_yes'] ? 'true' : null,
+            'chk_proc_method_no' => isset($data['chk_proc_method_no']) && $data['chk_proc_method_no'] ? 'true' : null,
+            'proc_method_text' => isset($data['proc_method_text']) ? $data['proc_method_text'] : null,
+            'chk_proc_sampling_yes' => isset($data['chk_proc_sampling_yes']) && $data['chk_proc_sampling_yes'] ? 'true' : null,
+            'chk_proc_sampling_no' => isset($data['chk_proc_sampling_no']) && $data['chk_proc_sampling_no'] ? 'true' : null,
+            'proc_sampling_text' => isset($data['proc_sampling_text']) ? $data['proc_sampling_text'] : null,
+            'chk_proc_sample_handling_yes' => isset($data['chk_proc_sample_handling_yes']) && $data['chk_proc_sample_handling_yes'] ? 'true' : null,
+            'chk_proc_sample_handling_no' => isset($data['chk_proc_sample_handling_no']) && $data['chk_proc_sample_handling_no'] ? 'true' : null,
+            'proc_sample_handling_text' => isset($data['proc_sample_handling_text']) ? $data['proc_sample_handling_text'] : null,
+            'chk_proc_tech_record_yes' => isset($data['chk_proc_tech_record_yes']) && $data['chk_proc_tech_record_yes'] ? 'true' : null,
+            'chk_proc_tech_record_no' => isset($data['chk_proc_tech_record_no']) && $data['chk_proc_tech_record_no'] ? 'true' : null,
+            'proc_tech_record_text' => isset($data['proc_tech_record_text']) ? $data['proc_tech_record_text'] : null,
+            'chk_proc_uncertainty_yes' => isset($data['chk_proc_uncertainty_yes']) && $data['chk_proc_uncertainty_yes'] ? 'true' : null,
+            'chk_proc_uncertainty_no' => isset($data['chk_proc_uncertainty_no']) && $data['chk_proc_uncertainty_no'] ? 'true' : null,
+            'proc_uncertainty_text' => isset($data['proc_uncertainty_text']) ? $data['proc_uncertainty_text'] : null,
+            'chk_proc_validity_yes' => isset($data['chk_proc_validity_yes']) && $data['chk_proc_validity_yes'] ? 'true' : null,
+            'chk_proc_validity_no' => isset($data['chk_proc_validity_no']) && $data['chk_proc_validity_no'] ? 'true' : null,
+            'proc_validity_text' => isset($data['proc_validity_text']) ? $data['proc_validity_text'] : null,
+            'chk_proc_reporting_yes' => isset($data['chk_proc_reporting_yes']) && $data['chk_proc_reporting_yes'] ? 'true' : null,
+            'chk_proc_reporting_no' => isset($data['chk_proc_reporting_no']) && $data['chk_proc_reporting_no'] ? 'true' : null,
+            'proc_reporting_text' => isset($data['proc_reporting_text']) ? $data['proc_reporting_text'] : null,
+            'chk_proc_complaint_yes' => isset($data['chk_proc_complaint_yes']) && $data['chk_proc_complaint_yes'] ? 'true' : null,
+            'chk_proc_complaint_no' => isset($data['chk_proc_complaint_no']) && $data['chk_proc_complaint_no'] ? 'true' : null,
+            'proc_complaint_text' => isset($data['proc_complaint_text']) ? $data['proc_complaint_text'] : null,
+            'chk_proc_nonconformity_yes' => isset($data['chk_proc_nonconformity_yes']) && $data['chk_proc_nonconformity_yes'] ? 'true' : null,
+            'chk_proc_nonconformity_no' => isset($data['chk_proc_nonconformity_no']) && $data['chk_proc_nonconformity_no'] ? 'true' : null,
+            'proc_nonconformity_text' => isset($data['proc_nonconformity_text']) ? $data['proc_nonconformity_text'] : null,
+            'chk_proc_data_control_yes' => isset($data['chk_proc_data_control_yes']) && $data['chk_proc_data_control_yes'] ? 'true' : null,
+            'chk_proc_data_control_no' => isset($data['chk_proc_data_control_no']) && $data['chk_proc_data_control_no'] ? 'true' : null,
+            'proc_data_control_text' => isset($data['proc_data_control_text']) ? $data['proc_data_control_text'] : null,
+            'chk_res_selection_yes' => isset($data['chk_res_selection_yes']) && $data['chk_res_selection_yes'] ? 'true' : null,
+            'chk_res_selection_no' => isset($data['chk_res_selection_no']) && $data['chk_res_selection_no'] ? 'true' : null,
+            'res_selection_text' => isset($data['res_selection_text']) ? $data['res_selection_text'] : null,
+            'chk_res_docsystem_yes' => isset($data['chk_res_docsystem_yes']) && $data['chk_res_docsystem_yes'] ? 'true' : null,
+            'chk_res_docsystem_no' => isset($data['chk_res_docsystem_no']) && $data['chk_res_docsystem_no'] ? 'true' : null,
+            'res_docsystem_text' => isset($data['res_docsystem_text']) ? $data['res_docsystem_text'] : null,
+            'chk_res_doccontrol_yes' => isset($data['chk_res_doccontrol_yes']) && $data['chk_res_doccontrol_yes'] ? 'true' : null,
+            'chk_res_doccontrol_no' => isset($data['chk_res_doccontrol_no']) && $data['chk_res_doccontrol_no'] ? 'true' : null,
+            'res_doccontrol_text' => isset($data['res_doccontrol_text']) ? $data['res_doccontrol_text'] : null,
+            'chk_res_recordcontrol_yes' => isset($data['chk_res_recordcontrol_yes']) && $data['chk_res_recordcontrol_yes'] ? 'true' : null,
+            'chk_res_recordcontrol_no' => isset($data['chk_res_recordcontrol_no']) && $data['chk_res_recordcontrol_no'] ? 'true' : null,
+            'res_recordcontrol_text' => isset($data['res_recordcontrol_text']) ? $data['res_recordcontrol_text'] : null,
+            'chk_res_riskopportunity_yes' => isset($data['chk_res_riskopportunity_yes']) && $data['chk_res_riskopportunity_yes'] ? 'true' : null,
+            'chk_res_riskopportunity_no' => isset($data['chk_res_riskopportunity_no']) && $data['chk_res_riskopportunity_no'] ? 'true' : null,
+            'res_riskopportunity_text' => isset($data['res_riskopportunity_text']) ? $data['res_riskopportunity_text'] : null,
+            'chk_res_improvement_yes' => isset($data['chk_res_improvement_yes']) && $data['chk_res_improvement_yes'] ? 'true' : null,
+            'chk_res_improvement_no' => isset($data['chk_res_improvement_no']) && $data['chk_res_improvement_no'] ? 'true' : null,
+            'res_improvement_text' => isset($data['res_improvement_text']) ? $data['res_improvement_text'] : null,
+            'chk_res_corrective_yes' => isset($data['chk_res_corrective_yes']) && $data['chk_res_corrective_yes'] ? 'true' : null,
+            'chk_res_corrective_no' => isset($data['chk_res_corrective_no']) && $data['chk_res_corrective_no'] ? 'true' : null,
+            'res_corrective_text' => isset($data['res_corrective_text']) ? $data['res_corrective_text'] : null,
+            'chk_res_audit_yes' => isset($data['chk_res_audit_yes']) && $data['chk_res_audit_yes'] ? 'true' : null,
+            'chk_res_audit_no' => isset($data['chk_res_audit_no']) && $data['chk_res_audit_no'] ? 'true' : null,
+            'res_audit_text' => isset($data['res_audit_text']) ? $data['res_audit_text'] : null,
+            'chk_res_review_yes' => isset($data['chk_res_review_yes']) && $data['chk_res_review_yes'] ? 'true' : null,
+            'chk_res_review_no' => isset($data['chk_res_review_no']) && $data['chk_res_review_no'] ? 'true' : null,
+            'res_review_text' => isset($data['res_review_text']) ? $data['res_review_text'] : null,
+            'report_display_certification_none' => isset($data['report_display_certification_none']) && $data['report_display_certification_none'] ? 'true' : null,
+            'report_display_certification_yes' => isset($data['report_display_certification_yes']) && $data['report_display_certification_yes'] ? 'true' : null,
+            'report_scope_certified_only' => isset($data['report_scope_certified_only']) && $data['report_scope_certified_only'] ? 'true' : null,
+            'report_scope_certified_all' => isset($data['report_scope_certified_all']) && $data['report_scope_certified_all'] ? 'true' : null,
+            'report_activities_not_certified_yes' => isset($data['report_activities_not_certified_yes']) && $data['report_activities_not_certified_yes'] ? 'true' : null,
+            'report_activities_not_certified_no' => isset($data['report_activities_not_certified_no']) && $data['report_activities_not_certified_no'] ? 'true' : null,
+            'report_accuracy_correct' => isset($data['report_accuracy_correct']) && $data['report_accuracy_correct'] ? 'true' : null,
+            'report_accuracy_incorrect' => isset($data['report_accuracy_incorrect']) && $data['report_accuracy_incorrect'] ? 'true' : null,
+            'report_accuracy_detail' => isset($data['report_accuracy_detail']) ? $data['report_accuracy_detail'] : null,
+            'multisite_display_certification_none' => isset($data['multisite_display_certification_none']) && $data['multisite_display_certification_none'] ? 'true' : null,
+            'multisite_display_certification_yes' => isset($data['multisite_display_certification_yes']) && $data['multisite_display_certification_yes'] ? 'true' : null,
+            'multisite_scope_certified_only' => isset($data['multisite_scope_certified_only']) && $data['multisite_scope_certified_only'] ? 'true' : null,
+            'multisite_scope_certified_all' => isset($data['multisite_scope_certified_all']) && $data['multisite_scope_certified_all'] ? 'true' : null,
+            'multisite_activities_not_certified_yes' => isset($data['multisite_activities_not_certified_yes']) && $data['multisite_activities_not_certified_yes'] ? 'true' : null,
+            'multisite_activities_not_certified_no' => isset($data['multisite_activities_not_certified_no']) && $data['multisite_activities_not_certified_no'] ? 'true' : null,
+            'multisite_accuracy_correct' => isset($data['multisite_accuracy_correct']) && $data['multisite_accuracy_correct'] ? 'true' : null,
+            'multisite_accuracy_incorrect' => isset($data['multisite_accuracy_incorrect']) && $data['multisite_accuracy_incorrect'] ? 'true' : null,
+            'multisite_accuracy_detail' => isset($data['multisite_accuracy_detail']) ? $data['multisite_accuracy_detail'] : null,
+            'certification_status_correct' => isset($data['certification_status_correct']) && $data['certification_status_correct'] ? 'true' : null,
+            'certification_status_incorrect' => isset($data['certification_status_incorrect']) && $data['certification_status_incorrect'] ? 'true' : null,
+            'certification_status_details' => isset($data['certification_status_details']) ? $data['certification_status_details'] : null,
+            'other_certification_status_correct' => isset($data['other_certification_status_correct']) && $data['other_certification_status_correct'] ? 'true' : null,
+            'other_certification_status_incorrect' => isset($data['other_certification_status_incorrect']) && $data['other_certification_status_incorrect'] ? 'true' : null,
+            'other_certification_status_details' => isset($data['other_certification_status_details']) ? $data['other_certification_status_details'] : null,
+            'lab_availability_yes' => isset($data['lab_availability_yes']) && $data['lab_availability_yes'] ? 'true' : null,
+            'lab_availability_no' => isset($data['lab_availability_no']) && $data['lab_availability_no'] ? 'true' : null,
+            'ilac_mra_display_no' => isset($data['ilac_mra_display_no']) && $data['ilac_mra_display_no'] ? 'true' : null,
+            'ilac_mra_display_yes' => isset($data['ilac_mra_display_yes']) && $data['ilac_mra_display_yes'] ? 'true' : null,
+            'ilac_mra_scope_no' => isset($data['ilac_mra_scope_no']) && $data['ilac_mra_scope_no'] ? 'true' : null,
+            'ilac_mra_scope_yes' => isset($data['ilac_mra_scope_yes']) && $data['ilac_mra_scope_yes'] ? 'true' : null,
+            'ilac_mra_disclosure_yes' => isset($data['ilac_mra_disclosure_yes']) && $data['ilac_mra_disclosure_yes'] ? 'true' : null,
+            'ilac_mra_disclosure_no' => isset($data['ilac_mra_disclosure_no']) && $data['ilac_mra_disclosure_no'] ? 'true' : null,
+            'ilac_mra_compliance_correct' => isset($data['ilac_mra_compliance_correct']) && $data['ilac_mra_compliance_correct'] ? 'true' : null,
+            'ilac_mra_compliance_incorrect' => isset($data['ilac_mra_compliance_incorrect']) && $data['ilac_mra_compliance_incorrect'] ? 'true' : null,
+            'ilac_mra_compliance_details' => isset($data['ilac_mra_compliance_details']) ? $data['ilac_mra_compliance_details'] : null,
+            'other_ilac_mra_compliance_no' => isset($data['other_ilac_mra_compliance_no']) && $data['other_ilac_mra_compliance_no'] ? 'true' : null,
+            'other_ilac_mra_compliance_yes' => isset($data['other_ilac_mra_compliance_yes']) && $data['other_ilac_mra_compliance_yes'] ? 'true' : null,
+            'other_ilac_mra_compliance_details' => isset($data['other_ilac_mra_compliance_details']) ? $data['other_ilac_mra_compliance_details'] : null,
+            'mra_compliance_correct' => isset($data['mra_compliance_correct']) && $data['mra_compliance_correct'] ? 'true' : null,
+            'mra_compliance_incorrect' => isset($data['mra_compliance_incorrect']) && $data['mra_compliance_incorrect'] ? 'true' : null,
+            'mra_compliance_details' => isset($data['mra_compliance_details']) ? $data['mra_compliance_details'] : null,
+            'evidence_mra_compliance_details_1' => isset($data['evidence_mra_compliance_details_1']) ? $data['evidence_mra_compliance_details_1'] : null,
+            'evidence_mra_compliance_details_2' => isset($data['evidence_mra_compliance_details_2']) ? $data['evidence_mra_compliance_details_2'] : null,
+            'evidence_mra_compliance_details_3' => isset($data['evidence_mra_compliance_details_3']) ? $data['evidence_mra_compliance_details_3'] : null,
+            'evidence_mra_compliance_details_4' => isset($data['evidence_mra_compliance_details_4']) ? $data['evidence_mra_compliance_details_4'] : null,
+            'offer_agreement_yes' => isset($data['offer_agreement_yes']) && $data['offer_agreement_yes'] ? 'true' : null,
+            'offer_agreement_no' => isset($data['offer_agreement_no']) && $data['offer_agreement_no'] ? 'true' : null,
+            'offer_ilac_agreement_yes' => isset($data['offer_ilac_agreement_yes']) && $data['offer_ilac_agreement_yes'] ? 'true' : null,
+            'offer_ilac_agreement_no' => isset($data['offer_ilac_agreement_no']) && $data['offer_ilac_agreement_no'] ? 'true' : null,
+            'status' => $submit_type
+        ];
+
+        // บันทึก persons เป็น JSON
+        $recordData['persons'] = !empty($persons) ? json_encode($persons) : null;
+
+        // จัดการไฟล์ attachments
+        $attachments = $request->file('references');
+        $attachedFiles = [];
+        if ($attachments) {
+            foreach ($attachments as $index => $file) {
+                if ($file->isValid()) {
+                    $path = $file->store('references', 'public');
+                    $attachedFiles[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'size' => $file->getSize(),
+                        'mime' => $file->getMimeType()
+                    ];
+                }
+            }
+        } 
+
+
+
+    $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+
+
+// จัดการไฟล์ attachments ด้วย HP::singleFileUploadRefno
+
+        $recordData['attached_files'] = !empty($attachedFiles) ? json_encode($attachedFiles) : null;
+
+        // บันทึกข้อมูลลง TrackingLabReportOne
+        try {
+            $trackingLabReportOne = TrackingLabReportOne::updateOrCreate(
+                ['tracking_assessment_id' => $id],
+                $recordData
+            );
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to save data: ' . $e->getMessage()], 500);
+        }
+
+
+        $config = HP::getConfig();
+        $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+        // if ($submit_type == "2")
+        // {
+            //LAB, certificate_type= 2
+        SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $trackingLabReportOne->id)
+                                            ->where('certificate_type',2)
+                                            ->where('report_type',1)
+                                            ->delete();
+        foreach ($signers as $signer) {
+            // ตรวจสอบความถูกต้องของข้อมูล
+            if (!isset($signer['signer_id'], $signer['signer_name'], $signer['signer_position'])) {
+                continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
+            }
+
+            SignAssessmentTrackingReportTransaction::create([
+                'tracking_report_info_id' => $trackingLabReportOne->id,
+                'signer_id' => $signer['signer_id'],
+                'signer_name' => $signer['signer_name'],
+                'signer_position' => $signer['signer_position'],
+                'signer_order' => $signer['id'],
+                'view_url' => $url . '/certificate/assessment-labs/view-lab-info/'. $assessment->id ,
+                'certificate_type' => 2,
+                'app_id' => $assessment->reference_refno,
+            ]);
+        }
+        // }
+
+
+        $attachments = $request->file('references');
+        // $attachedFiles = [];
+        if ($attachments && $request->hasFile('references')) {
+            foreach ($attachments as $index => $file) {
+                if ($file->isValid()) {
+                    // เรียกใช้ HP::singleFileUploadRefno
+                    HP::singleFileUploadRefno(
+                        $file,
+                        $this->attach_path.'/'.$assessment->reference_refno,
+                        $tax_number, // tax_number
+                        auth()->user()->FullName ?? null, // ชื่อผู้ใช้
+                        'Center', // คงที่
+                        (new TrackingLabReportOne)->getTable(), // ชื่อตาราง
+                        $trackingLabReportOne->id, // tracking_assessment_id
+                        '11111', // คงที่
+                        null // ตัวเลือกเพิ่มเติม
+                    );
+                } 
+            }
+        } 
+
+        // ส่ง response
+        return response()->json([
+            'message' => 'ข้อมูลถูกบันทึกเรียบร้อย',
+            'tracking_assessment_id' => $id,
+            'submit_type' => $submit_type
+        ]);
+    }
+
+
+    public function viewLabReportTwo($assessment_id)
+   {
+    // dd('ok');
+       $assessment = TrackingAssessment::find($assessment_id);
+       $labReportTwo = TrackingLabReportTwo::with('attachments')->where('tracking_assessment_id',$assessment_id)->first();
+       
+       $certi_lab = $assessment->certificate_export_to->CertiLabTo;
+       $trackingAuditor = TrackingAuditors::find( $assessment->auditors_id);
+       $tracking = $assessment->tracking_to;
+       
+        $auditors_statuses= $trackingAuditor->auditors_status_many;
+
+        
+       
+      $statusAuditorMap = [];
+      foreach ($auditors_statuses as $auditors_status)
+      {
+          $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+          $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
+
+          // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+          if (!isset($statusAuditorMap[$statusAuditorId])) {
+              $statusAuditorMap[$statusAuditorId] = [];
+          }
+          // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+          foreach ($auditors as $auditor) {
+              
+              $statusAuditorMap[$statusAuditorId][] = $auditor->id;
+          }
+      }
+
+        $trackingAuditorsDate = TrackingAuditorsDate::where('auditors_id',$trackingAuditor->id)->first();
+        $dateRange = "";
+
+        if (!empty($trackingAuditorsDate->start_date) && !empty($trackingAuditorsDate->end_date)) {
+            if ($trackingAuditorsDate->start_date == $trackingAuditorsDate->end_date) {
+                // ถ้าเป็นวันเดียวกัน
+                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date);
+            } else {
+                // ถ้าเป็นคนละวัน
+                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date) . 
+                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->end_date);
+            }
+        }
+
+
+        $scope_branch = "";
+        if ($certi_lab->lab_type == 3){
+            $scope_branch =$certi_lab->BranchTitle;
+        }else if($certi_lab->lab_type == 4)
+        {
+            $scope_branch = $certi_lab->ClibrateBranchTitle;
+        }
+
+        
+        $data = new stdClass();
+    
+        $data->header_text1 = '';
+        $data->header_text2 = '';
+        $data->header_text3 = '';
+        $data->header_text4 = $certi_lab->app_no;
+        $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+        $data->lab_name = $certi_lab->lab_name;
+        $data->scope_branch = $scope_branch;
+        $data->tracking = $tracking;
+        // $data->app_no = 'ทดสอบ ๑๖๗๑';
+        $data->certificate_no = '13-LB0037';
+        $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+        $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+        // $data->experts = $experts;
+
+        $data->date_range = $dateRange;
+        $data->statusAuditorMap = $statusAuditorMap;
+
+
+        $labRequest = null;
+
+            
+        // if($certi_lab->lab_type == 4){
+        //     $labRequest = LabCalRequest::where('app_certi_lab_id',$certi_lab->id)->where('type',1)->first();
+        // }else if($certi_lab->lab_type == 3)
+        // {
+        //     $labRequest = LabTestRequest::where('app_certi_lab_id',$certi_lab->id)->where('type',1)->first();
+        // }
+        
+        $signAssessmentReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$labReportTwo->id)
+                                        ->where('certificate_type',2)
+                                        ->where('report_type',2)
+                                        ->get();
+        $labInformation = $certi_lab->information;
+        // dd('a');
+        // dd($statusAuditorMap);
+        return view('certificate.labs.assessment-labs.report-two.view-report-two', [
+            'data' => $data,
+            'assessment' => $assessment,
+            'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
+            'tracking' => $tracking,
+            'certi_lab' => $certi_lab,
+            // 'labRequest' => $labRequest,
+            'labReportTwo' => $labReportTwo,
+            'labInformation' => $labInformation[0],
+            'audit_date' => HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date)
+        ]);
+
+       
+   }
+
+   
+    public function updateLabReportTwo(Request $request)
+    {
+        // ดึง payload และแปลง JSON เป็น array
+        $payload = json_decode($request->input('payload'), true);
+
+        // ดึงข้อมูลจาก payload
+        $id = $payload['id'] ?? null;
+        $data = $payload['data'] ?? [];
+        $persons = $payload['persons'] ?? [];
+        $assessment = (object) ($payload['assessment'] ?? []);
+        $signers = $payload['signer'] ?? [];
+        $submit_type = $payload['submit_type'] ?? null;
+       
+        $id = $assessment->id;
+
+        $recordData = [
+            'tracking_assessment_id' => $id,
+            'observation_count_text' => isset($data['observation_count_text']) ? $data['observation_count_text'] : null,
+            'lab_letter_received_date_text' => isset($data['lab_letter_received_date_text']) ? $data['lab_letter_received_date_text'] : null,
+            'email_sent_date_tertiary_text' => isset($data['email_sent_date_tertiary_text']) ? $data['email_sent_date_tertiary_text'] : null,
+            'email_sent_date_secondary_text' => isset($data['email_sent_date_secondary_text']) ? $data['email_sent_date_secondary_text'] : null,
+            'checkbox_corrective_action_completed' => isset($data['checkbox_corrective_action_completed']) && $data['checkbox_corrective_action_completed'] ? 'true' : null,
+            'checkbox_corrective_action_incomplete' => isset($data['checkbox_corrective_action_incomplete']) && $data['checkbox_corrective_action_incomplete'] ? 'true' : null,
+            'remaining_nonconformities_count_text' => isset($data['remaining_nonconformities_count_text']) ? $data['remaining_nonconformities_count_text'] : null,
+            'remaining_nonconformities_list_text' => isset($data['remaining_nonconformities_list_text']) ? $data['remaining_nonconformities_list_text'] : null,
+            'checkbox_extend_certification' => isset($data['checkbox_extend_certification']) && $data['checkbox_extend_certification'] ? 'true' : null,
+            'checkbox_reject_extend_certification' => isset($data['checkbox_reject_extend_certification']) && $data['checkbox_reject_extend_certification'] ? 'true' : null,
+            'reason_for_extension_decision_text' => isset($data['reason_for_extension_decision_text']) ? $data['reason_for_extension_decision_text'] : null,
+            'checkbox_submit_remaining_evidence' => isset($data['checkbox_submit_remaining_evidence']) && $data['checkbox_submit_remaining_evidence'] ? 'true' : null,
+            'remaining_evidence_items_text' => isset($data['remaining_evidence_items_text']) ? $data['remaining_evidence_items_text'] : null,
+            'remaining_evidence_due_date_text' => isset($data['remaining_evidence_due_date_text']) ? $data['remaining_evidence_due_date_text'] : null,
+            'checkbox_unresolved_nonconformities' => isset($data['checkbox_unresolved_nonconformities']) && $data['checkbox_unresolved_nonconformities'] ? 'true' : null,
+            'checkbox_reduce_scope' => isset($data['checkbox_reduce_scope']) && $data['checkbox_reduce_scope'] ? 'true' : null,
+            'checkbox_suspend_certificate' => isset($data['checkbox_suspend_certificate']) && $data['checkbox_suspend_certificate'] ? 'true' : null,
+            'status' => $submit_type
+        ];
+
+        // dd($recordData);
+       
+        // บันทึก persons เป็น JSON
+        $recordData['persons'] = !empty($persons) ? json_encode($persons) : null;
+
+        // จัดการไฟล์ attachments
+        $attachments = $request->file('references');
+        $attachedFiles = [];
+        if ($attachments) {
+            foreach ($attachments as $index => $file) {
+                if ($file->isValid()) {
+                    $path = $file->store('references', 'public');
+                    $attachedFiles[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'size' => $file->getSize(),
+                        'mime' => $file->getMimeType()
+                    ];
+                }
+            }
+        } 
+
+
+    $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+
+
+        $recordData['attached_files'] = !empty($attachedFiles) ? json_encode($attachedFiles) : null;
+
+        // บันทึกข้อมูลลง TrackingLabReportOne
+        try {
+            // dd("here");
+            $trackingLabReportTwo = TrackingLabReportTwo::updateOrCreate(
+                ['tracking_assessment_id' => $id],
+                $recordData
+            );
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to save data: ' . $e->getMessage()], 500);
+        }
+
+
+        $config = HP::getConfig();
+        $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+        SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $trackingLabReportTwo->id)
+                                            ->where('certificate_type',2)
+                                            ->where('report_type',2)
+                                            ->delete();
+        foreach ($signers as $signer) {
+            // ตรวจสอบความถูกต้องของข้อมูล
+            if (!isset($signer['signer_id'], $signer['signer_name'], $signer['signer_position'])) {
+                continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
+            }
+
+            SignAssessmentTrackingReportTransaction::create([
+                'tracking_report_info_id' => $trackingLabReportTwo->id,
+                'signer_id' => $signer['signer_id'],
+                'signer_name' => $signer['signer_name'],
+                'signer_position' => $signer['signer_position'],
+                'signer_order' => $signer['id'],
+                'view_url' => $url . '/certificate/assessment-labs/view-lab-info/'. $assessment->id ,
+                'certificate_type' => 2,
+                'report_type' => 2,
+                'app_id' => $assessment->reference_refno,
+            ]);
+        }
+        // }
+
+
+        $attachments = $request->file('references');
+        // $attachedFiles = [];
+        if ($attachments && $request->hasFile('references')) {
+            foreach ($attachments as $index => $file) {
+                if ($file->isValid()) {
+                    // เรียกใช้ HP::singleFileUploadRefno
+                    HP::singleFileUploadRefno(
+                        $file,
+                        $this->attach_path.'/'.$assessment->reference_refno,
+                        $tax_number, // tax_number
+                        auth()->user()->FullName ?? null, // ชื่อผู้ใช้
+                        'Center', // คงที่
+                        (new TrackingLabReportTwo)->getTable(), // ชื่อตาราง
+                        $trackingLabReportTwo->id, // tracking_assessment_id
+                        '11111', // คงที่
+                        null // ตัวเลือกเพิ่มเติม
+                    );
+                } 
+            }
+        } 
+
+        // ส่ง response
+        return response()->json([
+            'message' => 'ข้อมูลถูกบันทึกเรียบร้อย',
+            'tracking_assessment_id' => $id,
+            'submit_type' => $submit_type
+        ]);
+    }
+
 
    public function updateLabInfo(Request $request)
    {
@@ -1552,6 +2325,7 @@ class AssessmentLabsController extends Controller
 
         SignAssessmentTrackingReportTransaction::where('tracking_report_info_id', $trackingLabReportInfo->id)
                                             ->where('certificate_type',2)
+                                            ->where('report_type',1)
                                             ->delete();
         foreach ($signers as $signer) {
             // ตรวจสอบความถูกต้องของข้อมูล

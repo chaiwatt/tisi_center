@@ -186,7 +186,7 @@
     </div>
 </div>
 
-<div class="row">
+{{-- <div class="row">
     <div class="col-md-6">
         <div class="form-group {{ $errors->has('laboratory_name') ? 'has-error' : ''}}">
             {!! HTML::decode(Form::label('laboratory_name','ชื่อห้องปฏิบัติการ '.' :', ['class' => 'col-md-3 control-label'])) !!}
@@ -214,7 +214,7 @@
             </div>
         </div>
     </div>
-    {{-- {{$assessment->submit_type}} --}}
+
     <div class="col-md-6">
         @if ($assessment->submit_type == 'save')
         <input type="hidden" id="notice_id" value="{{$assessment->id}}">
@@ -228,22 +228,116 @@
         </div>
         @endif
     </div>
-
-    {{-- {{$assessment->degree}} --}}
 </div>
-    
+     --}}
 
 
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group {{ $errors->has('laboratory_name') ? 'has-error' : '' }}">
+            <label for="laboratory_name" class="col-md-3 control-label">ชื่อห้องปฏิบัติการ :</label>
+            <div class="col-md-7">
+                <input type="text" name="laboratory_name" id="laboratory_name" class="form-control" placeholder="" value="{{ old('laboratory_name') }}" disabled>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group {{ $errors->has('auditor') ? 'has-error' : '' }}">
+            <label for="auditor" class="col-md-3 control-label"><span class="text-danger">*</span> ชื่อคณะผู้ตรวจประเมิน :</label>
+            <div class="col-md-7">
+                <input type="text" name="auditor" id="auditor" class="form-control" placeholder="" value="{{ old('auditor') }}" disabled>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group {{ $errors->has('auditor_date') ? 'has-error' : '' }}">
+            <label for="auditor_date" class="col-md-3 control-label"><span class="text-danger">*</span> วันที่ตรวจประเมิน :</label>
+            <div class="col-md-7">
+                <input type="text" name="auditor_date" id="auditor_date" class="form-control" placeholder="" value="{{ old('auditor_date') }}" disabled>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        @if ($assessment->submit_type == 'save')
+        <input type="hidden" id="notice_id" value="{{ $assessment->id }}">
+        <div class="form-group">
+            <label class="col-md-3 control-label"><span class="text-danger">*</span> แจ้งผู้เชี่ยวชาญ :</label>
+            <div class="col-md-7">
+                <a type="button" class="btn btn-info" id="show-modal-email-to-expert"><i class="fa fa-envelope"></i> อีเมล</a>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    <div class="col-md-6">
+        @if ($assessment->submit_type == 'save')
+        <input type="hidden" id="notice_id" value="{{ $assessment->id }}">
+        <div class="form-group">
+            <label class="col-md-3 control-label"><span class="text-danger">*</span> รายงานการตรวจประเมิน :</label>
+            <div class="col-md-7">
+                @if ($assessment->trackingLabReportOne !== null)
+                <input type="hidden" id="tracking_report_info_id" value="{{$assessment->trackingLabReportOne->id}}">
+                    @if ($assessment->trackingLabReportOne->status == "1" || $assessment->trackingLabReportOne->status == null)
+                                <a href="{{route('certificate.assessment-labs.view_lab_report_one',['id' => $assessment->id])}}"
+                                title="จัดทำรายงาน" class="btn btn-warning">
+                                รายงานที่1
+                            </a>
+                        @else
+                                <a href="{{route('certificate.assessment-labs.view_lab_report_one',['id' => $assessment->id])}}"
+                                title="จัดทำรายงาน" class="btn btn-info">
+                                รายงานที่1
+                            </a>
+                    @endif 
+                @endif
+            </div>
+        </div>
+        @endif
+    </div>
 
 
+</div>
 
-    @if (!empty($assessment->auditor_file))
+{{-- {{$assessment->tracking_assessment_bug_many->count()}}
+
+@if ($assessment->tracking_assessment_bug_many->count() != 0)
+    @if ($assessment->submit_type == 'save')
+
+        <input type="hidden" id="notice_id" value="{{$assessment->id}}">
+        <div class="col-md-6">
+            <label class="col-md-4 text-right">แจ้งผู้เชี่ยวชาญ : </label>
+            
+            <div class="col-md-8">
+                <button type="button" class="btn btn-info" id="show-modal-email-to-expert"><i class="fa fa-envelope"></i> อีเมล</button>
+            </div>
+        </div>
+        
+    @endif
+@endif --}}
+
+
+    {{-- @if (!empty($assessment->auditor_file))
         <div hidden class="form-group {{ $errors->has('auditor_date') ? 'has-error' : ''}}">
             {!! HTML::decode(Form::label('auditor_date', '<span class="text-danger">*</span> '.'กำหนดการตรวจประเมิน'.' :', ['class' => 'col-md-3 control-label'])) !!}
             <div class="col-md-7">
                 <a href="{{url('funtions/get-view/'.$assessment->auditor_file->url.'/'.( !empty($assessment->auditor_file->filename) ? $assessment->auditor_file->filename : 'null' ))}}" 
                     title="{{ !empty($assessment->auditor_file->filename) ? $assessment->auditor_file->filename :  basename($assessment->auditor_file->url) }}" target="_blank">
                     {!! HP::FileExtension($assessment->auditor_file->url)  ?? '' !!}
+                </a>
+            </div>
+        </div>
+    @endif --}}
+
+    @if (!empty($assessment->auditor_file))
+        <div hidden class="form-group {{ $errors->has('auditor_date') ? 'has-error' : '' }}">
+            <label for="auditor_date" class="col-md-3 control-label"><span class="text-danger">*</span> กำหนดการตรวจประเมิน :</label>
+            <div class="col-md-7">
+                <a href="{{ url('funtions/get-view/' . $assessment->auditor_file->url . '/' . (!empty($assessment->auditor_file->filename) ? $assessment->auditor_file->filename : 'null')) }}"
+                title="{{ !empty($assessment->auditor_file->filename) ? $assessment->auditor_file->filename : basename($assessment->auditor_file->url) }}" 
+                target="_blank">
+                    {{ pathinfo($assessment->auditor_file->url, PATHINFO_EXTENSION) ?? '' }}
                 </a>
             </div>
         </div>
@@ -324,7 +418,7 @@
     </div>
 </div> --}}
 <div class="form-group {{ $errors->has('report_date') ? 'has-error' : ''}}">
-    {!! HTML::decode(Form::label('report_date', 'ไฟล์แนบ'.' :', ['class' => 'col-md-3 control-label'])) !!}
+    {!! HTML::decode(Form::label('report_date', 'ไฟล์แนบอื่น ๆ'.' :', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-7">
             <div id="other_attach">
                 <div class="form-group other_attach_item">
@@ -552,23 +646,26 @@
         </label>
         
  
-         <div id="degree_btn"></div>
+      
  
          {{-- <button type="submit"  class="btn btn-warning"     onclick="submit_form('0');return false;"> ร่าง</button>
          <button class="btn btn-primary" type="submit"    onclick="submit_form('1');return false;">
              <i class="fa fa-paper-plane"></i> บันทึก
          </button> --}}
          <input type="hidden" id="submit_type" name="submit_type">
+            <div id="degree_btn"></div>
          {{-- {{$assessment->submit_type}} --}}
          {{-- @if ($assessment->submit_type != "confirm")
              
          @endif --}}
-         <button class="btn btn-success " type="button"  id="confirm" onclick="submit_form('1','confirm');return false;" style="visibility: hidden">
-            <i class="fa fa-save"></i><span id="confirm_text" style="padding-left:5px">ยืนยัน</span>
-        </button>
-        <button class="btn btn-primary " type="button" id="save"  onclick="submit_form('1','save');return false;">
-            <i class="fa fa-paper-plane"></i><span id="save_text" style="padding-left:5px">บันทึก</span> 
-        </button>
+         {{-- <button class="btn btn-success " type="button"  id="confirm" onclick="submit_form('1','confirm');return false;" style="visibility: hidden"> --}}
+            <button class="btn btn-success" type="button" id="confirm" onclick="submit_form('2','confirm');return false;" style="display: none">
+                <i class="fa fa-save"></i><span id="confirm_text" style="padding-left:5px">ยืนยัน</span>
+            </button>
+
+            <button class="btn btn-primary " type="button" id="save"  onclick="submit_form('1','save');return false;">
+                <i class="fa fa-paper-plane"></i><span id="save_text" style="padding-left:5px">บันทึก</span> 
+            </button>
  
          @can('view-'.str_slug('assessmentlabs'))
              <a class="btn btn-default" href="{{   app('url')->previous()  }}">
@@ -598,7 +695,14 @@
     <script src="{{asset('js/jasny-bootstrap.js')}}"></script>
     <script src="{{asset('plugins/components/sweet-alert2/sweetalert2.all.min.js')}}"></script>
     <script>
+         var assessment = @json($assessment);
         $(document).ready(function () {
+            // console.log(assessment.tracking_assessment_bug_many.length);
+
+                 if (assessment.tracking_assessment_bug_many.length != 0) {
+                        document.getElementById('confirm').style.display = '';
+                    }
+
              check_max_size_file();
             //เพิ่มไฟล์แนบ
             $('#attach_add_scope').click(function(event) {
@@ -679,6 +783,8 @@
         var bug_report = $("input[name=bug_report]:checked").val(); 
         var vehicle =  $("input[name=vehicle]:checked").val();
         var main_state =  $("input[name=main_state]:checked").val();
+
+  
         
         if(degree == 0)
         {  // ฉบับร่าง
@@ -762,8 +868,58 @@
                                 }
                 }).then((result) => {
                     if (result.value) {
-                        $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
-                        $('#form_assessment').submit();
+
+                         if(submit_type == 'confirm'){
+
+                                const _token = $('input[name="_token"]').val();
+
+                                // $assessment->trackingLabReportOne
+
+                                var tracking_report_info_id = $('#tracking_report_info_id').val();
+
+                                if (typeof tracking_report_info_id === 'undefined' || tracking_report_info_id === null || tracking_report_info_id === '') {
+
+                                    return; // Exit the function if tracking_report_info_id is undefined, null, or empty
+                                }
+
+
+                                $.LoadingOverlay("show", {
+                                    image: "",
+                                    text: "กรุณารอสักครู่..."
+                                });
+                                // เรียก AJAX
+                                $.ajax({
+                                    url: "{{route('certificate.assessment-labs.check_is_report_signed')}}",
+                                    method: "POST",
+                                    data: {
+                                        _token: _token,
+                                        tracking_report_info_id:tracking_report_info_id
+                                    },
+                                    success: function(result) {
+                                    console.log(result)
+                                        if (result.status === 'success') {
+                                            $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                            $('#form_assessment').submit();
+                                        } else {
+                                            alert(result.message); // e.g., "ยังไม่ได้สร้างรายงาน" or "ลงนามไม่ครบ"
+                                            $.LoadingOverlay("hide");
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error("Error:", error);
+                                        alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+                                    },
+                                    complete: function() {
+                                        // ลบ overlay เมื่อคำขอเสร็จสิ้น
+                                        $('#modal-email-to-expert').modal('hide');
+                                        $.LoadingOverlay("hide");
+                                    }
+                                });
+                        }else if(submit_type == 'save'){
+                                $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                $('#form_assessment').submit();
+                        }
+                     
                     }
             })
         }   
@@ -843,7 +999,14 @@
                     $('#checkbox_document').hide(400); 
                     $('.file_scope_required').prop('required', false);
                     $('#confirm').css('visibility', 'visible');
-                    $('#save_text').html('ฉบับร่าง');
+                    
+
+                    if(assessment.tracking_assessment_bug_many.length != 0)
+                    {
+                        $('#save_text').html('ฉบับร่าง');
+                    }else{
+                        $('#save_text').html('บันทึก');
+                    }
                 } else{
                     $('.status_bug_report').hide(400);
                     $('#submit_draft').hide(400); 

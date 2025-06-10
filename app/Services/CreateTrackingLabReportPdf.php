@@ -206,20 +206,24 @@ class CreateTrackingLabReportPdf
 
         $signAssessmentReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$labReportInfo->id)
                                     ->where('certificate_type',2)
+                                    ->where('report_type',1)
                                     ->get();
 
         $signer = new stdClass();
 
         $signer->signer_1 = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$labReportInfo->id)->where('signer_order','1')
                             ->where('certificate_type',2)
+                            ->where('report_type',1)
                             ->first();
 
         
         $signer->signer_2 = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$labReportInfo->id)->where('signer_order','2')
                             ->where('certificate_type',2)
+                            ->where('report_type',1)
                             ->first();
         $signer->signer_3 = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$labReportInfo->id)->where('signer_order','3')
                             ->where('certificate_type',2)
+                            ->where('report_type',1)
                             ->first();
 
         

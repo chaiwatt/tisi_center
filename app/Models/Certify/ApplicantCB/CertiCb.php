@@ -16,6 +16,7 @@ use App\Models\Basic\District;
 use App\Models\Basic\Province;
 use App\Models\Bcertify\Formula;
 use Kyslik\ColumnSortable\Sortable;
+use App\Models\Bcertify\PurposeType;
 use App\Models\Sso\User AS SSO_User;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Bcertify\CertificationBranch;
@@ -109,17 +110,23 @@ class CertiCb extends Model
                             'require_scope_update',
                             'scope_view_signer_id',
                             'scope_view_status',
+                             'scope_table',
+                             'transferer_user_id',
+                            'transferer_export_id'
                             ];
 
+public function purposeType()
+{
+    return $this->belongsTo(PurposeType::class, 'standard_change');
+}  
+public function EsurvTrader()
+{
+    return $this->belongsTo(SSO_User::class, 'created_by');
+}
 
-    public function EsurvTrader()
-    {
-        return $this->belongsTo(SSO_User::class, 'created_by');
-    }
-
-    public function getEsurvTraderTitleAttribute() {
-        return @$this->EsurvTrader->name ?? '-';
-    }
+public function getEsurvTraderTitleAttribute() {
+    return @$this->EsurvTrader->name ?? '-';
+}
 
 public function basic_province() {
     return $this->belongsTo(Province::class, 'province_id');
@@ -672,6 +679,7 @@ public function app_certi_cb_export()
 
     // เลขที่มาตรฐาน
     public function getCertificationBranchNameAttribute() {
+        // dd($this->CertificationBranchTo->title);
     return !empty($this->CertificationBranchTo->title)?$this->CertificationBranchTo->title:'N/A';
     }
 

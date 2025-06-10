@@ -37,6 +37,8 @@
                     {!! $errors->first('app_no', '<p class="help-block">:message</p>') !!}
                 </div>
             </div> --}}
+            {{-- dfgdgf --}}
+            {{-- {{$export_ib}} --}}
 
             <div class="form-group {{ $errors->has('certificate') ? 'has-error' : ''}}">
                 {!! HTML::decode(Form::label('certificate', '<span class="text-danger">*</span> ใบรับรองเลขที่'.' :', ['class' => 'col-md-3 control-label'])) !!}
@@ -46,6 +48,8 @@
                 </div>
             </div>
 
+
+            {{-- {{$export_ib}} --}}
 
             <div class="form-group {{ $errors->has('name_unit') ? 'has-error' : ''}}">
                 {!! HTML::decode(Form::label('name_unit', '<span class="text-danger">*</span>  ชื่อหน่วยตรวจสอบ'.':'.'<br/><span class=" font_size">(Name laboratory)</span>', ['class' => 'col-md-3 control-label  label-height'])) !!}
@@ -62,7 +66,7 @@
                 {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-3 control-label  label-height'])) !!}
                 <div class="col-md-9">
                        <div class="  input-group">
-                        {!! Form::text('name_unit_en',  !empty( $export_ib->name_unit_en)? $export_ib->name_unit_en:null, ['class' => 'form-control','id'=>'name_unit_en','required' => true]) !!}
+                        {!! Form::text('name_unit_en',  !empty( $export_ib->name_en_unit)? $export_ib->name_en_unit:null, ['class' => 'form-control','id'=>'name_unit_en','required' => true]) !!}
                         <span class="input-group-addon bg-secondary "> EN </span>
                       </div>
                     {!! $errors->first('name_unit_en', '<p class="help-block">:message</p>') !!}
@@ -178,7 +182,7 @@
                     {!! HTML::decode(Form::label('province_name', '<span class="text-danger">*</span> จังหวัด'.':'.'<br/><span class=" font_size">(Province)</span>', ['class' => 'col-md-6 control-label  label-height'])) !!}
                     <div class="col-md-6  form-group">
                         <div class="  input-group">
-                            {!! Form::text('province_name', !empty( $export_ib->province_name)? $export_ib->province_name:null, ['class' => 'form-control','id'=>'province_name','required' => true]) !!}
+                            {!! Form::text('province_name', !empty( trim($export_ib->province_name))? trim($export_ib->province_name):null, ['class' => 'form-control','id'=>'province_name','required' => true]) !!}
                             <span class="input-group-addon bg-secondary "> TH </span>
                         </div>
                         {!! $errors->first('province_name', '<p class="help-block">:message</p>') !!}
@@ -197,10 +201,16 @@
                    <div class="row">
                         {!! HTML::decode(Form::label('amphur_name', '<span class="text-danger">*</span> เขต/อำเภอ'.':'.'<br/><span class=" font_size">(Arnphoe/Khet)</span>', ['class' => 'col-md-4 control-label  label-height'])) !!}
                         <div class="col-md-6  form-group">
-                            <div class="  input-group">
+                            {{-- <div class="  input-group">
                                 {!! Form::text('amphur_name', !empty( $export_ib->amphur_name)? $export_ib->amphur_name:null, ['class' => 'form-control','id'=>'amphur_name','required' => true]) !!}
                                 <span class="input-group-addon bg-secondary "> TH </span>
+                            </div> --}}
+
+                            <div class="input-group">
+                                <input type="text" name="amphur_name" id="amphur_name" class="form-control" value="{{ $export_ib->amphur_name ?? '' }}" required>
+                                <span class="input-group-addon bg-secondary">TH</span>
                             </div>
+                            
                             {!! $errors->first('amphur_name', '<p class="help-block">:message</p>') !!}
                         </div>
                     </div>
@@ -219,7 +229,7 @@
             </div>
 
             <div class="row {{ $errors->has('district_name') ? 'has-error' : ''}}">
-
+{{-- {{$export_ib}} --}}
                 <div class="col-md-6">
                     {!! HTML::decode(Form::label('district_name', '<span class="text-danger">*</span> แขวง/ตำบล'.':'.'<br/><span class=" font_size">(Tambon/Khwaeng)</span>', ['class' => 'col-md-6 control-label  label-height'])) !!}
                     <div class="col-md-6  form-group">
@@ -231,10 +241,14 @@
                     </div>
                     {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-6 control-label  label-height'])) !!}
                     <div class="col-md-6  form-group">
-                          <div class="  input-group">
-                            {!! Form::text('district_name_en', !empty( $export_ib->district_name_en)? $export_ib->district_name_en:null, ['class' => 'form-control','id'=>'district_name_en','required' => true]) !!}
+                          {{-- <div class="  input-group">
+                            {!! Form::text('district_name_en', !empty( $export_ib->ib_district_eng)? $export_ib->ib_district_eng:null, ['class' => 'form-control','id'=>'district_name_en','required' => true]) !!}
                             <span class="input-group-addon bg-secondary "> EN </span>
-                          </div>
+                          </div> --}}
+                          <div class="input-group">
+                            <input type="text" name="district_name_en" id="district_name_en" class="form-control" value="{{ $export_ib->ib_district_eng ?? $certiIb->ib_district_eng  }}" required>
+                            <span class="input-group-addon bg-secondary">EN</span>
+                        </div>
                         {!! $errors->first('district_name_en', '<p class="help-block">:message</p>') !!}
                     </div>
                 </div>
@@ -291,7 +305,7 @@
                 {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-3 control-label  label-height'])) !!}
                 <div class="col-md-7">
                     <div class="input-group">
-                        {!! Form::text('accereditatio_no_en', !empty( $export_ib->accereditatio_no_en)? $export_ib->accereditatio_no_en:null, ['class' => 'form-control','id'=>'accereditatio_no_en','required' => true]) !!}
+                        {!! Form::text('accereditatio_no_en', !empty( $export_ib->accereditatio_no)? $export_ib->accereditatio_no:null, ['class' => 'form-control','id'=>'accereditatio_no_en','required' => true]) !!}
                         <span class="input-group-addon bg-secondary "> EN </span>
                     </div>
                     {!! $errors->first('formula_en', '<p class="help-block">:message</p>') !!}

@@ -18,7 +18,7 @@
                 <div class="clearfix"></div>
                 @if (isset($certi_ib) && $certi_ib->FileAttach3->count() > 0)
                 <div class="row">
-                    @foreach($certi_ib->FileAttach3 as $data)
+                    {{-- @foreach($certi_ib->FileAttach3 as $data)
                       @if ($data->file)
                         <div class="col-md-12">
                             <div class="form-group">
@@ -33,8 +33,26 @@
                             </div>
                         </div>
                         @endif
-                     @endforeach
-                     <div class="col-md-12">
+                     @endforeach --}}
+                     @php
+                        // ดึงไฟล์สุดท้ายจาก FileAttach3
+                        $lastFile = is_array($certi_ib->FileAttach3) ? end($certi_ib->FileAttach3) : $certi_ib->FileAttach3->last();
+                        @endphp
+
+                        @if ($lastFile && !empty($lastFile->file))
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="col-md-4 text-light"></div>
+                                    <div class="col-md-6 text-light">
+                                        <a href="{{ url('certify/check/file_ib_client/' . $lastFile->file . '/' . (!empty($lastFile->file_client_name) ? $lastFile->file_client_name : basename($lastFile->file))) }}" target="_blank">
+                                            {!! HP::FileExtension($lastFile->file) ?? '' !!}
+                                            {{ !empty($lastFile->file_client_name) ? $lastFile->file_client_name : basename($lastFile->file) }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                     {{-- <div class="col-md-12">
                         <table class="table" style="border: none; background-color: inherit;margin-top:15px">
                             <tr>
                                 <th>หมวดหมู่ / สาขาการตรวจ </th>
@@ -44,7 +62,7 @@
                             <tbody id="ib_scope_wrapper"></tbody>
                             
                         </table>
-                    </div>
+                    </div> --}}
                   </div>
                 @endif
 

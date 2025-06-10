@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (LAB)
+                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมินติดตาม (LAB)
                         @if(isset($assessment))
                        : {{$assessment->reference_refno}}
                         @endif
@@ -33,7 +33,7 @@
                         'id'=>'form_assessment'
                     ]) !!}
                       <div id="box-readonly">
-                              @include ('certificate/labs/assessment-labs.form')
+                              @include ('certificate.labs.assessment-labs.form')
                       </div>
                     {!! Form::close() !!}
 

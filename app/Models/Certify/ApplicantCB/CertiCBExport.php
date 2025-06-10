@@ -41,7 +41,7 @@ class CertiCBExport extends Model
                             'name_en','name_standard_en','address_en','allay_en','village_no_en','road_en','province_name_en','amphur_name_en','district_name_en','formula_en',
 
                             'attach_client_name','cer_type', 'certificate_path', 'certificate_file', 'certificate_newfile', 'sign_id','sign_position','sign_instead',
-                            'certificate_period', 'contact_name', 'contact_tel', 'contact_mobile', 'contact_email','set_format'
+                            'certificate_period', 'contact_name', 'contact_tel', 'contact_mobile', 'contact_email','set_format','hold_status'
                             ];
 
                             

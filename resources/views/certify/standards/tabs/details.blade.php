@@ -1,8 +1,15 @@
 
-@php
+{{-- @php
     $Standardtype     = App\Models\Bcertify\Standardtype::where('state',1)->orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');
     $Step1StatusIDArr = [  '4'=> 'อยู่ระหว่างจัดทำมาตรฐานการรับรอง', '5'=> 'แจ้งระบุเลข ISBN' ];
     $UserRoleISBN     = App\User::selectRaw('CONCAT(reg_fname," ",reg_lname," (",reg_email,") ") As title, runrecno')->whereHas( 'subdepart', function($q){   $q->where('dpis_id', 13050); })->pluck('title', 'runrecno');
+    $StepStatus1      = isset($standard) && in_array( $standard->status_id, [ 4,5]  )?$standard->status_id:( isset($standard) && $standard->status_id > 5?5:null );
+@endphp --}}
+
+@php
+    $Standardtype     = App\Models\Bcertify\Standardtype::where('state',1)->orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');
+    $Step1StatusIDArr = [  '4'=> 'อยู่ระหว่างจัดทำมาตรฐานการรับรอง', '5'=> 'แจ้งระบุเลข ISBN' ];
+    $UserRoleISBN     = App\User::selectRaw('CONCAT(reg_fname," ",reg_lname," (",reg_email,") ") As title, runrecno')->whereHas( 'subdepart', function($q){   $q->where('dpis_id', 3050012); })->pluck('title', 'runrecno');
     $StepStatus1      = isset($standard) && in_array( $standard->status_id, [ 4,5]  )?$standard->status_id:( isset($standard) && $standard->status_id > 5?5:null );
 @endphp
 

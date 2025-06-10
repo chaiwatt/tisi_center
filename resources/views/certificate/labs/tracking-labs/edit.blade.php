@@ -270,7 +270,7 @@
             }
         @endphp
 
-        @php
+        {{-- @php
             $totalPendingTransactions = 0;
             $totalTransactions = 0;
             $pendingLabReportInfos = 0;
@@ -281,32 +281,32 @@
                 {
                     $pendingLabReportInfos ++;
                 }
-                // dd($labReportInfo);
+                
                 $totalPendingTransactions += $assessment->trackingLabReportInfo->signAssessmentTrackingReportTransactions->where('approval',0)->count();
                 $totalTransactions += $assessment->trackingLabReportInfo->signAssessmentTrackingReportTransactions->count();
-              
+         
                 
             }
-        @endphp
+        @endphp --}}
         
         {{-- {{$pendingLabReportInfos}} --}}
-        @if ($totalTransactions != 0 && $totalPendingTransactions == 0 && $pendingLabReportInfos == 0)
+        {{-- @if ($totalTransactions != 0 && $totalPendingTransactions == 0 && $pendingLabReportInfos == 0) --}}
             <a class="form_group btn {{ $inspection_btn }}" href="{{ url("certificate/inspection-labs/$inspection->id") }}">
                 {!! $inspection_icon !!} สรุปผลตรวจประเมิน
             </a>
-        @else 
-        @if ($totalTransactions == 0)
-                <span class="text-warning">รอการสร้างรายงานตรวจประเมิน</span>
-            @else
-                @if ($pendingLabReportInfos != 0)
-                        <span class="text-warning">รอการสร้างรายงานตรวจประเมิน</span>
-                    @else
-                        <span class="text-warning">รอการลงนามรายงานตรวจประเมิน</span>
-                @endif
-        @endif
+        {{-- @else 
+            @if ($totalTransactions == 0)
+                    <span class="text-warning">รอการสร้างรายงานตรวจประเมิน</span>
+                @else
+                    @if ($pendingLabReportInfos != 0)
+                            <span class="text-warning">รอการสร้างรายงานตรวจประเมิน</span>
+                        @else
+                            <span class="text-warning">รอการลงนามรายงานตรวจประเมิน</span>
+                    @endif
+            @endif
       
             
-        @endif
+        @endif --}}
         
 
 
@@ -387,7 +387,7 @@
     @endif  --}}
     {{-- {{$tracking->status_id}} --}}
     {{-- @if( $tracking->status_id == 6  || $tracking->status_id == 7 )     --}}
-    @if( $tracking->status_id >= 7 )   
+    {{-- @if( $tracking->status_id >= 7 )   
         @if ($tracking->status_id == 8)
             <a  class="btn btn-info form_group" href="{{ url("certificate/tracking-labs/append/$tracking->id")}}" >
                 <i class="fa fa-check-square-o"></i>   แนบท้าย
@@ -397,7 +397,18 @@
                 อัพเดทแนบท้าย
             </a> 
         @endif
-  @endif 
+  @endif  --}}
+{{-- {{ $tracking->status_id }} --}}
+      @if( $tracking->status_id == 7 && $tracking->ability_confirm !== null )    
+         <a  class="btn btn-warning form_group" href="{{ url("certificate/tracking-labs/append/$tracking->id")}}" >
+                <i class="fa fa-check-square-o"></i>   แนบท้าย
+            </a>  
+    @elseif( $tracking->status_id >= 8  )    
+          <a  class="btn btn-info form_group" href="{{ url("certificate/tracking-labs/append/$tracking->id")}}" >
+                <i class="fa fa-check-square-o"></i>   แนบท้าย
+            </a>  
+    @endif 
+
 
 
 

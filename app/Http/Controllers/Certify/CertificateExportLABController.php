@@ -199,7 +199,7 @@ class CertificateExportLABController extends Controller
 
                 }
             }
-
+// dd('ok');
             return view('certify.certificate_export_lab.create',['app_no'=> $app_no, 'app_token' => $app_token,'attach_path'=> $this->attach_path]);
         }
         abort(403);
@@ -235,7 +235,7 @@ class CertificateExportLABController extends Controller
         // $certi_lab = CertiLab::findOrFail($request->app_certi_lab_id);
         // $export_lab = CertificateExport::where('request_number', $certi_lab->app_no)->first();
         // dd($export_lab);
-        // dd($request->all());
+       
 
         $model = str_slug('certificateexportlab','-');
         if(auth()->user()->can('add-'.$model)) {
@@ -249,7 +249,7 @@ class CertificateExportLABController extends Controller
                 ]);
                 
                 if($request->submit == "submit"){
-                    
+                   
                     $requestData = $request->all();
                     $requestData['created_by'] =   auth()->user()->runrecno;
                     $certi_lab = CertiLab::findOrFail($request->app_certi_lab_id);
@@ -291,7 +291,7 @@ class CertificateExportLABController extends Controller
                         $requestData['attachs_client_name'] = $files->getClientOriginalName();
                         $requestData['attachs']     =  $this->storeFile($request->certificate_file, $certi_lab->app_no) ;
                     }
-
+                    
                     $requestData['sign_instead'] = isset($request->sign_instead)? '1':'0';
 
                     $export_lab = CertificateExport::where('request_number', $certi_lab->app_no)->first();
@@ -339,7 +339,7 @@ class CertificateExportLABController extends Controller
                         $export_lab = CertificateExport::create($requestData);
                     }
 
-                    // dd($$requestData);
+                   
 
                     if( isset($requestData['detail']) ){
 
@@ -386,15 +386,17 @@ class CertificateExportLABController extends Controller
 
                     }
 
+                    
+
                     $pathfileTemp = 'files/Tempfile/'.($requestData['app_no']);
 
                     if(Storage::directories($pathfileTemp)){
                         Storage::deleteDirectory($pathfileTemp);
                     }
-
+                  
                     $this->save_certilab_export_mapreq($certi_lab->id,$export_lab->id);
 
-
+                    // dd($requestData);
                     $pdfService = new CreateLabScopePdf($certi_lab);
                     $pdfContent = $pdfService->generatePdf();
             
@@ -681,12 +683,28 @@ class CertificateExportLABController extends Controller
             
                     // $json = $this->copyScopeLabFromAttachement($certi_lab);
                     // $copiedScopes = json_decode($json, true);
-            
+
+                    // CertLabsFileAll::where('app_certi_lab_id',$certi_lab->id)
+                    //     ->whereNotNull('attach_pdf')
+                    //     ->update([
+                    //         'state' => 0
+                    //     ]);
+
                     // Report::where('app_certi_lab_id',$certi_lab->id)->update([
-                    //     'file_loa' =>  $copiedScopes[0]['attachs'],
-                    //     'file_loa_client_name' =>  $copiedScopes[0]['file_client_name']
-                    // ]);
+                    //         'file_loa' =>  $copiedScopes[0]['attachs'],
+                    //         'file_loa_client_name' =>  $copiedScopes[0]['file_client_name']
+                    //     ]);
+                
+
+                    // CertLabsFileAll::where('app_certi_lab_id', $certi_lab->id)
+                    //     ->orderBy('id', 'desc') // เรียงตาม id ล่าสุด
+                    //     ->first()->update([
+                    //         'attach_pdf' => $copiedScopes[0]['attachs'],
+                    //         'attach_pdf_client_name' => $copiedScopes[0]['file_client_name'],
+                    //         'state' => 1
+                    //     ]);    
             
+
                     // CertLabsFileAll::where('app_certi_lab_id', $certi_lab->id)
                     //     ->orderBy('id', 'desc') // เรียงตาม id ล่าสุด
                     //     ->first()->update([

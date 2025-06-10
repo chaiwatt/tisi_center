@@ -39,6 +39,7 @@ class StandardsOffersController extends Controller
 
     public function index(Request $request)
     {
+
         $model = str_slug('standardsoffers','-');
         if(auth()->user()->can('view-'.$model)) {
             $select_users  = [];
@@ -218,14 +219,17 @@ public function data_list(Request $request)
 
     public function update(Request $request, $id)
     {
+       
         $model = str_slug('standardsoffers','-');
         if(auth()->user()->can('edit-'.$model)) {
 
 
             $requestData = $request->all();
+            //   dd($requestData);
             $requestData['updated_by'] =  auth()->user()->getKey();
             $standardsoffer = EstandardOffers::findOrFail($id);
             $standardsoffer->update($requestData);
+           
 
             if(isset($requestData['attach'])){
                 if ($request->hasFile('attach')) {

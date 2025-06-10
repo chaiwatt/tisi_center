@@ -137,10 +137,10 @@
 
                 <div class="tab-content tabs">
                     <div role="tabpanel" class="tab-pane fade @if($active_tab) in active @endif" id="Section0">
-                        @include ('certify/ib/certificate_export_ib.form_attachment')
+                        @include ('certify.ib.certificate_export_ib.form_attachment')
                     </div>
                     <div role="tabpanel" class="tab-pane fade @if(!$active_tab) in active @endif" id="Section1">
-                        @include ('certify/ib/certificate_export_ib.form_certificate')
+                        @include ('certify.ib.certificate_export_ib.form_certificate')
                     </div>
                 </div>
             </div>
@@ -149,39 +149,41 @@
 </div>
 
 <input type="hidden" name="submit"  id="certificate_export">
+<div id="submit_wrapper">
+    @if(isset($export_ib->status) && $export_ib->status >= 3)
 
-@if(isset($export_ib->status) && $export_ib->status >= 3)
-
-<div class="form-group">
-    <div class="col-md-offset-5 col-md-4">
-        <button class="btn btn-primary" name="submit" type="submit" value="submit"    onclick="submit_form('submit')">
-            <i class="fa fa-paper-plane"></i> บันทึก
-        </button>
-        @can('view-'.str_slug('certificateexportib'))
-        <a class="btn btn-default" href="{{url('/certify/certificate-export-ib')}}">
-            <i class="fa fa-rotate-left"></i> ยกเลิก
-        </a>
-        @endcan
-    </div>
-</div>
- 
-@else 
     <div class="form-group">
         <div class="col-md-offset-5 col-md-4">
-            <button class="btn btn-success" name="button" type="submit" value="print" id="print"    onclick="submit_form('print')">
-                <i class="fa fa-print"></i>  พิมพ์
-            </button>
             <button class="btn btn-primary" name="submit" type="submit" value="submit"    onclick="submit_form('submit')">
-            <i class="fa fa-paper-plane"></i> บันทึก
+                <i class="fa fa-paper-plane"></i> บันทึก
             </button>
             @can('view-'.str_slug('certificateexportib'))
-                <a class="btn btn-default" href="{{url('/certify/certificate-export-ib')}}">
-                    <i class="fa fa-rotate-left"></i> ยกเลิก
-                </a>
+            <a class="btn btn-default" href="{{url('/certify/certificate-export-ib')}}">
+                <i class="fa fa-rotate-left"></i> ยกเลิก
+            </a>
             @endcan
         </div>
     </div>
-@endif
+     
+    @else 
+        <div class="form-group">
+            <div class="col-md-offset-5 col-md-4">
+                <button class="btn btn-success" name="button" type="submit" value="print" id="print"    onclick="submit_form('print')">
+                    <i class="fa fa-print"></i>  พิมพ์
+                </button>
+                <button class="btn btn-primary" name="submit" type="submit" value="submit"    onclick="submit_form('submit')">
+                <i class="fa fa-paper-plane"></i> บันทึก
+                </button>
+                @can('view-'.str_slug('certificateexportib'))
+                    <a class="btn btn-default" href="{{url('/certify/certificate-export-ib')}}">
+                        <i class="fa fa-rotate-left"></i> ยกเลิก
+                    </a>
+                @endcan
+            </div>
+        </div>
+    @endif
+</div>
+
 
 @push('js')
     <script src="{{ asset('plugins/components/icheck/icheck.min.js') }}"></script>
@@ -325,6 +327,27 @@
                 $('#postcode').val('');
             }
         }
+
+
+        function toggleSubmitWrapper(activeTab) {
+            if (activeTab === 'ไฟล์แนบท้าย') {
+                $('#submit_wrapper').hide(); // ซ่อนเมื่อเลือก tab ไฟล์แนบท้าย
+            } else {
+                $('#submit_wrapper').show(); // แสดงเมื่อเลือก tab อื่น
+            }
+        }
+
+        // เมื่อมีการเปลี่ยน tab
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var activeTab = $(e.target).text(); // ดึงข้อความของ tab ที่ถูกเลือก
+            console.log('Tab ที่ถูกเลือก: ' + activeTab);
+            toggleSubmitWrapper(activeTab); // เรียกฟังก์ชันควบคุมการแสดง/ซ่อน
+        });
+
+        // ตรวจสอบ tab ที่เลือกเริ่มต้นเมื่อโหลดหน้า
+        var initialActiveTab = $('.nav-tabs li.active a').text();
+        console.log('Tab เริ่มต้น: ' + initialActiveTab);
+        toggleSubmitWrapper(initialActiveTab);
 
         function submit_form(status) {
             $('#certificate_export').val(status);

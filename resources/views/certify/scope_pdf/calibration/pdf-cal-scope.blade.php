@@ -1,278 +1,394 @@
-
 <style>
-    tr {
-        padding: 0;
+    /* สไตล์สำหรับ PDF */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 22px !important;
+        margin-bottom: 20px;
+        /* border: 1px solid black !important;  */
+        table-layout: fixed; /* บังคับให้คอลัมน์มีความกว้างตามที่กำหนด */
     }
-    td {
-        padding: 0;
+    th, td {
+        /* border: 1px solid black !important;  */
+        padding: 5px;
+        vertical-align: top;
+        font-size: 22px !important;
+        text-align: left !important;
+        word-wrap: break-word; /* ให้ข้อความตัดคำและขึ้นบรรทัดใหม่เมื่อยาวเกิน */
     }
-    .table-one {
-        margin-left: 3px;    
+    /* กำหนดความกว้างสำหรับแต่ละคอลัมน์ */
+    td:nth-child(1) {
+        width: 14%; /* คอลัมน์ 1 */
     }
-    .table-two {
-        margin-left: 5px
+    td:nth-child(2) {
+        width: 24%; /* คอลัมน์ 2 */
     }
-    .table-three {
-        margin-left: 5px
+    td:nth-child(3) {
+        width: 26.6%; /* คอลัมน์ 3 */
     }
-    .table-four {
-        margin-left: 5px
+    td:nth-child(4) {
+        width: 26.6%; /* คอลัมน์ 4 */
+    }
+    th {
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+        /* border: 1px solid black !important; */
+    }
+    h5 {
+        font-size: 22px !important;
+        margin: 10px 0;
+    }
+    .parameter-one td {
+        padding-left: 20px;
+    }
+    td.text-center {
+        text-align: center !important;
     }
 </style>
-    @php
-        if (!function_exists('formatRangeWithSpecialChars')) {
-            function formatRangeWithSpecialChars($range) {
-                $result = '';
-                $chars = mb_str_split($range, 1, 'UTF-8'); // แยก string เป็นตัวอักษร UTF-8
 
-                foreach ($chars as $char) {
-                    // รายการอักขระพิเศษทางวิทยาศาสตร์/คณิตศาสตร์ (เพิ่มได้ตามต้องการ)
-                    $scientificChars = ['Ω', 'π', 'Σ', 'β', 'α', 'γ', 'µ', '±', '∞', 'θ', 'δ','ξ', 'φ', 'χ', 'ψ', 'ω', 'ε','Δ','√', '∮', '∫', '∂', '∇', '∑', '∏', '∆','λ', 'ω', 'σ','ρ','℃','℉','Ξ'];
-                    
-                    // ตรวจสอบว่าตัวอักษรนี้เป็นอักขระพิเศษทางวิทยาศาสตร์หรือไม่
-                    if (in_array($char, $scientificChars)) {
-                        // ห่ออักขระพิเศษด้วย <span>
-                        $result .= '<span style="font-family: DejaVuSans; font-size: 14px;">' . htmlspecialchars($char, ENT_QUOTES, 'UTF-8') . '</span>';
-                    } else {
-                        // ตัวอักษรปกติ ไม่ต้องห่อ
-                        $result .= htmlspecialchars($char, ENT_QUOTES, 'UTF-8');
-                    }
-                }
+@php
+if (!function_exists('formatRangeWithSpecialChars')) {
+    function formatRangeWithSpecialChars($range) {
+        $result = '';
+        $chars = mb_str_split($range, 1, 'UTF-8'); // แยก string เป็นตัวอักษร UTF-8
 
-                return $result;
+        foreach ($chars as $char) {
+            // รายการอักขระพิเศษทางวิทยาศาสตร์/คณิตศาสตร์ (เพิ่มได้ตามต้องการ)
+            $scientificChars = ['Ω', 'π', 'Σ', 'β', 'α', 'γ', 'µ', '±', '∞', 'θ', 'δ','ξ', 'φ', 'χ', 'ψ', 'ω', 'ε','Δ','√', '∮', '∫', '∂', '∇', '∑', '∏', '∆','λ', 'ω', 'σ','ρ','℃','℉','Ξ'];
+            
+            // ตรวจสอบว่าตัวอักษรนี้เป็นอักขระพิเศษทางวิทยาศาสตร์หรือไม่
+            if (in_array($char, $scientificChars)) {
+                // ห่ออักขระพิเศษด้วย <span>
+                $result .= '<span style="font-family: DejaVuSans; font-size: 14px;">' . htmlspecialchars($char, ENT_QUOTES, 'UTF-8') . '</span>';
+            } else {
+                // ตัวอักษรปกติ ไม่ต้องห่อ
+                $result .= htmlspecialchars($char, ENT_QUOTES, 'UTF-8');
             }
         }
-    @endphp
 
-<table width="100%"  cellspacing="0" cellpadding="5" >
+        return $result;
+    }
+}
+@endphp
+
+@php
+    // กำหนด key ของ labType จาก index (เช่น $index = 0 -> pl_2_1_info)
+    $key = 'pl_2_' . ($index + 1) . '_info';
+
+    // ตรวจสอบว่า $labType เป็น array และมีข้อมูล
+    if (is_array($labType) && count($labType) > 0) {
+        // จัดกลุ่มตาม cal_main_branch
+        $groupedByMainBranch = [];
+        foreach ($labType as $index => $item) {
+            // dd($item);
+            $mainBranchKey = $item['cal_main_branch']['id'] ?? 'unknown';
+            if (!isset($groupedByMainBranch[$mainBranchKey])) {
+                $groupedByMainBranch[$mainBranchKey] = [
+                    'mainBranch' => isset($item['cal_main_branch']['text_en']) 
+                        ? 'สาขา' . ($item['cal_main_branch']['text'] ?? '') . '<br>' . ($item['cal_main_branch']['text_en'] ?? '') 
+                        : 'สาขา' . ($item['cal_main_branch']['text'] ?? '-'),
+                    'instrumentGroups' => []
+                ];
+            }
+            $groupKey = $item['cal_instrumentgroup']['id'] ?? 'unknown';
+            if (!isset($groupedByMainBranch[$mainBranchKey]['instrumentGroups'][$groupKey])) {
+                $groupedByMainBranch[$mainBranchKey]['instrumentGroups'][$groupKey] = [
+                    'instrumentGroup' => $item['cal_instrumentgroup']['text'] ?? '-',
+                    'items' => []
+                ];
+            }
+            $itemWithIndex = $item;
+            $itemWithIndex['originalIndex'] = $index;
+            $groupedByMainBranch[$mainBranchKey]['instrumentGroups'][$groupKey]['items'][] = $itemWithIndex;
+        }
+    }
+@endphp
+<table class="table table-bordered align-middle" id="cal_scope_table_{{ $key }}">
     <tbody>
-        @php
-            $categoryCounts = [];
-        @endphp
-        
-        @foreach ($scopes as $key => $item)
+        @foreach($groupedByMainBranch as $mainBranchGroup)
+            <!-- แถวแรกสำหรับ mainBranch -->
             <tr>
-                {{-- <td style="vertical-align: top;width:15%;padding-bottom: 90px;padding-left:5px;font-size:22px">
-                    <span @if ($key != 0)
-                            style="visibility: hidden"
-                    @endif >สาขา{!! $item->category_th !!} <br><span style="font-size: 16px">({!!$item->category!!} field)</span> </span>
-                </td> --}}
-                <td style="vertical-align: top; width:15%; padding-bottom: 90px; padding-left:5px; font-size:22px">
-                    <span @if ($key != 0 && $item->category_th === $previousCategoryTh)
-                            style="visibility: hidden"
-                          @endif>
-                        สาขา{!! $item->category_th !!} <br>
-                        <span style="font-size: 16px">({!! $item->category !!} field)</span>
-                    </span>
+                <td style="vertical-align: top;">
+                    {!! $mainBranchGroup['mainBranch'] !!}
                 </td>
-                <td style="vertical-align: top;width:28.33%">
-                    <table class="table-one" cellspacing="0" width="100%"  style="padding-right: 1px">
-                        <tr>
-                            <td style="padding-left: 5px">
-                                <span style="margin-top:5px">{!! $item->instrument !!} </span><span style="font-size:1px;visibility: hidden">*{{$key}}*</span>
-                                @if ($item->instrument !== "")
-                                    <span><br>{!! $item->instrument_two !!} </span>
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <table class="table-two" cellspacing="0"  width="100%" >
-
-                                    @if (!empty($item->description))
-                                        <tr><td><span>{!! $item->description !!}</span></td></tr>
-                                    @endif
-                                    <tr>
-                                        <td style="@if ($item->description !== '') margin-left:15px @endif">
-                                            <table class="table-three" cellspacing="0"  width="100%">
-                                                @foreach ($item->measurement_edit as $i => $measurement)
-                                                    <tr>
-                                                        <td style="@if ($i > 0) padding-top: 15px; @endif">
-                                                            <span>{!! $measurement['name'] !!}</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <table class="table-four" cellspacing="0" width="100%" style="margin-left:0px;padding-right:3px">
-                                                                @foreach ($measurement['ranges'] as $description_i => $range)
-                                                                @if (!empty($description_i))
-                                                                    <tr>
-                                                                        <td style="@if ($loop->index > 0) padding-top: 15px; @endif">
-                                                                            <span>{!! $description_i !!}</span> <!-- แสดงชื่อคีย์ เช่น "Nominal", "Ultraviolet at 257 nm" -->
-                                                                        </td>
-                                                                    </tr>
-                                                                @endif
-
-                                                                <tr>
-                                                                    <td style="padding-left: 7px">
-                                                                        @foreach ($range['ranges'] as $range)
-                                                                            <span>{!! formatRangeWithSpecialChars($range) !!}</span><br>
-                                                                        @endforeach
-                                                                    </td>
-                                                                </tr>
-
-                                                                @endforeach
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-
-        
-               <td style="vertical-align: top;width:28.33%">
-                    <table class="table-one" cellspacing="0" width="100%"  style="padding-right: 1px">
-                        <tr>
-                            <td style="padding-left: 0px">
-                                <span style="visibility: hidden;margin-top:5px">{!! $item->instrument !!}</span><span style="font-size:1px;visibility: hidden">*{{$key}}*</span>
-                                @if ($item->instrument !== "")
-                                    <span style="visibility: hidden;"><br>{!! $item->instrument_two !!} </span>
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <table class="table-two" cellspacing="0"  width="100%">
-                                    @if (!empty($item->description))
-                                        <tr><td><span style="visibility: hidden;">{!! $item->description !!}</span></td></tr>
-                                    @endif
-                                    <tr>
-                                        <td style="@if ($item->description !== '') margin-left:15px @endif">
-                                            <table class="table-three" cellspacing="0"  width="100%">
-                                                @foreach ($item->measurement_edit as $j => $measurement)
-                                                    <tr>
-                                                        <td style="@if ($j > 0) padding-top: 15px; @endif">
-                                                            <span style="visibility: hidden;">{!! $measurement['name'] !!}</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <table class="table-four" cellspacing="0" width="100%" style="margin-left:0px;text-align: center;padding-right:3px">
-                                                                @foreach ($measurement['ranges'] as $description_j => $range)
-                                                                @if (!empty($description_j))
-                                                                    <tr>
-                                                                        <td style="@if ($loop->index > 0) padding-top: 15px; @endif">
-                                                                            <span style="visibility: hidden;">{!! $description_j !!}</span> <!-- แสดงชื่อคีย์ เช่น "Nominal", "Ultraviolet at 257 nm" -->
-                                                                        </td>
-                                                                    </tr>
-                                                                @endif
-                                                                <tr>
-                                                                    <td style="padding-left: 7px">
-                                                                        @foreach ($range['uncertainties'] as $uncertain)
-                                                                             @if (preg_match('/\.(png|jpg|jpeg|gif)$/i', $uncertain))
-                                                                                <span  style="padding-left: 0px">
-                                                                                    {{-- {{$uncertain}} --}}
-                                                                                    {{-- <span> <img src="{{public_path('uploads/files/applicants/check_files/' . basename($uncertain))}}" style="width: 160px" alt=""> </span><br> --}}
-                                                                                    <span><img src="{{$uncertain}}" alt="Image" style="max-width:160px" />   </span>
-                                                                                </span>
-                                                                            @else
-                                                                                {{-- <span>{!! $uncertain !!}</span><br>  --}}
-                                                                                <span>{!! formatRangeWithSpecialChars($uncertain) !!}</span><br> 
-                                                                                
-                                                                            @endif
-                                                                        @endforeach
-                                                                    </td>
-                                                                </tr>
-                                                                @endforeach
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                </td> 
-                <td style="vertical-align: top;width:28.33%">
-                    <table class="table-one" cellspacing="0" width="100%"  style="padding-right: 1px">
-                        <tr>
-                            <td style="padding-left: 10px">
-                                {{-- <span style="visibility: hidden;margin-top:5px">{!! $item->instrument !!}</span><span style="font-size:1px;visibility: hidden">*{{$key}}*</span>
-                                @if ($item->instrument !== "")
-                                    <span style="visibility: hidden;"><br>{!! $item->instrument_two !!} </span>
-                                @endif --}}
-                                <div><span style="visibility: hidden;margin-top:5px">{!! $item->instrument !!}</span><span style="font-size:1px;visibility: hidden">*{{$key}}*</span></div>
-                                @if (count($item->measurement_edit) == 0)
-                                    <div>{!! $item->standard !!}</div>
-                                @endif
-
-                                @if ($item->instrument !== "")
-                                    <span style="visibility: hidden;"><br>{!! $item->instrument_two !!} </span>
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <table class="table-two" cellspacing="0"  width="100%">
-                                    @if (!empty($item->description))
-                                        <tr><td><span style="visibility: hidden;">{!! $item->description !!}</span></td></tr>
-                                    @endif
-                                    <tr>
-                                        <td style="@if ($item->description !== '') margin-left:15px @endif">
-                                            <table class="table-three" cellspacing="0"  width="100%">
-                                                @foreach ($item->measurement_edit as $k => $measurement)
-                                                    <tr>
-                                                       
-                                                        @if ($k == 0)
-                                                                <td style="@if ($k > 0) padding-top: 15px; @endif">
-                                                                    <span >{!! $item->standard !!}</span>
-                                                                </td>
-                                                            @else
-                                                            <td style="@if ($k > 0) padding-top: 15px; @endif">
-                                                                <span >{!! $item->standard !!}</span>
-                                                            </td>
-                                                        @endif
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <table class="table-four" cellspacing="0" width="100%" style="margin-left:0px;text-align: center;padding-right:3px">
-                                                                @foreach ($measurement['ranges'] as $description_k => $range)
-                                                                @if (!empty($description_k))
-                                                                    <tr>
-                                                                        <td style="@if ($loop->index > 0) padding-top: 15px; @endif">
-                                                                            <span style="visibility: hidden;">{!! $description_k !!}</span> <!-- แสดงชื่อคีย์ เช่น "Nominal", "Ultraviolet at 257 nm" -->
-                                                                        </td>
-                                                                    </tr>
-                                                                @endif
-                                                                <tr>
-                                                                    <td style="padding-left: 7px">
-                                                                        @foreach ($range['ranges'] as $range)
-                                                                            <span  style="visibility: hidden;">{!! $range !!}</span><br>
-                                                                        @endforeach
-                                                                    </td>
-                                                                </tr>
-                                                                @endforeach
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                </td> 
+                <td style="vertical-align: top;"></td>
+                <td style="vertical-align: top;"></td>
+                <td style="vertical-align: top;"></td>
             </tr>
-            @php
-                $previousCategoryTh = $item->category_th; // อัพเดทค่า category_th สำหรับแถวถัดไป
-            @endphp
+
+            @foreach($mainBranchGroup['instrumentGroups'] as $mainGroup)
+                @php
+                    // ตรวจสอบว่าไม่มี parameterOne และ parameterTwo
+                    $hasNoParameters = true;
+                    foreach ($mainGroup['items'] as $item) {
+                        $hasParamOne = !empty($item['cal_parameter_one']['text'] ?? '');
+                        $hasParamTwo = !empty($item['cal_parameter_two']['text'] ?? '') && $item['cal_parameter_two']['text'] !== '-' && $item['cal_parameter_two']['text'] !== '';
+                        if ($hasParamOne || $hasParamTwo) {
+                            $hasNoParameters = false;
+                            break;
+                        }
+                    }
+                    $calStandardForGroup = $hasNoParameters && !empty($mainGroup['items'][0]['cal_standard'] ?? '') && $mainGroup['items'][0]['cal_standard'] !== '<br>'
+                        ? $mainGroup['items'][0]['cal_standard']
+                        : '';
+                @endphp
+                <tr>
+                    <td style="vertical-align: top;"></td>
+                    <td style="vertical-align: top;">
+                        {{ $mainGroup['instrumentGroup'] }}
+                    </td>
+                    <td style="vertical-align: top;"></td>
+                    <td style="vertical-align: top;">
+                        {!! $calStandardForGroup !!}
+                    </td>
+                </tr>
+                @php
+                    // จัดกลุ่มตาม cal_instrument และ cal_parameter_one
+                    $groupedData = [];
+                    foreach ($mainGroup['items'] as $index => $item) {
+                        $parameterOneKey = !empty($item['cal_parameter_one']['text'] ?? '') ? ($item['cal_parameter_one']['id'] ?? '-') : '-';
+                        $subGroupKey = ($item['cal_instrument']['id'] ?? '') . '_' . $parameterOneKey;
+                        if (!isset($groupedData[$subGroupKey])) {
+                            $groupedData[$subGroupKey] = [
+                                'instrument' => $item['cal_instrument']['text'] ?? '',
+                                'parameterOne' => $item['cal_parameter_one']['text'] ?? '',
+                                'items' => []
+                            ];
+                        }
+                        $groupedData[$subGroupKey]['items'][] = [
+                            'parameterTwo' => $item['cal_parameter_two']['text'] ?? '',
+                            'calStandard' => !empty($item['cal_standard']) && $item['cal_standard'] !== '<br>' ? $item['cal_standard'] : '',
+                            'measurements' => $item['cal_cmc_info'] ?? [],
+                            'originalIndex' => $index
+                        ];
+                    }
+                @endphp
+
+                @foreach($groupedData as $group)
+                    @if(!empty($group['instrument']))
+                        <tr class="parameter-one">
+                            <td style="vertical-align: top;"></td>
+                            <td style="vertical-align: top; padding-left: 20px;">
+                                {{ $group['instrument'] }}
+                            </td>
+                            <td style="vertical-align: top;"></td>
+                            <td style="vertical-align: top;"></td>
+                        </tr>
+                        @foreach($group['items'] as $item)
+                            @if(is_array($item['measurements']) && count($item['measurements']) > 0)
+                                @php
+                                    // จัดกลุ่ม measurements ตาม description
+                                    $groupedByDescription = [];
+                                    foreach ($item['measurements'] as $measIndex => $meas) {
+                                        $descKey = !empty($meas['description']) && trim($meas['description']) !== '' ? $meas['description'] : '';
+                                        if (!isset($groupedByDescription[$descKey])) {
+                                            $groupedByDescription[$descKey] = [];
+                                        }
+                                        $groupedByDescription[$descKey][] = $meas;
+                                    }
+                                @endphp
+                                @foreach($groupedByDescription as $desc => $measurements)
+                                    @if(!empty($desc))
+                                        <tr class="parameter-one">
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top; padding-left: 20px;">
+                                                {{ $desc }}
+                                            </td>
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top;"></td>
+                                        </tr>
+                                    @endif
+                                    @foreach($measurements as $meas)
+                                        @php
+                                            $rangeDisplay = '';
+                                            if (is_array($meas['range']) && isset($meas['range']['name'])) {
+                                                $rangeDisplay = $meas['range']['name'];
+                                            } elseif (is_array($meas['range'])) {
+                                                $rangeDisplay = implode(', ', $meas['range']);
+                                            } else {
+                                                $rangeDisplay = $meas['range'] ?? '';
+                                            }
+
+                                            $uncertaintyDisplay = '';
+                                            if (is_array($meas['uncertainty']) && isset($meas['uncertainty']['name'])) {
+                                                $uncertaintyDisplay = $meas['uncertainty']['name'];
+                                            } elseif (is_array($meas['uncertainty'])) {
+                                                $uncertaintyDisplay = implode(', ', $meas['uncertainty']);
+                                            } else {
+                                                $uncertaintyDisplay = $meas['uncertainty'] ?? '';
+                                            }
+                                            if (is_string($uncertaintyDisplay) && strpos($uncertaintyDisplay, '.png') !== false) {
+                                                $uncertaintyDisplay = '<img src="' . $uncertaintyDisplay . '" alt="uncertainty image" style="max-width: 160px;">';
+                                            }
+                                        @endphp
+                                        <tr class="parameter-one">
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top; padding-left: 20px; text-align: center;">
+                                                {!! formatRangeWithSpecialChars($rangeDisplay) !!}
+                                            </td>
+                                            <td style="vertical-align: top; text-align: center;">
+                                                {!! formatRangeWithSpecialChars($uncertaintyDisplay) !!}
+                                            </td>
+                                            <td style="vertical-align: top;"></td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
+                            @endif
+                        @endforeach
+                    @endif
+
+                    @if(!empty($group['parameterOne']) && empty($group['instrument']))
+                        <tr class="parameter-one">
+                            <td style="vertical-align: top;"></td>
+                            <td style="vertical-align: top; padding-left: 20px;">
+                                {{ $group['parameterOne'] }}
+                            </td>
+                            <td style="vertical-align: top;"></td>
+                            <td style="vertical-align: top;">
+                                {!! $group['items'][0]['calStandard'] !!}
+                            </td>
+                        </tr>
+                        @foreach($group['items'] as $item)
+                            @if(is_array($item['measurements']) && count($item['measurements']) > 0)
+                                @php
+                                    // จัดกลุ่ม measurements ตาม description
+                                    $groupedByDescription = [];
+                                    foreach ($item['measurements'] as $measIndex => $meas) {
+                                        $descKey = !empty($meas['description']) && trim($meas['description']) !== '' ? $meas['description'] : '';
+                                        if (!isset($groupedByDescription[$descKey])) {
+                                            $groupedByDescription[$descKey] = [];
+                                        }
+                                        $groupedByDescription[$descKey][] = $meas;
+                                    }
+                                @endphp
+                                @foreach($groupedByDescription as $desc => $measurements)
+                                    @if(!empty($desc))
+                                        <tr class="parameter-one">
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top; padding-left: 20px;">
+                                                {{ $desc }}
+                                            </td>
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top;"></td>
+                                        </tr>
+                                    @endif
+                                    @foreach($measurements as $meas)
+                                        @php
+                                            $rangeDisplay = '';
+                                            if (is_array($meas['range']) && isset($meas['range']['name'])) {
+                                                $rangeDisplay = $meas['range']['name'];
+                                            } elseif (is_array($meas['range'])) {
+                                                $rangeDisplay = implode(', ', $meas['range']);
+                                            } else {
+                                                $rangeDisplay = $meas['range'] ?? '';
+                                            }
+
+                                            $uncertaintyDisplay = '';
+                                            if (is_array($meas['uncertainty']) && isset($meas['uncertainty']['name'])) {
+                                                $uncertaintyDisplay = $meas['uncertainty']['name'];
+                                            } elseif (is_array($meas['uncertainty'])) {
+                                                $uncertaintyDisplay = implode(', ', $meas['uncertainty']);
+                                            } else {
+                                                $uncertaintyDisplay = $meas['uncertainty'] ?? '';
+                                            }
+                                            if (is_string($uncertaintyDisplay) && strpos($uncertaintyDisplay, '.png') !== false) {
+                                                $uncertaintyDisplay = '<img src="' . $uncertaintyDisplay . '" alt="uncertainty image" style="max-width: 160px;">';
+                                            }
+                                        @endphp
+                                        <tr class="parameter-one">
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top; padding-left: 20px; text-align: center;">
+                                                {!! formatRangeWithSpecialChars($rangeDisplay) !!}
+                                            </td>
+                                            <td style="vertical-align: top; text-align: center;">
+                                                {!! formatRangeWithSpecialChars($uncertaintyDisplay) !!}
+                                            </td>
+                                            <td style="vertical-align: top;"></td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
+                            @endif
+                        @endforeach
+                    @endif
+
+                    @foreach($group['items'] as $itemIndex => $item)
+                        @if(!empty($item['parameterTwo']) && $item['parameterTwo'] !== '-')
+                            <tr class="parameter-one">
+                                <td style="vertical-align: top;"></td>
+                                <td style="vertical-align: top; padding-left: 20px;">
+                                    {{ $item['parameterTwo'] }}
+                                </td>
+                                <td style="vertical-align: top;"></td>
+                                <td style="vertical-align: top;">
+                                    @if(empty($group['parameterOne']))
+                                        {!! $item['calStandard'] !!}
+                                    @endif
+                                </td>
+                            </tr>
+                            @if(is_array($item['measurements']) && count($item['measurements']) > 0)
+                                @php
+                                    // จัดกลุ่ม measurements ตาม description
+                                    $groupedByDescription = [];
+                                    foreach ($item['measurements'] as $measIndex => $meas) {
+                                        $descKey = !empty($meas['description']) && trim($meas['description']) !== '' ? $meas['description'] : '';
+                                        if (!isset($groupedByDescription[$descKey])) {
+                                            $groupedByDescription[$descKey] = [];
+                                        }
+                                        $groupedByDescription[$descKey][] = $meas;
+                                    }
+                                @endphp
+                                @foreach($groupedByDescription as $desc => $measurements)
+                                    @if(!empty($desc))
+                                        <tr class="parameter-one">
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top; padding-left: 20px;">
+                                                {{ $desc }}
+                                            </td>
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top;"></td>
+                                        </tr>
+                                    @endif
+                                    @foreach($measurements as $meas)
+                                        @php
+                                            $rangeDisplay = '';
+                                            if (is_array($meas['range']) && isset($meas['range']['name'])) {
+                                                $rangeDisplay = $meas['range']['name'];
+                                            } elseif (is_array($meas['range'])) {
+                                                $rangeDisplay = implode(', ', $meas['range']);
+                                            } else {
+                                                $rangeDisplay = $meas['range'] ?? '';
+                                            }
+
+                                            $uncertaintyDisplay = '';
+                                            if (is_array($meas['uncertainty']) && isset($meas['uncertainty']['name'])) {
+                                                $uncertaintyDisplay = $meas['uncertainty']['name'];
+                                            } elseif (is_array($meas['uncertainty'])) {
+                                                $uncertaintyDisplay = implode(', ', $meas['uncertainty']);
+                                            } else {
+                                                $uncertaintyDisplay = $meas['uncertainty'] ?? '';
+                                            }
+                                            if (is_string($uncertaintyDisplay) && strpos($uncertaintyDisplay, '.png') !== false) {
+                                                $uncertaintyDisplay = '<img src="' . $uncertaintyDisplay . '" alt="uncertainty image" style="max-width: 160px;">';
+                                            }
+                                        @endphp
+                                        <tr class="parameter-one">
+                                            <td style="vertical-align: top;"></td>
+                                            <td style="vertical-align: top; padding-left: 20px; text-align: center;">
+                                                {!! formatRangeWithSpecialChars($rangeDisplay) !!}
+                                            </td>
+                                            <td style="vertical-align: top; text-align: center;">
+                                                {!! formatRangeWithSpecialChars($uncertaintyDisplay) !!}
+                                            </td>
+                                            <td style="vertical-align: top;"></td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
+                            @endif
+                        @endif
+                    @endforeach
+                @endforeach
+            @endforeach
         @endforeach
-    
     </tbody>
 </table>
-
-
-
-

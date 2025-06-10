@@ -2,20 +2,32 @@
 
 namespace App\Http\Controllers\Certificate\Cb;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Yajra\Datatables\Datatables;
+use DB;
 use HP;
-use App\Models\Certify\ApplicantCB\CertiCBExport; 
+use stdClass;
+use Illuminate\Http\Request;
+use App\Models\Besurv\Signer;
+use Yajra\Datatables\Datatables;
+use App\Mail\Tracking\AuditorsMail;
+use App\Http\Controllers\Controller;
 use App\Models\Certificate\Tracking;
+use Illuminate\Support\Facades\Mail; 
+use Illuminate\Support\Facades\Storage;
+use App\Mail\CB\CbDocReviewAuditorsMail;
+use App\Models\Certificate\TrackingHistory;
+use App\Models\Certify\ApplicantIB\CertiIb;
 use App\Models\Certificate\TrackingAuditors;
+use App\Mail\CB\TrackingDocReviewAuditorsMail;
+use App\Models\Certificate\CbDocReviewAuditor;
 use App\Models\Certificate\TrackingAuditorsDate;
 use App\Models\Certificate\TrackingAuditorsList; 
+use App\Models\Certify\ApplicantCB\CertiCBExport; 
 use App\Models\Certificate\TrackingAuditorsStatus; 
-use App\Models\Certificate\TrackingHistory;
-use DB;
-use Illuminate\Support\Facades\Mail; 
-use App\Mail\Tracking\AuditorsMail;
+use App\Models\Certify\ApplicantCB\CertiCBAuditors;
+use App\Models\Certificate\TrackingDocReviewAuditor;
+use App\Models\Certify\MessageRecordTrackingTransaction;
+use App\Models\Bcertify\BoardAuditorTrackingMsRecordInfo;
+use App\Models\Certify\ApplicantCB\CertiCBAuditorsStatus;
 
 class AuditorCbController extends Controller
 {
@@ -127,10 +139,10 @@ class AuditorCbController extends Controller
           }else{ 
              $tracking = '';
           }
- 
+    $signers = Signer::all();
    
           $auditors_status = [new TrackingAuditorsStatus];
-          return view('certificate.cb.auditor-cb.create', compact('tracking','auditors_status'));
+          return view('certificate.cb.auditor-cb.create', compact('tracking','auditors_status','signers'));
         }
         abort(403);
 
@@ -196,7 +208,7 @@ class AuditorCbController extends Controller
 
         
                   self::storeStatus($auditors->id,(array)$requestData['list']);
-
+                  $this->saveSignature($request,$auditors->id,$tracking->ref_id);
  
                 if(!is_null($tracking)){
                     if(isset($request->vehicle)){
@@ -230,6 +242,72 @@ class AuditorCbController extends Controller
         }
         abort(403);
     }
+
+
+        public function saveSignature($request,$boardTrackingAutitorId,$certilabExportId)
+    {
+     
+      // dd($request->all());
+        TrackingAuditors::find($boardTrackingAutitorId)->update([
+          'message_record_status' => 1
+        ]);
+        $check = MessageRecordTrackingTransaction::where('ba_tracking_id',$boardTrackingAutitorId)
+        ->where('certificate_type',1)
+        ->get();
+        
+        if($check->count() == 0){
+            $signatures = json_decode($request->input('signaturesJson'), true);
+            //  dd($signatures);
+            $viewUrl = url('/certificate/auditor-cbs/view-cb-tracking-message-record/'.$boardTrackingAutitorId);
+            if ($signatures) {
+                foreach ($signatures as $signatureId => $signature) {
+                    // dd($signature);
+                    try {
+                        // ลองสร้างข้อมูลในฐานข้อมูล
+                        MessageRecordTrackingTransaction::create([
+                            'ba_tracking_id' => $boardTrackingAutitorId,
+                            'signer_id' => $signature['signer_id'],
+                            'certificate_type' => 1,
+                            'certificate_export_id' => $certilabExportId,
+                            'view_url' => $viewUrl,
+                            'signature_id' => $signature['id'],
+                            'is_enable' => false,
+                            'show_name' => false,
+                            'show_position' => false,
+                            'signer_name' => $signature['signer_name'],
+                            'signer_position' => $signature['signer_position'],
+                            'signer_order' => preg_replace('/[^0-9]/', '', $signatureId),
+                            'file_path' => null,
+                            'page_no' => 0,
+                            'pos_x' => 0,
+                            'pos_y' => 0,
+                            'linesapce' => 20,
+                            'approval' => 0,
+                        ]);
+                    
+                        // แสดงข้อความหากสำเร็จ
+                        echo "บันทึกข้อมูลสำเร็จ";
+                    } catch (\Exception $e) {
+                        // จัดการข้อผิดพลาดหากล้มเหลว
+                        echo "เกิดข้อผิดพลาด: " . $e->getMessage();
+                        // dd( $e->getMessage());
+                    }
+                    
+                } 
+            }
+        }else{
+          // dd('sss');
+          MessageRecordTrackingTransaction::where('ba_tracking_id',$boardTrackingAutitorId)
+          ->where('certificate_type',1)
+          ->update([
+                'approval' => 0
+            ]);
+        }
+     
+        $board  =  TrackingAuditors::findOrFail($boardTrackingAutitorId);
+        // $this->sendMailToExaminer($board,$board->CertiLabs); 
+    }
+
     public function edit(Request $request,$id)
     {
         $model = str_slug('auditorcb','-');
@@ -248,38 +326,38 @@ class AuditorCbController extends Controller
           if(count($auditors_status) == 0){
             $auditors_status = [new TrackingAuditorsStatus];
           }
-
-          return view('certificate.cb.auditor-cb.edit', compact('auditor','tracking','auditors_status'));
+$signers = Signer::all();
+          return view('certificate.cb.auditor-cb.edit', compact('auditor','tracking','auditors_status','signers'));
         }
         abort(403);
 
     }
 
-    public function auditor_cb_doc_review_edit($id)
-    {
-      
-        $model = str_slug('auditorcb','-');
-        if(auth()->user()->can('edit-'.$model)) {
-          $previousUrl = app('url')->previous();
-          $auditor =  TrackingAuditors::findOrFail($id);
-          if(!empty($auditor->tracking_id)){
-            $tracking                =   Tracking::where('id', $auditor->tracking_id)->first();
-            $tracking->name          =  !empty($tracking->certificate_export_to->CertiCbTo->name)? $tracking->certificate_export_to->CertiCbTo->name:'';
-            $tracking->name_standard =  !empty($tracking->certificate_export_to->CertiCbTo->name_standard)? $tracking->certificate_export_to->CertiCbTo->name_standard:'';
-          }else{
-            $tracking = '';
-          }
+    // public function auditor_cb_doc_review_edit($id)
+    // {
+    //   // dd('fuck');
+    //     $model = str_slug('auditorcb','-');
+    //     if(auth()->user()->can('edit-'.$model)) {
+    //       $previousUrl = app('url')->previous();
+    //       $auditor =  TrackingAuditors::findOrFail($id);
+    //       if(!empty($auditor->tracking_id)){
+    //         $tracking                =   Tracking::where('id', $auditor->tracking_id)->first();
+    //         $tracking->name          =  !empty($tracking->certificate_export_to->CertiCbTo->name)? $tracking->certificate_export_to->CertiCbTo->name:'';
+    //         $tracking->name_standard =  !empty($tracking->certificate_export_to->CertiCbTo->name_standard)? $tracking->certificate_export_to->CertiCbTo->name_standard:'';
+    //       }else{
+    //         $tracking = '';
+    //       }
  
-             $auditors_status =   TrackingAuditorsStatus::where('auditors_id', $id)->get();  
-          if(count($auditors_status) == 0){
-            $auditors_status = [new TrackingAuditorsStatus];
-          }
+    //          $auditors_status =   TrackingAuditorsStatus::where('auditors_id', $id)->get();  
+    //       if(count($auditors_status) == 0){
+    //         $auditors_status = [new TrackingAuditorsStatus];
+    //       }
 
-          return view('certificate.cb.auditor-cb.edit', compact('auditor','tracking','auditors_status'));
-        }
-        abort(403);
+    //       return view('certificate.cb.auditor-cb.edit', compact('auditor','tracking','auditors_status'));
+    //     }
+    //     abort(403);
 
-    }
+    // }
 
 
 
@@ -339,6 +417,7 @@ class AuditorCbController extends Controller
                   self::DataAuditorsDate($auditors->id,$request);
 
                   self::storeStatus($auditors->id,(array)$requestData['list']);
+                  
 
                     $tracking = Tracking::find($auditors->tracking_id);
                 if(!is_null($tracking)){
@@ -540,6 +619,465 @@ class AuditorCbController extends Controller
            }  
  
         }
+      }
+
+      public function auditor_cb_doc_review($id)
+      {
+        // dd($id);
+        $model = str_slug('auditorcb','-');
+            if(auth()->user()->can('add-'.$model)) {
+          
+              $previousUrl = app('url')->previous();
+               
+                $auditorcb = new CertiCBAuditors;
+                $auditors_status = [new CertiCBAuditorsStatus]; 
+      
+               $tracking = Tracking::find($id);
+
+              //  dd($tracking->certificate_export_to->CertiCbTo);
+               
+                return view('certificate.cb.auditor_cb_doc_review.create',[
+                    'tracking' => $tracking ,
+                    'auditorcb' => $auditorcb,
+                    'auditors_status'=> $auditors_status,
+                ]);
+            }
+            abort(403);
+      }
+
+  public function auditor_cb_doc_review_store(Request $request)
+  {
+      // ตรวจสอบความถูกต้องของข้อมูลที่ได้รับ (Validation)
+      // dd($request->all());
+      $request->validate([
+          'tracking_id' => 'required|string',
+          'cb_name' => 'required|string',
+          'auditor' => 'required|string',
+          'start_date' => 'required|array',
+          'end_date' => 'required|array',
+          'assessment_type' => 'required|string',
+          'list' => 'required|array',
+      ]);
+
+      // จัดการค่าของ auditors (แปลง list เป็น JSON)
+      $auditors = [];
+      if (isset($request->list['status'])) {
+          foreach ($request->list['status'] as $index => $status) {
+              $auditors[] = [
+                  'status' => $status,
+                  'user_id' => $request->list['user_id'][$index] ?? [],
+                  'temp_users' => $request->list['temp_users'][$index] ?? [],
+                  'temp_departments' => $request->list['temp_departments'][$index] ?? [],
+              ];
+          }
+      }
+
+      // dd($request->list,$auditors);
+
+      // อัปโหลดไฟล์ถ้ามี
+      $filePath = null;
+      $fileName = null;
+// dd($request->hasFile('attach'));
+      if ($request->hasFile('attach')) {
+          $file = $request->file('attach');
+          $filePath = $this->storeFile($file,'doc_review_file_cb');
+          $fileName = basename($filePath);
+      }
+
+      $from_date = isset($request->start_date[0]) ? $this->convertThaiYearToAD($request->start_date[0]) : null;
+      $to_date = isset($request->end_date[0]) ? $this->convertThaiYearToAD($request->end_date[0]) : null;
+  
+      // บันทึกข้อมูลลงในฐานข้อมูล
+      $cbDocReviewAuditor = TrackingDocReviewAuditor::create([
+          'tracking_id' => $request->tracking_id,
+          'doc_type' => '1',
+          'team_name' => $request->auditor,
+          'from_date' => $from_date,
+          'to_date' => $to_date,
+          'type' => $request->assessment_type,
+          'file' => $filePath,
+          'filename' => $fileName,
+          'auditors' => json_encode($auditors, JSON_UNESCAPED_UNICODE),
+          'status' => '0', 
+      ]);
+
+      // CertiCb::find($request->certiCbId)->update([
+      //   'doc_auditor_assignment' => 2,
+      //   'doc_review_reject' => null,
+      //   'doc_review_reject_message' => null,
+      // ]);
+
+      $tracking = Tracking::find($request->tracking_id);
+      if($request->assessment_type == '1')
+      {
+        $this->sendMailAuditorDocReview($tracking,$cbDocReviewAuditor);
+      }
+
+      // /certificate/tracking-cb/385/edit
+    // return redirect()->to('/certificate/auditor_cb_doc_review/auditor_cb_doc_review/' . $tracking->id);
+    return redirect()->to('/certificate/tracking-cb/' . $tracking->id . '/edit');
+
+  }
+
+    // ฟังก์ชันแปลงวันที่จาก พ.ศ. → ค.ศ.
+private function convertThaiYearToAD($thaiDate)
+{
+    // แปลงวันที่จาก "08/02/2568" → "08/02/2025"
+    $dateParts = explode('/', $thaiDate);
+    if (count($dateParts) == 3) {
+        $year = (int)$dateParts[2] - 543; // แปลง พ.ศ. → ค.ศ.
+        return $year . '-' . $dateParts[1] . '-' . $dateParts[0]; // YYYY-MM-DD
+    }
+    return null;
+}
+
+              // สำหรับเพิ่มรูปไปที่ store
+        public function storeFile($files, $app_no = 'files_cb', $name = null)
+        {
+            $no  = str_replace("RQ-","",$app_no);
+            $no  = str_replace("-","_",$no);
+            if ($files) {
+                $attach_path  =  $this->attach_path.$no;
+                $file_extension = $files->getClientOriginalExtension();
+                $fileClientOriginal   =  HP::ConvertCertifyFileName($files->getClientOriginalName());
+                $filename = pathinfo($fileClientOriginal, PATHINFO_FILENAME);
+                $fullFileName =   str_random(10).'-date_time'.date('Ymd_hms') . '.' . $files->getClientOriginalExtension();
+  
+                $storagePath = Storage::putFileAs($attach_path, $files,  str_replace(" ","",$fullFileName) );
+                $storageName = basename($storagePath); // Extract the filename
+                return  $no.'/'.$storageName;
+            }else{
+                return null;
+            }
+        }
+
+public function sendMailAuditorDocReview($tracking,$cbDocReviewAuditor)
+{
+  // dd($tracking);
+   $certi_cb = $tracking->certificate_export_to->CertiCbTo;
+  if(!is_null($certi_cb->email))
+  {
+
+      $config = HP::getConfig();
+      $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
+
+      if(!empty($certi_cb->DataEmailDirectorCBCC)){
+          $mail_cc = $certi_cb->DataEmailDirectorCBCC;
+          array_push($mail_cc, auth()->user()->reg_email) ;
+      }
+      $auditors = json_decode($cbDocReviewAuditor->auditors, true);
+
+      $data_app = [
+                    'title'          =>  'แต่งตั้งคณะผู้ตรวจประเมินเอกสาร',
+                    'cbDocReviewAuditor'       => $cbDocReviewAuditor,
+                    'auditors'       => $auditors,
+                     'tracking'       => $tracking,
+                    'certi_cb'       => $certi_cb ,
+                    'url'            => $url.'certificate/auditor_cb_doc_review/auditor_cb_doc_review/' . $tracking->id ?? '-',
+                    'email'          =>  !empty($certi_cb->DataEmailCertifyCenter) ? $certi_cb->DataEmailCertifyCenter : 'cb@tisi.mail.go.th',
+                    'email_cc'       =>  !empty($mail_cc) ? $mail_cc : 'cb@tisi.mail.go.th',
+                    'email_reply'    => !empty($certi_cb->DataEmailDirectorCBReply) ? $certi_cb->DataEmailDirectorCBReply : 'cb@tisi.mail.go.th'
+              ];
+
+      $log_email =  HP::getInsertCertifyLogEmail($certi_cb->app_no,
+                                              $certi_cb->id,
+                                              (new Tracking)->getTable(),
+                                              $certi_cb->id,
+                                              (new CbDocReviewAuditor)->getTable(),
+                                              $cbDocReviewAuditor->id,
+                                              'แต่งตั้งคณะผู้ตรวจประเมินเอกสาร',
+                                              view('mail.Tracking.auditor_doc_review', $data_app),
+                                              $certi_cb->created_by,
+                                              $certi_cb->agent_id,
+                                              auth()->user()->getKey(),
+                                              !empty($certi_cb->DataEmailCertifyCenter) ?  implode(',',(array)$certi_cb->DataEmailCertifyCenter)  :  'cb@tisi.mail.go.th',
+                                              $certi_cb->email,
+                                              !empty($mail_cc) ?  implode(',',(array)$mail_cc)  : 'cb@tisi.mail.go.th',
+                                              !empty($certi_cb->DataEmailDirectorCBReply) ?implode(',',(array)$certi_cb->DataEmailDirectorCBReply)   :   'cb@tisi.mail.go.th',
+                                              null
+                                              );
+
+      $html = new TrackingDocReviewAuditorsMail($data_app);
+      $mail =  Mail::to($certi_cb->email)->send($html);
+
+      if(is_null($mail) && !empty($log_email)){
+          HP::getUpdateCertifyLogEmail($log_email->id);
+      } 
+  }
+}
+
+
+public function auditor_cb_doc_review_edit ($id)
+{
+  //  dd('fuck');
+    $model = str_slug('auditorcb','-');
+    if(auth()->user()->can('add-'.$model)) {
+        $previousUrl = app('url')->previous();
+
+        $auditorcb = new CertiCBAuditors;
+        $auditors_status = [new CertiCBAuditorsStatus];
+        $tracking = Tracking::find($id);
+        $trackingDocReviewAuditor = trackingDocReviewAuditor::where('tracking_id',$id)->first();
+
+        // dd($trackingDocReviewAuditor);
+        return view('certificate.cb.auditor_cb_doc_review.edit',['auditorcb' => $auditorcb,
+                                                    'auditors_status' => $auditors_status,
+                                                    'previousUrl' => $previousUrl,
+                                                    'tracking' => $tracking,
+                                                    'certiCb' => $tracking->certificate_export_to->applications,
+                                                    'trackingDocReviewAuditor' => $trackingDocReviewAuditor ,
+                                                    'doc_review_auditors' => json_decode($trackingDocReviewAuditor->auditors, true),
+                                                    ]);
+    }
+    abort(403);
+}
+
+public function accept_doc_review(Request $request)
+{
+    // dd($request->all());
+    Tracking::find($request->trackingId)->update([
+    'doc_auditor_assignment' => 2,
+    'doc_review_reject' => null,
+    'doc_review_reject_message' => null,
+  ]);
+}
+
+public function reject_doc_review(Request $request)
+{
+    // dd($request->all());
+  Tracking::find($request->trackingId)->update([
+    'doc_review_reject' => 1,
+    'doc_review_reject_message' => $request->rejectText,
+  ]);
+}
+
+ public function bypass_doc_auditor_assignment(Request $request)
+ {
+  // dd($request->all());
+    Tracking::find($request->trackingId)->update([
+      'doc_auditor_assignment' => 2
+    ]);
+ }
+
+
+public function cancel_doc_review_team(Request $request)
+{
+    // dd($request->all());
+  trackingDocReviewAuditor::where('tracking_id',$request->trackingId)->delete();
+}
+
+
+
+      public function CreateTrackingCbMessageRecord($id)
+      {
+          // สำหรับ admin และเจ้าหน้าที่ lab
+          // if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
+          //     abort(403);
+          // }
+  
+          $trackingAuditor = TrackingAuditors::find($id);
+          $auditors_statuses= $trackingAuditor->auditors_status_many;
+          $statusAuditorMap = [];
+          foreach ($auditors_statuses as $auditors_status)
+          {
+              // dd($auditors_status->auditors_list_many);
+              $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+              $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
+  
+              // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+              if (!isset($statusAuditorMap[$statusAuditorId])) {
+                  $statusAuditorMap[$statusAuditorId] = [];
+              }
+              foreach ($auditors as $auditor) {
+                  
+                  $statusAuditorMap[$statusAuditorId][] = $auditor->id;
+              }
+          }
+
+          
+          $tracking = Tracking::find($trackingAuditor->tracking_id);
+  
+          $trackingAuditorsDate = TrackingAuditorsDate::where('auditors_id',$id)->first();
+          $dateRange = "";
+  
+          if (!empty($trackingAuditorsDate->start_date) && !empty($trackingAuditorsDate->end_date)) {
+              if ($trackingAuditorsDate->start_date == $trackingAuditorsDate->end_date) {
+                  // ถ้าเป็นวันเดียวกัน
+                  $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date);
+              } else {
+                  // ถ้าเป็นคนละวัน
+                  $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date) . 
+                              " ถึงวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->end_date);
+              }
+          }
+  
+
+          
+          $certi_cb = $tracking->certificate_export_to->applications;
+
+          // dd($certi_ib);
+         
+          // $data = new stdClass();
+          $data = new stdClass();
+
+          $data->header_text1 = '';
+          $data->header_text2 = '';
+          $data->header_text3 = '';
+          $data->header_text4 = $certi_cb->app_no;
+          $data->lab_type = $certi_cb->lab_type == 3 ? 'ทดสอบ' : ($certi_cb->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+          $data->name_standard = $certi_cb->name_standard;
+          $data->app_no =  $certi_cb->app_no;
+          $data->certificate_no = '13-LB0037';
+          $data->register_date = HP::formatDateThaiFullNumThai($certi_cb->created_at);
+          $data->get_date = HP::formatDateThaiFullNumThai($certi_cb->get_date);
+
+          $data->date_range = $dateRange;
+        //   $data->statusAuditorMap = $statusAuditorMap;
+          $data->fix_text1 = <<<HTML
+                      <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
+                      <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ "การขอใบรับรอง การตรวจสอบและการออกใบรับรองตามวรรคหนึ่ง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด"</div>
+                      <div style="text-indent:125px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข วันที่ ๔ มีนาคม ๒๕๕๑ การรับรองหน่วยรับรองระบบงาน (ประกาศในราชกิจจานุเบกษา วันที่ ๑๗ พฤษภาคม ๒๕๖๔)"</div>
+                      <div style="text-indent:150px">ข้อ ๖.๑.๒.๑ (๑) ระบุว่า "แต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าคณะผู้ตรวจ ประเมิน ผู้ตรวจประเมินด้านวิชาการ และผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความเหมาะสม"</div>
+                      <div style="text-indent:150px">และข้อ ๖.๑.๒.๑ (๑) "คณะผู้ตรวจประเมินจะทบทวนและประเมินและประเมินเอกสารต่างๆ ของหน่วยตรวจ ตรวจประเมินความสามารถและ ประสิทธิผลของการดำเนินงานของหน่วยตรวจ โดยพิจารณาหลักฐานและเอกสารที่เกี่ยวข้อง การสัมภาษณ์รวมทั้งการสังเกตการปฎิบัติตามมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง ณ สถานประกอบการของผู้ยื่นคำขอ และสถานที่ทำการอื่นในสาขาที่ขอรับการรับรอง"</div>
+                      <div style="text-indent:125px">๒.๓ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓๔๒/๒๕๖๖ เรื่อง มอบอำนาจให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม (สั่ง ณ วันที่ ๑๓ พฤศจิกายน ๒๕๖๖) ข้อ ๓ ระบุว่า "ให้ผู้อำนวยการสำนักงานคณะกรรมการการมาตรฐานแห่งชาติ เป็นผู้มีอำนาจพิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑" </div>
+                  HTML;
+
+          $data->fix_text2 = <<<HTML
+                      <div class="section-title">๓. สาระสำคัญและข้อเท็จจริง</div>
+                      <div style="text-indent:125px">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองหน่วยตรวจ พ.ศ.๒๕๖๔ สำนักงานจะตรวจติดตามผลรับรองหน่วยตรวจอย่างน้อย ๑ ครั้ง ภายใน ๒ ปี โดยแต่ละครั้งอาจจะตรวจประเมินเพียงบางส่วนหรือทุกข้อกำหนดก็ได้ตามความเหมาะสม และก่อนครบการรับรอง ๕ ปี ต้องตรวจประเมินให้ครบทุกข้อกำหนด</div>
+                  HTML;
+  
+          $auditors =        $tracking->AuditorsManyBy;
+          // dd($auditors);
+
+
+          return view('certificate.cb.auditor-cb.initial-message-record', [
+              'data' => $data,
+              'certi_cb' => $certi_cb,
+              'id' => $id,
+              'auditors' => $auditors,
+              'trackingAuditor' => $trackingAuditor,
+              'tracking' => $tracking
+          ]);
+      }
+
+
+
+    public function SaveTrackingCbMessageRecord(Request $request)
+    {
+         // สร้างและบันทึกข้อมูลโดยตรง
+         $record = new BoardAuditorTrackingMsRecordInfo([
+            'tracking_auditor_id' => $request->id,
+            'header_text1' => $request->header_text1,
+            'header_text2' => $request->header_text2,
+            'header_text3' => $request->header_text3,
+            'header_text4' => $request->header_text4,
+            'body_text1'   => $request->body_text1,
+            'body_text2'   => $request->body_text2,
+        ]);
+
+        $record->save();
+
+        TrackingAuditors::find($request->id)->update([
+            'message_record_status' => 2
+        ]);
+
+
+    }
+
+          public function ViewTrackingCbMessageRecord($id)
+      {
+          // สำหรับ admin และเจ้าหน้าที่ lab
+          // if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
+          //     abort(403);
+          // }
+  
+          $trackingAuditor = TrackingAuditors::find($id);
+          $boardAuditorMsRecordInfo = $trackingAuditor->boardAuditorTrackingMsRecordInfos->first();
+          $auditors_statuses= $trackingAuditor->auditors_status_many;
+          $statusAuditorMap = [];
+          foreach ($auditors_statuses as $auditors_status)
+          {
+              // dd($auditors_status->auditors_list_many);
+              $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+              $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
+  
+              // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+              if (!isset($statusAuditorMap[$statusAuditorId])) {
+                  $statusAuditorMap[$statusAuditorId] = [];
+              }
+              foreach ($auditors as $auditor) {
+                  
+                  $statusAuditorMap[$statusAuditorId][] = $auditor->id;
+              }
+          }
+
+          
+          $tracking = Tracking::find($trackingAuditor->tracking_id);
+  
+          $trackingAuditorsDate = TrackingAuditorsDate::where('auditors_id',$id)->first();
+          $dateRange = "";
+  
+          if (!empty($trackingAuditorsDate->start_date) && !empty($trackingAuditorsDate->end_date)) {
+              if ($trackingAuditorsDate->start_date == $trackingAuditorsDate->end_date) {
+                  // ถ้าเป็นวันเดียวกัน
+                  $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date);
+              } else {
+                  // ถ้าเป็นคนละวัน
+                  $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date) . 
+                              " ถึงวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->end_date);
+              }
+          }
+  
+
+          
+          $certi_cb = $tracking->certificate_export_to->applications;
+
+          // dd($certi_ib);
+         
+          // $data = new stdClass();
+          $data = new stdClass();
+
+          $data->header_text1 = '';
+          $data->header_text2 = '';
+          $data->header_text3 = '';
+          $data->header_text4 = $certi_cb->app_no;
+          $data->lab_type = $certi_cb->lab_type == 3 ? 'ทดสอบ' : ($certi_cb->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+          $data->name_standard = $certi_cb->name_standard;
+          $data->app_no =  $certi_cb->app_no;
+          $data->certificate_no = '13-LB0037';
+          $data->register_date = HP::formatDateThaiFullNumThai($certi_cb->created_at);
+          $data->get_date = HP::formatDateThaiFullNumThai($certi_cb->get_date);
+
+          $data->date_range = $dateRange;
+        //   $data->statusAuditorMap = $statusAuditorMap;
+          $data->fix_text1 = <<<HTML
+                      <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
+                      <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ "การขอใบรับรอง การตรวจสอบและการออกใบรับรองตามวรรคหนึ่ง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด"</div>
+                      <div style="text-indent:125px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข วันที่ ๔ มีนาคม ๒๕๕๑ การรับรองหน่วยรับรองระบบงาน (ประกาศในราชกิจจานุเบกษา วันที่ ๑๗ พฤษภาคม ๒๕๖๔)"</div>
+                      <div style="text-indent:150px">ข้อ ๖.๑.๒.๑ (๑) ระบุว่า "แต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าคณะผู้ตรวจ ประเมิน ผู้ตรวจประเมินด้านวิชาการ และผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความเหมาะสม"</div>
+                      <div style="text-indent:150px">และข้อ ๖.๑.๒.๑ (๑) "คณะผู้ตรวจประเมินจะทบทวนและประเมินและประเมินเอกสารต่างๆ ของหน่วยตรวจ ตรวจประเมินความสามารถและ ประสิทธิผลของการดำเนินงานของหน่วยตรวจ โดยพิจารณาหลักฐานและเอกสารที่เกี่ยวข้อง การสัมภาษณ์รวมทั้งการสังเกตการปฎิบัติตามมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง ณ สถานประกอบการของผู้ยื่นคำขอ และสถานที่ทำการอื่นในสาขาที่ขอรับการรับรอง"</div>
+                      <div style="text-indent:125px">๒.๓ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓๔๒/๒๕๖๖ เรื่อง มอบอำนาจให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม (สั่ง ณ วันที่ ๑๓ พฤศจิกายน ๒๕๖๖) ข้อ ๓ ระบุว่า "ให้ผู้อำนวยการสำนักงานคณะกรรมการการมาตรฐานแห่งชาติ เป็นผู้มีอำนาจพิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑" </div>
+                  HTML;
+
+          $data->fix_text2 = <<<HTML
+                      <div class="section-title">๓. สาระสำคัญและข้อเท็จจริง</div>
+                      <div style="text-indent:125px">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองหน่วยตรวจ พ.ศ.๒๕๖๔ สำนักงานจะตรวจติดตามผลรับรองหน่วยตรวจอย่างน้อย ๑ ครั้ง ภายใน ๒ ปี โดยแต่ละครั้งอาจจะตรวจประเมินเพียงบางส่วนหรือทุกข้อกำหนดก็ได้ตามความเหมาะสม และก่อนครบการรับรอง ๕ ปี ต้องตรวจประเมินให้ครบทุกข้อกำหนด</div>
+                  HTML;
+  
+          $auditors =        $tracking->AuditorsManyBy;
+          // dd($boardAuditorMsRecordInfo);
+
+
+          return view('certificate.cb.auditor-cb.view-message-record', [
+              'data' => $data,
+              'certi_cb' => $certi_cb,
+              'id' => $id,
+              'auditors' => $auditors,
+              'trackingAuditor' => $trackingAuditor,
+              'tracking' => $tracking,
+              'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo
+          ]);
       }
 
 }

@@ -27,7 +27,7 @@
                                     'id'=>'certificate_export_form',
                                     'target'=>"_blank"]) !!}
 
-                    @include ('certify/ib.certificate_export_ib.form')
+                    @include ('certify.ib.certificate_export_ib.form')
 
                     {!! Form::close() !!}
 

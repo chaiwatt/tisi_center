@@ -569,7 +569,7 @@ class CheckCertificateCBController extends Controller
                         }
                         $app_no          =  $certi_cb->app_no;
                         $timestamp = Carbon::now()->timestamp;
-                        $refNo = $app_no.'-'.$PayIn->auditors_id.$timestamp;
+                        $refNo = $app_no.'-'.$PayIn->auditors_id.''.$timestamp;
 
                         // $content =  file_get_contents("$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$app_no-$PayIn->auditors_id", false, stream_context_create($arrContextOptions));
                         $content =  file_get_contents("$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo", false, stream_context_create($arrContextOptions));
@@ -988,7 +988,7 @@ class CheckCertificateCBController extends Controller
       // สรุปรายงานและเสนออนุกรรมการฯ
         public function UpdateReport(Request $request, $id){
 
-            // dd($request);
+            // dd($request->all());
 
             $report = CertiCBReport::findOrFail($id);
             $certi_cb = CertiCb::findOrFail($report->app_certi_cb_id);
@@ -1011,14 +1011,18 @@ class CheckCertificateCBController extends Controller
             // ]);
 
              // รายงาน  ขอบข่ายที่ได้รับการเห็นชอบ
-            if($request->file_loa && $request->report_status == 1 && $request->hasFile('file_loa')){
+            // if($request->file_loa && $request->report_status == 1 && $request->hasFile('file_loa')){
+            if($request->report_status == 1){   
+                        $certiCBAttachAll = CertiCBAttachAll::where('app_certi_cb_id',$report->app_certi_cb_id)->where('table_name','app_certi_cb_assessment')->where('file_section',2)->first(); 
                         $certi_cb_attach_more = new CertiCBAttachAll();
                         $certi_cb_attach_more->app_certi_cb_id      = $report->app_certi_cb_id ?? null;
                         $certi_cb_attach_more->ref_id               = $report->id;
                         $certi_cb_attach_more->table_name           = $tb->getTable();
                         $certi_cb_attach_more->file_section         = '1';
-                        $certi_cb_attach_more->file                 = $this->storeFile($request->file_loa,$certi_cb->app_no);
-                        $certi_cb_attach_more->file_client_name     = HP::ConvertCertifyFileName(@$request->file_loa->getClientOriginalName());
+                        // $certi_cb_attach_more->file                 = $this->storeFile($request->file_loa,$certi_cb->app_no);
+                        // $certi_cb_attach_more->file_client_name     = HP::ConvertCertifyFileName(@$request->file_loa->getClientOriginalName());
+                        $certi_cb_attach_more->file                 = $certiCBAttachAll->file;
+                        $certi_cb_attach_more->file_client_name     = $certiCBAttachAll->file_client_name;
                         $certi_cb_attach_more->token                = str_random(16);
                         $certi_cb_attach_more->save();
 

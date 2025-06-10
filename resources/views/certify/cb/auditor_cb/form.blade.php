@@ -398,6 +398,7 @@
 
 
 <div class="row form-group" id="table_cost">
+    <input type="hidden" name="signaturesJson" id="signaturesJson">
     <div class="col-md-12">
         <div class="white-box" style="border: 2px solid #e5ebec;">
             <legend><h4>ค่าใช้จ่าย</h4></legend>

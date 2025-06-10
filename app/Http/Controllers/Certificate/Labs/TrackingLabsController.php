@@ -115,6 +115,7 @@ class TrackingLabsController extends Controller
 
     public function data_list(Request $request)
     {
+      
         $userLogIn  = Auth::check()?Auth::user():null;
         $roles      = !empty( $userLogIn ) ? auth()->user()->roles->pluck('id')->toArray() : []; 
 
@@ -133,6 +134,8 @@ class TrackingLabsController extends Controller
         $check_first     = !empty($setting_config->check_first)?$setting_config->check_first:null;
 
         $app_certi_lab_id  = CheckExaminer::where('user_id',auth()->user()->runrecno)->select('app_certi_lab_id'); // เช็คเจ้าหน้าที่ LAB
+
+        // dd( $app_certi_lab_id->get() );
         // รายการใบรับรอง
         $certificate_exports = CertificateExport::LeftJoin((new CertiLab)->getTable()." AS certi_labs", 'certi_labs.id', '=', 'certificate_exports.certificate_for')
                                                 ->leftJoin((new Tracking)->getTable(), function($query) {
@@ -720,7 +723,7 @@ class TrackingLabsController extends Controller
                         }
 
                         $timestamp = Carbon::now()->timestamp;
-                        $refNo = $PayIn->reference_refno.'-'.$PayIn->auditors_id.$timestamp;
+                        $refNo = $PayIn->reference_refno.'-'.$PayIn->auditors_id.''.$timestamp;
 
                         // $url     =  "$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$PayIn->reference_refno-$PayIn->auditors_id";
                         $url     =  "$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo";
@@ -1216,61 +1219,8 @@ class TrackingLabsController extends Controller
     {
  
         $inspection = TrackingInspection::findOrFail($id);
-        // dd($inspection);
+        // dd($inspection->FileAttachScopeTo);
 
-        
-        if($inspection->FileAttachScopeTo == null)
-        {
-           
-
-            $appId = $inspection->reference_refno;
-        
-
-            $certiLab = TrackingAssessment::where('reference_refno',$appId)->first()->certificate_export_to->applications;
-    
-            $certiLabFileAll = CertLabsFileAll::where('app_certi_lab_id',$certiLab->id)->first();
-    
-            $filePath = 'files/applicants/check_files/' . $certiLabFileAll->attach_pdf ;
-    
-            $localFilePath = HP::downloadFileFromTisiCloud($filePath);
-    
-
-            // dd($appId);
-    
-            $check = AttachFile::where('systems','Center')
-            ->where('ref_id',$inspection->id)
-            ->where('section','file_scope')
-            ->first();
-            if($check != null)
-            {
-                $check->delete();
-            }
-    
-            $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
-    
-            $uploadedFile = new \Illuminate\Http\UploadedFile(
-                $localFilePath,      // Path ของไฟล์
-                basename($localFilePath), // ชื่อไฟล์
-                mime_content_type($localFilePath), // MIME type
-                null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
-                true                // เป็นไฟล์ที่ valid แล้ว
-            );
-    
-            $attach_path = "files/trackinglabs";
-            // ใช้ไฟล์ที่จำลองในการอัปโหลด
-            HP::singleFileUploadRefno(
-                $uploadedFile,
-                $attach_path.'/'.$inspection->reference_refno,
-                ( $tax_number),
-                (auth()->user()->FullName ?? null),
-                'Center',
-                (  (new TrackingInspection)->getTable() ),
-                $inspection->id,
-                'file_scope',
-                null
-            );
-    
-        }
         if(!is_null($inspection)){
              $tracking = $inspection->tracking_to;
             if(is_null($tracking)){
@@ -1279,6 +1229,61 @@ class TrackingLabsController extends Controller
         }else{
               $tracking = new Tracking;
         }
+        
+        // if($inspection->FileAttachScopeTo == null)
+        // {
+           
+        //     $appId = $inspection->reference_refno;
+
+        //     $certiLab = TrackingAssessment::where('reference_refno',$appId)->first()->certificate_export_to->applications;
+    
+        //     $certiLabFileAll = CertLabsFileAll::where('app_certi_lab_id',$certiLab->id)
+        //         ->latest() // เรียงจาก created_at จากมากไปน้อย
+        //         ->first();
+                
+        //     $filePath = 'files/applicants/check_files/' . $certiLabFileAll->attach_pdf ;
+    
+        //     $localFilePath = HP::downloadFileFromTisiCloud($filePath);
+    
+
+        //     // dd($appId);
+    
+        //     $check = AttachFile::where('systems','Center')
+        //             ->where('ref_id',$inspection->id)
+        //             ->where('ref_table',(new TrackingInspection)->getTable())
+        //             ->where('section','file_scope')
+        //             ->first();
+        //     if($check != null)
+        //     {
+        //         $check->delete();
+        //     }
+    
+        //     $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+    
+        //     $uploadedFile = new \Illuminate\Http\UploadedFile(
+        //         $localFilePath,      // Path ของไฟล์
+        //         basename($localFilePath), // ชื่อไฟล์
+        //         mime_content_type($localFilePath), // MIME type
+        //         null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
+        //         true                // เป็นไฟล์ที่ valid แล้ว
+        //     );
+    
+        //     $attach_path = "files/trackinglabs";
+        //     // ใช้ไฟล์ที่จำลองในการอัปโหลด
+        //     HP::singleFileUploadRefno(
+        //         $uploadedFile,
+        //         $attach_path.'/'.$inspection->reference_refno,
+        //         ( $tax_number),
+        //         (auth()->user()->FullName ?? null),
+        //         'Center',
+        //         (  (new TrackingInspection)->getTable() ),
+        //         $inspection->id,
+        //         'file_scope',
+        //         null
+        //     );
+    
+        // }
+
      
         return view('certificate.labs.tracking-labs.inspection', compact('inspection','tracking'));  
     }
@@ -1617,6 +1622,7 @@ class TrackingLabsController extends Controller
 
     public function update_review(Request $request ,$id)
     {
+        // dd($request->all());
       // try { 
 
             $review                    = TrackingReview::findOrFail($id);
@@ -2031,11 +2037,11 @@ public function update_pay_in2(Request $request ,$id)
     // }      
 }
 
-public function append($id)
+public function append(Request $request,$id)
 {
     // dd($id);
         $tracking = Tracking::find($id);
-        // dd($tracking->status_id);
+        // dd($tracking->status_id,$request->all());
 
         if($tracking->status_id != 8)
         {
@@ -2101,8 +2107,10 @@ public function append($id)
                 'system'            => 12, 
                 'table_name'        => (new Tracking)->getTable() ,
                 'refid'             => $id,
-                'details_one'       =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
-                'details_two'        =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                'details_one' => Carbon::now()->format('Y-m-d'),
+                'details_two' => Carbon::now()->addYears(2)->format('Y-m-d'),
+                // 'details_one'       =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
+                // 'details_two'        =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
                 // 'attachs'           => (count($attach_pdf) > 0) ? json_encode($attach_pdf) : null,
                 // 'attachs_file'      =>  (count($attach) > 0) ? json_encode($attach) : null,
                 'created_by'        =>  auth()->user()->runrecno
@@ -2156,6 +2164,7 @@ public function append($id)
 
 public function update_append(Request $request ,$id)
 {
+    // dd('okkkk');
   // try { 
         
         $tracking                   = Tracking::find($id);
@@ -2356,9 +2365,12 @@ public function update_append(Request $request ,$id)
                                                      "verify_peer_name" => false,
                                                  );
                  }
-
+                // dd($url);
                  $content =  file_get_contents($url, false, stream_context_create($arrContextOptions));
                  $api = json_decode($content);
+
+                
+
                  if(!is_null($api) && $api->returnCode != '000'){
                      return response()->json([
                                               'message'      =>  false,

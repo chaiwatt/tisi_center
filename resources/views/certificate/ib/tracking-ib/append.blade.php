@@ -31,11 +31,11 @@
                     @endif
  
 <div class="row">
-    <div class="col-sm-12">
+    {{-- <div class="col-sm-12">
         <div class="form-group  pull-right">
             <button type="button" class="btn btn-primary add_certiib_file_all" data-toggle="modal" data-target="#exampleModalExport">เพิ่มไฟล์แนบท้าย</button>
         </div>
-    </div>
+    </div> --}}
  
     <div class="col-sm-12">
         <div class="form-group {{ $errors->has('certi_no') ? 'has-error' : ''}}">

@@ -728,17 +728,18 @@
                                                 $('#span_count').html(obj1.count);
                                                 if (!isSigned && obj1.count === ids.length) {
                                                     isSigned = true; // อัปเดตสถานะว่าลงนามเสร็จแล้ว
-                                                    Swal.fire({
-                                                        position: 'center',
-                                                        icon: 'success',
-                                                        title: 'ลงนามใบรับรองระบบงานเรียบร้อยแล้ว',
-                                                        showConfirmButton: false,
-                                                        timer: 1500
-                                                    });
+                                                    // Swal.fire({
+                                                    //     position: 'center',
+                                                    //     icon: 'success',
+                                                    //     title: 'ลงนามใบรับรองระบบงานเรียบร้อยแล้ว',
+                                                    //     showConfirmButton: false,
+                                                    //     timer: 1500
+                                                    // });
                                                     $('#exampleModal').modal('hide');
                                                     clearInterval(funky2);
                                                     $('#span_time').hide();
                                                     table.draw();
+                                                    location.reload();
                                                 }
                                             }
                                         });

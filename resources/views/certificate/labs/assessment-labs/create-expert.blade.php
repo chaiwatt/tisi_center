@@ -128,6 +128,7 @@
                             <button type="button" class="   btn btn-success btn-sm div_hide" id="plus-row"><i class="icon-plus"></i> เพิ่ม</button>
                     </div>
                 </div>
+                {{-- {{$bug}} --}}
                 <table class="table color-bordered-table primary-bordered-table">
                     <thead>
                     <tr>

@@ -131,71 +131,66 @@
             {{-- {{$messageRecordTransactions}} --}}
 
             @if (!isset($messageRecordTransactions))
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('select_user_id', '<span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="select_user_id" id="select_user_id" class="form-control" required>
+                            <option value="" selected>- ผู้ลงนามท้ายขอบข่าย -</option>
+                            @foreach ($signers as $id => $signer)
+                                <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
 
-            
-            <div class="form-group">
-                {!! HTML::decode(Form::label('select_user_id', '<span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย', ['class' => 'col-md-5 control-label'])) !!}
-                <div class="col-md-7">
-                    <select name="select_user_id" id="select_user_id" class="form-control" required>
-                        <option value="" selected>- ผู้ลงนามท้ายขอบข่าย -</option>
-                        @foreach ($signers as $id => $signer)
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('signer_1', '<span class="text-danger">*</span> เจ้าหน้าที่ผู้รับผิดชอบ', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="signer_1" id="signer_1" class="form-control" required>
+                            <option value="" selected>- เจ้าหน้าที่ผู้รับผิดชอบ -</option>
+                            @foreach ($signers as $signer)
+                                <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                            
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('signer_2', '<span class="text-danger">*</span> ผู้ลงนาม (ผก.)', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="signer_2" id="signer_2" class="form-control" required>
+                            <option value="" selected>- ผู้ลงนาม -</option>
+                            @foreach ($signers as $signer)
+                                <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('signer_3', '<span class="text-danger">*</span> ผู้ลงนาม (ผอ. สก.)', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="signer_3" id="signer_3" class="form-control" required>
+                            <option value="" selected>- ผู้ลงนาม -</option>
+                            @foreach ($signers as $signer)
+                                <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    {!! HTML::decode(Form::label('signer_4', '<span class="text-danger">*</span> ผู้ลงนาม (ลมอ. / ผอ. สก.)', ['class' => 'col-md-5 control-label'])) !!}
+                    <div class="col-md-7">
+                        <select name="signer_4" id="signer_4" class="form-control" required>
+                            <option value="" selected>- ผู้ลงนาม -</option>
+                            @foreach ($signers as $signer)
                             <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
-                        @endforeach
-                    </select>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
-
-            <div class="form-group">
-                {!! HTML::decode(Form::label('signer_1', '<span class="text-danger">*</span> เจ้าหน้าที่ผู้รับผิดชอบ', ['class' => 'col-md-5 control-label'])) !!}
-                <div class="col-md-7">
-                    <select name="signer_1" id="signer_1" class="form-control" required>
-                        <option value="" selected>- เจ้าหน้าที่ผู้รับผิดชอบ -</option>
-                        @foreach ($signers as $signer)
-                            <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
-                        @endforeach
-                        
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! HTML::decode(Form::label('signer_2', '<span class="text-danger">*</span> ผู้ลงนาม (ผก.)', ['class' => 'col-md-5 control-label'])) !!}
-                <div class="col-md-7">
-                    <select name="signer_2" id="signer_2" class="form-control" required>
-                        <option value="" selected>- ผู้ลงนาม -</option>
-                        @foreach ($signers as $signer)
-                            <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! HTML::decode(Form::label('signer_3', '<span class="text-danger">*</span> ผู้ลงนาม (ผอ. สก.)', ['class' => 'col-md-5 control-label'])) !!}
-                <div class="col-md-7">
-                    <select name="signer_3" id="signer_3" class="form-control" required>
-                        <option value="" selected>- ผู้ลงนาม -</option>
-                        @foreach ($signers as $signer)
-                            <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                {!! HTML::decode(Form::label('signer_4', '<span class="text-danger">*</span> ผู้ลงนาม (ลมอ. / ผอ. สก.)', ['class' => 'col-md-5 control-label'])) !!}
-                <div class="col-md-7">
-                    <select name="signer_4" id="signer_4" class="form-control" required>
-                        <option value="" selected>- ผู้ลงนาม -</option>
-                        @foreach ($signers as $signer)
-                        <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-
-            <div class="form-group">
-                
+                <div class="form-group">
                     {!! HTML::decode(Form::label('ibAuditorTeam', '<span class="text-danger">*</span> คณะตรวจประเมิน', ['class' => 'col-md-5 control-label'])) !!}
                     <div class="col-md-7">
                         <select name="ibAuditorTeam" id="ibAuditorTeam" class="form-control" required>
@@ -205,10 +200,7 @@
                             @endforeach
                         </select>
                     </div>
-            
-
-            </div>
-
+                </div>
             @endif
 
             

@@ -35,6 +35,7 @@ class StandardDraftsController extends Controller
 
     public function index(Request $request)
     {
+        
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('view-'.$model)) {
             return view('certify.standard-drafts.index');
@@ -159,6 +160,7 @@ class StandardDraftsController extends Controller
      */
     public function create()
     {
+   
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('add-'.$model)) {
             $estandard_draft_plans = collect([new TisiEstandardDraftPlan]);
@@ -258,6 +260,7 @@ class StandardDraftsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // dd($request->all());
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('edit-'.$model)) {
 

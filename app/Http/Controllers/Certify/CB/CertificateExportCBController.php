@@ -2,34 +2,36 @@
 
 namespace App\Http\Controllers\Certify\CB;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use HP;
-use Illuminate\Support\Facades\DB;
-use QrCode;
 use File;
+use QrCode;
+use App\User;
+use stdClass;
 use HP_API_PID;
 use Carbon\Carbon;
-use App\User;
+use App\Http\Requests;
+use App\CertificateExport;
+use Illuminate\Http\Request;
+use App\Mail\CB\CBExportMail;
+use App\Models\Besurv\Signer;
 use App\Models\Bcertify\Formula;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+use App\Services\CreateCbScopeBcmsPdf;
+use App\Services\CreateCbScopeIsicPdf;
+use Illuminate\Support\Facades\Storage;
+
 use App\Models\Certify\ApplicantCB\CertiCb;
-use App\Models\Certify\ApplicantCB\CertiCbHistory;
+
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use App\Models\Certify\ApplicantCB\CertiCBCheck;
-use App\Models\Certify\ApplicantCB\CertiCBAttachAll;
+
 use App\Models\Certify\ApplicantCB\CertiCBExport;
 use App\Models\Certify\ApplicantCB\CertiCBFileAll;
+use App\Models\Certify\ApplicantCB\CertiCbHistory;
+use App\Models\Certify\ApplicantCB\CertiCBAttachAll;
 use App\Models\Certify\ApplicantCB\CertiCbExportMapreq;
-use App\CertificateExport;
-
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Mail;
-use App\Mail\CB\CBExportMail;
-
-use App\Models\Besurv\Signer;
-use stdClass;
-use Illuminate\Support\Facades\Storage;
 
 class CertificateExportCBController extends Controller
 {
@@ -133,9 +135,12 @@ class CertificateExportCBController extends Controller
     public function create(Request $request)
     {
         $model = str_slug('certificateexportcb','-');
+       
         if(auth()->user()->can('add-'.$model)) {
 
+
             $app_token = $request->get('app_token');
+            $certiCb =   CertiCb::where('token', $app_token)->first();
             $app_no = [];
             if( !empty($app_token) ){
                     //  $app_no = CertiCb::select(DB::raw("CONCAT(name,' ',app_no) AS title"),'id')
@@ -165,7 +170,7 @@ class CertificateExportCBController extends Controller
                 }
             }
             $attach_path       = $this->attach_path;
-            return view('certify/cb.certificate_export_cb.create', compact('app_no', 'app_token','attach_path') );
+            return view('certify/cb.certificate_export_cb.create', compact('certiCb','app_no', 'app_token','attach_path') );
         }
         abort(403);
 
@@ -196,9 +201,10 @@ class CertificateExportCBController extends Controller
      */
     public function store(Request $request)
     {
+        //
         $model = str_slug('certificateexportcb','-');
         if(auth()->user()->can('add-'.$model)) {
-
+           
             $request->validate([
                 'app_certi_cb_id' => 'required',
             ]);
@@ -301,7 +307,41 @@ class CertificateExportCBController extends Controller
                     if(Storage::directories($pathfileTemp)){
                         Storage::deleteDirectory($pathfileTemp);
                     }
+                    
+                   
+                    if($certi_cb->scope_table == "cb_scope_isic_transactions")
+                    {
+                        
+                        $pdfService = new CreateCbScopeIsicPdf($certi_cb);
+                        $pdfContent = $pdfService->generatePdf();
+                    
+    
+                    }else if($certi_cb->scope_table == "cb_scope_bcms_transactions")
+                    {
+                        // dd($certi_cb);
+                        $pdfService = new CreateCbScopeBcmsPdf($certi_cb);
+                        $pdfContent = $pdfService->generatePdf();
+                    }
+
+                    $json = $this->copyScopeCbFromAttachement($certi_cb->id);
+                    $copiedScopes = json_decode($json, true);
+
+                    CertiCBFileAll::where('app_certi_cb_id',$certi_cb->id)
+                        ->whereNotNull('attach_pdf')
+                        ->update(['state' => 0]);
+                    CertiCBFileAll::where('app_certi_cb_id',$certi_cb->id)
+                                ->orderBy('id','desc')
+                                ->first()
+                                ->update([
+                                    'attach_pdf'            =>   $copiedScopes[0]['attachs'],
+                                    'attach_pdf_client_name'=>   $copiedScopes[0]['file_client_name'],
+                                    'state'                 =>   1
+
+                    ]);
+
+
                     $this->save_certicb_export_mapreq($certi_cb->id,$export_cb->id);
+
 
 
                     if($export_cb->status == 4){
@@ -322,7 +362,45 @@ class CertificateExportCBController extends Controller
         abort(403);
     }
 
-
+    public function copyScopeCbFromAttachement($certiCbId)
+    {
+        $copiedScoped = null;
+        $fileSection = null;
+    
+        $app = CertiCb::find($certiCbId);
+    
+        $latestRecord = CertiCBAttachAll::where('app_certi_cb_id', $certiCbId)
+        ->where('file_section', 3)
+        ->where('table_name', 'app_certi_cb')
+        ->orderBy('created_at', 'desc') // เรียงลำดับจากใหม่ไปเก่า
+        ->first();
+    
+        $existingFilePath = 'files/applicants/check_files_cb/' . $latestRecord->file ;
+    
+        // ตรวจสอบว่าไฟล์มีอยู่ใน FTP และดาวน์โหลดลงมา
+        if (HP::checkFileStorage($existingFilePath)) {
+            $localFilePath = HP::getFileStoragePath($existingFilePath); // ดึงไฟล์ลงมาที่เซิร์ฟเวอร์
+            $no  = str_replace("RQ-","",$app->app_no);
+            $no  = str_replace("-","_",$no);
+            $dlName = 'scope_'.basename($existingFilePath);
+            $attach_path  =  'files/applicants/check_files_cb/'.$no.'/';
+    
+            if (file_exists($localFilePath)) {
+                $storagePath = Storage::putFileAs($attach_path, new \Illuminate\Http\File($localFilePath),  $dlName );
+                $filePath = $attach_path . $dlName;
+                if (Storage::disk('ftp')->exists($filePath)) {
+                    $list  = new  stdClass;
+                    $list->attachs =  $no.'/'.$dlName;
+                    $list->file_client_name =  $dlName;
+                    $scope[] = $list;
+                    $copiedScoped = json_encode($scope);
+                } 
+                unlink($localFilePath);
+            }
+        }
+    
+        return $copiedScoped;
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -354,7 +432,8 @@ class CertificateExportCBController extends Controller
 
             // dd($certicb_file_all);
             $attach_path       = $this->attach_path;
-            return view('certify/cb.certificate_export_cb.edit', compact('export_cb','certicb_file_all','attach_path'));
+            $certiCb = CertiCb::find($export_cb->app_certi_cb_id);
+            return view('certify/cb.certificate_export_cb.edit', compact('certiCb','export_cb','certicb_file_all','attach_path'));
         }
         abort(403);
     }
@@ -478,6 +557,37 @@ class CertificateExportCBController extends Controller
                             }
                         }
                     }
+
+                                       
+                    // if($certi_cb->scope_table == "cb_scope_isic_transactions")
+                    // {
+                        
+                    //     $pdfService = new CreateCbScopeIsicPdf($certi_cb);
+                    //     $pdfContent = $pdfService->generatePdf();
+                    
+    
+                    // }else if($certi_cb->scope_table == "cb_scope_bcms_transactions")
+                    // {
+       
+                    //     $pdfService = new CreateCbScopeBcmsPdf($certi_cb);
+                    //     $pdfContent = $pdfService->generatePdf();
+                    // }
+
+                    // $json = $this->copyScopeCbFromAttachement($certi_cb->id);
+                    // $copiedScopes = json_decode($json, true);
+
+                    // CertiCBFileAll::where('app_certi_cb_id',$certi_cb->id)
+                    //     ->whereNotNull('attach_pdf')
+                    //     ->update(['state' => 0]);
+                    // CertiCBFileAll::where('app_certi_cb_id',$certi_cb->id)
+                    //             ->orderBy('id','desc')
+                    //             ->first()
+                    //             ->update([
+                    //                 'attach_pdf'            =>   $copiedScopes[0]['attachs'],
+                    //                 'attach_pdf_client_name'=>   $copiedScopes[0]['file_client_name'],
+                    //                 'state'                 =>   1
+
+                    // ]);
 
                     $this->save_certicb_export_mapreq($certi_cb->id,$export_cb->id);
 

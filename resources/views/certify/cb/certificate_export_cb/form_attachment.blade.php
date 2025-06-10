@@ -1,13 +1,13 @@
 <div class="white-box">
 
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-sm-12">
             <div class="form-group  pull-right">
 
                 <button type="button" class="btn btn-primary add_certicb_file_all" data-toggle="modal" data-target="#exampleModalExport">เพิ่มไฟล์แนบท้าย</button>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="row">
         <div class="col-sm-12">
@@ -26,10 +26,11 @@
                                 <th width="10%" class="text-center">วันที่หมดอายุ</th>
                                 <th width="10%" class="text-center">สถานะ</th>
                                 <th width="10%" class="text-center">วันที่บันทึก</th>
-                                <th width="7%" class="text-center" width="100px">จัดการ</th>
+                                {{-- <th width="7%" class="text-center" width="100px">จัดการ</th> --}}
                             </tr>
                         </thead>
                         <tbody data-repeater-list="detail">
+                            {{-- {{count($certicb_file_all)}} --}}
                             @if (isset($certicb_file_all) && count($certicb_file_all) > 0)
                                 @foreach ($certicb_file_all as $certicb_file)
                                 <tr id="deleteFlie{{$certicb_file->id}}">
@@ -62,7 +63,7 @@
                                             </div>
                                         </td>
                                         <td class="text-center created_at">{{ HP::DateThai($certicb_file->created_at) }}</td>
-                                        <td class="text-center">
+                                        {{-- <td class="text-center">
                                             @if ($certicb_file->state == 1)
                                                 <button class="hide_attach btn btn-warning btn-xs edit_modal" type="button"  data-id="{{$certicb_file->id}}"  data-app_no="{{$certicb_file->app_no}}">
                                                              <i class="fa fa-pencil-square-o"></i>
@@ -72,7 +73,7 @@
                                                     <i class="fa fa-trash-o" aria-hidden="true"></i>
                                                 </button>
                                             @endif
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                 @endforeach
                             @endif

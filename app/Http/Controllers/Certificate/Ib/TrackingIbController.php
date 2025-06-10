@@ -6,31 +6,36 @@ use HP;
 
 use Storage;
 use App\User;
+use Carbon\Carbon;
 use App\AttachFile;
 use Illuminate\Http\Request;
+
 use App\Models\Basic\Feewaiver;
 
 use Yajra\Datatables\Datatables;
-
 use App\Mail\Tracking\ReportMail;
+use Illuminate\Support\Facades\DB;
 use App\Mail\Tracking\PayInOneMail;
 use App\Mail\Tracking\PayInTwoMail;
 use App\Mail\Tracking\ReceiverMail;
 use App\Http\Controllers\Controller;
 use App\Models\Certificate\Tracking;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Tracking\InformPayInOne;
 use App\Mail\Tracking\AssignStaffMail;
 use App\Mail\Tracking\InspectiontMail;
 use App\Models\Bcertify\SettingConfig;
+use App\Models\Certify\SetStandardUser;
+
 use App\Models\Certificate\TrackingReport;
 use App\Models\Certificate\TrackingReview;
-use App\Models\Certificate\TrackingStatus;
-use App\Models\Certificate\TrackingAssigns;
 
+use App\Models\Certificate\TrackingStatus;
+use App\Models\Certify\SetStandardUserSub;
+use App\Models\Certificate\TrackingAssigns;
 use App\Models\Certificate\TrackingHistory;
 use App\Models\Certify\ApplicantIB\CertiIb;
-
 use App\Models\Certify\CertiSettingPayment;
 use App\Models\Certificate\TrackingAuditors;
 use App\Models\Certificate\TrackingPayInOne;
@@ -39,17 +44,15 @@ use App\Models\Certificate\TrackingAssessment;
 use App\Models\Certificate\TrackingInspection;
 use App\Models\Certify\ApplicantIB\CertiIBCheck;
 use App\Models\Certify\ApplicantIB\CertiIBExport;
+
 use App\Models\Certify\ApplicantIB\CertiIBFileAll;
 use App\Models\Certify\ApplicantIB\CertiIbHistory;
+
+use App\Mail\Tracking\RequestEditScopeFromTracking;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
+use App\Mail\Tracking\RequestEditCbIbScopeFromTracking;
 use App\Models\Certify\ApplicantIB\CertiIBAuditorsDate;
-
-use App\Models\Certify\SetStandardUser;
-use App\Models\Certify\SetStandardUserSub;
-
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class TrackingIbController extends Controller
 {
@@ -120,8 +123,12 @@ class TrackingIbController extends Controller
                                                     ->where( function($query) {
                                                         $query->whereNull('app_certi_tracking.id');
                                                     })
+
+                                      
+
                                                     ->where( function($query)  use($userLogIn, $roles, $app_certi_ib_id ) {
                                                         if( in_array( 30 , $roles ) && Auth::check() && in_array( $userLogIn->IsGetIdRoles() , ['false'] )   ){ //ไม่ใช่ admin , ผอ , ลท ที่มี Role 30
+                                                            // dd('a');
                                                             $scope_ids =  CertiIBExport::LeftJoin((new CertiIb)->getTable()." AS app_ib", 'app_ib.id', '=', 'app_certi_ib_export.app_certi_ib_id')
                                                                                         ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.standard_id','app_ib.type_standard')
                                                                                         ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
@@ -129,9 +136,15 @@ class TrackingIbController extends Controller
                                                                                         ->select('app_certi_ib_export.id');
                                                             $query->whereIn('app_certi_ib_export.id',$scope_ids);
                                                         }else if( in_array( $userLogIn->IsGetIdRoles() , ['false'] ) ){
+                                                            // dd('b');
                                                             $query->whereIn('app_certi_ib_export.app_certi_ib_id',$app_certi_ib_id);
                                                         }
                                                     })
+
+
+                                            //                       ->get();
+                                            // dd($app_certi_ib_export);
+
                                                     ->when($setting_config, function ($query) use ($from_filed, $condition_check, $warning_day, $check_first){
                                                         switch ( $from_filed ):
                                                             case "1": //วันที่ออกใบรับรอง
@@ -209,7 +222,7 @@ class TrackingIbController extends Controller
                                                            DB::raw('app_certi_ib.id                              AS app_certi_ib_id'),
                                                            DB::raw('app_certi_ib.name_unit                       AS name_unit')
                                                        );
-
+// dd($app_certi_ib_export->get());
         $app_certi_tracking = Tracking::LeftJoin((new CertiIBExport)->getTable()." AS app_certi_ib_export", 'app_certi_ib_export.id', '=', 'app_certi_tracking.ref_id')
                                         ->LeftJoin((new CertiIb)->getTable()." AS app_certi_ib", 'app_certi_ib.id', '=', 'app_certi_ib_export.app_certi_ib_id')
                                         ->LeftJoin((new TrackingStatus)->getTable()." AS app_certi_tracking_status", 'app_certi_tracking_status.id', '=', 'app_certi_tracking.status_id')
@@ -585,6 +598,7 @@ class TrackingIbController extends Controller
 
   public function edit($id)
   {
+    
       $model = str_slug('trackingib','-');
       if(auth()->user()->can('edit-'.$model)) {
             $tracking = Tracking::findOrFail($id);
@@ -617,8 +631,9 @@ class TrackingIbController extends Controller
       return view('certificate.ib.tracking-ib.pay_in_one', compact('pay_in','feewaiver'));
   }
 
-  public function update_payin1(Request $request, $id){
-
+  public function update_payin1(Request $request, $id)
+  {
+    // dd($request->all());
     $arrContextOptions=array();
      $attach_path =  $this->attach_path ;
      $tb = new TrackingPayInOne;
@@ -626,6 +641,7 @@ class TrackingIbController extends Controller
      $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
      $PayIn = TrackingPayInOne::findOrFail($id);
 
+    
 
 // try {
 
@@ -638,85 +654,105 @@ class TrackingIbController extends Controller
                 $PayIn->amount_bill =  !empty(str_replace(",","",$request->amount))?str_replace(",","",$request->amount):@$PayIn->amount_bill;
                 $PayIn->save();
                 $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
-        if($PayIn->conditional_type == 1){ // เรียกเก็บค่าธรรมเนียม
+        
+                if($PayIn->conditional_type == 1){ // เรียกเก็บค่าธรรมเนียม
 
-                $setting_payment = CertiSettingPayment::where('certify',5)->where('payin',1)->where('type',1)->first();
+                    $setting_payment = CertiSettingPayment::where('certify',5)->where('payin',1)->where('type',1)->first();
 
-        if(!is_null($setting_payment) ){
-                    if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
-                        $arrContextOptions["ssl"] = array(
-                                                        "verify_peer" => false,
-                                                        "verify_peer_name" => false,
-                                                    );
+                    if(!is_null($setting_payment) ){
+                          
+                                if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
+                                    $arrContextOptions["ssl"] = array(
+                                                                    "verify_peer" => false,
+                                                                    "verify_peer_name" => false,
+                                                                );
+                                }
+                            $timestamp = Carbon::now()->timestamp;
+                            // dd($PayIn->auditors_id.''.$timestamp);
+                            $refNo = $PayIn->reference_refno.'-'.$PayIn->auditors_id.''.$timestamp;
+
+                            // $url     =  "$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$PayIn->reference_refno-$PayIn->auditors_id";
+                            $url     =  "$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo";
+                             
+
+                            $content =  file_get_contents($url, false, stream_context_create($arrContextOptions));
+                          
+                            $api = json_decode($content);
+
+                            // $file_payin  = self::storeFilePayin($setting_payment,$PayIn->reference_refno,$PayIn->auditors_id,$tb->getTable(),$PayIn->id,'attach_payin1','เรียกเก็บค่าธรรมเนียม');
+
+                            if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
+                                
+                                 $file_payin  = self::storeFilePayin($setting_payment,$PayIn->reference_refno,$PayIn->auditors_id,$tb->getTable(),$PayIn->id,'attach_payin1','เรียกเก็บค่าธรรมเนียม');
+                            }else{
+                                $file_payin  = $this->storeFilePayinDemo($setting_payment,$PayIn->reference_refno,$PayIn->auditors_id,$tb->getTable(),$PayIn->id,'attach_payin1','เรียกเก็บค่าธรรมเนียม');
+                                // $find_cost_assessment->amount_invoice =   $this->storeFilePayinDemo($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
+                            }
+
+
+                            if(!is_null($file_payin) && HP::checkFileStorage($file_payin->url)){
+                                HP::getFileStoragePath($file_payin->url);
+                            }
+
+                            // $transaction = HP::TransactionPayIn1($PayIn->id,$tb->getTable(),'5','1',$api,$PayIn->reference_refno.'-'.$PayIn->auditors_id);
+                            $transaction = HP::TransactionPayIn1($PayIn->id,$tb->getTable(),'5','1',$api,$PayIn->reference_refno.'-'.$PayIn->auditors_id,$timestamp);
+
+
                     }
-                $url     =  "$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$PayIn->reference_refno-$PayIn->auditors_id";
-                $content =  file_get_contents($url, false, stream_context_create($arrContextOptions));
-                $api = json_decode($content);
+                    }else  if($PayIn->conditional_type == 2){  // ยกเว้นค่าธรรมเนียม
 
-                $file_payin  = self::storeFilePayin($setting_payment,$PayIn->reference_refno,$PayIn->auditors_id,$tb->getTable(),$PayIn->id,'attach_payin1','เรียกเก็บค่าธรรมเนียม');
+                            $feewaiver  =  Feewaiver::where('certify',2)->first();
+                            if(!empty($feewaiver->payin1_file)){
+                                $file_types      =   explode('.',  basename($feewaiver->payin1_file)) ;
+                                $file_extension  =  end($file_types);
+                                $file_size       =   Storage::disk('ftp')->size($feewaiver->payin1_file);
+                                $request =  AttachFile::create([
+                                                                'tax_number'        => $tax_number,
+                                                                'username'          =>     (auth()->user()->FullName ?? null),
+                                                                'systems'           => 'Center',
+                                                                'ref_table'         => $tb->getTable(),
+                                                                'ref_id'            =>  $PayIn->id,
+                                                                'url'               => $feewaiver->payin1_file,
+                                                                'filename'          => $feewaiver->payin1_file_client_name,
+                                                                'new_filename'      => basename($feewaiver->payin1_file),
+                                                                'caption'           => 'ยกเว้นค่าธรรมเนียม',
+                                                                'size'              => $file_size ?? '0',
+                                                                'file_properties'   => $file_extension,
+                                                                'section'           => 'attach_payin1',
+                                                                'created_by'        => auth()->user()->getKey(),
+                                                                'created_at'        => date('Y-m-d H:i:s')
+                                ]);
 
-                 if(!is_null($file_payin) && HP::checkFileStorage($file_payin->url)){
-                    HP::getFileStoragePath($file_payin->url);
-                }
+                                if(!is_null($feewaiver) && HP::checkFileStorage($feewaiver->payin1_file)){
+                                    HP::getFileStoragePath($feewaiver->payin1_file);
+                                }
+                            }
 
-                 $transaction = HP::TransactionPayIn1($PayIn->id,$tb->getTable(),'5','1',$api,$PayIn->reference_refno.'-'.$PayIn->auditors_id);
+                            $PayIn->start_date_feewaiver        =  $feewaiver->payin2_start_date ?? null;
+                            $PayIn->end_date_feewaiver          =  $feewaiver->payin2_end_date ?? null;
+                            $PayIn->save();
 
+                    }else  if($PayIn->conditional_type == 3){  // ยกเว้นค่าชำระเงินนอกระบบ, ไม่เรียกชำระเงิน หรือ กรณีอื่นๆธรรมเนียม
+                            $PayIn->detail = $request->detail ?? null;
+                            $PayIn->save();
+                        if($request->attach && $request->hasFile('attach')){
+                            $file_payin  =   HP::singleFileUploadRefno(
+                                                                        $request->file('attach') ,
+                                                                        $this->attach_path.'/'.$PayIn->reference_refno,
+                                                                        ( $tax_number),
+                                                                        (auth()->user()->FullName ?? null),
+                                                                        'Center',
+                                                                        ( $tb->getTable() ),
+                                                                        $PayIn->id,
+                                                                        'attach_payin1',
+                                                                        'ยกเว้นค่าชำระเงินนอกระบบ, ไม่เรียกชำระเงิน หรือ กรณีอื่นๆธรรมเนียม'
+                                                                    );
 
-           }
-        }else  if($PayIn->conditional_type == 2){  // ยกเว้นค่าธรรมเนียม
-
-                   $feewaiver  =  Feewaiver::where('certify',2)->first();
-                if(!empty($feewaiver->payin1_file)){
-                    $file_types      =   explode('.',  basename($feewaiver->payin1_file)) ;
-                    $file_extension  =  end($file_types);
-                    $file_size       =   Storage::disk('ftp')->size($feewaiver->payin1_file);
-                    $request =  AttachFile::create([
-                                                    'tax_number'        => $tax_number,
-                                                    'username'          =>     (auth()->user()->FullName ?? null),
-                                                    'systems'           => 'Center',
-                                                    'ref_table'         => $tb->getTable(),
-                                                    'ref_id'            =>  $PayIn->id,
-                                                    'url'               => $feewaiver->payin1_file,
-                                                    'filename'          => $feewaiver->payin1_file_client_name,
-                                                    'new_filename'      => basename($feewaiver->payin1_file),
-                                                    'caption'           => 'ยกเว้นค่าธรรมเนียม',
-                                                    'size'              => $file_size ?? '0',
-                                                    'file_properties'   => $file_extension,
-                                                    'section'           => 'attach_payin1',
-                                                    'created_by'        => auth()->user()->getKey(),
-                                                    'created_at'        => date('Y-m-d H:i:s')
-                    ]);
-
-                    if(!is_null($feewaiver) && HP::checkFileStorage($feewaiver->payin1_file)){
-                        HP::getFileStoragePath($feewaiver->payin1_file);
+                                if(!is_null($file_payin) && HP::checkFileStorage($file_payin->url)){
+                                    HP::getFileStoragePath($file_payin->url);
+                                }
+                        }
                     }
-                }
-
-                $PayIn->start_date_feewaiver        =  $feewaiver->payin2_start_date ?? null;
-                $PayIn->end_date_feewaiver          =  $feewaiver->payin2_end_date ?? null;
-                $PayIn->save();
-
-        }else  if($PayIn->conditional_type == 3){  // ยกเว้นค่าชำระเงินนอกระบบ, ไม่เรียกชำระเงิน หรือ กรณีอื่นๆธรรมเนียม
-                $PayIn->detail = $request->detail ?? null;
-                $PayIn->save();
-            if($request->attach && $request->hasFile('attach')){
-                $file_payin  =   HP::singleFileUploadRefno(
-                                                            $request->file('attach') ,
-                                                            $this->attach_path.'/'.$PayIn->reference_refno,
-                                                            ( $tax_number),
-                                                            (auth()->user()->FullName ?? null),
-                                                            'Center',
-                                                            ( $tb->getTable() ),
-                                                            $PayIn->id,
-                                                            'attach_payin1',
-                                                            'ยกเว้นค่าชำระเงินนอกระบบ, ไม่เรียกชำระเงิน หรือ กรณีอื่นๆธรรมเนียม'
-                                                         );
-
-                    if(!is_null($file_payin) && HP::checkFileStorage($file_payin->url)){
-                        HP::getFileStoragePath($file_payin->url);
-                    }
-            }
-        }
 
             // สถานะ แต่งตั้งคณะกรรมการ
             $auditor = TrackingAuditors::findOrFail($PayIn->auditors_id);
@@ -794,6 +830,7 @@ class TrackingIbController extends Controller
                  }
             }
     }else{
+        
         if($request->status == 1){
             $PayIn->remark =  null;
             $PayIn->state = 3;  //  ได้รับการชำระเงินค่าตรวจประเมินเรียบร้อยแล้ว
@@ -969,6 +1006,100 @@ class TrackingIbController extends Controller
 }
 
 
+               // สำหรับเพิ่มรูปไปที่ store
+  public function storeFilePayinDemo($setting_payment, $app_no = '', $auditor_id = '', $table_name = '', $ref_id = '', $section = '',$attach_text  = '')
+  {
+           
+            //   $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+            //   $arrContextOptions=array();
+            //   if($auditor_id != ''){
+            //       $url =  "$setting_payment->data?pid=$setting_payment->pid&out=pdf&Ref1=$app_no-$auditor_id";
+            //       $filename =  'เรียกเก็บค่าธรรมเนียม_'.$app_no.'_'.date('Ymd_hms').'.pdf';
+            //   }else{
+            //       $url =  "$setting_payment->data?pid=$setting_payment->pid&out=pdf&Ref1=$app_no";
+            //       $filename =  'เรียกเก็บค่าธรรมเนียม_'.$app_no.'_'.date('Ymd_hms').'.pdf';
+            //   }
+            //   if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
+            //       $arrContextOptions["ssl"] = array(
+            //                                       "verify_peer" => false,
+            //                                       "verify_peer_name" => false,
+            //                                   );
+            //   }
+
+            //   $url_pdf =  file_get_contents($url, false, stream_context_create($arrContextOptions));
+            //   if ($url_pdf) {
+            //       $attach_path     =  $this->attach_path.'/'.$app_no;
+            //       $fullFileName    =  date('Ymd_hms').'.pdf';
+            //        $path           =  $attach_path.'/'.$fullFileName;
+            //       $storagePath     = Storage::put($path, $url_pdf);
+            //       $file_size       = Storage::size($path);
+            //       $file_types      =   explode('.',  basename($fullFileName)) ;
+            //       $file_extension  =  end($file_types);
+            //     $request =  AttachFile::create([
+            //                        'tax_number'        => $tax_number,
+            //                        'username'          =>     (auth()->user()->FullName ?? null),
+            //                        'systems'           => 'Center',
+            //                        'ref_table'         => $table_name,
+            //                        'ref_id'            => $ref_id,
+            //                        'url'               => $path,
+            //                        'filename'          => $filename,
+            //                        'new_filename'      => $fullFileName,
+            //                        'caption'           => $attach_text,
+            //                        'size'              => $file_size,
+            //                        'file_properties'   => $file_extension,
+            //                        'section'           => $section,
+            //                        'created_by'        => auth()->user()->getKey(),
+            //                        'created_at'        => date('Y-m-d H:i:s')
+            //                    ]);
+            //       return $request;
+                  
+                  
+            //   }else{
+            //       return null;
+            //   }
+
+              $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+               $filename =  'เรียกเก็บค่าธรรมเนียม_'.$app_no.'_'.date('Ymd_hms').'.pdf';
+           
+               $baseUrl = strstr($setting_payment->data, '/api', true);
+        
+               $url = $baseUrl. '/images/Payin2.pdf';
+        
+               // ดาวน์โหลดเนื้อหา PDF (Demo)
+               $url_pdf = file_get_contents($url);
+        
+              if ($url_pdf) {
+                    $attach_path     =  $this->attach_path.'/'.$app_no;
+                    $fullFileName    =  date('Ymd_hms').'.pdf';
+                    $path           =  $attach_path.'/'.$fullFileName;
+                    $storagePath     = Storage::put($path, $url_pdf);
+                    $file_size       = Storage::size($path);
+                    $file_types      =   explode('.',  basename($fullFileName)) ;
+                    $file_extension  =  end($file_types);
+                    $request =  AttachFile::create([
+                                   'tax_number'        => $tax_number,
+                                   'username'          =>     (auth()->user()->FullName ?? null),
+                                   'systems'           => 'Center',
+                                   'ref_table'         => $table_name,
+                                   'ref_id'            => $ref_id,
+                                   'url'               => $path,
+                                   'filename'          => $filename,
+                                   'new_filename'      => $fullFileName,
+                                   'caption'           => $attach_text,
+                                   'size'              => $file_size,
+                                   'file_properties'   => $file_extension,
+                                   'section'           => $section,
+                                   'created_by'        => auth()->user()->getKey(),
+                                   'created_at'        => date('Y-m-d H:i:s')
+                               ]);
+                    return $request;
+            }else{
+                return null;
+            }
+             
+   }
+
+
        // สำหรับเพิ่มรูปไปที่ store
 public function storeFilePayin($setting_payment, $app_no = '', $auditor_id = '', $table_name = '', $ref_id = '', $section = '',$attach_text  = '')
 {
@@ -1026,8 +1157,8 @@ public function storeFilePayin($setting_payment, $app_no = '', $auditor_id = '',
 
 public function inspection($id)
 {
+        $inspection = TrackingInspection::findOrFail($id);
 
-    $inspection = TrackingInspection::findOrFail($id);
     if(!is_null($inspection)){
          $tracking = $inspection->tracking_to;
         if(is_null($tracking)){
@@ -1036,6 +1167,67 @@ public function inspection($id)
     }else{
           $tracking = new Tracking;
     }
+
+    //  if($inspection->FileAttachScopeTo == null)
+    //     {
+           
+
+    //         $appId = $inspection->reference_refno;
+        
+
+    //         $certiIb = TrackingAssessment::where('reference_refno',$appId)->first()->certificate_export_to->applications;
+    
+    //         $certiIbFileAll = CertiIBAttachAll::where('app_certi_ib_id',$certiIb->id)
+    //             ->where('table_name','app_certi_ib')
+    //             ->where('file_section',3)
+    //             ->latest() // เรียงจาก created_at จากมากไปน้อย
+    //             ->first();
+    
+    //         $filePath = 'files/applicants/check_files_ib/' . $certiIbFileAll->file ;
+    
+    //         $localFilePath = HP::downloadFileFromTisiCloud($filePath);
+
+    //         // dd($certiIb ,$certiIbFileAll,$filePath,$localFilePath);
+
+    //         $check = AttachFile::where('systems','Center')
+    //                 ->where('ref_id',$inspection->id)
+    //                 ->where('ref_table',(new TrackingInspection)->getTable())
+    //                 ->where('section','file_scope')
+    //                 ->first();
+    //         if($check != null)
+    //         {
+    //             $check->delete();
+    //         }
+
+    //         $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+    
+    //         $uploadedFile = new \Illuminate\Http\UploadedFile(
+    //             $localFilePath,      // Path ของไฟล์
+    //             basename($localFilePath), // ชื่อไฟล์
+    //             mime_content_type($localFilePath), // MIME type
+    //             null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
+    //             true                // เป็นไฟล์ที่ valid แล้ว
+    //         );
+    
+            
+    //         $attach_path = "files/trackingib";
+    //         // dd($attach_path.'/'.$inspection->reference_refno);
+    //         // ใช้ไฟล์ที่จำลองในการอัปโหลด
+    //         HP::singleFileUploadRefno(
+    //             $uploadedFile,
+    //             $attach_path.'/'.$inspection->reference_refno,
+    //             ( $tax_number),
+    //             (auth()->user()->FullName ?? null),
+    //             'Center',
+    //             (  (new TrackingInspection)->getTable() ),
+    //             $inspection->id,
+    //             'file_scope',
+    //             null
+    //         );
+
+    //     }
+    
+
 
     return view('certificate.ib.tracking-ib.inspection', compact('inspection','tracking'));
 }
@@ -1178,6 +1370,51 @@ public function update_inspection(Request $request ,$id)
 // }
 }
 
+    public function requestEditScopeFromTracking(Request $request)
+    {
+         
+        $inspection_id = $request->inspection_id;
+        $inspection  = TrackingInspection::findOrFail($inspection_id);
+// dd($inspection);
+       
+
+        $appId = $inspection->reference_refno;
+        $message =  $request->message;
+        $trackingAssessment = TrackingAssessment::where('reference_refno',$appId)->first();
+        if(TrackingAssessment::where('reference_refno',$appId)->first() != null)
+        {
+            
+            if($trackingAssessment != null)
+            {
+                $certiIb = TrackingAssessment::where('reference_refno',$appId)->first()->certificate_export_to->applications;
+                //  dd($certiIb);
+                CertiIb::find($certiIb->id)->update([
+                    'require_scope_update' => "1"
+                ]);
+
+                $app = CertiIb::find($certiIb->id);
+                $config   = HP::getConfig();
+                $url      = !empty($config->url_acc) ? $config->url_acc : url('');
+       
+                if(!is_null($app->email)){
+                    $data_app =   [
+                                'certi'          => $certiIb,
+                                'request_message'           => $message ,
+                                'url'            => $url.'certify/tracking-ib',
+                                'email'          =>  !empty($certiIb->DataEmailCertifyCenter) ? $certiIb->DataEmailCertifyCenter : 'ib@tisi.mail.go.th',
+                                'email_cc'       =>  !empty($certiIb->DataEmailDirectorIBCC) ? $certiIb->DataEmailDirectorIBCC :  [],
+                                'email_reply'    => !empty($certiIb->DataEmailDirectorIBReply) ? $certiIb->DataEmailDirectorIBReply :[]
+                            ] ;           
+        
+                    $html = new  RequestEditCbIbScopeFromTracking($data_app);
+                    $mail = Mail::to($app->email)->send($html);
+                }    
+            }
+        }
+
+        return redirect()->to('/certificate/tracking-ib/' . $trackingAssessment->tracking_id . '/edit');
+
+    }
 
 public function update_report(Request $request ,$id)
 {
@@ -1759,7 +1996,168 @@ if(is_null($pay_in->state)){
 
 public function append($id)
 {
+
+// if()
+// {
+
+// }
+    
     $tracking = Tracking::find($id);
+// dd($tracking->status_id);
+    if($tracking->status_id != 8){
+        
+    $tracking                   = Tracking::find($id);
+        $tracking->status_id        =  8;
+        $tracking->save();
+
+        $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+
+         $certiIb = $tracking->certificate_export_to->applications;
+    
+            $certiIbFileAll = CertiIBAttachAll::where('app_certi_ib_id',$certiIb->id)
+                ->where('table_name','app_certi_ib')
+                ->where('file_section',3)
+                ->latest() // เรียงจาก created_at จากมากไปน้อย
+                ->first();
+    
+            $filePath = 'files/applicants/check_files_ib/' . $certiIbFileAll->file ;
+    
+            $localFilePath = HP::downloadFileFromTisiCloud($filePath);
+
+     
+
+
+
+        //   $check = AttachFile::where('systems','Center')
+        //             ->where('ref_id',$inspection->id)
+        //             ->where('ref_table',(new TrackingInspection)->getTable())
+        //             ->where('section','file_scope')
+        //             ->first();
+        //     if($check != null)
+        //     {
+        //         $check->delete();
+        //     }
+
+        //     $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+    
+            $uploadedFile = new \Illuminate\Http\UploadedFile(
+                $localFilePath,      // Path ของไฟล์
+                basename($localFilePath), // ชื่อไฟล์
+                mime_content_type($localFilePath), // MIME type
+                null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
+                true                // เป็นไฟล์ที่ valid แล้ว
+            );
+    
+            
+            $attach_path = "files/trackingib";
+            // dd($attach_path.'/'.$inspection->reference_refno);
+            // ใช้ไฟล์ที่จำลองในการอัปโหลด
+            HP::singleFileUploadRefno(
+                $uploadedFile,
+                $attach_path.'/'.$tracking->reference_refno,
+                ( $tax_number),
+                (auth()->user()->FullName ?? null),
+                'Center',
+                (  (new Tracking)->getTable() ),
+                $tracking->id,
+                'attach_pdf',
+                null
+            );
+
+
+
+
+
+
+
+
+
+                //    HP::singleFileUploadRefno(
+                //        $request->file('attach_pdf') ,
+                //        $this->attach_path.'/'.$tracking->reference_refno,
+                //        ( $tax_number),
+                //         (auth()->user()->FullName ?? null),
+                //        'Center',
+                //        (  (new Tracking)->getTable() ),
+                //         $tracking->id,
+                //        'attach_pdf',
+                //        null
+                //    );
+          
+
+
+           $attach_pdf = [];
+           if( !empty($tracking->FileAttachPDFTo->url)){
+               $attach_pdf['url'] =  $tracking->FileAttachPDFTo->url;
+           }
+           if( !empty($tracking->FileAttachPDFTo->new_filename)){
+               $attach_pdf['new_filename'] =  $tracking->FileAttachPDFTo->new_filename;
+           }
+           if( !empty($tracking->FileAttachPDFTo->filename)){
+               $attach_pdf['filename'] =  $tracking->FileAttachPDFTo->filename;
+           }
+
+
+           $attach = [];
+           if( !empty($tracking->FileAttachFilesTo->url)){
+               $attach['url'] =  $tracking->FileAttachFilesTo->url;
+           }
+           if( !empty($tracking->FileAttachFilesTo->new_filename)){
+               $attach['new_filename'] =  $tracking->FileAttachFilesTo->new_filename;
+           }
+           if( !empty($tracking->FileAttachFilesTo->filename)){
+               $attach['filename'] =  $tracking->FileAttachFilesTo->filename;
+           }
+
+
+            TrackingHistory::create([
+                                    'tracking_id'       => $tracking->id ?? null,
+                                    'certificate_type'  => 2,
+                                     'reference_refno'   => $tracking->reference_refno ?? null,
+                                    'ref_table'         =>  (new CertiIBExport)->getTable() ,
+                                    'ref_id'            =>  $tracking->ref_id ?? null,
+                                    'system'            => 12,
+                                    'table_name'        => (new Tracking)->getTable() ,
+                                    'refid'             => $id,
+                                    // 'details_one'       =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
+                                    // 'details_two'        =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                                      'details_one' => Carbon::now()->format('Y-m-d'),
+                'details_two' => Carbon::now()->addYears(2)->format('Y-m-d'),
+                                    'attachs'           => (count($attach_pdf) > 0) ? json_encode($attach_pdf) : null,
+                                    'attachs_file'      =>  (count($attach) > 0) ? json_encode($attach) : null,
+                                    'created_by'        =>  auth()->user()->runrecno
+                                ]);
+
+        if(!empty($tracking->certificate_export_to->app_certi_ib_id)){
+        $certi_ib = CertiIb::where('id', $tracking->certificate_export_to->app_certi_ib_id)->first();
+        if(!empty($certi_ib) &&  !is_null($tracking->FileAttachPDFTo)){
+                $attach_pdf =  $tracking->FileAttachPDFTo;
+                $attach     =  $tracking->FileAttachFilesTo;
+                if(!empty($attach_pdf->url)){
+                        CertiIBFileAll::where('app_certi_ib_id', $certi_ib->id)->update(['state' => 0]);
+                    $certib = CertiIBFileAll::create([
+                                                        'app_certi_ib_id'        =>  $certi_ib->id,
+                                                        'attach_pdf'             =>  !empty($attach_pdf->url)?$attach_pdf->url:null,
+                                                        'attach_pdf_client_name' =>  !empty($attach_pdf->filename)?$attach_pdf->filename:null,
+                                                        'attach'                 =>  !empty($attach->url)?$attach->url:null,
+                                                        'attach_client_name'     =>  !empty($attach->filename)?$attach->filename:null,
+                                                        // 'start_date'             =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
+                                                        // 'end_date'               =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                                                         'start_date'             =>  Carbon::now()->format('Y-m-d'),
+                                                        'end_date'               =>  Carbon::now()->addYears(2)->format('Y-m-d'),
+                                                        'state' => 1
+                                                    ]);
+                    // แนบท้าย ที่ใช้งาน
+                    $certi_ib->update([
+                                        'attach_pdf'             => $certib->attach_pdf ?? @$certi_ib->attach_pdf,
+                                        'attach_pdf_client_name' => $certib->attach_pdf_client_name ?? @$certi_ib->attach_pdf_client_name
+                                        ]);
+                }
+
+        }
+        }
+    }
+
     $certi_ib = CertiIb::findOrFail($tracking->certificate_export_to->app_certi_ib_id);
     $certiib_file_all = CertiIBFileAll::where('app_certi_ib_id', $certi_ib->id)->orderby('id','desc')->get();
   return view('certificate.ib.tracking-ib.append', compact('tracking', 'certi_ib','certiib_file_all'));
@@ -1769,6 +2167,7 @@ public function append($id)
 
 public function update_append(Request $request ,$id)
 {
+    dd($request->all());
   // try {
 
         $tracking                   = Tracking::find($id);
@@ -1836,8 +2235,10 @@ public function update_append(Request $request ,$id)
                                     'system'            => 12,
                                     'table_name'        => (new Tracking)->getTable() ,
                                     'refid'             => $id,
-                                    'details_one'       =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
-                                    'details_two'        =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                                    // 'details_one'       =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
+                                    // 'details_two'        =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                                      'details_one' => Carbon::now()->format('Y-m-d'),
+                'details_two' => Carbon::now()->addYears(2)->format('Y-m-d'),
                                     'attachs'           => (count($attach_pdf) > 0) ? json_encode($attach_pdf) : null,
                                     'attachs_file'      =>  (count($attach) > 0) ? json_encode($attach) : null,
                                     'created_by'        =>  auth()->user()->runrecno
@@ -1901,6 +2302,7 @@ public function update_append(Request $request ,$id)
                $pay_in->save();
 
                $setting_payment = CertiSettingPayment::where('certify',5)->where('payin',1)->where('type',1)->first();
+               
                $url    =  "$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$pay_in->reference_refno-$pay_in->auditors_id";
 
                if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
@@ -1909,8 +2311,11 @@ public function update_append(Request $request ,$id)
                                                    "verify_peer_name" => false,
                                                );
                }
+            //    dd($url);
                $content =  file_get_contents($url, false, stream_context_create($arrContextOptions));
                $api = json_decode($content);
+
+            //    dd($api);
                if(!is_null($api) && $api->returnCode != '000'){
                    return response()->json([
                                             'message'      =>  false,

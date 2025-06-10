@@ -7,6 +7,12 @@ use App\AttachFile;
 use App\CertificateExport;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Certificate\TrackingCbReportOne;
+use App\Models\Certificate\TrackingCbReportTwo;
+use App\Models\Certificate\TrackingIbReportOne;
+use App\Models\Certificate\TrackingIbReportTwo;
+use App\Models\Certificate\TrackingLabReportOne;
+use App\Models\Certificate\TrackingLabReportTwo;
 use App\Models\Certificate\TrackingLabReportInfo;
 use App\Models\Certify\ApplicantCB\CertiCBExport;
 use App\Models\Certify\ApplicantIB\CertiIBExport;
@@ -130,5 +136,36 @@ class TrackingAssessment extends Model
         return $this->hasOne(TrackingLabReportInfo::class, 'tracking_assessment_id','id');
     }
 
+    public function trackingLabReportOne()
+    {
+        return $this->hasOne(TrackingLabReportOne::class, 'tracking_assessment_id','id');
+    }
 
+    public function trackingCbReportOne()
+    {
+        return $this->hasOne(TrackingCbReportOne::class, 'tracking_assessment_id','id');
+    }
+
+    
+    public function trackingIbReportOne()
+    {
+        return $this->hasOne(TrackingIbReportOne::class, 'tracking_assessment_id','id');
+    }
+
+    public function trackingLabReportTwo()
+    {
+        return $this->hasOne(TrackingLabReportTwo::class, 'tracking_assessment_id','id');
+    }
+
+    public function trackingCbReportTwo()
+    {
+        return $this->hasOne(TrackingCbReportTwo::class, 'tracking_assessment_id','id');
+    }
+
+    
+    public function trackingIbReportTwo()
+    {
+        return $this->hasOne(TrackingIbReportTwo::class, 'tracking_assessment_id','id');
+    }
+    
 }

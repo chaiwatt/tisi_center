@@ -84,6 +84,7 @@
     
 @endphp
  <br>
+
 <div class="row">
     {{-- {{$appData}} --}}
     <div class="col-lg-12">
@@ -214,8 +215,8 @@
 </div>
 
 <input type="hidden" name="submit"  id="certificate_export">
- 
-@if(isset($export_lab->status) && $export_lab->status >= 3)
+<div id="submit_wrapper">
+    @if(isset($export_lab->status) && $export_lab->status >= 3)
 {{-- {{$app}} --}}
 {{-- {{$certilab_file}} --}}
 {{-- {{$export_lab->applications->status}} --}}
@@ -251,6 +252,8 @@
         </div>
     </div>
 @endif
+
+</div>
 
 
  
@@ -497,6 +500,25 @@
             }
         }
 
+        function toggleSubmitWrapper(activeTab) {
+            if (activeTab === 'ไฟล์แนบท้าย') {
+                $('#submit_wrapper').hide(); // ซ่อนเมื่อเลือก tab ไฟล์แนบท้าย
+            } else {
+                $('#submit_wrapper').show(); // แสดงเมื่อเลือก tab อื่น
+            }
+        }
+
+        // เมื่อมีการเปลี่ยน tab
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var activeTab = $(e.target).text(); // ดึงข้อความของ tab ที่ถูกเลือก
+            console.log('Tab ที่ถูกเลือก: ' + activeTab);
+            toggleSubmitWrapper(activeTab); // เรียกฟังก์ชันควบคุมการแสดง/ซ่อน
+        });
+
+        // ตรวจสอบ tab ที่เลือกเริ่มต้นเมื่อโหลดหน้า
+        var initialActiveTab = $('.nav-tabs li.active a').text();
+        console.log('Tab เริ่มต้น: ' + initialActiveTab);
+        toggleSubmitWrapper(initialActiveTab);
         function submit_form(status) {
             $('#certificate_export').val(status);
             if(status  == 'print'){

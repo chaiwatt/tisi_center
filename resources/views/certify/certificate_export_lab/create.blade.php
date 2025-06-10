@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">ออกใบรับรอง (LAB) </h3>
+                    <h3 class="box-title pull-left">ออกใบรับรอง (LAB) create</h3>
                     @can('view-'.str_slug('certificateexportlab'))
                         <a class="btn btn-success pull-right" href="{{url('/certify/certificate-export-lab')}}">
                             <i class="icon-arrow-left-circle"></i> กลับ
@@ -26,9 +26,9 @@
 
                     {!! Form::close() !!}
                  
-                    @include('certify/certificate_export_lab/modal.add_attachment')
+                    @include('certify.certificate_export_lab.modal.add_attachment')
 
-                    @include('certify/certificate_export_lab/modal.edit_modle')
+                    @include('certify.certificate_export_lab.modal.edit_modle')
 
                 </div>
             </div>

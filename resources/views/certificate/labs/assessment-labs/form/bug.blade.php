@@ -126,8 +126,8 @@
             <thead>
                 <tr>
                     <th class="text-center" width="2%">ลำดับ</th>
-                    <th class="text-center" width="35%">ผลการประเมินที่พบ</th>
-                    <th class="text-center" width="35%">ข้อคิดเห็นของคณะผู้ตรวจประเมิน</th>
+                    <th class="text-center" width="30%">ผลการประเมินที่พบ</th>
+                    <th class="text-center" width="40%">ข้อคิดเห็นของคณะผู้ตรวจประเมิน</th>
                     <th class="text-center" width="28%">สาเหตุ</th>
                     
                 </tr>
@@ -196,6 +196,11 @@
                                     <input type="hidden" class="type_itme" value="{{ $item->id }}">
                                     <textarea name="file_comment[{{ $item->id }}]" class="form-control file_comment" rows="5" required>{{ in_array($assessment->degree, [3]) ? $item->file_comment : '' }}</textarea>
                                 </td>
+
+                                 {{-- <td style="padding: 0px;">
+                                    <input type="hidden" value="{{ $item->id }}">
+                                    <textarea name="cause[{{ $item->id }}]" class="form-control auto-expand" rows="5" style="border-left: none; border-right: 1px solid #ccc;" required>{{ in_array($assessment->degree, [3]) ? $item->cause : '' }}</textarea>
+                                </td> --}}
                                 
                             </tr>
                         @endif
@@ -210,7 +215,7 @@
     <div class="col-md-12">
          <div class="white-box">
             <div class="row ">
-                <div class="col-sm-4 text-right"><span class="text-danger">*</span>รายงานปิด Car  :</div>
+                <div class="col-sm-4 text-right"><span class="text-danger">*</span>รายงานปิด Car :</div>
                 <div class="col-sm-6">
                     @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment5To)) 
                     <p id="RemoveFlieScope">
@@ -219,7 +224,7 @@
                             {!! HP::FileExtension($assessment->FileAttachAssessment5To->url)  ?? '' !!}
                        </a>
                     </p>
-                    @else 
+                    {{-- @else 
                        <div class="fileinput fileinput-new input-group" data-provides="fileinput" >
                         <div class="form-control" data-trigger="fileinput">
                         <i class="glyphicon glyphicon-file fileinput-exists"></i>
@@ -231,7 +236,7 @@
                             <input type="file" name="file_car" class="report_scope check_max_size_file" >
                             </span>
                         <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">ลบ</a>
-                        </div>
+                        </div> --}}
                     @endif
                 </div>
             </div>
@@ -265,12 +270,15 @@
     
             let file_status =  $(".file_status:checked").length;
             let notice = '{{ !empty($assessment->tracking_assessment_bug_many) ? count($assessment->tracking_assessment_bug_many) : 0 }}';
+           
             if(file_status == notice){ 
+                //  console.log("ddddddd")
                 $('.div_hide_show_scope').show();
                 $('.status_bug_report').hide();
                 $('.report_scope').prop('required', true);
                 $('.file_scope_required').prop('required', true);
             }else{
+                //  console.log("eeeeeeeee")
                 $('.div_hide_show_scope').hide();
                 $('.status_bug_report').show();
                 $('.report_scope').prop('required', false);

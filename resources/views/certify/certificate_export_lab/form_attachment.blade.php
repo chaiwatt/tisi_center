@@ -31,7 +31,7 @@
                             </tr>
                         </thead>
                         <tbody data-repeater-list="detail">
-                            
+                            {{-- {{$cert_labs_file_all->count()}} --}}
                             @if (!empty($cert_labs_file_all) && $cert_labs_file_all->count() > 0)
                                 @foreach ($cert_labs_file_all as $key => $certilab_file)
                                     <tr id="deleteFlie{{$certilab_file->id}}">
@@ -66,13 +66,13 @@
                                         <td class="text-center">
                                             <p class="text-center">
                                                 @if(!is_null($certilab_file->attach))
-                                                    <a href="{!! HP::getFileStorage($attach_path.$certilab_file->attach) !!}" class="attach" target="_blank">
+                                                    <a href="{!! HP::getFileStorage($attach_path.$certilab_file->attach) !!}" class="attach" >
                                                         {!! HP::FileExtension($certilab_file->attach) ?? '' !!}
                                                     </a>
                                                 @endif
                                                 @if(!is_null($certilab_file->attach_pdf))
                      
-                                                    <a href="{!! HP::getFileStorage($attach_path.$certilab_file->attach_pdf) !!}" class="attach_pdf"  target="_blank">
+                                                    <a href="{!! HP::getFileStorage($attach_path.$certilab_file->attach_pdf) !!}" class="attach_pdf"  >
                                                         {!! HP::FileExtension($certilab_file->attach_pdf) ?? '' !!}
                                                     </a>
                                                 @endif

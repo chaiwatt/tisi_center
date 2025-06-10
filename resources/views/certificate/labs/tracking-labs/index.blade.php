@@ -315,6 +315,7 @@
 
 
             $( "#button_search" ).click(function() {
+            // alert('aha');
                  table.draw();
             });
 

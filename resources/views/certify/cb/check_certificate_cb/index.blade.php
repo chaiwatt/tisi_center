@@ -285,6 +285,7 @@
                                         </td>
                                         <td class="text-top">
                                             {!! @$item->name_standard ?? @$item->EsurvTraderTitle !!}
+                                            <p style="font-style:italic;font-size:14px" >{{@$item->purposeType->name}}</p>
                                         </td>
                                         <td class="text-top">{{ $item->FormulaTiTle }}</td>
                                         <td class="text-top">{{ $item->CertificationBranchName }}</td>

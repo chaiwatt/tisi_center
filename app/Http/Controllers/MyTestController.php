@@ -23,6 +23,7 @@ use App\Certify\CbReportTwoInfo;
 use App\Certify\IbReportTwoInfo;
 use Yajra\Datatables\Datatables;
 use App\Mail\Lab\OtpNofitication;
+use App\Services\CreateIbScopePdf;
 use Illuminate\Support\Facades\DB;
 use App\Services\CreateLabScopePdf;
 use App\Models\Certificate\Tracking;
@@ -32,6 +33,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Certify\LabReportInfo;
 use App\Models\Bcertify\LabCalRequest;
 use App\Models\Bcertify\SettingConfig;
+use App\Services\CreateCbScopeBcmsPdf;
+use App\Services\CreateCbScopeIsicPdf;
 use App\Models\Bcertify\LabTestRequest;
 use App\Models\Certify\SetStandardUser;
 use Illuminate\Support\Facades\Artisan;
@@ -50,6 +53,7 @@ use App\Models\Certify\SignCertificateOtp;
 use App\Services\CreateCbMessageRecordPdf;
 use App\Models\Bcertify\AuditorInformation;
 use App\Models\Certify\ApplicantCB\CertiCb;
+use App\Models\Certify\ApplicantIB\CertiIb;
 use App\Models\Certify\CertiSettingPayment;
 use App\Services\CreateLabMessageRecordPdf;
 use App\Models\Certificate\TrackingAuditors;
@@ -78,6 +82,8 @@ use App\Services\CreateLabAssessmentReportTwoPdf;
 use App\Http\Controllers\API\Checkbill2Controller;
 use App\Models\Bcertify\BoardAuditoExpertTracking;
 use App\Models\Certify\Applicant\CertifyTestScope;
+use App\Services\CreateTrackingCbMessageRecordPdf;
+use App\Services\CreateTrackingIbMessageRecordPdf;
 use App\Models\Certify\ApplicantCB\CertiCBAuditors;
 use App\Models\Certify\ApplicantCB\CertiCBPayInTwo;
 use App\Services\CreateTrackingLabMessageRecordPdf;
@@ -85,7 +91,13 @@ use App\Models\Bcertify\CalibrationBranchInstrument;
 use App\Models\Certify\ApplicantCB\CertiCBAttachAll;
 use App\Models\Certify\Applicant\CertifyLabCalibrate;
 use App\Models\Certify\SignAssessmentReportTransaction;
+use App\Services\CreateTrackingCbAssessmentReportOnePdf;
+use App\Services\CreateTrackingCbAssessmentReportTwoPdf;
+use App\Services\CreateTrackingIbAssessmentReportOnePdf;
+use App\Services\CreateTrackingIbAssessmentReportTwoPdf;
 use App\Models\Bcertify\CalibrationBranchInstrumentGroup;
+use App\Services\CreateTrackingLabAssessmentReportOnePdf;
+use App\Services\CreateTrackingLabAssessmentReportTwoPdf;
 use App\Models\Certificate\SignAssessmentTrackingReportTransaction;
 
 class MyTestController extends Controller
@@ -1920,9 +1932,38 @@ public function create_bill()
     }
 
  
+    public function generateCbScopeBcmsPdf()
+    {
+     $certi_cb = CertiLab::find(251);
+    //  dd($certilab);
+
+     // dd($certilab->DataEmailDirectorLAB);
+
+     $pdfService = new CreateCbScopeBcmsPdf($certi_cb);
+     $pdfContent = $pdfService->generatePdf();
+    }
+
+    public function generateCbScopeIsicPdf()
+    {
+     $certi_cb = CertiLab::find(252);
+
+
+     $pdfService = new CreateCbScopeIsicPdf($certi_cb);
+     $pdfContent = $pdfService->generatePdf();
+    }
+
+    public function generateCbScopeIbPdf()
+    {
+     $certi_ib = CertiIb::find(143);
+
+
+     $pdfService = new CreateIbScopePdf($certi_ib);
+     $pdfContent = $pdfService->generatePdf();
+    }
+
     public function generateScopePDF()
     {
-     $certilab = CertiLab::find(2055);
+     $certilab = CertiLab::find(2141);
     //  dd($certilab);
 
      // dd($certilab->DataEmailDirectorLAB);
@@ -3061,6 +3102,62 @@ public function create_bill()
         $pdfService = new CreateIbAssessmentReportTwoPdf($lastRecord->id,"ia");
         $pdfContent = $pdfService->generateIbAssessmentReportTwoPdf();
     }
+
+    public function createTrackingIbMessageRecordPdf()
+    {
+        $board = TrackingAuditors::find(317);
+        // dd($board);
+        $pdfService = new CreateTrackingIbMessageRecordPdf($board,"ia");
+        $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
+    }
+
+        public function createTrackingCbMessageRecordPdf()
+    {
+        $board = TrackingAuditors::find(316);
+        // dd($board);
+        $pdfService = new CreateTrackingCbMessageRecordPdf($board,"ia");
+        $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
+    }
+
+
+    public function createTrackingLabAssessmentReportOnePdf()
+    {
+        $pdfService = new CreateTrackingLabAssessmentReportOnePdf(179);
+        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    }
+
+    public function createTrackingIbAssessmentReportOnePdf()
+    {
+        $pdfService = new CreateTrackingIbAssessmentReportOnePdf(180);
+        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    }
+
+    public function createTrackingCbAssessmentReportOnePdf()
+    {
+        $pdfService = new CreateTrackingCbAssessmentReportOnePdf(181);
+        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    }
     
+    public function createTrackingLabAssessmentReportTwoPdf()
+    {
+        $pdfService = new CreateTrackingLabAssessmentReportTwoPdf(179);
+        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    }
+
+    public function createTrackingIbAssessmentReportTwoPdf()
+    {
+        $pdfService = new CreateTrackingIbAssessmentReportTwoPdf(180);
+        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    }
+
+    public function createTrackingCbAssessmentReportTwoPdf()
+    {
+        $pdfService = new CreateTrackingCbAssessmentReportTwoPdf(181);
+        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    }
+    
+    //    $trackingLabReportTwo = $signAssessmentTrackingReportTransaction->trackingLabReportTwo;
+    //                 $pdfService = new CreateTrackingLabAssessmentReportTwoPdf($trackingLabReportTwo->tracking_assessment_id);
+    //                 $pdfContent = $pdfService->generateLabAssessmentReportPdf();
 }
 

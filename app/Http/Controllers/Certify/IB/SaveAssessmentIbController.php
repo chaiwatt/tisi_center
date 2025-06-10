@@ -1049,7 +1049,7 @@ if($auditors->main_state == 1){
     
     public function createIbReport($id)
     {
-        
+        // dd('ok');
         $assessment = CertiIBSaveAssessment::find($id);
         $ibReportInfo = IbReportInfo::where('ib_assessment_id',$id)->first();
         $certi_ib = CertiIb::find($assessment->app_certi_ib_id);

@@ -302,6 +302,7 @@
                                 </td>
                                   <td class="text-top">
                                       {!! @$item->name_unit ?? '-' !!}
+                                      <p style="font-style:italic;font-size:14px" >{{@$item->purposeType->name}}</p>
                                  </td>
                                  <td class="text-top">
                                     {{ array_key_exists($item->type_unit,$type_unit) ? $type_unit[$item->type_unit]  :'-' }}

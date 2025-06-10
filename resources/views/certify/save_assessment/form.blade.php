@@ -225,7 +225,7 @@
 
             @if ($find_notice != null)
                 @if ($find_notice->submit_type == 'save')
-                <input type="hidden" id="notice_id" value="{{$find_notice->id}}">
+                    <input type="hidden" id="notice_id" value="{{$find_notice->id}}">
                     <div class="col-md-6">
                         <label class="col-md-4 text-right">แจ้งผู้เชี่ยวชาญ : </label>
                         
@@ -249,8 +249,6 @@
                         <label class="col-md-4 text-right">รายงานการตรวจประเมิน : </label>
                         
                         <div class="col-md-8 mt-5" style="margin-top:5px">
-                            {{-- <a type="button" href="{{ route('save_assessment.create',['board_auditor_id' => $find_notice->assessment->board_auditor_to->id]) }}" class="btn btn-info mt-5" >รายงานที่1</a>
-                            <a type="button" class="btn btn-info mt-5" >รายงานที่2 (ปิดcar)</a> --}}
 
                             @if ($find_notice->labReportInfo !== null)
                                 {{-- รายงานที่1 --}}
@@ -272,21 +270,8 @@
                                             title=" {{ !empty($find_notice->file_client_name) ? $find_notice->file_client_name : basename($find_notice->file)}}"   target="_blank">
                                             {!! HP::FileExtension($find_notice->file)  ?? '' !!} 
                                         </a>
-                                        {{-- <button id="button_audit_report" type="button" class="btn btn-danger btn-xs {{ ($find_notice->report_status == 2) ? 'hide' : '' }}"><i class="fa fa-trash"></i></button> --}}
                                     
                                 @endif
-                                {{-- รายงาน2 --}}
-                                {{-- @if ($find_notice->labReportInfo->status === "1")
-                                        <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
-                                            title="จัดทำรายงาน" class="btn btn-warning">
-                                            รายงานที่2(ปิดcar) ซ่อนรอจนกว่าลูกค้าส่งแนวทางมา
-                                        </a>
-                                    @else
-                                        <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
-                                            title="จัดทำรายงาน" class="btn btn-info">
-                                            รายงานที่2(ปิดcar) ซ่อนรอจนกว่าลูกค้าส่งแนวทางมา
-                                        </a>
-                                @endif  --}}
                             @endif
                         </div>
                     </div>
@@ -634,7 +619,7 @@
                                                 notice_id:notice_id
                                             },
                                             success: function(result) {
-                                                console.log(result);
+                                                // console.log(result);
                                                 if (result.message == true) {
                                                     $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
                                                     $('#form_assessment').submit();

@@ -12,6 +12,12 @@ use App\Services\CreateTrackingLabReportPdf;
 use App\Models\Certificate\TrackingAssessment;
 use App\Models\Certificate\TrackingInspection;
 use App\Models\Certify\Applicant\CertLabsFileAll;
+use App\Services\CreateTrackingCbAssessmentReportOnePdf;
+use App\Services\CreateTrackingCbAssessmentReportTwoPdf;
+use App\Services\CreateTrackingIbAssessmentReportOnePdf;
+use App\Services\CreateTrackingIbAssessmentReportTwoPdf;
+use App\Services\CreateTrackingLabAssessmentReportOnePdf;
+use App\Services\CreateTrackingLabAssessmentReportTwoPdf;
 use App\Models\Certificate\SignAssessmentTrackingReportTransaction;
 
 class TrackingSignAssessmentReportController extends Controller
@@ -54,33 +60,85 @@ class TrackingSignAssessmentReportController extends Controller
             $filter_approval = $request->input('filter_state');
             $filter_certificate_type = $request->input('filter_certificate_type');
         
-            $query = SignAssessmentTrackingReportTransaction::query();
-            $query->where('signer_id',$signer->id)
-                ->whereHas('trackingLabReportInfo', function ($query) {
-                    $query->whereHas('trackingAssessment', function ($query) {
-                        $query->where('degree', 4);
-                    });
-                });
+            // $query = SignAssessmentTrackingReportTransaction::query();
+            // $query->where('signer_id',$signer->id)
+            //     ->whereHas('trackingLabReportInfo', function ($query) {
+            //         $query->whereHas('trackingAssessment', function ($query) {
+            //             $query->where('degree', 4);
+            //         });
+            //     });
 
          
 
 
    
+            // if ($filter_approval) {
+            //     $query->where('approval', $filter_approval);
+            // }else{
+            //     $query->whereNull('approval');
+            // }
+            
+            // if ($filter_certificate_type !== null) {
+                
+            //     $query->where('certificate_type', $filter_certificate_type);
+            // }
+        
+            // // $aa= $query->get();
+            // // dd($aa,$filter_certificate_type);
+
+            // // dd($filter_approval,$query->get());
+            // $data = $query->get();
+            // $data = $data->map(function($item, $index) {
+            //     $item->DT_Row_Index = $index + 1;
+
+            //     // แปลง certificate_type เป็นข้อความ
+            //     switch ($item->certificate_type) {
+            //         case 0:
+            //             $item->certificate_type = 'CB';
+            //             break;
+            //         case 1:
+            //             $item->certificate_type = 'IB';
+            //             break;
+            //         case 2:
+            //             $item->certificate_type = 'LAB';
+            //             break;
+            //         default:
+            //             $item->certificate_type = 'Unknown';
+            //     }
+
+            //     // แปลง approval เป็นข้อความ
+            //     $item->approval = $item->approval == 0 ? 'รอดำเนินการ' : 'ลงนามเรียบร้อย';
+
+            //     return $item;
+            // });
+
+            $query = SignAssessmentTrackingReportTransaction::query();
+
+           
+          
+            // 
+            $query->where('signer_id',$signer->id);
+
+           
             if ($filter_approval) {
                 $query->where('approval', $filter_approval);
             }else{
-                $query->whereNull('approval');
+                $query->where('approval', 0);
             }
-            
+//  dd($query->get()->count(),$filter_approval);
+            // $query->where('approval',0);
+
+            // dd($filter_certificate_type);
+            // ->whereHas('trackingAuditor', function ($query) {
+            //     $query->where('message_record_status', 2);
+                
+            // });
+        
             if ($filter_certificate_type !== null) {
                 
                 $query->where('certificate_type', $filter_certificate_type);
             }
-        
-            // $aa= $query->get();
-            // dd($aa,$filter_certificate_type);
-
-            // dd($filter_approval,$query->get());
+         
             $data = $query->get();
             $data = $data->map(function($item, $index) {
                 $item->DT_Row_Index = $index + 1;
@@ -106,6 +164,7 @@ class TrackingSignAssessmentReportController extends Controller
                 return $item;
             });
 
+        
          
             // dd($query->get());
             return DataTables::of($query)
@@ -192,33 +251,168 @@ class TrackingSignAssessmentReportController extends Controller
 
     public function signDocument(Request $request)
     {
-
         $signAssessmentTrackingReportTransaction = SignAssessmentTrackingReportTransaction::find($request->id);
-
-        if($signAssessmentTrackingReportTransaction->certificate_type == 2)
+        // dd($signAssessmentTrackingReportTransaction);
+        if ($signAssessmentTrackingReportTransaction->certificate_type == 0)
         {
-            SignAssessmentTrackingReportTransaction::find($request->id)->update([
-                'approval' => 1
-            ]);
-        
-            $signAssessmentReportTransaction = SignAssessmentTrackingReportTransaction::find($request->id);
-            $signAssessmentReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$signAssessmentReportTransaction->report_info_id)
-                                    ->where('certificate_type',2)                    
+            // CB
+            SignAssessmentTrackingReportTransaction::find($request->id)
+                    ->update([
+                        'approval' => 1
+                    ]);
+            if($signAssessmentTrackingReportTransaction->report_type == 1)
+            {
+               $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$signAssessmentTrackingReportTransaction->tracking_report_info_id)
+                    ->where('certificate_type',0)  
+                    ->where('report_type',1)                      
+                    ->whereNotNull('signer_id')
+                    ->where('approval',0)
+                    ->get();  
+                if($signAssessmentTrackingReportTransactions->count() == 0)
+                {
+                    $trackingCbReportOne = $signAssessmentTrackingReportTransaction->trackingCbReportOne;
+                        $pdfService = new CreateTrackingCbAssessmentReportOnePdf($trackingCbReportOne->tracking_assessment_id);
+                        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+                }  
+
+            }else if($signAssessmentTrackingReportTransaction->report_type == 2)
+            {
+                $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$signAssessmentTrackingReportTransaction->tracking_report_info_id)
+                    ->where('certificate_type',0)  
+                    ->where('report_type',2)                      
+                    ->whereNotNull('signer_id')
+                    ->where('approval',0)
+                    ->get();  
+                if($signAssessmentTrackingReportTransactions->count() == 0)
+                {
+                    $trackingCbReportTwo = $signAssessmentTrackingReportTransaction->trackingCbReportTwo;
+                    $pdfService = new CreateTrackingCbAssessmentReportTwoPdf($trackingCbReportTwo->tracking_assessment_id);
+                    $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+                }  
+            }       
+                   
+        }
+        elseif ($signAssessmentTrackingReportTransaction->certificate_type == 1)
+        {
+            // IB
+            SignAssessmentTrackingReportTransaction::find($request->id)
+                    ->update([
+                        'approval' => 1
+                    ]);
+
+            if($signAssessmentTrackingReportTransaction->report_type == 1)
+            {
+                $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$signAssessmentTrackingReportTransaction->tracking_report_info_id)
+                            ->where('certificate_type',1)                        
+                            ->whereNotNull('signer_id')
+                            ->where('report_type',1)
+                            ->where('approval',0)
+                            ->get();  
+                if($signAssessmentTrackingReportTransactions->count() == 0)
+                {
+                    $trackingIbReportOne = $signAssessmentTrackingReportTransaction->trackingIbReportOne;
+                    $pdfService = new CreateTrackingIbAssessmentReportOnePdf($trackingIbReportOne->tracking_assessment_id);
+                    $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+                }  
+            }else if($signAssessmentTrackingReportTransaction->report_type == 2)
+            {
+                $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$signAssessmentTrackingReportTransaction->tracking_report_info_id)
+                            ->where('certificate_type',1)                        
+                            ->whereNotNull('signer_id')
+                            ->where('report_type',2)
+                            ->where('approval',0)
+                            ->get();  
+                if($signAssessmentTrackingReportTransactions->count() == 0)
+                {
+                    $trackingIbReportTwo = $signAssessmentTrackingReportTransaction->trackingIbReportTwo;
+                    $pdfService = new CreateTrackingIbAssessmentReportTwoPdf($trackingIbReportTwo->tracking_assessment_id);
+                    $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+                }  
+            }
+    
+        }
+        elseif ($signAssessmentTrackingReportTransaction->certificate_type == 2)
+        {
+            
+            // LAB
+            SignAssessmentTrackingReportTransaction::find($request->id)
+                    ->update([
+                        'approval' => 1
+                    ]);
+            if($signAssessmentTrackingReportTransaction->report_type == 1)
+            {
+                $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$signAssessmentTrackingReportTransaction->tracking_report_info_id)
+                                    ->where('certificate_type',2)                        
                                     ->whereNotNull('signer_id')
                                     ->where('approval',0)
+                                    ->where('report_type',1)
                                     ->get();           
-    
-            if($signAssessmentReportTransactions->count() == 0){
-                $pdfService = new CreateTrackingLabReportPdf($signAssessmentReportTransaction->tracking_report_info_id,"ia");
-                $pdfContent = $pdfService->generateTrackingLabReportPdf();
-    
-                $this->downloadScopeAndReUpload($request->id);
-            }  
+
+                if($signAssessmentTrackingReportTransactions->count() == 0)
+                {
+                    $trackingLabReportOne = $signAssessmentTrackingReportTransaction->trackingLabReportOne;
+                    $pdfService = new CreateTrackingLabAssessmentReportOnePdf($trackingLabReportOne->tracking_assessment_id);
+                    $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+
+                }  
+            }else if($signAssessmentTrackingReportTransaction->report_type == 2)
+            {
+                $signAssessmentTrackingReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$signAssessmentTrackingReportTransaction->tracking_report_info_id)
+                                    ->where('certificate_type',2)                        
+                                    ->whereNotNull('signer_id')
+                                    ->where('approval',0)
+                                    ->where('report_type',2)
+                                    ->get();           
+
+                if($signAssessmentTrackingReportTransactions->count() == 0)
+                {
+                    $trackingLabReportTwo = $signAssessmentTrackingReportTransaction->trackingLabReportTwo;
+                    $pdfService = new CreateTrackingLabAssessmentReportTwoPdf($trackingLabReportTwo->tracking_assessment_id);
+                    $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+
+                }  
+            }
+
+
         }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'success'
+        ]);
+        
+    }
+
+    // public function signDocument(Request $request)
+    // {
+
+    //     $signAssessmentTrackingReportTransaction = SignAssessmentTrackingReportTransaction::find($request->id);
+
+    //     if($signAssessmentTrackingReportTransaction->certificate_type == 2)
+    //     {
+    //         SignAssessmentTrackingReportTransaction::find($request->id)->update([
+    //             'approval' => 1
+    //         ]);
+        
+    //         $signAssessmentReportTransaction = SignAssessmentTrackingReportTransaction::find($request->id);
+    //         $signAssessmentReportTransactions = SignAssessmentTrackingReportTransaction::where('tracking_report_info_id',$signAssessmentReportTransaction->report_info_id)
+    //                                 ->where('certificate_type',2)                    
+    //                                 ->whereNotNull('signer_id')
+    //                                 ->where('approval',0)
+    //                                 ->where('report_type',1)
+    //                                 ->get();           
+    
+    //         if($signAssessmentReportTransactions->count() == 0){
+    //             $pdfService = new CreateTrackingLabReportPdf($signAssessmentReportTransaction->tracking_report_info_id,"ia");
+    //             $pdfContent = $pdfService->generateTrackingLabReportPdf();
+    
+    //             $this->downloadScopeAndReUpload($request->id);
+    //         }  
+    //     }
         
                       
         
-    }
+    // }
 
     public function downloadScopeAndReUpload($id)
     {

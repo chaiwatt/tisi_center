@@ -458,6 +458,7 @@
         </div>
         
 
+
        <div style="margin-top: 15px;margin-left:10px; line-height:36px;font-weight:600">
         <span>1. ข้อมูลทั่วไป</span>
        </div>
@@ -469,12 +470,31 @@
             <div>
                 <span>ตั้งอยู่เลขที่ :</span>
                 <span>
-                    {{$labRequest->no}} หมู่ที่ {{$labRequest->moo}} 
-                    @if(\Illuminate\Support\Str::contains($labRequest->province_name, 'กรุงเทพ'))
-                        แขวง{{$labRequest->tambol_name}} เขต{{$labRequest->amphur_name}} {{$labRequest->postal_code}} 
-                    @else
-                        ตำบล{{$labRequest->tambol_name}} อำเภอ{{$labRequest->amphur_name}} {{$labRequest->postal_code}} 
-                    @endif
+
+
+                    {{-- @php
+                       dd($labScopeTransaction) ;
+                    @endphp --}}
+
+                    {{-- @if ($labRequest !== null)
+                            {{$labRequest->no}} หมู่ที่ {{$labRequest->moo}} 
+                            @if(\Illuminate\Support\Str::contains($labRequest->province_name, 'กรุงเทพ'))
+                                แขวง{{$labRequest->tambol_name}} เขต{{$labRequest->amphur_name}} {{$labScopeTransaction->address_city_text}} {{$labRequest->postal_code}} 
+                            @else
+                                ตำบล{{$labRequest->tambol_name}} อำเภอ{{$labRequest->amphur_name}} จังหวัด{{$labScopeTransaction->address_city_text}} {{$labRequest->postal_code}} 
+                            @endif
+
+                        @else --}}
+                            {{$labScopeTransaction->address_number}} หมู่ที่ {{$labScopeTransaction->village_no}} 
+                            @if(\Illuminate\Support\Str::contains($labScopeTransaction->address_city_text, 'กรุงเทพ'))
+                                แขวง{{$labScopeTransaction->sub_district}} เขต{{$labScopeTransaction->address_district}} {{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
+                            @else
+                                ตำบล{{$labScopeTransaction->sub_district}} อำเภอ{{$labScopeTransaction->address_district}} จังหวัด{{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
+                            @endif
+                    {{-- @endif --}}
+                 
+      
+
                 </span>
                 
             </div>
@@ -614,6 +634,8 @@
                 </div>
             </div>
         </div>
+
+
         <div style="margin-top: 10px;margin-left:80px">
             
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">

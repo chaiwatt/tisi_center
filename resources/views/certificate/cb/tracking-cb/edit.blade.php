@@ -8,6 +8,12 @@
     .form_group {
         margin-bottom: 10px;
     }
+    
+    .swal-btn {
+        font-size: 16px !important;
+        padding: 10px 18px !important;
+    }
+
 </style>
 @endpush
 @section('content')
@@ -74,7 +80,7 @@
                         {{ csrf_field() }}
                         {!! Form::hidden('refno', (!empty($tracking->reference_refno) ? $tracking->reference_refno  : null) , ['id' => 'ref_id', 'class' => 'form-control', 'placeholder'=>'' ]); !!}
                         <button class="btn btn-warning" type="submit"   style="width:750px;text-align: left"> 
-                            <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ
+                            <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ 
                         </button>
                     </form>
                 @endif
@@ -108,15 +114,46 @@
     </div>
 
     @elseif($tracking->status_id >= 2)  
-    <div class="btn-group form_group">
-        <form action="{{ url('/certificate/auditor-cbs/create')}}" method="POST" style="display:inline" > 
-            {{ csrf_field() }}
-            {!! Form::hidden('refno', (!empty($tracking->reference_refno) ? $tracking->reference_refno  : null) , ['id' => 'ref_id', 'class' => 'form-control', 'placeholder'=>'' ]); !!}
-            <button class="btn btn-warning" type="submit" >
-                <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ
-            </button>
-        </form>
-    </div>
+        @php
+            $doneDocAuditorAssigment = $tracking->doc_auditor_assignment;
+        @endphp
+
+        @if ($doneDocAuditorAssigment != null)
+        {{-- {{$tracking->trackingDocReviewAuditor}} --}}
+            @if ($tracking->trackingDocReviewAuditor == null)
+                <div class="btn-group form_group">
+                    <button type="button" id="btn_doc_auditor" 
+                        class="btn {{ $doneDocAuditorAssigment == 1 ? 'btn-warning' : 'btn-info' }}">
+                        แต่งตั้งคณะผู้ตรวจเอกสาร
+                    </button>
+                </div>
+            @else
+                <div class="btn-group form_group">
+                    <a href="{{route("tracking.auditor_cb_doc_review_edit",['id' => $tracking->id])}}"
+                        class="btn 
+                            @if($doneDocAuditorAssigment == '0') btn-warning 
+                            @elseif($doneDocAuditorAssigment == '1') btn-danger 
+                            @elseif($doneDocAuditorAssigment == '2') btn-info 
+                            @else btn-secondary @endif">
+                        คณะผู้ตรวจเอกสาร
+                    </a>
+                </div>
+            @endif
+        @endif
+
+        @if($doneDocAuditorAssigment == null || $doneDocAuditorAssigment == 2 )
+            <div class="btn-group form_group">
+                <form action="{{ url('/certificate/auditor-cbs/create')}}" method="POST" style="display:inline" > 
+                    {{ csrf_field() }}
+                    {!! Form::hidden('refno', (!empty($tracking->reference_refno) ? $tracking->reference_refno  : null) , ['id' => 'ref_id', 'class' => 'form-control', 'placeholder'=>'' ]); !!}
+                    <button class="btn btn-warning" type="submit" >
+                        <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ
+                    </button>
+                </form>
+            </div>
+        @endif
+
+
     @endif
 
 {{-- @endif      --}}
@@ -356,7 +393,17 @@
     @endif  --}}
     
  
-    @if( $tracking->status_id == 6  || $tracking->status_id == 7 )    
+    {{-- @if( $tracking->status_id == 6  || $tracking->status_id == 7 )    
+      <a  class="btn btn-warning form_group" href="{{ url("certificate/tracking-cb/append/$tracking->id")}}" >
+             แนบท้าย
+      </a>
+    @elseif( $tracking->status_id >= 8  )    
+        <a  class="btn btn-info form_group" href="{{ url("certificate/tracking-cb/append/$tracking->id")}}" >
+            <i class="fa fa-check-square-o"></i>   แนบท้าย
+      </a>
+    @endif  --}}
+
+    @if( $tracking->status_id == 7 && $tracking->ability_confirm !== null )    
       <a  class="btn btn-warning form_group" href="{{ url("certificate/tracking-cb/append/$tracking->id")}}" >
              แนบท้าย
       </a>
@@ -398,7 +445,7 @@
     </div>
     <div class="col-sm-12">
         <p class="col-md-3 text-right">ชื่อหน่วยรับรอง : </p>
-        <p class="col-md-9"> {!! !empty($tracking->certificate_export_to->CertiCbTo->name)?  $tracking->certificate_export_to->CertiCbTo->name:''  !!} </p>
+        <p class="col-md-9"> {!! !empty($tracking->certificate_export_to->CertiCbTo->name_standard)?  $tracking->certificate_export_to->CertiCbTo->name_standard:''  !!} </p>
     </div>
     <div class="col-sm-12">
         <p class="col-md-3 text-right">สถานะการดำเนินการ : </p>
@@ -507,7 +554,9 @@
     <script src="{{ asset('js/app.js') }}"></script>
  
     <script>
+         let tracking;
         $(document).ready(function(){
+             tracking = @json($tracking ?? []);
                 $('.check-readonly').prop('disabled', true);
                 $('.check-readonly').parent().removeClass('disabled');
                 $('.check-readonly').parent().css({"background-color": "rgb(238, 238, 238);","border-radius":"50%"});
@@ -552,6 +601,50 @@
                 });
             @endif
           });
+
+
+          
+        $("#btn_doc_auditor").on("click", function() {
+            // const _token = $('input[name="_token"]').val();
+            var _token = $('meta[name="csrf-token"]').attr('content');
+            let trackingId = tracking.id;
+            console.log(trackingId,_token);
+
+            Swal.fire({
+                title: "ต้องการแต่งตั้งทีมตรวจประเมินหรือไม่?",
+                icon: "question",
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: "แต่งตั้ง",
+                denyButtonText: "ไม่แต่งตั้ง",
+                cancelButtonText: "ยกเลิก",
+                customClass: {
+                    confirmButton: 'swal-btn', 
+                    denyButton: 'swal-btn', 
+                    cancelButton: 'swal-btn'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Swal.fire("แต่งตั้งเรียบร้อย!", "", "success");
+                    window.location.href = "/certificate/auditor_cb_doc_review/auditor_cb_doc_review/" + trackingId;
+                } else if (result.isDenied) {
+                    // alert('here');
+                    $.ajax({
+                        
+                        url: "{{route('tracking.bypass_cb_doc_auditor_assignment')}}",
+                        method: "POST",
+                        data: {
+                            trackingId: trackingId,
+                            _token: _token
+                        },
+                        success: function(result) {
+                            location.reload(); // รีโหลดหน้า
+                        }
+                    });
+                }
+            });
+        });
+
     </script>
 
 @endpush

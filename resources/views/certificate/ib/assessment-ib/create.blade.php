@@ -22,7 +22,7 @@
                     @endif
                     
                     {!! Form::open(['url' => '/certificate/assessment-ib', 'method' => 'POST', 'class' => 'form-horizontal', 'files' => true,'id'=>'form_assessment']) !!}
-                               @include ('certificate/ib/assessment-ib.form')
+                               @include ('certificate.ib.assessment-ib.form')
                     {!! Form::close() !!}
 
                 </div>

@@ -194,10 +194,10 @@ class CreateTrackingLabMessageRecordPdf
 
 
        
-        $signer->signer_1 = MessageRecordTrackingTransaction::where('ba_tracking_id', $this->board_tracking_auditor_id)->where('signature_id','Signature1')->first();
-        $signer->signer_2 = MessageRecordTrackingTransaction::where('ba_tracking_id', $this->board_tracking_auditor_id)->where('signature_id','Signature2')->first();
-        $signer->signer_3 = MessageRecordTrackingTransaction::where('ba_tracking_id', $this->board_tracking_auditor_id)->where('signature_id','Signature3')->first();
-        $signer->signer_4 = MessageRecordTrackingTransaction::where('ba_tracking_id', $this->board_tracking_auditor_id)->where('signature_id','Signature4')->first();
+        $signer->signer_1 = MessageRecordTrackingTransaction::where('ba_tracking_id', $this->board_tracking_auditor_id)->where('certificate_type',3)->where('signature_id','Signature1')->first();
+        $signer->signer_2 = MessageRecordTrackingTransaction::where('ba_tracking_id', $this->board_tracking_auditor_id)->where('certificate_type',3)->where('signature_id','Signature2')->first();
+        $signer->signer_3 = MessageRecordTrackingTransaction::where('ba_tracking_id', $this->board_tracking_auditor_id)->where('certificate_type',3)->where('signature_id','Signature3')->first();
+        $signer->signer_4 = MessageRecordTrackingTransaction::where('ba_tracking_id', $this->board_tracking_auditor_id)->where('certificate_type',3)->where('signature_id','Signature4')->first();
 
 
         $attach1 = !empty($signer->signer_1->signer->AttachFileAttachTo) ? $signer->signer_1->signer->AttachFileAttachTo : null;

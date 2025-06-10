@@ -490,7 +490,6 @@
 
  @if($applicant->status >= 25 )
 
-    {{-- {{$applicant->certificate_export}} --}}
     {{-- {{$applicant->certificate_export->status}} --}}
     @if( isset($applicant)  &&  !is_null($applicant->certificate_export)  && !in_array($applicant->certificate_export->status,[99]))
         @php 
@@ -528,31 +527,20 @@
 
 
     @elseif( isset($applicant)  &&  (!is_null($applicant->certi_lab_export_mapreq_to) ) )
+ 
     {{-- {{$applicant->certi_lab_export_mapreq_to}} --}}
         @if ($applicant->report_to->ability_confirm !== null)
-             @if ($applicant->scope_view_signer_id == null)
+             {{-- @if ($applicant->scope_view_signer_id == null) --}}
                 <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
                     <i class="fa fa-paperclip"></i>  แนบท้าย
                 </a> 
-            @else
+            {{-- @else
                 @if ($applicant->scope_view_status !== null)
                     <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
                         <i class="fa fa-paperclip"></i>  แนบท้าย
                     </a> 
-
-                    {{-- <form action="{{ url('/certify/certificate-export-lab/create')}}" method="POST" style="display:inline"  > 
-                        {{ csrf_field() }}
-                        {!! Form::hidden('app_token', (!empty($applicant->token) ? $applicant->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
-                    
-                            @if ($applicant->scope_view_status !== null)
-                                <button class="btn btn-warning" type="submit" >
-                                    ออกใบรับรอง<span class="text-danger">(โอน)</span> 
-                                </button>
-                            @endif
-                  
-                    </form> --}}
                 @endif
-            @endif
+            @endif --}}
             
         @endif
     @else 
@@ -567,13 +555,13 @@
                             ออกใบรับรอง
                         </button>
                     @else
-                        @if ($applicant->scope_view_status !== null)
+                        {{-- @if ($applicant->scope_view_status !== null) --}}
                             <button class="btn btn-warning" type="submit" >
                                 ออกใบรับรอง 
                             </button>
-                        @else
+                        {{-- @else
                         <span class="text-warning">รอยืนยันขอบข่าย</span>
-                        @endif
+                        @endif --}}
                     @endif
                 </form>
             </div>

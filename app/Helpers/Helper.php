@@ -85,6 +85,18 @@ class HP
         ]);
     }
 
+    public static function BEDate($date)
+    {
+        // แปลงวันที่ให้เป็น Carbon instance
+        $carbonDate = Carbon::parse($date);
+        
+        // คำนวณปีพุทธศักราช
+        $buddhistYear = $carbonDate->year + 543;
+        
+        // คืนค่ารูปแบบวันที่
+        return $carbonDate->format('d F') . ' B.E. ' . $buddhistYear . ' (' . $carbonDate->year . ')';
+    }
+
     public static function cbDocAuditorStatus($id)
     {
         return StatusAuditor::find($id);
@@ -1190,6 +1202,8 @@ class HP
     public static function downloadFileFromTisiCloud($filePath)
     {
         $isExistingFile = self::checkFileStorage($filePath);
+
+        // dd($isExistingFile);
         
         if($isExistingFile)
         {
@@ -3776,8 +3790,9 @@ static function ConvertCertifyFileName($name){
         $file_size          = (method_exists($attach, 'getSize')) ? $attach->getSize() : 0;
         $file_extension     = $attach->getClientOriginalExtension();
         $fullFileName       = str_random(10).'-date_time'.date('Ymd_hms') . '.' .$file_extension ;
-
+    
         $path               = Storage::putFileAs($attach_path, $attach,  str_replace(" ","",$fullFileName) );
+            // dd('check point');
         $file_name          = self::ConvertCertifyFileName($attach->getClientOriginalName());
 
        $request =  AttachFile::create([

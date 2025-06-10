@@ -31,11 +31,11 @@
                         'target'=>"_blank"
                     ]) !!}
 
-                    @include ('certify/ib.certificate_export_ib.form')
+                    @include ('certify.ib.certificate_export_ib.form')
 
                     {!! Form::close() !!}
-                    @include('certify/ib/certificate_export_ib/modal.add_attachment')
-                    @include('certify/ib/certificate_export_ib/modal.edit_modle')
+                    @include('certify.ib.certificate_export_ib.modal.add_attachment')
+                    @include('certify.ib.certificate_export_ib.modal.edit_modle')
 
                 </div>
             </div>

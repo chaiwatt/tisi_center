@@ -26,7 +26,7 @@
                        $file_status = 'check_readonly';
                     }
                 @endphp
-                <tr>
+                {{-- <tr>
                     <td class="text-center">
                         {{$key+1}}
                     </td>
@@ -64,7 +64,52 @@
                         @endif
 
                    </td>
-                 </tr>
+                </tr> --}}
+                   <tr>
+                    <td class="text-center">
+                        {{ $key + 1 }}
+                    </td>
+                    <td style="padding: 0px;">
+                        <input type="hidden" name="id[]" class="form-control" 
+                            value="{{ !empty($item->id) ? $item->id : '' }}">
+                        <textarea name="report[]" class="form-control auto-expand"  rows="5" style="border-right: 1px solid #ccc;" disabled>{{ $item->report ?? '' }}</textarea>
+                    </td>
+                    <td style="padding: 0px;">
+                        <textarea name="notice[]" class="form-control notice auto-expand" rows="5" style="border-left: none; border-right: 1px solid #ccc;" disabled>{{ $item->remark ?? '' }}</textarea>
+                    </td>
+                    <td style="padding: 0px;">
+                        <textarea name="details" class="form-control auto-expand" rows="5" style="border-left: none; border-right: 1px solid #ccc;" disabled>{{ $item->details ?? '' }}</textarea>
+                    </td>
+                    <td class="text-center" style="padding-left: 15px;vertical-align:top">
+                        <label>
+                            <input type="checkbox" name="status[{{ $item->id }}]" value="1" 
+                                class="check checkbox_status {{ $status }} assessment_results" 
+                                data-checkbox="icheckbox_flat-green" 
+                                data-key="{{ $key + 1 }}" 
+                                {{ !empty($item->status == 1) ? 'checked' : '' }}>
+                            &nbsp;ผ่าน &nbsp;
+                        </label>
+                    </td>
+                    <td class="text-center" >
+                        @if (!is_null($item->FileAttachAssessmentBugTo))
+                            <a href="{{ url('funtions/get-view/' . $item->FileAttachAssessmentBugTo->url . '/' . 
+                                (!empty($item->FileAttachAssessmentBugTo->filename) ? $item->FileAttachAssessmentBugTo->filename : basename($item->FileAttachAssessmentBugTo->url))) }}" 
+                                title="{{ !empty($item->FileAttachAssessmentBugTo->filename) ? $item->FileAttachAssessmentBugTo->filename : basename($item->FileAttachAssessmentBugTo->url) }}" 
+                                target="_blank">
+                                {!! HP::FileExtension($item->FileAttachAssessmentBugTo->url) ?? '' !!}
+                            </a>
+                            &nbsp;&nbsp;&nbsp;
+                            <label>
+                                <input type="checkbox" name="file_status[{{ $item->id }}]" value="1" 
+                                    class="check {{ $file_status }} file_status" 
+                                    data-checkbox="icheckbox_flat-green" 
+                                    data-key="{{ $key + 1 }}" 
+                                    {{ !empty($item->file_status == 1) ? 'checked' : '' }}>
+                                &nbsp;ผ่าน &nbsp;
+                            </label>
+                        @endif
+                    </td>
+                </tr>
                    @endforeach
                
             </tbody>
@@ -73,14 +118,15 @@
 </div>
 @endif
 <div class="row" id="div_comment">
-    <div class="col-sm-3 text-right">ระบุข้อคิดเห็น (ผลการประเมิน) :</div>
-    <div class="col-sm-9">
+    <div class="col-sm-12">ระบุข้อคิดเห็น (ผลการประเมิน) :</div>
+    <div class="col-sm-12">
         <table class="table color-bordered-table primary-bordered-table">
             <thead>
                 <tr>
-                    <th class="text-center" width="2%">ลำดับ</th>
-                    <th class="text-center" width="40%">ผลการประเมินที่พบ</th>
-                    <th class="text-center" width="58%">ข้อคิดเห็นของคณะผู้ตรวจประเมิน</th>
+                      <th class="text-center" width="2%">ลำดับ</th>
+                    <th class="text-center" width="30%">ผลการประเมินที่พบ</th>
+                    <th class="text-center" width="40%">ข้อคิดเห็นของคณะผู้ตรวจประเมิน</th>
+                    <th class="text-center" width="28%">สาเหตุ</th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -94,9 +140,17 @@
                                 <td>
                                     {{ $item->remark ?? null }}
                                 </td>
-                                <td>
+                                {{-- <td>
                                     <input type="hidden" class="type_itme" value="{{$item->id}}">
                                     {!! Form::textarea('comment['.$item->id.']',(in_array($assessment->degree,[3]) ? $item->comment : null) , [ 'class' => 'form-control','rows' => 3,'required'=>true]) !!} 
+                                </td> --}}
+                                <td style="padding: 0px;">
+                                    <input type="hidden" class="type_itme" value="{{ $item->id }}">
+                                    <textarea name="comment[{{ $item->id }}]" class="form-control auto-expand"   rows="5" style="border-right: 1px solid #ccc;" required>{{ in_array($assessment->degree, [3]) ? $item->comment : '' }}</textarea>
+                                </td>
+                                <td style="padding: 0px;">
+                                    <input type="hidden" value="{{ $item->id }}">
+                                    <textarea name="cause[{{ $item->id }}]" class="form-control auto-expand" rows="5" style="border-left: none; border-right: 1px solid #ccc;" required>{{ in_array($assessment->degree, [3]) ? $item->cause : '' }}</textarea>
                                 </td>
                             </tr>
                         @endif
@@ -109,8 +163,8 @@
 
 
 <div class="row" id="div_file_comment">
-    <div class="col-sm-3 text-right">ระบุข้อคิดเห็น (หลักฐาน) :</div>
-    <div class="col-sm-9">
+    <div class="col-sm-12 ">ระบุข้อคิดเห็น (หลักฐาน) :</div>
+    <div class="col-sm-12">
         <table class="table color-bordered-table primary-bordered-table">
             <thead>
                 <tr>
@@ -130,10 +184,18 @@
                                 <td>
                                     {{ $item->remark ?? null }}
                                 </td>
-                                <td>
+                                {{-- <td>
                                      <input type="hidden" class="type_itme" value="{{$item->id}}">
                                     {!! Form::textarea('file_comment['.$item->id.']',(in_array($assessment->degree,[3]) ? $item->file_comment : null)  ,  ['class' => 'form-control file_comment','rows' => 3,'required'=>true])!!}
+                                </td> --}}
+                                <td style="padding: 0px;">
+                                    <input type="hidden" class="type_itme" value="{{ $item->id }}">
+                                    <textarea name="comment[{{ $item->id }}]" class="form-control auto-expand"   rows="5" style="border-right: 1px solid #ccc;" required>{{ in_array($assessment->degree, [3]) ? $item->comment : '' }}</textarea>
                                 </td>
+                                {{-- <td style="padding: 0px;">
+                                    <input type="hidden" value="{{ $item->id }}">
+                                    <textarea name="cause[{{ $item->id }}]" class="form-control auto-expand" rows="5" style="border-left: none; border-right: 1px solid #ccc;" required>{{ in_array($assessment->degree, [3]) ? $item->cause : '' }}</textarea>
+                                </td> --}}
                             </tr>
                         @endif
                 @endforeach
@@ -262,6 +324,47 @@
                });
            }
       });
+
+
+      
+      function autoExpand(textarea) {
+                textarea.style.height = 'auto'; // รีเซ็ตความสูง
+                textarea.style.height = textarea.scrollHeight + 'px'; // กำหนดความสูงตามเนื้อหา
+            }
+
+            // ฟังก์ชันปรับขนาด textarea ทุกตัวในแถวเดียวกัน
+            function syncRowHeight(textarea) {
+                let $row = $(textarea).closest('tr'); // หา tr ที่ textarea อยู่
+                let maxHeight = 0;
+
+                // วนลูปหา maxHeight ใน textarea ทุกตัวในแถว
+                $row.find('.auto-expand').each(function () {
+                    this.style.height = 'auto'; // รีเซ็ตความสูงก่อนคำนวณ
+                    let currentHeight = this.scrollHeight;
+                    if (currentHeight > maxHeight) {
+                        maxHeight = currentHeight;
+                    }
+                });
+
+                // กำหนดความสูงให้ textarea ทุกตัวในแถวเท่ากัน
+                $row.find('.auto-expand').each(function () {
+                    this.style.height = maxHeight + 'px';
+                });
+            }
+
+            // ดักจับ event input
+            $(document).on('input', '.auto-expand', function () {
+                // console.log('aha');
+                autoExpand(this); // ปรับ textarea ที่มีการเปลี่ยนแปลง
+                syncRowHeight(this); // ปรับ textarea ทั้งแถว
+            });
+
+            // ปรับขนาดทุก textarea เมื่อโหลดหน้าเว็บ
+            $('.auto-expand').each(function () {
+                autoExpand(this);
+                syncRowHeight(this);
+            });
+
 
 
 

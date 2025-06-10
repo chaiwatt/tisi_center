@@ -584,7 +584,7 @@ try {
 
                     $app_no          =  $certi_ib->app_no;
                     $timestamp = Carbon::now()->timestamp;
-                    $refNo = $app_no.'-'.$PayIn->auditors_id.$timestamp;
+                    $refNo = $app_no.'-'.$PayIn->auditors_id.''.$timestamp;
 
                     // $content =  file_get_contents("$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$certi_ib->app_no-$PayIn->auditors_id", false, stream_context_create($arrContextOptions));
                     $content =  file_get_contents("$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo", false, stream_context_create($arrContextOptions));
@@ -968,6 +968,7 @@ try {
         }
 
     public function UpdateReport(Request $request, $id){
+        
    try {
             $report = CertiIBReport::findOrFail($id);
             $certi_ib = CertiIb::findOrFail($report->app_certi_ib_id);
@@ -985,21 +986,26 @@ try {
                 'start_date' => !empty($request->start_date)?HP::convertDate($request->start_date):null,
                 'end_date' => !empty($request->end_date)?HP::convertDate($request->end_date):null,
             ]);
-
+           
              // รายงาน file_loa
-            if($request->file_loa && $request->hasFile('file_loa')){
+            // if($request->file_loa && $request->hasFile('file_loa')){
+                $certiIBAttachAll = CertiIBAttachAll::where('app_certi_ib_id',$report->app_certi_ib_id)->where('table_name','app_certi_ib_assessment')->where('file_section',2)->first(); 
+                
                         $certi_ib_attach_more = new CertiIBAttachAll();
                         $certi_ib_attach_more->app_certi_ib_id  = $report->app_certi_ib_id ?? null;
                         $certi_ib_attach_more->ref_id           = $report->id;
                         $certi_ib_attach_more->table_name       = $tb->getTable();
                         $certi_ib_attach_more->file_section     = '1';
-                        $certi_ib_attach_more->file             = $this->storeFile($request->file_loa,$certi_ib->app_no);
-                        $certi_ib_attach_more->file_client_name = HP::ConvertCertifyFileName($request->file_loa->getClientOriginalName());
+                        // $certi_ib_attach_more->file             = $this->storeFile($request->file_loa,$certi_ib->app_no);
+                        // $certi_ib_attach_more->file_client_name = HP::ConvertCertifyFileName($request->file_loa->getClientOriginalName());
+                        $certi_ib_attach_more->file             = $certiIBAttachAll->file;
+                        $certi_ib_attach_more->file_client_name = $certiIBAttachAll->file_client_name;
                         $certi_ib_attach_more->token            = str_random(16);
                         $certi_ib_attach_more->save();
-
+                       
                         //แนบท้าย
                         if(isset($certi_ib_attach_more->file)){
+                           
                             CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)->update(['state' => 0]);
                              CertiIBFileAll::create([
                                                         'ref_id'                 =>  $report->id,
@@ -1014,22 +1020,26 @@ try {
                                                      ]);
                          }
 
-            }
+            // }
             // ไฟล์แนบ
-            if($request->file && $request->hasFile('file')){
-                foreach ($request->file as $index => $item){
+            // if($request->file && $request->hasFile('file')){
+                // foreach ($request->file as $index => $item){
                         $certi_ib_attach_more                   = new CertiIBAttachAll();
                         $certi_ib_attach_more->app_certi_ib_id  = $report->app_certi_ib_id ?? null;
                         $certi_ib_attach_more->ref_id           = $report->id;
                         $certi_ib_attach_more->table_name       = $tb->getTable();
                         $certi_ib_attach_more->file_section     = '2';
-                        $certi_ib_attach_more->file             = $this->storeFile($item,$certi_ib->app_no);
-                        $certi_ib_attach_more->file_client_name = HP::ConvertCertifyFileName($item->getClientOriginalName());
-                        $certi_ib_attach_more->file_desc        = $request->file_desc[$index] ?? null;
+                        // $certi_ib_attach_more->file             = $this->storeFile($item,$certi_ib->app_no);
+                        // $certi_ib_attach_more->file_client_name = HP::ConvertCertifyFileName($item->getClientOriginalName());
+                        $certi_ib_attach_more->file             =  $certi_ib_attach_more->file;
+                        $certi_ib_attach_more->file_client_name = $certi_ib_attach_more->file_client_name;
+                        // $certi_ib_attach_more->file_desc        = $request->file_desc[$index] ?? null;
                         $certi_ib_attach_more->token            = str_random(16);
                         $certi_ib_attach_more->save();
-                }
-             }
+                // }
+
+                // dd('ok');
+            //  }
              if($report->report_status == 1){
                 $certi_ib->update(['status'=>13]); // รอยืนยันคำขอ
             }else{

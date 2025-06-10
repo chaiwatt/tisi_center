@@ -121,7 +121,7 @@
 
                                 <div class="form_group btn-group">
                                     <div class="btn-group">
-                                        {{-- <a  class="btn  {{$auditors_btn}} " href="{{ url("certify/auditor-ib")}}" target="_blank"> --}}
+                                        {{-- <a  class="btn  {{$auditors_btn}} " href="{{ url("certify/auditor-ib")}}" > --}}
                                         <button type="button" class="btn {{$auditors_btn}} dropdown-toggle" data-toggle="dropdown">
                                             แต่งตั้งคณะฯ<span class="caret"></span>
                                         </button>
@@ -361,7 +361,7 @@
                             </div>
 
                         {{-- @else 
-                            <a  class="form_group btn btn-warning" href="{{ url("certify/save_assessment-ib")}}" target="_blank">
+                            <a  class="form_group btn btn-warning" href="{{ url("certify/save_assessment-ib")}}" >
                                 ผลการตรวจประเมิน
                             </a>
                         @endif --}}
@@ -487,17 +487,19 @@
                                     }
                                 @endphp
 
-                                <a href="{{ url('certify/certificate-export-ib/'.$export->id.'/edit') }}" class="form_group btn  {{$export_btn}}"  target="_blank">
+                                <a href="{{ url('certify/certificate-export-ib/'.$export->id.'/edit') }}" class="form_group btn  {{$export_btn}}"  >
                                         {!! $export_icon !!}    ออกใบรับรอง
                                 </a>
                             @elseif(!empty($certi_ib->certi_ib_export_mapreq_to))
-                                <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail-ib/".$certi_ib->token)}}" >
-                                    <i class="fa fa-paperclip"></i>  แนบท้าย
-                                </a> 
+                                @if ($report->ability_confirm !== null)
+                                    <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail-ib/".$certi_ib->token)}}" >
+                                        <i class="fa fa-paperclip"></i>  แนบท้าย
+                                    </a> 
+                                @endif
                             @else 
                                 @if ($report->ability_confirm !== null)
                                     <div class="btn-group form_group">
-                                        <form action="{{ url('/certify/certificate-export-ib/create')}}" method="POST" style="display:inline"  target="_blank"> 
+                                        <form action="{{ url('/certify/certificate-export-ib/create')}}" method="POST" style="display:inline"  > 
                                             {{ csrf_field() }}
                                             {!! Form::hidden('app_token', (!empty($certi_ib->token) ? $certi_ib->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
                                             <button class=" btn btn-warning" type="submit" >

@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">แต่งตั้งคณะผู้ตรวจประเมิน  (IB)</h3>
+                    <h3 class="box-title pull-left">แต่งตั้งคณะผู้ตรวจประเมิน (IB)</h3>
                     @can('view-'.str_slug('auditorib'))
                         <a class="btn btn-success pull-right" href="{{url('/certify/auditor-ib')}}">
                             <i class="icon-arrow-left-circle"></i> กลับ
@@ -23,7 +23,7 @@
 
                     {!! Form::open(['url' => '/certify/auditor-ib', 'class' => 'form-horizontal', 'files' => true,'id'=>'form_auditor']) !!}
 
-                    @include ('certify/ib.auditor_ib.form')
+                    @include ('certify.ib.auditor_ib.form')
 
                     {!! Form::close() !!}
 

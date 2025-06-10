@@ -2,13 +2,36 @@
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
+        <style>
+        textarea.form-control {
+            border-radius: 0 !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            resize: none;
+            overflow: hidden; /* ซ่อน scrollbar */
+        }
+        .no-hover-animate tbody tr:hover {
+            background-color: inherit !important; /* ปิดการเปลี่ยนสี background */
+            transition: none !important; /* ปิดเอฟเฟกต์การเปลี่ยนแปลง */
+        }
+        
+        /* กำหนดขนาดความกว้างของ SweetAlert2 */
+        .custom-swal-popup {
+            width: 500px !important;  /* ปรับความกว้างตามต้องการ */
+        }
+    
+        textarea.non-editable {
+            pointer-events: none; /* ทำให้ไม่สามารถคลิกหรือแก้ไขได้ */
+            opacity: 0.9; /* กำหนดความทึบของ textarea */
+        }
+    </style>
 @endpush
 @section('content')
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (IB) #{{ $assessment->id }}</h3>
+                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมินติดตาม (IB) #{{ $assessment->id }}</h3>
                     @can('view-'.str_slug('assessmentib'))
                         <a class="btn btn-success pull-right" href="{{ app('url')->previous()  }}">
                             <i class="icon-arrow-left-circle" aria-hidden="true"></i> กลับ
@@ -34,110 +57,167 @@
                     ]) !!}
  <div id="box-readonly">
 <div class="row">
-    <div class="col-md-12">
-
-    <div class="form-group {{ $errors->has('reference_refno') ? 'has-error' : ''}}">
+    <div class="col-md-6">
+            <div class="form-group {{ $errors->has('reference_refno') ? 'has-error' : ''}}">
             {!! HTML::decode(Form::label('reference_refno', '<span class="text-danger">*</span> '.'เลขคำขอ'.' :', ['class' => 'col-md-3 control-label'])) !!}
             <div class="col-md-7">
                 {!! Form::text('reference_refno', (!empty($assessment->reference_refno) ? $assessment->reference_refno  : null) , ['id' => 'reference_refno', 'class' => 'form-control no-drop', 'placeholder'=>'', 'disabled' => true]); !!}
             </div>
     </div>
-    <div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
+    </div>
+        <div class="col-md-6">
+                <div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
         {!! HTML::decode(Form::label('name','ชื่อผู้ยื่นคำขอ'.' :', ['class' => 'col-md-3 control-label'])) !!}
         <div class="col-md-7">
             {!! Form::text('name', null, ['id' => 'applicant_name', 'class' => 'form-control', 'placeholder'=>'', 'disabled' => true]); !!}
         </div>
     </div>
-    <div class="form-group {{ $errors->has('laboratory_name') ? 'has-error' : ''}}">
+    </div>
+        <div class="col-md-6">
+                <div class="form-group {{ $errors->has('laboratory_name') ? 'has-error' : ''}}">
         {!! HTML::decode(Form::label('laboratory_name','ชื่อหน่วยตรวจสอบ '.' :', ['class' => 'col-md-3 control-label'])) !!}
         <div class="col-md-7">
             {!! Form::text('laboratory_name',   null , ['id' => 'laboratory_name', 'class' => 'form-control', 'placeholder'=>'', 'disabled' => true]); !!}
         </div>
     </div>
-    <div class="form-group {{ $errors->has('auditor') ? 'has-error' : ''}}">
+    </div>
+        <div class="col-md-6">
+                <div class="form-group {{ $errors->has('auditor') ? 'has-error' : ''}}">
         {!! HTML::decode(Form::label('auditor', '<span class="text-danger">*</span> '.'ชื่อคณะผู้ตรวจประเมิน'.' :', ['class' => 'col-md-3 control-label'])) !!}
         <div class="col-md-7">
             {!! Form::text('auditor',  null, ['id' => 'auditor', 'class' => 'form-control', 'placeholder'=>'', 'disabled' => true]); !!}
         </div>
     </div>
-    <div class="form-group {{ $errors->has('auditor_date') ? 'has-error' : ''}}">
+    </div>
+        <div class="col-md-6">
+                <div class="form-group {{ $errors->has('auditor_date') ? 'has-error' : ''}}">
         {!! HTML::decode(Form::label('auditor_date', '<span class="text-danger">*</span> '.'วันที่ตรวจประเมิน'.' :', ['class' => 'col-md-3 control-label'])) !!}
         <div class="col-md-7">
             {!! Form::text('auditor_date',  null, ['id' => 'auditor_date', 'class' => 'form-control', 'placeholder'=>'', 'disabled' => true]); !!}
         </div>
     </div>
+    </div>
+    {{-- <div class="col-md-6">
+        @if (!empty($assessment->auditor_file))
+            <div class="form-group {{ $errors->has('auditor_date') ? 'has-error' : ''}}">
+                {!! HTML::decode(Form::label('auditor_date', '<span class="text-danger">*</span> '.'กำหนดการตรวจประเมิน'.' :', ['class' => 'col-md-3 control-label'])) !!}
+                <div class="col-md-7">
+                    <a href="{{url('funtions/get-view/'.$assessment->auditor_file->url.'/'.( !empty($assessment->auditor_file->filename) ? $assessment->auditor_file->filename : 'null' ))}}" 
+                        title="{{ !empty($assessment->auditor_file->filename) ? $assessment->auditor_file->filename :  basename($assessment->auditor_file->url) }}" target="_blank">
+                        {!! HP::FileExtension($assessment->auditor_file->url)  ?? '' !!}
+                    </a>
+                </div>
+            </div>
+        @endif
+    </div> --}}
 
-    @if (!empty($assessment->auditor_file))
-        <div class="form-group {{ $errors->has('auditor_date') ? 'has-error' : ''}}">
-            {!! HTML::decode(Form::label('auditor_date', '<span class="text-danger">*</span> '.'กำหนดการตรวจประเมิน'.' :', ['class' => 'col-md-3 control-label'])) !!}
-            <div class="col-md-7">
-                <a href="{{url('funtions/get-view/'.$assessment->auditor_file->url.'/'.( !empty($assessment->auditor_file->filename) ? $assessment->auditor_file->filename : 'null' ))}}" 
-                    title="{{ !empty($assessment->auditor_file->filename) ? $assessment->auditor_file->filename :  basename($assessment->auditor_file->url) }}" target="_blank">
-                    {!! HP::FileExtension($assessment->auditor_file->url)  ?? '' !!}
-                </a>
+    {{-- <div class="col-md-6">
+        <div class="form-group {{ $errors->has('report_date') ? 'has-error' : ''}}">
+            {!! HTML::decode(Form::label('report_date', '<span class="text-danger">*</span> '.'วันที่ทำรายงาน'.' :', ['class' => 'col-md-3 control-label'])) !!}
+            <div class="col-md-4">
+                <div class="input-group">     
+                    {!! Form::text('report_date', 
+                    !empty($assessment->report_date) ? HP::revertDate($assessment->report_date,true) :  null,  
+                    ['class' => 'form-control mydatepicker', 'id'=>'SaveDate',
+                    'placeholder'=>'dd/mm/yyyy','disabled'=>true])!!}
+                    <span class="input-group-addon"><i class="icon-calender"></i></span>
+                </div>
             </div>
         </div>
-    @endif
-  <hr>
+    </div> --}}
 
-    <div class="form-group {{ $errors->has('laboratory_name') ? 'has-error' : ''}}">
-        {!! HTML::decode(Form::label('laboratory_name', '<span class="text-danger">*</span> '.'รายงานข้อบกพร่อง'.' :', ['class' => 'col-md-3 control-label'])) !!}
-        <div class="col-md-7">
-            <div class="row">
-                <label class="col-md-3">
-                    {!! Form::radio('bug_report', '1', false , ['class'=>'check check-readonly', 'data-radio'=>'iradio_square-green','required'=>'required']) !!}  มี
-                </label>
-                <label class="col-md-3">
-                    {!! Form::radio('bug_report', '2', true, ['class'=>'check check-readonly', 'data-radio'=>'iradio_square-red','required'=>'required']) !!} ไม่มี
-                </label>
+
+    <div class="col-md-6">
+        @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment5To) &&  in_array($assessment->degree,[7])) 
+            <div class="form-group {{ $errors->has('') ? 'has-error' : ''}}">
+                {!! HTML::decode(Form::label('', '<span class="text-danger">*</span> '.'รายงานปิด Car'.' :', ['class' => 'col-md-3 control-label'])) !!}
+                <div class="col-md-4">
+                    <a href="{{url('funtions/get-view/'.$assessment->FileAttachAssessment5To->url.'/'.( !empty($assessment->FileAttachAssessment5To->filename) ? $assessment->FileAttachAssessment5To->filename : 'null' ))}}" 
+                        title="{{ !empty($assessment->FileAttachAssessment5To->filename) ? $assessment->FileAttachAssessment5To->filename :  basename($assessment->FileAttachAssessment5To->url) }}" target="_blank">
+                        {!! HP::FileExtension($assessment->FileAttachAssessment5To->url)  ?? '' !!}
+                    </a>   
+                </div>
+            </div>
+        @endif
+    </div>
+
+    <div class="col-md-6">  
+        <div class="form-group {{ $errors->has('report_date') ? 'has-error' : ''}}">
+            {!! HTML::decode(Form::label('report_date', '<span class="text-danger">*</span> '.'รายงานการตรวจประเมิน'.' :', ['class' => 'col-md-3 control-label'])) !!}
+            <div class="col-md-4">
+                @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
+                            <p id="RemoveFlie">
+                                <a href="{{url('funtions/get-view/'.$assessment->FileAttachAssessment1To->url.'/'.( !empty($assessment->FileAttachAssessment1To->filename) ? $assessment->FileAttachAssessment1To->filename : 'null' ))}}" 
+                                    title="{{ !empty($assessment->FileAttachAssessment1To->filename) ? $assessment->FileAttachAssessment1To->filename :  basename($assessment->FileAttachAssessment1To->url) }}" target="_blank">
+                                    {!! HP::FileExtension($assessment->FileAttachAssessment1To->url)  ?? '' !!}
+                                </a>
+                    
+
+                            {{-- <button class="btn btn-danger btn-xs div_hide" type="button"
+                                onclick="RemoveFlie({{$assessment->FileAttachAssessment1To->id}})">
+                                <i class="icon-close"></i>
+                            </button>      --}}
+                        </p>
+                        {{-- <div id="AddFile"></div>       --}}
+                @endif
             </div>
         </div>
     </div>
-    <div class="form-group {{ $errors->has('report_date') ? 'has-error' : ''}}">
-        {!! HTML::decode(Form::label('report_date', '<span class="text-danger">*</span> '.'วันที่ทำรายงาน'.' :', ['class' => 'col-md-3 control-label'])) !!}
-        <div class="col-md-4">
-            <div class="input-group">     
-                {!! Form::text('report_date', 
-                !empty($assessment->report_date) ? HP::revertDate($assessment->report_date,true) :  null,  
-                ['class' => 'form-control mydatepicker', 'id'=>'SaveDate',
-                  'placeholder'=>'dd/mm/yyyy','disabled'=>true])!!}
-                <span class="input-group-addon"><i class="icon-calender"></i></span>
-            </div>
-        </div>
-    </div>
-    <div class="form-group {{ $errors->has('report_date') ? 'has-error' : ''}}">
-        {!! HTML::decode(Form::label('report_date', '<span class="text-danger">*</span> '.'รายงานการตรวจประเมิน'.' :', ['class' => 'col-md-3 control-label'])) !!}
-        <div class="col-md-4">
-              @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
-                        <p id="RemoveFlie">
-                            <a href="{{url('funtions/get-view/'.$assessment->FileAttachAssessment1To->url.'/'.( !empty($assessment->FileAttachAssessment1To->filename) ? $assessment->FileAttachAssessment1To->filename : 'null' ))}}" 
-                                title="{{ !empty($assessment->FileAttachAssessment1To->filename) ? $assessment->FileAttachAssessment1To->filename :  basename($assessment->FileAttachAssessment1To->url) }}" target="_blank">
-                                {!! HP::FileExtension($assessment->FileAttachAssessment1To->url)  ?? '' !!}
+
+      <div class="col-md-6">
+        <div class="form-group {{ $errors->has('report_date') ? 'has-error' : ''}}">
+            {!! HTML::decode(Form::label('report_date', '<span class="text-danger">*</span> '.'รายงานงานปิด Car'.' :', ['class' => 'col-md-3 control-label'])) !!}
+            <div class="col-md-4">
+                @if ($assessment->trackingIbReportTwo !== null)
+                    <input type="hidden" id="tracking_report_info_id" value="{{$assessment->trackingIbReportTwo->id}}">
+                    @if ($assessment->trackingIbReportTwo->status == "1" || $assessment->trackingIbReportTwo->status == null)
+                            <a href="{{route('certificate.assessment-ib.view_ib_report_two',['id' => $assessment->id])}}"
+                                title="จัดทำรายงาน" class="btn btn-warning">
+                                รายงานที่2
                             </a>
-                
-
-                        <button class="btn btn-danger btn-xs div_hide" type="button"
-                            onclick="RemoveFlie({{$assessment->FileAttachAssessment1To->id}})">
-                            <i class="icon-close"></i>
-                        </button>     
-                    </p>
-                    <div id="AddFile"></div>      
-              @endif
+                        @else
+                                <a href="{{route('certificate.assessment-ib.view_ib_report_two',['id' => $assessment->id])}}"
+                                title="จัดทำรายงาน" class="btn btn-info">
+                                รายงานที่2
+                            </a>
+                    @endif 
+                     
+                @else
+                    <a href="{{route('certificate.assessment-ib.view_ib_report_two',['id' => $assessment->id])}}"
+                        title="จัดทำรายงาน" class="btn btn-warning">
+                        รายงานที่2
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
-    @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment5To) &&  in_array($assessment->degree,[7])) 
-    <div class="form-group {{ $errors->has('') ? 'has-error' : ''}}">
-        {!! HTML::decode(Form::label('', '<span class="text-danger">*</span> '.'รายงานปิด Car'.' :', ['class' => 'col-md-3 control-label'])) !!}
-        <div class="col-md-4">
-            <a href="{{url('funtions/get-view/'.$assessment->FileAttachAssessment5To->url.'/'.( !empty($assessment->FileAttachAssessment5To->filename) ? $assessment->FileAttachAssessment5To->filename : 'null' ))}}" 
-                title="{{ !empty($assessment->FileAttachAssessment5To->filename) ? $assessment->FileAttachAssessment5To->filename :  basename($assessment->FileAttachAssessment5To->url) }}" target="_blank">
-                {!! HP::FileExtension($assessment->FileAttachAssessment5To->url)  ?? '' !!}
-            </a>   
-        </div>
-    </div>
-    @endif
 
-    <div class="form-group {{ $errors->has('report_date') ? 'has-error' : ''}}">
+    {{-- <div class="col-md-12">
+        <div class="form-group {{ $errors->has('laboratory_name') ? 'has-error' : ''}}">
+            {!! HTML::decode(Form::label('laboratory_name', '<span class="text-danger">*</span> '.'รายงานข้อบกพร่อง'.' :', ['class' => 'col-md-3 control-label'])) !!}
+            <div class="col-md-7">
+                <div class="row">
+                    <label class="col-md-3">
+                        {!! Form::radio('bug_report', '1', false , ['class'=>'check check-readonly', 'data-radio'=>'iradio_square-green','required'=>'required']) !!}  มี
+                    </label>
+                    <label class="col-md-3">
+                        {!! Form::radio('bug_report', '2', true, ['class'=>'check check-readonly', 'data-radio'=>'iradio_square-red','required'=>'required']) !!} ไม่มี
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+
+
+
+
+
+  {{-- <hr> --}}
+
+
+
+
+    {{-- <div class="form-group {{ $errors->has('report_date') ? 'has-error' : ''}}">
         {!! HTML::decode(Form::label('report_date', 'ไฟล์แนบ'.' :', ['class' => 'col-md-3 control-label'])) !!}
         <div class="col-md-7">
                 <div id="other_attach">
@@ -182,12 +262,12 @@
                 @endif
         </div>
     </div>
-  
+   --}}
 
 
 
  
-    </div>
+    {{-- </div> --}}
 </div>
 
                   
@@ -196,7 +276,7 @@
  
                          <div class="clearfix"></div>
                            @if(in_array($assessment->degree,[2,3,4,7,8]))
-                          @include ('certificate/ib/assessment-ib/form.bug')
+                          @include ('certificate.ib.assessment-ib.form.bug')
                           @endif
  
 </div>
@@ -319,6 +399,16 @@
 
 
          function  submit_form(){
+
+            // if ($('.div_hide_show_scope').is(':visible')) {
+            //     console.log('div_hide_show_scope is visible');
+            //     // Add your logic for when the element is shown
+            // } else {
+            //     console.log('div_hide_show_scope is hidden');
+            //     // Add your logic for when the element is hidden
+            // }
+
+            // return;
             var main_state =  $("input[name=main_state]:checked").val();
             let bug_report = '{{ !empty($assessment->bug_report)  ?  $assessment->bug_report : 1 }}';
             let title = '';
@@ -347,10 +437,68 @@
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก'
                 }).then((result) => {
-                    if (result.value) {
+                    // if (result.value) {
+                    //     $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                    //     $('#form_assessment').submit();
+                    // }
+
+
+                    if ($('.div_hide_show_scope').is(':visible')) {
+                        console.log('div_hide_show_scope is visible');
+
+                        
+                        const _token = $('input[name="_token"]').val();
+
+
+                        var tracking_report_info_id = $('#tracking_report_info_id').val();
+
+                        if (typeof tracking_report_info_id === 'undefined' || tracking_report_info_id === null || tracking_report_info_id === '') {
+
+                            return; 
+                        }
+
+                        $.LoadingOverlay("show", {
+                            image: "",
+                            text: "กรุณารอสักครู่..."
+                        });
+                        // เรียก AJAX
+                        $.ajax({
+                            url: "{{route('certificate.assessment-ib.check_is_report_two_signed')}}",
+                            method: "POST",
+                            data: {
+                                _token: _token,
+                                tracking_report_info_id:tracking_report_info_id
+                            },
+                            success: function(result) {
+                                console.log(result)
+                                if (result.status === 'success') {
+                                 
+                                    $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                    $('#form_assessment').submit();
+                                   
+                                } else {
+                                    alert(result.message); // e.g., "ยังไม่ได้สร้างรายงาน" or "ลงนามไม่ครบ"
+                                    $.LoadingOverlay("hide");
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("Error:", error);
+                                alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+                            },
+                            complete: function() {
+                                // ลบ overlay เมื่อคำขอเสร็จสิ้น
+
+                                $.LoadingOverlay("hide");
+                            }
+                        });
+                    
+                    }else{
+                     
                         $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
                         $('#form_assessment').submit();
+                        
                     }
+
             })
         }
  

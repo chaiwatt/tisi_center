@@ -3,14 +3,14 @@
 namespace App\Services;
 use HP;
 
+use TCPDF;
 use Storage;
+
 use App\User;
 
 use stdClass;
-
 use Mpdf\Mpdf;
 use Carbon\Carbon;
-use TCPDF;
 
 use Mpdf\Merger\PdfMerger;
 use Illuminate\Http\Request;
@@ -33,6 +33,7 @@ use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Bcertify\AuditorInformation;
 use App\Models\Certify\CertiSettingPayment;
 use App\Services\CreateLabMessageRecordPdf;
+use App\Models\Bcertify\LabScopeTransaction;
 use App\Models\Certify\Applicant\CostAssessment;
 use App\Models\Certify\MessageRecordTransaction;
 use App\Http\Controllers\API\Checkbill2Controller;
@@ -249,7 +250,7 @@ class CreateLabAssessmentReportPdf
         //     'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo,
         //     'signer' => $signer
         // ]);
-
+        $labScopeTransaction = LabScopeTransaction::where('app_certi_lab_id',$app_certi_lab->id)->first();
 
         $body = view('certify.save_assessment.report-pdf.ia.body', [
             'labReportInfo' => $labReportInfo,
@@ -261,7 +262,8 @@ class CreateLabAssessmentReportPdf
             'labRequest' => $labRequest,
             'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
             'id' => $id,
-            'signer' => $signer
+            'signer' => $signer,
+            'labScopeTransaction' => $labScopeTransaction
         ]);
 
         $footer = view('certify.save_assessment.report-pdf.ia.footer', []);

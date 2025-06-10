@@ -23,13 +23,13 @@
 
                     {!! Form::open(['url' => '/certify/certificate-export-cb', 'class' => 'form-horizontal', 'files' => true,'id'=>"certificate_export_form", 'target'=>"_blank"]) !!}
 
-                    @include ('certify/cb.certificate_export_cb.form')
+                    @include ('certify.cb.certificate_export_cb.form')
 
                     {!! Form::close() !!}
 
                     
-                    @include('certify/cb/certificate_export_cb/modal.add_attachment')
-                    @include('certify/cb/certificate_export_cb/modal.edit_modle')
+                    @include('certify.cb.certificate_export_cb.modal.add_attachment')
+                    @include('certify.cb.certificate_export_cb.modal.edit_modle')
                 </div>
             </div>
         </div>

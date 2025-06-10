@@ -48,6 +48,20 @@ Route::get('/get-otp','MyTestController@getOtp');
 Route::get('/director-sign-mail','MyTestController@directorSignMail');
 Route::get('/check-notice-expire','MyTestController@checkNoticeExpire');
 Route::get('/generate-scope-pdf','MyTestController@generateScopePDF');
+Route::get('/generate-cb-bcms-scope-pdf','MyTestController@generateCbScopeBcmsPdf');
+Route::get('/generate-cb-isic-scope-pdf','MyTestController@generateCbScopeIsicPdf');
+Route::get('/generate-ib-scope-pdf','MyTestController@generateCbScopeIbPdf');
+Route::get('/generate-tracking-lab-report-one-pdf','MyTestController@createTrackingLabAssessmentReportOnePdf');
+
+Route::get('/generate-tracking-ib-report-one-pdf','MyTestController@createTrackingIbAssessmentReportOnePdf');
+Route::get('/generate-tracking-cb-report-one-pdf','MyTestController@createTrackingCbAssessmentReportOnePdf');
+Route::get('/generate-tracking-lab-report-two-pdf','MyTestController@createTrackingLabAssessmentReportTwoPdf');
+
+Route::get('/generate-tracking-ib-report-two-pdf','MyTestController@createTrackingIbAssessmentReportTwoPdf');
+Route::get('/generate-tracking-cb-report-two-pdf','MyTestController@createTrackingCbAssessmentReportTwoPdf');
+
+
+
 Route::get('/create-tracking-message-record','MyTestController@CreateTrackingLabMessageRecord');
 Route::get('/create-message-record','MyTestController@CreateLabMessageRecord');
 Route::get('/gen-tracking-lab-message-record-pdf','MyTestController@genTrackingLabMessageRecordPdf');
@@ -83,13 +97,9 @@ Route::get('/create-ib-assessment-report-pdf','MyTestController@createIbAssessme
 
 Route::get('/demo-email-otp','MyTestController@demoEmailOtp');
 
-
 Route::get('/create-ib-assessment-report-two-pdf','MyTestController@createIbAssessmentReportTwoPdf');
-
-
-
-
-
+Route::get('/create-tracking-ib-message-record-pdf','MyTestController@createTrackingIbMessageRecordPdf');
+Route::get('/create-tracking-cb-message-record-pdf','MyTestController@createTrackingCbMessageRecordPdf');
 
 
 Route::get('/proxy', function (\Illuminate\Http\Request $request) {
@@ -124,14 +134,21 @@ Route::get('/create-by-expert-lab-sur/{notice_id?}','ExternalExpertActionControl
 Route::post('/store-by-expert-lab-sur','ExternalExpertActionController@storeByExpertLabSur')->name('store_by_expert.lab_sur');
 Route::get('/store-by-expert-get-app-lab-sur/{app_no?}','ExternalExpertActionController@storeByExpertGetAppLabSur')->name('store_by_expert_get_app.lab_sur');
 
-
 Route::get('/create-by-cb-expert/{assessment_id?}','ExternalCBExpertActionController@createByCbExpert');
 Route::post('/store-by-cb-expert','ExternalCBExpertActionController@storeByCbExpert')->name('store_by_cb_expert');
 Route::get('/store-by-cb-expert-get-app/{app_no?}','ExternalCBExpertActionController@storeByExpertGetApp')->name('store_by_cb_expert_get_app');
 
+Route::get('/create-by-cb-expert-sur/{assessment_id?}','ExternalCBExpertActionController@createByCbExpertSur');
+Route::post('/store-by-cb-expert-sur','ExternalCBExpertActionController@storeByCbExpertSur')->name('store_by_cb_expert_sur');
+Route::get('/store-by-cb-expert-get-app-sur/{app_no?}','ExternalCBExpertActionController@storeByExpertGetAppSur')->name('store_by_cb_expert_get_app_sur');
+
 Route::get('/create-by-ib-expert/{assessment_id?}','ExternalIBExpertActionController@createByIbExpert');
 Route::post('/store-by-ib-expert','ExternalIBExpertActionController@storeByIbExpert')->name('store_by_ib_expert');
 Route::get('/store-by-ib-expert-get-app/{app_no?}','ExternalIBExpertActionController@storeByExpertGetApp')->name('store_by_ib_expert_get_app');
+
+Route::get('/create-by-ib-expert-sur/{assessment_id?}','ExternalIBExpertActionController@createByIbExpertSur');
+Route::post('/store-by-ib-expert-sur','ExternalIBExpertActionController@storeByIbExpertSur')->name('store_by_ib_expert_sur');
+Route::get('/store-by-ib-expert-get-app-sur/{app_no?}','ExternalIBExpertActionController@storeByExpertGetAppSur')->name('store_by_ib_expert_get_app_sur');
 
 
 // HelperController
@@ -1001,6 +1018,16 @@ Route::post('certificate/assessment-labs/email-to-expert','Certificate\Labs\\Ass
 Route::get('certificate/assessment-labs/view-lab-info/{id?}', 'Certificate\Labs\\AssessmentLabsController@viewLabInfo')->name('certificate.assessment-labs.view_lab_info');
 Route::post('certificate/assessment-labs/update-lab-info', 'Certificate\Labs\\AssessmentLabsController@updateLabInfo')->name('certificate.assessment-labs.update-lab-info');
 
+Route::get('certificate/assessment-labs/view-lab-report-one/{id?}', 'Certificate\Labs\\AssessmentLabsController@viewLabReportOne')->name('certificate.assessment-labs.view_lab_report_one');
+Route::post('certificate/tracking-lab/update-lab-report-one', 'Certificate\Labs\\AssessmentLabsController@updateLabReportOne')->name('certificate.assessment-labs.update_lab_report_one');
+
+Route::get('certificate/assessment-labs/view-lab-report-two/{id?}', 'Certificate\Labs\\AssessmentLabsController@viewLabReportTwo')->name('certificate.assessment-labs.view_lab_report_two');
+Route::post('certificate/tracking-lab/update-lab-report-two', 'Certificate\Labs\\AssessmentLabsController@updateLabReportTwo')->name('certificate.assessment-labs.update_lab_report_two');
+
+
+Route::post('certificate/tracking-lab/get-signed-count', 'Certificate\Labs\\AssessmentLabsController@checkIsReportSigned')->name('certificate.assessment-labs.check_is_report_signed');
+Route::post('certificate/tracking-lab/get-signed-report-two-count', 'Certificate\Labs\\AssessmentLabsController@checkIsReportTwoSigned')->name('certificate.assessment-labs.check_is_report_two_signed');
+
 Route::get('certificate/tracking-assessment-report-assignment/', 'Certificate\Labs\\TrackingSignAssessmentReportController@index');
 Route::get('certificate/tracking-assessment-report-assignment/data-list', 'Certificate\Labs\\TrackingSignAssessmentReportController@dataList')->name('certificate.assessment_report_assignment.dataList');
 Route::get('certificate/tracking-assessment-report-assignment/get-signer', 'Certificate\Labs\\TrackingSignAssessmentReportController@getSigner')->name('certificate.assessment_report_assignment.get_signer');
@@ -1036,7 +1063,30 @@ Route::get('certificate/tracking-cb/assign_cb', 'Certificate\Cb\\TrackingCbContr
 Route::get('certificate/tracking-cb/data_list', 'Certificate\Cb\\TrackingCbController@data_list');
 Route::get('certificate/tracking-cb/modal_status_auditor', 'Certificate\Cb\\TrackingCbController@modal_status_auditor');
 Route::resource('certificate/tracking-cb', 'Certificate\Cb\\TrackingCbController');
-// แต่งตั้งคณะฯ (LAB)
+
+
+//แต่งตั้งคณะผู้ตรวจประเมินเอกสาร (CB)
+Route::get('certificate/auditor_cb_doc_review/auditor_cb_doc_review_index', 'Certificate\Cb\\AuditorCbController@auditor_cb_doc_review_index')->name('tracking.auditor_cb_doc_review_index');
+Route::get('certificate/auditor_cb_doc_review/auditor_cb_doc_review/{id}', 'Certificate\Cb\\AuditorCbController@auditor_cb_doc_review')->name('tracking.auditor_cb_doc_review');
+Route::post('certificate/auditor_cb_doc_review/auditor_cb_doc_review_store', 'Certificate\Cb\\AuditorCbController@auditor_cb_doc_review_store')->name('tracking.auditor_cb_doc_review_store');
+Route::get('certificate/auditor_cb_doc_review/auditor_cb_doc_review_edit/{id}', 'Certificate\Cb\\AuditorCbController@auditor_cb_doc_review_edit')->name('tracking.auditor_cb_doc_review_edit');
+Route::put('certificate/auditor_cb_doc_review/auditor_cb_doc_review_update/{id}', 'Certificate\Cb\\AuditorCbController@auditor_cb_doc_review_update')->name('tracking.auditor_cb_doc_review_update');
+Route::post('certificate/auditor_cb_doc_review/bypass_doc_auditor_assignment', 'Certificate\Cb\\AuditorCbController@bypass_doc_auditor_assignment')->name('tracking.bypass_cb_doc_auditor_assignment');
+Route::post('certificate/auditor_cb_doc_review/cancel_doc_review_team', 'Certificate\Cb\\AuditorCbController@cancel_doc_review_team')->name('tracking.cb_cancel_doc_review_team');
+Route::post('certificate/auditor_cb_doc_review/reject_doc_review', 'Certificate\Cb\\AuditorCbController@reject_doc_review')->name('tracking.cb_reject_doc_review');
+Route::post('certificate/auditor_cb_doc_review/accept_doc_review', 'Certificate\Cb\\AuditorCbController@accept_doc_review')->name('tracking.cb_accept_doc_review');
+
+Route::get('certificate/auditor_cb_doc_review/auditor_cb_doc_review_result_show/{id}', 'Certificate\Cb\\AuditorCbController@auditor_cb_doc_review_result_show')->name('tracking.auditor_cb_doc_review_result_show');
+Route::put('certificate/auditor_cb_doc_review/auditor_cb_doc_review_result_update/{id}', 'Certificate\Cb\\AuditorCbController@auditor_cb_doc_review_result_update')->name('tracking.auditor_cb_doc_review_result_update');
+
+Route::get('certificate/auditor_cb_doc_review/save_board_auditor_doc_review_index', 'Certificate\Cb\\AuditorCbController@save_board_auditor_doc_review_index')->name('tracking.save_board_auditor_doc_review_index');
+
+Route::get('certificate/auditor_cb_doc_review/create-tracking-cb-message-record/{id?}', 'Certificate\Cb\\AuditorCbController@CreateTrackingCbMessageRecord')->name('certificate.auditor-cbs.create-tracking-cb-message-record');
+Route::post('certificate/auditor_cb_doc_review/save-cb-tracking-message-record/{id?}', 'Certificate\Cb\\AuditorCbController@SaveTrackingCbMessageRecord')->name('certificate.auditor-cbs.save-tracking-cb-message-record');
+Route::get('certificate/auditor_cb_doc_review/view-cb-tracking-message-record/{id?}', 'Certificate\Cb\\AuditorCbController@ViewTrackingCbMessageRecord')->name('certificate.auditor-cbs.view-tracking-cb-message-record');
+
+
+// แต่งตั้งคณะฯ (CB)
 Route::post('certificate/auditor-cbs/create', 'Certificate\Cb\\AuditorCbController@create');
 Route::get('certificate/auditor-cbs/data_list', 'Certificate\Cb\\AuditorCbController@data_list');
 Route::resource('certificate/auditor-cbs', 'Certificate\Cb\\AuditorCbController');
@@ -1047,14 +1097,35 @@ Route::get('certificate/tracking-cb/Pay_In1/{id?}', 'Certificate\Cb\\TrackingCbC
 
 // บันทึกผลการตรวจประเมิน
 Route::post('certificate/assessment-cb/update/{id?}', 'Certificate\Cb\\AssessmentCbController@update_assessment');
+
+Route::post('certificate/assessment-cb/email-to-expert','Certificate\Cb\\AssessmentCbController@emailToExpert')->name('certificate.assessment-cb.email_to_expert');
+
 Route::get('certificate/assessment-cb/certi_cb', 'Certificate\Cb\\AssessmentCbController@data_certi');
 Route::get('certificate/assessment-cb/data_list', 'Certificate\Cb\\AssessmentCbController@data_list');
 Route::resource('certificate/assessment-cb', 'Certificate\Cb\\AssessmentCbController');
+
+
+
+Route::get('certificate/assessment-cb/view-cb-report-one/{id?}', 'Certificate\Cb\\AssessmentCbController@viewCbReportOne')->name('certificate.assessment-cb.view_cb_report_one');
+Route::post('certificate/assessment-cb/update-cb-report-one', 'Certificate\Cb\\AssessmentCbController@updateCbReportOne')->name('certificate.assessment-cb.update_cb_report_one');
+
+Route::get('certificate/assessment-cb/view-cb-report-two/{id?}', 'Certificate\Cb\\AssessmentCbController@viewCbReportTwo')->name('certificate.assessment-cb.view_cb_report_two');
+Route::post('certificate/assessment-cb/update-cb-report-two', 'Certificate\Cb\\AssessmentCbController@updateCbReportTwo')->name('certificate.assessment-cb.update_cb_report_two');
+
+
+Route::post('certificate/assessment-cb/get-signer', 'Certificate\Cb\\AssessmentCbController@getSigner')->name('certificate.assessment-cb.get_signer');
+
+
+Route::post('certificate/assessment-cb/get-signed-count', 'Certificate\Cb\\AssessmentCbController@checkIsReportSigned')->name('certificate.assessment-cb.check_is_report_signed');
+Route::post('certificate/assessment-cb/get-signed-count-report-two', 'Certificate\Cb\\AssessmentCbController@checkIsReportTwoSigned')->name('certificate.assessment-cb.check_is_report_two_signed');
+
+
 // สรุปผลตรวจประเมิน
 Route::get('certificate/inspection-cb/{id?}', 'Certificate\Cb\\TrackingCbController@inspection');
 Route::post('certificate/tracking-cb/update_inspection/{id?}', 'Certificate\Cb\\TrackingCbController@update_inspection');
 // สรุปรายงาน
 Route::post('certificate/tracking-cb/update_report/{id?}', 'Certificate\Cb\\TrackingCbController@update_report');
+Route::post('certificate/request-edit-cb-scope', 'Certificate\Cb\\TrackingCbController@requestEditScopeFromTracking')->name('api_request_edit_cb_scope_from_tracking');
 // ทบทวนฯ
 Route::post('certificate/tracking-cb/update_review/{id?}', 'Certificate\Cb\\TrackingCbController@update_review');
 //  Pay-in ครั้งที่ 2
@@ -1076,6 +1147,31 @@ Route::get('certificate/tracking-ib/assign_ib', 'Certificate\Ib\\TrackingIbContr
 Route::get('certificate/tracking-ib/data_list', 'Certificate\Ib\\TrackingIbController@data_list');
 Route::get('certificate/tracking-ib/modal_status_auditor', 'Certificate\Ib\\TrackingIbController@modal_status_auditor');
 Route::resource('certificate/tracking-ib', 'Certificate\Ib\\TrackingIbController');
+
+
+//แต่งตั้งคณะผู้ตรวจประเมินเอกสาร (IB)
+Route::get('certificate/auditor_ib_doc_review/auditor_ib_doc_review_index', 'Certificate\Ib\\AuditorIbController@auditor_ib_doc_review_index')->name('tracking.auditor_ib_doc_review_index');
+Route::get('certificate/auditor_ib_doc_review/auditor_ib_doc_review/{id}', 'Certificate\Ib\\AuditorIbController@auditor_ib_doc_review')->name('tracking.auditor_ib_doc_review');
+Route::post('certificate/auditor_ib_doc_review/auditor_ib_doc_review_store', 'Certificate\Ib\\AuditorIbController@auditor_ib_doc_review_store')->name('tracking.auditor_ib_doc_review_store');
+Route::get('certificate/auditor_ib_doc_review/auditor_ib_doc_review_edit/{id}', 'Certificate\Ib\\AuditorIbController@auditor_ib_doc_review_edit')->name('tracking.auditor_ib_doc_review_edit');
+Route::put('certificate/auditor_ib_doc_review/auditor_ib_doc_review_update/{id}', 'Certificate\Ib\\AuditorIbController@auditor_ib_doc_review_update')->name('tracking.auditor_ib_doc_review_update');
+Route::post('certificate/auditor_ib_doc_review/bypass_doc_auditor_assignment', 'Certificate\Ib\\AuditorIbController@bypass_doc_auditor_assignment')->name('tracking.bypass_ib_doc_auditor_assignment');
+Route::post('certificate/auditor_ib_doc_review/cancel_doc_review_team', 'Certificate\Ib\\AuditorIbController@cancel_doc_review_team')->name('tracking.ib_cancel_doc_review_team');
+Route::post('certificate/auditor_ib_doc_review/reject_doc_review', 'Certificate\Ib\\AuditorIbController@reject_doc_review')->name('tracking.ib_reject_doc_review');
+Route::post('certificate/auditor_ib_doc_review/accept_doc_review', 'Certificate\Ib\\AuditorIbController@accept_doc_review')->name('tracking.ib_accept_doc_review');
+
+Route::get('certificate/auditor_ib_doc_review/auditor_ib_doc_review_result_show/{id}', 'Certificate\Ib\\AuditorIbController@auditor_ib_doc_review_result_show')->name('tracking.auditor_ib_doc_review_result_show');
+Route::put('certificate/auditor_ib_doc_review/auditor_ib_doc_review_result_update/{id}', 'Certificate\Ib\\AuditorIbController@auditor_ib_doc_review_result_update')->name('tracking.auditor_ib_doc_review_result_update');
+
+Route::get('certificate/auditor_ib_doc_review/save_board_auditor_doc_review_index', 'Certificate\Ib\\AuditorIbController@save_board_auditor_doc_review_index')->name('tracking.save_board_auditor_doc_review_index');
+
+
+Route::get('certificate/auditor_ib_doc_review/create-tracking-ib-message-record/{id?}', 'Certificate\Ib\\AuditorIbController@CreateTrackingIbMessageRecord')->name('certificate.auditor-ibs.create-tracking-ib-message-record');
+Route::post('certificate/auditor_ib_doc_review/save-ib-tracking-message-record/{id?}', 'Certificate\Ib\\AuditorIbController@SaveTrackingIbMessageRecord')->name('certificate.auditor-ibs.save-tracking-ib-message-record');
+Route::get('certificate/auditor_ib_doc_review/view-ib-tracking-message-record/{id?}', 'Certificate\Ib\\AuditorIbController@ViewTrackingIbMessageRecord')->name('certificate.auditor-ibs.view-tracking-ib-message-record');
+
+
+
 // แต่งตั้งคณะฯ (IB)
 Route::post('certificate/auditor-ibs/create', 'Certificate\Ib\\AuditorIbController@create');
 Route::post('certificate/auditor-ibs/update_delete/{id}', 'Certificate\Ib\\AuditorIbController@update_delete');
@@ -1087,12 +1183,26 @@ Route::get('certificate/tracking-ib/check/pay_in', 'Certificate\Ib\\TrackingIbCo
 Route::get('certificate/tracking-ib/Pay_In1/{id?}', 'Certificate\Ib\\TrackingIbController@Pay_In1');
 // บันทึกผลการตรวจประเมิน
 Route::post('certificate/assessment-ib/update/{id?}', 'Certificate\Ib\\AssessmentIbController@update_assessment');
+
+Route::post('certificate/assessment-ib/email-to-expert','Certificate\Ib\\AssessmentIbController@emailToExpert')->name('certificate.assessment-ib.email_to_expert');
+
 Route::get('certificate/assessment-ib/certi_ib', 'Certificate\Ib\\AssessmentIbController@data_certi');
 Route::get('certificate/assessment-ib/data_list', 'Certificate\Ib\\AssessmentIbController@data_list');
 Route::resource('certificate/assessment-ib', 'Certificate\Ib\\AssessmentIbController');
+
+Route::get('certificate/assessment-ib/view-ib-report-one/{id?}', 'Certificate\Ib\\AssessmentIbController@viewIbReportOne')->name('certificate.assessment-ib.view_ib_report_one');
+Route::post('certificate/assessment-ib/update-ib-report-one', 'Certificate\Ib\\AssessmentIbController@updateIbReportOne')->name('certificate.assessment-ib.update_ib_report_one');
+
+Route::get('certificate/assessment-ib/view-ib-report-two/{id?}', 'Certificate\Ib\\AssessmentIbController@viewIbReportTwo')->name('certificate.assessment-ib.view_ib_report_two');
+Route::post('certificate/assessment-ib/update-ib-report-two', 'Certificate\Ib\\AssessmentIbController@updateIbReportTwo')->name('certificate.assessment-ib.update_ib_report_two');
+
+Route::post('certificate/assessment-ib/get-signed-count', 'Certificate\Ib\\AssessmentIbController@checkIsReportSigned')->name('certificate.assessment-ib.check_is_report_signed');
+Route::post('certificate/assessment-ib/get-signed-count-report-two', 'Certificate\Ib\\AssessmentIbController@checkIsReportTwoSigned')->name('certificate.assessment-ib.check_is_report_two_signed');
+
 // สรุปผลตรวจประเมิน
 Route::get('certificate/inspection-ib/{id?}', 'Certificate\Ib\\TrackingIbController@inspection');
 Route::post('certificate/tracking-ib/update_inspection/{id?}', 'Certificate\Ib\\TrackingIbController@update_inspection');
+Route::post('certificate/request-edit-ib-scope', 'Certificate\Ib\\TrackingIbController@requestEditScopeFromTracking')->name('api_request_edit_ib_scope_from_tracking');
 // สรุปรายงาน
 Route::post('certificate/tracking-ib/update_report/{id?}', 'Certificate\Ib\\TrackingIbController@update_report');
 // ทบทวนฯ

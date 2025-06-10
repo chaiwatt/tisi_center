@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Certify\Applicant\Report;
 use App\Models\Bcertify\CalibrationBranch;
 use App\Models\Certify\Applicant\CertiLab;
+use App\Models\Bcertify\LabScopeTransaction;
 use App\Models\Certify\Applicant\CertiLabAttachAll;
 use App\Models\Bcertify\CalibrationBranchInstrument;
 use App\Models\Bcertify\CalibrationBranchInstrumentGroup;
@@ -34,10 +35,12 @@ class CreateLabScopePdf
         $app_certi_lab = CertiLab::find($this->certi_lab_id);
         // dd($app_certi_lab->lab_type);
         if($app_certi_lab->lab_type == 3 ){
-            $this->generatePdfLabTestScope($this->certi_lab_id);
+            $this->genTestPdf($this->certi_lab_id);
+            // $this->generatePdfLabTestScope($this->certi_lab_id);
         }else if($app_certi_lab->lab_type == 4)
         {
-            $this->generatePdfLabCalScope($this->certi_lab_id);
+            $this->genCalPdf($this->certi_lab_id);
+            // $this->generatePdfLabCalScope($this->certi_lab_id);
         }
         // ตัวอย่าง: สร้าง PDF หรือดึงข้อมูล
         // อาจใช้ library เช่น DomPDF หรือ mPDF
@@ -55,6 +58,528 @@ class CreateLabScopePdf
             'scope' => 'Test Scope',
         ];
     }
+
+    public function genCalPdf($id)
+    {
+     
+        $labScopeTransaction = LabScopeTransaction::where('app_certi_lab_id', $id)->where('lab_type', 'main')->first();
+        $certiLab = CertiLab::find($id);
+    
+        // ตรวจสอบว่าพบ $labScopeTransaction หรือไม่
+        if (!$labScopeTransaction) {
+            throw new \Exception("ไม่พบข้อมูล LabScopeTransaction สำหรับ ID: {$id}");
+        }
+        $labTypes = json_decode($labScopeTransaction->lab_types, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($labTypes)) {
+            $labTypes = [
+                'pl_2_1_info' => [],
+                'pl_2_2_info' => [],
+                'pl_2_3_info' => [],
+                'pl_2_4_info' => [],
+                'pl_2_5_info' => []
+            ];
+        }
+    
+        // วนลูปสร้าง PDF สำหรับแต่ละ lab_type
+        $pdfContents = [];
+        $mpdfArray = [];
+        $siteType = "single";
+        foreach ($labTypes as $key => $labType) {
+            // ตรวจสอบว่า labType มีข้อมูลหรือไม่
+            if (is_array($labType) && count($labType) > 0) {
+
+                // dd($key);
+                
+                // คำนวณ index จาก key (เช่น pl_2_1_info -> index = 0)
+                $index = (int) str_replace(['pl_2_', '_info'], '', $key) - 1;
+    
+                // สร้าง mPDF instance ใหม่สำหรับแต่ละ lab_type
+                $type = 'I';
+                $fontDirs = [public_path('pdf_fonts/')];
+                $fontData = [
+                    'thsarabunnew' => [
+                        'R' => "THSarabunNew.ttf",
+                        'B' => "THSarabunNew-Bold.ttf",
+                        'I' => "THSarabunNew-Italic.ttf",
+                        'BI' => "THSarabunNew-BoldItalic.ttf",
+                    ],
+                    'dejavusans' => [
+                        'R' => "DejaVuSans.ttf",
+                        'B' => "DejaVuSans-Bold.ttf",
+                        'I' => "DejaVuSerif-Italic.ttf",
+                        'BI' => "DejaVuSerif-BoldItalic.ttf",
+                    ],
+                ];
+    
+                $mpdf = new Mpdf([
+                    'PDFA' => $type == 'F' ? true : false,
+                    'PDFAauto' => $type == 'F' ? true : false,
+                    'format' => 'A4',
+                    'mode' => 'utf-8',
+                    'default_font_size' => '15',
+                    'fontDir' => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+                    'fontdata' => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+                    'default_font' => 'thsarabunnew',
+                    'fontdata_fallback' => ['dejavusans', 'freesans', 'arial'],
+                    'mode' => 'utf-8',
+                    'margin_left' => 8,
+                    'margin_right' => 3,
+                    'margin_top' => 100,
+                    'margin_bottom' => 50,
+                ]);
+    
+                $stylesheet = file_get_contents(public_path('css/report/lab-scope.css'));
+                $mpdf->WriteHTML($stylesheet, 1);
+    
+                $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, '', [170, 4]);
+                $mpdf->showWatermarkImage = true;
+                
+
+
+                        
+                $report = Report::where('app_certi_lab_id',$id)->first();
+            
+                $from_date_th = '';
+                $from_date_en = '';
+                $to_date_th = '';
+                $to_date_en = '';
+                $certificate_no = 'xx-LBxxxx';
+                if($report !== null){
+                        $from_date_th = HP::formatDateThaiFull($report->start_date);
+                        $to_date_th = HP::formatDateThaiFull($report->end_date);
+                        $from_date_en = $this->formatThaiDate($report->start_date);
+                        $to_date_en = $this->formatThaiDate($report->end_date);
+                }
+
+                $running =  Report::get()->count();
+                $running_no =  str_pad(($running + 1), 4, '0', STR_PAD_LEFT);
+                $certi_lab = CertiLab::find($id);
+                $export_lab = CertificateExport::where('request_number', $certi_lab->app_no)->first();
+
+                if($export_lab !== null){
+                    if($export_lab->certificate_no !== null)
+                    {
+                        $certificate_no = $export_lab->certificate_no;
+                    }
+                }
+                
+                $book_no = '01';
+                $pdfData =  (object)[
+                    'certificate_no' => $certificate_no,
+                    'acc_no' => $running_no,
+                    'book_no' => $book_no,
+                    'from_date_th' => $from_date_th,
+                    'from_date_en' => $from_date_en,
+                    'to_date_th' => $to_date_th,
+                    'to_date_en' => $to_date_en,
+                    'siteType' => $siteType
+                ];
+
+
+                // $pdfData =  (object)[
+                //     'certificate_no' => 'xxx',
+                //     'acc_no' => 'xxx',
+                //     'book_no' => 'xxx',
+                //     'from_date_th' => 'xxx',
+                //     'from_date_en' => 'xxx',
+                //     'to_date_th' => 'xxx',
+                //     'to_date_en' => 'xxx',
+                //     'siteType' => 'single'
+                // ];
+
+                $viewBlade = "certify.scope_pdf.calibration.cal-scope-header";
+                $header = view($viewBlade, [
+                    'pdfData' => $pdfData,
+                    'key' => $key,
+                    'certiLab' => $certiLab
+                ]);
+              
+                $mpdf->SetHTMLHeader($header, 2);
+                $formattedLabType = [];
+                
+                foreach ($labType as $item) {
+                    $formattedLabType[] = [
+                        'cal_main_branch' => [
+                            'id' => $item['cal_main_branch_id'] ?? '',
+                            'text' => $item['cal_main_branch_text'] ?? '',
+                            'text_en' => $item['cal_main_branch_text_en'] ?? ''
+                        ],
+                        'cal_instrumentgroup' => [
+                            'id' => $item['cal_instrumentgroup_id'] ?? '',
+                            'text' => $item['cal_instrumentgroup_text'] ?? ''
+                        ],
+                        'cal_instrument' => [
+                            'id' => $item['cal_instrument_id'] ?? '',
+                            'text' => $item['cal_instrument_text'] ?? ''
+                        ],
+                        'cal_parameter_one' => [
+                            'id' => $item['cal_parameter_one_id'] ?? '',
+                            'text' => $item['cal_parameter_one_text'] ?? ''
+                        ],
+                        'cal_parameter_two' => [
+                            'id' => $item['cal_parameter_two_id'] ?? '',
+                            'text' => $item['cal_parameter_two_text'] ?? ''
+                        ],
+                        'cal_standard' => $item['cal_standard'] ?? '',
+                        'cal_cmc_info' => $item['cal_cmc_info'] ?? [],
+                        'global_measture_description' => $item['global_measture_description'] ?? []
+                    ];
+                }
+                // dd('sss');
+                // เรนเดอร์ HTML สำหรับ lab_type ปัจจุบัน
+                $html = view('certify.scope_pdf.calibration.pdf-cal-scope', [
+                    'labType' => $formattedLabType,
+                    'index' => $index
+                ]);
+                $mpdf->WriteHTML($html);
+
+                // $title = "mypdf.pdf";
+    
+                // $mpdf->Output($title, "I");  
+                $mpdfArray[$key] = $mpdf;
+
+                
+            }
+        }
+
+        $combinedPdf = new \Mpdf\Mpdf([
+            'PDFA'             => $type == 'F' ? true : false,
+            'PDFAauto'         => $type == 'F' ? true : false,
+            'format'           => 'A4',
+            'mode'             => 'utf-8',
+            'default_font_size'=> '15',
+            'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+            'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+            'default_font'     => 'thsarabunnew',
+            'fontdata_fallback' => ['dejavusans', 'freesans', 'arial'],
+            'mode' => 'utf-8',
+        ]);
+  
+        $combinedPdf->SetImportUse();
+        
+        // สร้างไฟล์ PDF ชั่วคราวจาก `$mpdfArray`
+        $tempFiles = []; // เก็บรายชื่อไฟล์ชั่วคราว
+        foreach ($mpdfArray as $key => $mpdf) {
+            $tempFileName = "{$key}.pdf"; // เช่น main.pdf, branch0.pdf
+            $mpdf->Output($tempFileName, \Mpdf\Output\Destination::FILE); // บันทึก PDF ชั่วคราว
+            $tempFiles[] = $tempFileName;
+        }
+  
+        // รวม PDF
+        foreach ($tempFiles as $fileName) {
+            $pageCount = $combinedPdf->SetSourceFile($fileName); // เปิดไฟล์ PDF
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $templateId = $combinedPdf->ImportPage($i);
+                $combinedPdf->AddPage();
+                $combinedPdf->UseTemplate($templateId);
+  
+  
+              $signImage = null;
+                
+                $footer = view('certify.scope_pdf.calibration.cal-scope-footer', [
+                    'sign1Image' => $signImage, // ส่งรูปภาพที่ต้องการใช้
+                    'sign2Image' => $signImage,
+                    'sign3Image' => $signImage
+                ])->render();
+  
+                // ตั้งค่า Footer ใหม่สำหรับหน้า PDF
+                $combinedPdf->SetHTMLFooter($footer);
+            }
+        }
+  
+      //   $combinedPdf->Output('combined.pdf', \Mpdf\Output\Destination::INLINE);
+  
+    //   $title = "mypdf.pdf";
+      
+    //   $combinedPdf->Output($title, "I"); 
+
+      $app_certi_lab = CertiLab::find($id);
+      $no = str_replace("RQ-", "", $app_certi_lab->app_no);
+      $no = str_replace("-", "_", $no);
+  
+      $attachPath = '/files/applicants/check_files/' . $no . '/';
+      $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+  
+      // สร้างไฟล์ชั่วคราว
+      $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+  
+      // บันทึก PDF ไปยังไฟล์ชั่วคราว
+      $combinedPdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);
+  
+      // ใช้ Storage::putFileAs เพื่อย้ายไฟล์
+      Storage::putFileAs($attachPath, new \Illuminate\Http\File($tempFilePath), $fullFileName);
+  
+      $storePath = $no  . '/' . $fullFileName;
+  
+      // ลบไฟล์ชั่วคราว
+      foreach ($tempFiles as $fileName) {
+          unlink($fileName);
+      }
+  
+      $certi_lab_attach = new CertiLabAttachAll();
+      $certi_lab_attach->app_certi_lab_id = $id;
+      $certi_lab_attach->file_section     = "62";
+      $certi_lab_attach->file             = $storePath;
+      $certi_lab_attach->file_client_name = $no . '_scope_'.now()->format('Ymd_His').'.pdf';
+      $certi_lab_attach->token            = str_random(16);
+      $certi_lab_attach->default_disk = config('filesystems.default');
+      $certi_lab_attach->save();
+    
+    }
+
+    public function genTestPdf($id)
+    {
+        $labScopeTransaction = LabScopeTransaction::where('app_certi_lab_id', $id)->where('lab_type', 'main')->first();
+        $certiLab = CertiLab::find($id);
+    
+        // ตรวจสอบว่าพบ $labScopeTransaction หรือไม่
+        if (!$labScopeTransaction) {
+            throw new \Exception("ไม่พบข้อมูล LabScopeTransaction สำหรับ ID: {$id}");
+        }
+    
+        // Decode lab_types จาก JSON string เป็น array
+        $labTypes = json_decode($labScopeTransaction->lab_types, true);
+    
+        // ตรวจสอบว่าการ decode สำเร็จหรือไม่
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($labTypes)) {
+            $labTypes = [
+                'pl_2_1_info' => [],
+                'pl_2_2_info' => [],
+                'pl_2_3_info' => [],
+                'pl_2_4_info' => [],
+                'pl_2_5_info' => []
+            ];
+        }
+    
+        // วนลูปสร้าง PDF สำหรับแต่ละ lab_type
+        $pdfContents = [];
+        $mpdfArray = [];
+        $siteType = "single";
+        foreach ($labTypes as $key => $labType) {
+            // ตรวจสอบว่า labType มีข้อมูลหรือไม่
+            if (is_array($labType) && count($labType) > 0) {
+                // คำนวณ index จาก key (เช่น pl_2_1_info -> index = 0)
+                $index = (int) str_replace(['pl_2_', '_info'], '', $key) - 1;
+    
+                // สร้าง mPDF instance ใหม่สำหรับแต่ละ lab_type
+                $type = 'I';
+                $fontDirs = [public_path('pdf_fonts/')];
+                $fontData = [
+                    'thsarabunnew' => [
+                        'R' => "THSarabunNew.ttf",
+                        'B' => "THSarabunNew-Bold.ttf",
+                        'I' => "THSarabunNew-Italic.ttf",
+                        'BI' => "THSarabunNew-BoldItalic.ttf",
+                    ],
+                    'dejavusans' => [
+                        'R' => "DejaVuSans.ttf",
+                        'B' => "DejaVuSans-Bold.ttf",
+                        'I' => "DejaVuSerif-Italic.ttf",
+                        'BI' => "DejaVuSerif-BoldItalic.ttf",
+                    ],
+                ];
+    
+                $mpdf = new Mpdf([
+                    'PDFA' => $type == 'F' ? true : false,
+                    'PDFAauto' => $type == 'F' ? true : false,
+                    'format' => 'A4',
+                    'mode' => 'utf-8',
+                    'default_font_size' => '15',
+                    'fontDir' => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+                    'fontdata' => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+                    'default_font' => 'thsarabunnew',
+                    'fontdata_fallback' => ['dejavusans', 'freesans', 'arial'],
+                    'mode' => 'utf-8',
+                    'margin_left' => 8,
+                    'margin_right' => 3,
+                    'margin_top' => 90,
+                    'margin_bottom' => 40,
+                ]);
+
+             
+                $report = Report::where('app_certi_lab_id',$id)->first();
+            
+                $from_date_th = '';
+                $from_date_en = '';
+                $to_date_th = '';
+                $to_date_en = '';
+                $certificate_no = 'xx-LBxxxx';
+                if($report !== null){
+                        $from_date_th = HP::formatDateThaiFull($report->start_date);
+                        $to_date_th = HP::formatDateThaiFull($report->end_date);
+                        $from_date_en = $this->formatThaiDate($report->start_date);
+                        $to_date_en = $this->formatThaiDate($report->end_date);
+                }
+
+                $running =  Report::get()->count();
+                $running_no =  str_pad(($running + 1), 4, '0', STR_PAD_LEFT);
+                $certi_lab = CertiLab::find($id);
+                $export_lab = CertificateExport::where('request_number', $certi_lab->app_no)->first();
+
+                if($export_lab !== null){
+                    if($export_lab->certificate_no !== null)
+                    {
+                        $certificate_no = $export_lab->certificate_no;
+                    }
+                }
+                
+                $book_no = '01';
+                $pdfData =  (object)[
+                    'certificate_no' => $certificate_no,
+                    'acc_no' => $running_no,
+                    'book_no' => $book_no,
+                    'from_date_th' => $from_date_th,
+                    'from_date_en' => $from_date_en,
+                    'to_date_th' => $to_date_th,
+                    'to_date_en' => $to_date_en,
+                    'siteType' => $siteType
+                ];
+    
+                $stylesheet = file_get_contents(public_path('css/report/lab-scope.css'));
+                $mpdf->WriteHTML($stylesheet, 1);
+    
+                $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, '', [170, 4]);
+                $mpdf->showWatermarkImage = true;
+    
+                $viewBlade = "certify.scope_pdf.test.test-scope-first-header";
+                $header = view($viewBlade, [
+                    'pdfData' => $pdfData,
+                    'key' => $key,
+                    'certiLab' => $certiLab,
+                ]);
+    
+                $mpdf->SetHTMLHeader($header, 2);
+    
+                // แปลงข้อมูล labType ให้อยู่ในรูปแบบที่ Blade view คาดหวัง
+                $formattedLabType = [];
+                foreach ($labType as $item) {
+                    // dd($item);
+                    $formattedLabType[] = [
+                        'test_main_branch' => [
+                            'id' => $item['test_main_branch_id'] ?? $item['test_main_branch']['id'] ?? '',
+                            'text' => $item['test_main_branch_text'] ?? $item['test_main_branch']['text'] ?? '',
+                            'text_en' => $item['test_main_branch_text_en'] ?? $item['test_main_branch']['text_en'] ?? ''
+                        ],
+                        'test_category' => [
+                            'id' => $item['test_category_id'] ?? $item['test_category']['id'] ?? '',
+                            'text' => $item['test_category_text'] ?? $item['test_category']['text'] ?? '',
+                            'text_en' => $item['test_category_text_en'] ?? $item['test_category']['text_en'] ?? ''
+                        ],
+                        'test_parameter' => [
+                            'id' => $item['test_parameter_id'] ?? $item['test_parameter']['id'] ?? '',
+                            'text' => $item['test_parameter_text'] ?? $item['test_parameter']['text'] ?? '',
+                            'text_en' => $item['test_parameter_text_en'] ?? $item['test_parameter']['text_en'] ?? ''
+                        ],
+                        'test_condition_description' => $item['test_condition_description'] ?? '',
+                        'test_param_detail' => $item['test_param_detail'] ?? '',
+                        'test_standard' => $item['test_standard'] ?? ''
+                    ];
+                }
+    // dd($formattedLabType);
+                // เรนเดอร์ HTML สำหรับ lab_type ปัจจุบัน
+                $html = view('certify.scope_pdf.test.pdf-test-scope', [
+                    'labType' => $formattedLabType,
+                    'index' => $index
+                ]);
+                $mpdf->WriteHTML($html);
+    
+                // แปลง PDF เป็น String และเก็บใน array
+                // $pdfContents[] = $mpdf->Output('', 'S');
+                $mpdfArray[$key] = $mpdf;
+                // $title = "mypdf.pdf";
+                // $mpdf->Output($title, "I");
+            }
+        }
+
+        $combinedPdf = new \Mpdf\Mpdf([
+            'PDFA'             => $type == 'F' ? true : false,
+            'PDFAauto'         => $type == 'F' ? true : false,
+            'format'           => 'A4',
+            'mode'             => 'utf-8',
+            'default_font_size'=> '15',
+            'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+            'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+            'default_font'     => 'thsarabunnew',
+            'fontdata_fallback' => ['dejavusans', 'freesans', 'arial'],
+            'mode' => 'utf-8',
+        ]);
+  
+        $combinedPdf->SetImportUse();
+        
+        // สร้างไฟล์ PDF ชั่วคราวจาก `$mpdfArray`
+        $tempFiles = []; // เก็บรายชื่อไฟล์ชั่วคราว
+        foreach ($mpdfArray as $key => $mpdf) {
+            $tempFileName = "{$key}.pdf"; // เช่น main.pdf, branch0.pdf
+            $mpdf->Output($tempFileName, \Mpdf\Output\Destination::FILE); // บันทึก PDF ชั่วคราว
+            $tempFiles[] = $tempFileName;
+        }
+  
+        // รวม PDF
+        foreach ($tempFiles as $fileName) {
+            $pageCount = $combinedPdf->SetSourceFile($fileName); // เปิดไฟล์ PDF
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $templateId = $combinedPdf->ImportPage($i);
+                $combinedPdf->AddPage();
+                $combinedPdf->UseTemplate($templateId);
+  
+                // ดึง HTML Footer จาก Blade Template
+                $signImage = public_path('images/sign.jpg');
+                $footer = view('certify.scope_pdf.test.test-scope-footer', [
+                    'sign1Image' => $signImage, // ส่งรูปภาพที่ต้องการใช้
+                    'sign2Image' => $signImage,
+                    'sign3Image' => $signImage
+                ])->render();
+  
+                // ตั้งค่า Footer ใหม่สำหรับหน้า PDF
+                $combinedPdf->SetHTMLFooter($footer);
+            }
+        }
+  
+        // ส่งออกไฟล์ PDF
+      //   $combinedPdf->Output('combined.pdf', \Mpdf\Output\Destination::INLINE);
+  
+    //  $title = "mypdf.pdf";
+    //  $combinedPdf->Output($title, "I");
+      
+
+    $app_certi_lab = CertiLab::find($id);
+    $no = str_replace("RQ-", "", $app_certi_lab->app_no);
+    $no = str_replace("-", "_", $no);
+
+    $attachPath = '/files/applicants/check_files/' . $no . '/';
+    $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+
+    // สร้างไฟล์ชั่วคราว
+    $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+
+    // บันทึก PDF ไปยังไฟล์ชั่วคราว
+    $combinedPdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);
+
+    // ใช้ Storage::putFileAs เพื่อย้ายไฟล์
+    Storage::putFileAs($attachPath, new \Illuminate\Http\File($tempFilePath), $fullFileName);
+
+    $storePath = $no  . '/' . $fullFileName;
+
+    // dd($app_certi_lab->app_no   , $storePath );
+    
+      // ลบไฟล์ชั่วคราว
+      foreach ($tempFiles as $fileName) {
+          unlink($fileName);
+      }
+
+    $certi_lab_attach = new CertiLabAttachAll();
+    $certi_lab_attach->app_certi_lab_id = $id;
+    $certi_lab_attach->file_section     = "61";
+    $certi_lab_attach->file = $storePath;
+    $certi_lab_attach->file_client_name = $no . '_scope_'.now()->format('Ymd_His').'.pdf';
+    $certi_lab_attach->token = str_random(16);
+    $certi_lab_attach->default_disk = config('filesystems.default');
+    $certi_lab_attach->save();
+
+
+
+    }
+
 
     public function getTestScopeData($id)
     {

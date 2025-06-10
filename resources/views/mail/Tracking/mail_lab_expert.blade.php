@@ -56,7 +56,6 @@
         
     </p>
       
-
           --------------------------
       </p>
           <img src="{!! asset('plugins/images/anchor_sm200.jpg') !!}"  height="200px" width="200px"/>

@@ -31,7 +31,7 @@
                         "onsubmit" => "return false"
                     ]) !!}
 
-                    @include ('certify/standards.form')
+                    @include ('certify.standards.form')
 
                     {!! Form::close() !!}
 

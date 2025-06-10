@@ -12,6 +12,7 @@ use App\Models\Sso\User AS SSO_User;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Certify\ApplicantCB\CertiCBExport;
 use App\Models\Certify\ApplicantIB\CertiIBExport;
+use App\Models\Certificate\TrackingDocReviewAuditor;
 use App\Models\Certify\Applicant\CertiLabExportMapreq;
 
 class  Tracking extends Model
@@ -19,7 +20,9 @@ class  Tracking extends Model
     use Sortable;
     protected $table = "app_certi_tracking";
     protected $primaryKey = 'id';
-    protected $fillable = ['certificate_type', 'reference_refno','reference_date',  'ref_table', 'ref_id', 'status_id','tax_id','user_id','agent_id','send_mail'];
+    protected $fillable = ['certificate_type', 'reference_refno','reference_date',  'ref_table', 'ref_id', 'status_id','tax_id','user_id','agent_id','send_mail','doc_auditor_assignment','doc_review_reject','doc_review_reject_message','ability_confirm'];
+
+
 
 
     public function sso_user_to()
@@ -269,6 +272,10 @@ class  Tracking extends Model
                         ->orderby('id','desc');
     }
 
+        public function trackingDocReviewAuditor()
+    {
+        return $this->hasOne(TrackingDocReviewAuditor::class, 'tracking_id');
+    }
 
 
 }

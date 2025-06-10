@@ -4,7 +4,9 @@ namespace App\Models\Certificate;
 
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Bcertify\CbScopeIsicIsic;
 use App\Models\Certify\ApplicantCB\CertiCb;
+use App\Models\Bcertify\CbScopeIsicCategory;
 use App\Models\Certificate\CbScopeIsicCategoryTransaction;
 
 class CbScopeIsicTransaction extends Model
@@ -26,5 +28,15 @@ class CbScopeIsicTransaction extends Model
 
     public function cbScopeIsicCategoryTransactions() {
         return $this->hasMany(CbScopeIsicCategoryTransaction::class, 'cb_scope_isic_transaction_id');
+    }
+
+    public function isic()
+    {
+        return $this->belongsTo(CbScopeIsicIsic::class, 'isic_id', 'id');
+    }
+
+    public function cbScopeIsicCategories() {
+        $cbScopeIsicCategories = CbScopeIsicCategory::where('isic_id',$this->isic_id)->get();
+        return $cbScopeIsicCategories;
     }
 }
