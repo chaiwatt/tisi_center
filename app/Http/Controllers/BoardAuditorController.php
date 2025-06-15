@@ -1033,129 +1033,129 @@ class BoardAuditorController extends Controller
             }
         }
 
-    //     public function sendMailToSigner($board,$certi_lab) 
-    //     {
-    //         if(!is_null($certi_lab->email)){
+        public function sendMailToSigner($board,$certi_lab) 
+        {
+            if(!is_null($certi_lab->email)){
 
-    //             $config = HP::getConfig();
-    //             $url  =   !empty($config->url_center) ? $config->url_center : url('');
-    //             $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
-    //             $EMail =  array_key_exists($certi_lab->subgroup,$dataMail)  ? $dataMail[$certi_lab->subgroup] :'admin@admin.com';
+                $config = HP::getConfig();
+                $url  =   !empty($config->url_center) ? $config->url_center : url('');
+                $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
+                $EMail =  array_key_exists($certi_lab->subgroup,$dataMail)  ? $dataMail[$certi_lab->subgroup] :'admin@admin.com';
 
-    //             if(!empty($certi_lab->DataEmailDirectorLABCC)){
-    //                 $mail_cc = $certi_lab->DataEmailDirectorLABCC;
-    //                 array_push($mail_cc, auth()->user()->reg_email) ;
-    //             }
+                if(!empty($certi_lab->DataEmailDirectorLABCC)){
+                    $mail_cc = $certi_lab->DataEmailDirectorLABCC;
+                    array_push($mail_cc, auth()->user()->reg_email) ;
+                }
     
-    //             $data_app = [
-    //                             'email'=>  auth()->user()->email ?? 'admin@admin.com',
-    //                             'auditors' => $board,
-    //                             'certi_lab'=> $certi_lab,
-    //                             'url' => $url.'certify/auditor-assignment/',
-    //                             'email'=>  !empty($certi_lab->DataEmailCertifyCenter) ? $certi_lab->DataEmailCertifyCenter : $EMail,
-    //                             'email_cc'=>  !empty($mail_cc) ? $mail_cc :  $EMail,
-    //                             'email_reply' => !empty($certi_lab->DataEmailDirectorLABReply) ? $certi_lab->DataEmailDirectorLABReply :  $EMail
-    //                         ];
+                $data_app = [
+                                'email'=>  auth()->user()->email ?? 'admin@admin.com',
+                                'auditors' => $board,
+                                'certi_lab'=> $certi_lab,
+                                'url' => $url.'certify/auditor-assignment/',
+                                'email'=>  !empty($certi_lab->DataEmailCertifyCenter) ? $certi_lab->DataEmailCertifyCenter : $EMail,
+                                'email_cc'=>  !empty($mail_cc) ? $mail_cc :  $EMail,
+                                'email_reply' => !empty($certi_lab->DataEmailDirectorLABReply) ? $certi_lab->DataEmailDirectorLABReply :  $EMail
+                            ];
             
-    //             $log_email =  HP::getInsertCertifyLogEmail( $certi_lab->app_no,
-    //                                                         $certi_lab->id,
-    //                                                         (new CertiLab)->getTable(),
-    //                                                         $board->id,
-    //                                                         (new BoardAuditor)->getTable(),
-    //                                                         1,
-    //                                                         'ลงนามแต่งตั้งบันทึกข้อความ การแต่งตั้งคณะผู้ตรวจประเมิน',
-    //                                                         view('mail.Lab.mail_board_auditor_signer', $data_app),
-    //                                                         $certi_lab->created_by,
-    //                                                         $certi_lab->agent_id,
-    //                                                         auth()->user()->getKey(),
-    //                                                         !empty($certi_lab->DataEmailCertifyCenter) ?  implode(',',(array)$certi_lab->DataEmailCertifyCenter)  : $EMail,
-    //                                                         $certi_lab->email,
-    //                                                         !empty($mail_cc) ? implode(',',(array)$mail_cc)   :  $EMail,
-    //                                                         !empty($certi_lab->DataEmailDirectorLABReply) ?implode(',',(array)$certi_lab->DataEmailDirectorLABReply)   :  $EMail,
-    //                                                         null
-    //                                                         );
+                $log_email =  HP::getInsertCertifyLogEmail( $certi_lab->app_no,
+                                                            $certi_lab->id,
+                                                            (new CertiLab)->getTable(),
+                                                            $board->id,
+                                                            (new BoardAuditor)->getTable(),
+                                                            1,
+                                                            'ลงนามแต่งตั้งบันทึกข้อความ การแต่งตั้งคณะผู้ตรวจประเมิน',
+                                                            view('mail.Lab.mail_board_auditor_signer', $data_app),
+                                                            $certi_lab->created_by,
+                                                            $certi_lab->agent_id,
+                                                            auth()->user()->getKey(),
+                                                            !empty($certi_lab->DataEmailCertifyCenter) ?  implode(',',(array)$certi_lab->DataEmailCertifyCenter)  : $EMail,
+                                                            $certi_lab->email,
+                                                            !empty($mail_cc) ? implode(',',(array)$mail_cc)   :  $EMail,
+                                                            !empty($certi_lab->DataEmailDirectorLABReply) ?implode(',',(array)$certi_lab->DataEmailDirectorLABReply)   :  $EMail,
+                                                            null
+                                                            );
   
-    //             $signerEmails = $board->messageRecordTransactions()
-    //             ->with('signer.user')
-    //             ->get()
-    //             ->pluck('signer.user.reg_email')
-    //             ->filter() // กรองค่า null ออก
-    //             ->unique()
-    //             ->toArray();
+                $signerEmails = $board->messageRecordTransactions()
+                ->with('signer.user')
+                ->get()
+                ->pluck('signer.user.reg_email')
+                ->filter() // กรองค่า null ออก
+                ->unique()
+                ->toArray();
 
 
-    //             $html = new  MailBoardAuditorSigner($data_app);
-    //             $mail = Mail::to($signerEmails)->send($html);
-    //             // $mail = Mail::to($certi_lab->email)->send($html);
+                $html = new  MailBoardAuditorSigner($data_app);
+                $mail = Mail::to($signerEmails)->send($html);
+                // $mail = Mail::to($certi_lab->email)->send($html);
     
-    //             if(is_null($mail) && !empty($log_email)){
-    //                 HP::getUpdateCertifyLogEmail($log_email->id);
-    //             }
+                if(is_null($mail) && !empty($log_email)){
+                    HP::getUpdateCertifyLogEmail($log_email->id);
+                }
  
-    //         }
-    //     }
+            }
+        }
 
-    //     public function sendMailToExaminer($board,$certi_lab) 
-    //     {
-    //         if(!is_null($certi_lab->email)){
+        public function sendMailToExaminer($board,$certi_lab) 
+        {
+            if(!is_null($certi_lab->email)){
 
-    //             $config = HP::getConfig();
-    //             $url  =   !empty($config->url_center) ? $config->url_center : url('');
-    //             $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
-    //             $EMail =  array_key_exists($certi_lab->subgroup,$dataMail)  ? $dataMail[$certi_lab->subgroup] :'admin@admin.com';
+                $config = HP::getConfig();
+                $url  =   !empty($config->url_center) ? $config->url_center : url('');
+                $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
+                $EMail =  array_key_exists($certi_lab->subgroup,$dataMail)  ? $dataMail[$certi_lab->subgroup] :'admin@admin.com';
 
-    //             if(!empty($certi_lab->DataEmailDirectorLABCC)){
-    //                 $mail_cc = $certi_lab->DataEmailDirectorLABCC;
-    //                 array_push($mail_cc, auth()->user()->reg_email) ;
-    //             }
+                if(!empty($certi_lab->DataEmailDirectorLABCC)){
+                    $mail_cc = $certi_lab->DataEmailDirectorLABCC;
+                    array_push($mail_cc, auth()->user()->reg_email) ;
+                }
     
-    //             $data_app = [
-    //                             'email'=>  auth()->user()->email ?? 'admin@admin.com',
-    //                             'auditors' => $board,
-    //                             'certi_lab'=> $certi_lab,
-    //                             'url' => $url.'certify/auditor/',
-    //                             'email'=>  !empty($certi_lab->DataEmailCertifyCenter) ? $certi_lab->DataEmailCertifyCenter : $EMail,
-    //                             'email_cc'=>  !empty($mail_cc) ? $mail_cc :  $EMail,
-    //                             'email_reply' => !empty($certi_lab->DataEmailDirectorLABReply) ? $certi_lab->DataEmailDirectorLABReply :  $EMail
-    //                         ];
+                $data_app = [
+                                'email'=>  auth()->user()->email ?? 'admin@admin.com',
+                                'auditors' => $board,
+                                'certi_lab'=> $certi_lab,
+                                'url' => $url.'certify/auditor/',
+                                'email'=>  !empty($certi_lab->DataEmailCertifyCenter) ? $certi_lab->DataEmailCertifyCenter : $EMail,
+                                'email_cc'=>  !empty($mail_cc) ? $mail_cc :  $EMail,
+                                'email_reply' => !empty($certi_lab->DataEmailDirectorLABReply) ? $certi_lab->DataEmailDirectorLABReply :  $EMail
+                            ];
             
-    //             $log_email =  HP::getInsertCertifyLogEmail( $certi_lab->app_no,
-    //                                                         $certi_lab->id,
-    //                                                         (new CertiLab)->getTable(),
-    //                                                         $board->id,
-    //                                                         (new BoardAuditor)->getTable(),
-    //                                                         1,
-    //                                                         'จัดทำบันทึกข้อความการแต่งตั้งคณะผู้ตรวจประเมิน',
-    //                                                         view('mail.Lab.mail_board_auditor_examiner', $data_app),
-    //                                                         $certi_lab->created_by,
-    //                                                         $certi_lab->agent_id,
-    //                                                         auth()->user()->getKey(),
-    //                                                         !empty($certi_lab->DataEmailCertifyCenter) ?  implode(',',(array)$certi_lab->DataEmailCertifyCenter)  : $EMail,
-    //                                                         $certi_lab->email,
-    //                                                         !empty($mail_cc) ? implode(',',(array)$mail_cc)   :  $EMail,
-    //                                                         !empty($certi_lab->DataEmailDirectorLABReply) ?implode(',',(array)$certi_lab->DataEmailDirectorLABReply)   :  $EMail,
-    //                                                         null
-    //                                                         );
+                $log_email =  HP::getInsertCertifyLogEmail( $certi_lab->app_no,
+                                                            $certi_lab->id,
+                                                            (new CertiLab)->getTable(),
+                                                            $board->id,
+                                                            (new BoardAuditor)->getTable(),
+                                                            1,
+                                                            'จัดทำบันทึกข้อความการแต่งตั้งคณะผู้ตรวจประเมิน',
+                                                            view('mail.Lab.mail_board_auditor_examiner', $data_app),
+                                                            $certi_lab->created_by,
+                                                            $certi_lab->agent_id,
+                                                            auth()->user()->getKey(),
+                                                            !empty($certi_lab->DataEmailCertifyCenter) ?  implode(',',(array)$certi_lab->DataEmailCertifyCenter)  : $EMail,
+                                                            $certi_lab->email,
+                                                            !empty($mail_cc) ? implode(',',(array)$mail_cc)   :  $EMail,
+                                                            !empty($certi_lab->DataEmailDirectorLABReply) ?implode(',',(array)$certi_lab->DataEmailDirectorLABReply)   :  $EMail,
+                                                            null
+                                                            );
 
 
-    //             $examinerEmails = $certi_lab->EmailStaff;
+                $examinerEmails = $certi_lab->EmailStaff;
 
-    //             if(count($examinerEmails)==0)
-    //             {
-    //                 $examinerEmails = auth()->user()->reg_email;
-    //             }
+                if(count($examinerEmails)==0)
+                {
+                    $examinerEmails = auth()->user()->reg_email;
+                }
 
 
-    //             $html = new  MailBoardAuditorExaminer($data_app);
-    //             $mail = Mail::to($examinerEmails)->send($html);
-    //             // $mail = Mail::to($certi_lab->email)->send($html);
+                $html = new  MailBoardAuditorExaminer($data_app);
+                $mail = Mail::to($examinerEmails)->send($html);
+                // $mail = Mail::to($certi_lab->email)->send($html);
     
-    //             if(is_null($mail) && !empty($log_email)){
-    //                 HP::getUpdateCertifyLogEmail($log_email->id);
-    //             }
+                if(is_null($mail) && !empty($log_email)){
+                    HP::getUpdateCertifyLogEmail($log_email->id);
+                }
  
-    //         }
-    //     }
+            }
+        }
 
     // public function CreateLabMessageRecord($id)
     // {
