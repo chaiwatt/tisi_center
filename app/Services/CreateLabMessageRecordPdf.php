@@ -339,24 +339,13 @@ public function ia($mpdf)
     //         $htmlLabMemorandumRequest->text2
     //     HTML;
 
-    $htmlLabMemorandumRequest = HtmlLabMemorandumPdfRequest::where('type', 'ia')->first();
-
-$data->fix_text1 = $htmlLabMemorandumRequest 
-    ? htmlspecialchars($htmlLabMemorandumRequest->text1, ENT_QUOTES, 'UTF-8')
-    : '';
-
-$data->fix_text2 = $htmlLabMemorandumRequest 
-    ? htmlspecialchars($htmlLabMemorandumRequest->text2, ENT_QUOTES, 'UTF-8')
-    : '';
-
 $data->fix_text1 = <<<HTML
-{$data->fix_text1}
+$htmlLabMemorandumRequest->text1
 HTML;
 
 $data->fix_text2 = <<<HTML
-{$data->fix_text2}
+$htmlLabMemorandumRequest->text2
 HTML;
-    
 
     // $data->fix_text1 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text1 : ''; // แก้ไข: กัน null
     // $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : ''; // แก้ไข: กัน null
