@@ -1486,7 +1486,7 @@ class BoardAuditorController extends Controller
         // dd($textArray);
         return response()->json([
             'success' => true,
-            'data' => $textArray,
+            'data' => $textArray
         ]);
     }
 }
