@@ -1097,7 +1097,7 @@ class TrackingCbController extends Controller
            
                $baseUrl = strstr($setting_payment->data, '/api', true);
         
-               $url = $baseUrl. '/images/Payin2.pdf';
+               $url = $baseUrl. '/images/PayIn2.pdf';
         
                // ดาวน์โหลดเนื้อหา PDF (Demo)
                $url_pdf = file_get_contents($url);

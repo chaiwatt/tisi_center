@@ -1052,7 +1052,7 @@ class CheckCertificateLabController extends Controller
 
         $baseUrl = strstr($setting_payment->data, '/api', true);
 
-        $url = $baseUrl. '/images/Payin2.pdf';
+        $url = $baseUrl. '/images/PayIn2.pdf';
 
         // ดาวน์โหลดเนื้อหา PDF (Demo)
         $pdf_content = file_get_contents($url);
