@@ -331,17 +331,17 @@ public function ia($mpdf)
 
     $htmlLabMemorandumRequest = HtmlLabMemorandumPdfRequest::where('type',"ia")->first();
 
-    $data->fix_text1 = <<<HTML
-            $htmlLabMemorandumRequest->text1
-        HTML;
+    // $data->fix_text1 = <<<HTML
+    //         $htmlLabMemorandumRequest->text1
+    //     HTML;
 
-    $data->fix_text2 = <<<HTML
-            $htmlLabMemorandumRequest->text2
-        HTML;
+    // $data->fix_text2 = <<<HTML
+    //         $htmlLabMemorandumRequest->text2
+    //     HTML;
     
 
-    // $data->fix_text1 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text1 : ''; // แก้ไข: กัน null
-    // $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : ''; // แก้ไข: กัน null
+    $data->fix_text1 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text1 : ''; // แก้ไข: กัน null
+    $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : ''; // แก้ไข: กัน null
 
     $signer = new stdClass();
     $signer->signer_1 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id', 'Signature1')->where('certificate_type', 2)->first();
