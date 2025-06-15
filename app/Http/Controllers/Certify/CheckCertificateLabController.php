@@ -454,7 +454,7 @@ class CheckCertificateLabController extends Controller
                             // dd($content,"$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo",$api);
                             $find_cost_assessment->amount_invoice =   $this->storeFilePayin($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
                         }else{
-                            
+                            dd("ok");
                             $find_cost_assessment->amount_invoice =   $this->storeFilePayinDemo($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
                         }
                         // dd('break');
