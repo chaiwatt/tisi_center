@@ -2391,559 +2391,559 @@ public function create_bill()
     //     $pdfContent = $pdfService->generateTrackingLabReportPdf();
     // }
 
-    public function trackingDataList()
-    {
+    // public function trackingDataList()
+    // {
     
-            // dd($request->all());
-            $userLogIn  = Auth::check()?Auth::user():null;
-            $roles      = !empty( $userLogIn ) ? auth()->user()->roles->pluck('id')->toArray() : []; 
+    //         // dd($request->all());
+    //         $userLogIn  = Auth::check()?Auth::user():null;
+    //         $roles      = !empty( $userLogIn ) ? auth()->user()->roles->pluck('id')->toArray() : []; 
 
-            $model = str_slug('trackinglabs', '-');          
-            $filter_search          = null;
-            $filter_certificate_no  = null;
-            $filter_status_id       = null;
-            $filter_start_date      = null;
-            $filter_end_date        = null;
+    //         $model = str_slug('trackinglabs', '-');          
+    //         $filter_search          = null;
+    //         $filter_certificate_no  = null;
+    //         $filter_status_id       = null;
+    //         $filter_start_date      = null;
+    //         $filter_end_date        = null;
 
     
-            //ตั้งค่าการตรวจติดตามใบรับรอง             
-            $setting_config  = SettingConfig::where('grop_type','lab')->first();
-            $from_filed      = !empty($setting_config->from_filed)?$setting_config->from_filed:null;
-            $condition_check = !empty($setting_config->condition_check)?$setting_config->condition_check:null;
-            $warning_day     = !empty($setting_config->warning_day)?$setting_config->warning_day:null;
-            $check_first     = !empty($setting_config->check_first)?$setting_config->check_first:null;
+    //         //ตั้งค่าการตรวจติดตามใบรับรอง             
+    //         $setting_config  = SettingConfig::where('grop_type','lab')->first();
+    //         $from_filed      = !empty($setting_config->from_filed)?$setting_config->from_filed:null;
+    //         $condition_check = !empty($setting_config->condition_check)?$setting_config->condition_check:null;
+    //         $warning_day     = !empty($setting_config->warning_day)?$setting_config->warning_day:null;
+    //         $check_first     = !empty($setting_config->check_first)?$setting_config->check_first:null;
     
-            $app_certi_lab_id  = CheckExaminer::where('user_id',auth()->user()->runrecno)->select('app_certi_lab_id'); // เช็คเจ้าหน้าที่ LAB
+    //         $app_certi_lab_id  = CheckExaminer::where('user_id',auth()->user()->runrecno)->select('app_certi_lab_id'); // เช็คเจ้าหน้าที่ LAB
     
-            $certificate_exports = CertificateExport::LeftJoin((new CertiLab)->getTable()." AS certi_labs", 'certi_labs.id', '=', 'certificate_exports.certificate_for')
-                                                    ->leftJoin((new Tracking)->getTable(), function($query) {
-                                                        $query->on('app_certi_tracking.ref_id', 'certificate_exports.id')->where('app_certi_tracking.ref_table',(new CertificateExport)->getTable());
-                                                    })
-                                                    ->LeftJoin((new TrackingStatus)->getTable()." AS app_certi_tracking_status", 'app_certi_tracking_status.id', '=', 'app_certi_tracking.status_id')
-                                                    // //เงือนไขการแสดงข้อมูล
-                                                    ->where( function($query) {
-                                                        // certificate_exports.status สถานะ 4 คือจัดส่งใบรับรองแล้ว
-                                                        $query->where('certificate_exports.status',4)
-                                                            ->WhereNull('certificate_exports.status_revoke');
-                                                    })
-                                                    ->where( function($query) {
-                                                        $query->whereNull('app_certi_tracking.id');
-                                                    })
-                                                    ->where('certificate_no','25-LB0003')->get();
+    //         $certificate_exports = CertificateExport::LeftJoin((new CertiLab)->getTable()." AS certi_labs", 'certi_labs.id', '=', 'certificate_exports.certificate_for')
+    //                                                 ->leftJoin((new Tracking)->getTable(), function($query) {
+    //                                                     $query->on('app_certi_tracking.ref_id', 'certificate_exports.id')->where('app_certi_tracking.ref_table',(new CertificateExport)->getTable());
+    //                                                 })
+    //                                                 ->LeftJoin((new TrackingStatus)->getTable()." AS app_certi_tracking_status", 'app_certi_tracking_status.id', '=', 'app_certi_tracking.status_id')
+    //                                                 // //เงือนไขการแสดงข้อมูล
+    //                                                 ->where( function($query) {
+    //                                                     // certificate_exports.status สถานะ 4 คือจัดส่งใบรับรองแล้ว
+    //                                                     $query->where('certificate_exports.status',4)
+    //                                                         ->WhereNull('certificate_exports.status_revoke');
+    //                                                 })
+    //                                                 ->where( function($query) {
+    //                                                     $query->whereNull('app_certi_tracking.id');
+    //                                                 })
+    //                                                 ->where('certificate_no','25-LB0003')->get();
                                                     
-            dd($certificate_exports->first(),$certificate_exports->first()->CertiLabTo,$certificate_exports->first()->CertiLabTo->certi_auditors,$certificate_exports->first()->board_auditors);
+    //         dd($certificate_exports->first(),$certificate_exports->first()->CertiLabTo,$certificate_exports->first()->CertiLabTo->certi_auditors,$certificate_exports->first()->board_auditors);
           
-                                                    // ->where( function($query)  use($userLogIn, $roles, $app_certi_lab_id ) {
-                                                    //     if( in_array( 22 , $roles ) && Auth::check() && in_array( $userLogIn->IsGetIdRoles() , ['false'] )   ){ //ไม่ใช่ admin , ผอ , ลท ที่มี Role 22
+    //                                                 // ->where( function($query)  use($userLogIn, $roles, $app_certi_lab_id ) {
+    //                                                 //     if( in_array( 22 , $roles ) && Auth::check() && in_array( $userLogIn->IsGetIdRoles() , ['false'] )   ){ //ไม่ใช่ admin , ผอ , ลท ที่มี Role 22
     
-                                                    //         $scope_ids =  CertificateExport::leftJoin( (new CertifyTestScope)->getTable()." AS test_scope", 'test_scope.app_certi_lab_id','certificate_exports.certificate_for')
-                                                    //                                         ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.test_branch_id','test_scope.branch_id')
-                                                    //                                         ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
-                                                    //                                         ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
-                                                    //                                         ->select('certificate_exports.id');
+    //                                                 //         $scope_ids =  CertificateExport::leftJoin( (new CertifyTestScope)->getTable()." AS test_scope", 'test_scope.app_certi_lab_id','certificate_exports.certificate_for')
+    //                                                 //                                         ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.test_branch_id','test_scope.branch_id')
+    //                                                 //                                         ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
+    //                                                 //                                         ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
+    //                                                 //                                         ->select('certificate_exports.id');
     
                                                                                             
-                                                    //         $calibrate_ids =  CertificateExport::leftJoin( (new CertifyLabCalibrate)->getTable()." AS calibrate", 'calibrate.app_certi_lab_id','certificate_exports.certificate_for')
-                                                    //                                         ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.items_id','calibrate.branch_id')
-                                                    //                                         ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
-                                                    //                                         ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
-                                                    //                                         ->select('certificate_exports.id');
+    //                                                 //         $calibrate_ids =  CertificateExport::leftJoin( (new CertifyLabCalibrate)->getTable()." AS calibrate", 'calibrate.app_certi_lab_id','certificate_exports.certificate_for')
+    //                                                 //                                         ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.items_id','calibrate.branch_id')
+    //                                                 //                                         ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
+    //                                                 //                                         ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
+    //                                                 //                                         ->select('certificate_exports.id');
     
-                                                    //         $query->whereIn('certificate_exports.id',$scope_ids)->OrwhereIn('certificate_exports.id',$calibrate_ids);
+    //                                                 //         $query->whereIn('certificate_exports.id',$scope_ids)->OrwhereIn('certificate_exports.id',$calibrate_ids);
     
-                                                    //     }else if( in_array( $userLogIn->IsGetIdRoles() , ['false'] ) ){
-                                                    //         $query->whereIn('certificate_exports.certificate_for',$app_certi_lab_id);
-                                                    //     }
-                                                    // } )
+    //                                                 //     }else if( in_array( $userLogIn->IsGetIdRoles() , ['false'] ) ){
+    //                                                 //         $query->whereIn('certificate_exports.certificate_for',$app_certi_lab_id);
+    //                                                 //     }
+    //                                                 // } )
                                            
-                                                    // ->when($setting_config, function ($query) use ($from_filed, $condition_check, $warning_day, $check_first){
-                                                    //     switch ( $from_filed ):
-                                                    //         case "1": //วันที่ออกใบรับรอง
-                                                    //             if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน
-                                                    //                 return $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(certificate_exports.certificate_date_start), INTERVAL 6 MONTH),CURDATE())' ), '<=', $warning_day);
-                                                    //             }else{
-                                                    //                 return $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(certificate_exports.certificate_date_start), INTERVAL '.$condition_check.' MONTH),CURDATE())' ), '<=', $warning_day);
-                                                    //             }
-                                                    //             break;
-                                                    //         case "3": //วันที่ตรวจล่าสุด
-                                                    //             if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน
-                                                    //                 return  $query->whereHas('board_auditors', function($query)use ($warning_day){
-                                                    //                             $query->whereHas('board_auditors_date', function($query) use ($warning_day){
-                                                    //                                 $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(end_date), INTERVAL 6 MONTH),CURDATE())'), '<=', $warning_day);
-                                                    //                             });
-                                                    //                 });
-                                                    //             }else{
-                                                    //                 return  $query->whereHas('board_auditors', function($query)use ($condition_check, $warning_day){
-                                                    //                             $query->whereHas('board_auditors_date', function($query) use ( $condition_check, $warning_day){
-                                                    //                                 $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(end_date), INTERVAL '.$condition_check.' MONTH),CURDATE())'), '<=', $warning_day);
-                                                    //                             });
-                                                    //                 });
-                                                    //             }
-                                                    //             break;
-                                                    //     endswitch;
-                                                    // })
+    //                                                 // ->when($setting_config, function ($query) use ($from_filed, $condition_check, $warning_day, $check_first){
+    //                                                 //     switch ( $from_filed ):
+    //                                                 //         case "1": //วันที่ออกใบรับรอง
+    //                                                 //             if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน
+    //                                                 //                 return $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(certificate_exports.certificate_date_start), INTERVAL 6 MONTH),CURDATE())' ), '<=', $warning_day);
+    //                                                 //             }else{
+    //                                                 //                 return $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(certificate_exports.certificate_date_start), INTERVAL '.$condition_check.' MONTH),CURDATE())' ), '<=', $warning_day);
+    //                                                 //             }
+    //                                                 //             break;
+    //                                                 //         case "3": //วันที่ตรวจล่าสุด
+    //                                                 //             if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน
+    //                                                 //                 return  $query->whereHas('board_auditors', function($query)use ($warning_day){
+    //                                                 //                             $query->whereHas('board_auditors_date', function($query) use ($warning_day){
+    //                                                 //                                 $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(end_date), INTERVAL 6 MONTH),CURDATE())'), '<=', $warning_day);
+    //                                                 //                             });
+    //                                                 //                 });
+    //                                                 //             }else{
+    //                                                 //                 return  $query->whereHas('board_auditors', function($query)use ($condition_check, $warning_day){
+    //                                                 //                             $query->whereHas('board_auditors_date', function($query) use ( $condition_check, $warning_day){
+    //                                                 //                                 $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(end_date), INTERVAL '.$condition_check.' MONTH),CURDATE())'), '<=', $warning_day);
+    //                                                 //                             });
+    //                                                 //                 });
+    //                                                 //             }
+    //                                                 //             break;
+    //                                                 //     endswitch;
+    //                                                 // })
                                                    
-                                                    // // //filter
-                                                    // ->when($filter_search, function ($query, $filter_search){
-                                                    //     $search_full = str_replace(' ', '', $filter_search );
-                                                    //     $query->where( function($query) use($search_full) {
-                                                    //         $query->where(DB::Raw("REPLACE(certificate_exports.certificate_no ,' ','')"),  'LIKE', "%$search_full%")
-                                                    //                 ->OrWhere(DB::raw("REPLACE(app_certi_tracking.reference_refno,' ','')"), 'LIKE', "%".$search_full."%")
-                                                    //                 ->OrWhere(DB::raw("REPLACE(certi_labs.name,' ','')"), 'LIKE', "%".$search_full."%")
-                                                    //                 ->OrWhere(DB::raw("REPLACE(certi_labs.lab_name,' ','')"), 'LIKE', "%".$search_full."%");
-                                                    //             });
-                                                    // })
+    //                                                 // // //filter
+    //                                                 // ->when($filter_search, function ($query, $filter_search){
+    //                                                 //     $search_full = str_replace(' ', '', $filter_search );
+    //                                                 //     $query->where( function($query) use($search_full) {
+    //                                                 //         $query->where(DB::Raw("REPLACE(certificate_exports.certificate_no ,' ','')"),  'LIKE', "%$search_full%")
+    //                                                 //                 ->OrWhere(DB::raw("REPLACE(app_certi_tracking.reference_refno,' ','')"), 'LIKE', "%".$search_full."%")
+    //                                                 //                 ->OrWhere(DB::raw("REPLACE(certi_labs.name,' ','')"), 'LIKE', "%".$search_full."%")
+    //                                                 //                 ->OrWhere(DB::raw("REPLACE(certi_labs.lab_name,' ','')"), 'LIKE', "%".$search_full."%");
+    //                                                 //             });
+    //                                                 // })
                                                    
-                                                    // ->when($filter_certificate_no, function ($query, $filter_certificate_no){
-                                                    //     return $query->where('certificate_exports.certificate_no', $filter_certificate_no);
-                                                    // })
+    //                                                 // ->when($filter_certificate_no, function ($query, $filter_certificate_no){
+    //                                                 //     return $query->where('certificate_exports.certificate_no', $filter_certificate_no);
+    //                                                 // })
                                                     
-                                                    // ->when($filter_status_id, function ($query, $filter_status_id){
-                                                    //     return $query->where('app_certi_tracking.status_id', $filter_status_id);
-                                                    // })
+    //                                                 // ->when($filter_status_id, function ($query, $filter_status_id){
+    //                                                 //     return $query->where('app_certi_tracking.status_id', $filter_status_id);
+    //                                                 // })
 
                                                    
                                               
-                                                    // ->when($filter_start_date, function ($query, $filter_start_date) use($filter_end_date, $from_filed){
+    //                                                 // ->when($filter_start_date, function ($query, $filter_start_date) use($filter_end_date, $from_filed){
     
-                                                    //     $start_date =  $this->config_date($filter_start_date);
-                                                    //     $end_date   =  $this->config_date($filter_end_date);
-                                                    //     if($from_filed == 1){
-                                                    //         if(!is_null($filter_start_date) && !is_null($filter_end_date) ){
-                                                    //             return $query->whereBetween('certificate_exports.certificate_date_start',[$start_date,$end_date]);
-                                                    //         }else if(!is_null($filter_start_date) && is_null($filter_end_date)){
-                                                    //             return $query->whereDate('certificate_exports.certificate_date_start',$start_date);
-                                                    //         }
-                                                    //     }else if($from_filed == 3){
-                                                    //         if(!is_null($filter_start_date) && !is_null($filter_end_date) ){
-                                                    //             $auditors_id = BoardAuditorDate::whereBetween('end_date',[$start_date,$end_date])->select('board_auditors_id');
-                                                    //             $app_certi_lab_id = BoardAuditor::whereIn('id',$auditors_id)->select('app_certi_lab_id');
-                                                    //             return $query->whereIn('certi_labs.id', $app_certi_lab_id);
+    //                                                 //     $start_date =  $this->config_date($filter_start_date);
+    //                                                 //     $end_date   =  $this->config_date($filter_end_date);
+    //                                                 //     if($from_filed == 1){
+    //                                                 //         if(!is_null($filter_start_date) && !is_null($filter_end_date) ){
+    //                                                 //             return $query->whereBetween('certificate_exports.certificate_date_start',[$start_date,$end_date]);
+    //                                                 //         }else if(!is_null($filter_start_date) && is_null($filter_end_date)){
+    //                                                 //             return $query->whereDate('certificate_exports.certificate_date_start',$start_date);
+    //                                                 //         }
+    //                                                 //     }else if($from_filed == 3){
+    //                                                 //         if(!is_null($filter_start_date) && !is_null($filter_end_date) ){
+    //                                                 //             $auditors_id = BoardAuditorDate::whereBetween('end_date',[$start_date,$end_date])->select('board_auditors_id');
+    //                                                 //             $app_certi_lab_id = BoardAuditor::whereIn('id',$auditors_id)->select('app_certi_lab_id');
+    //                                                 //             return $query->whereIn('certi_labs.id', $app_certi_lab_id);
                                     
-                                                    //         }else if(!is_null($filter_start_date) && is_null($filter_end_date)){
-                                                    //             $auditors_id = BoardAuditorDate::whereDate('end_date',$start_date)->select('board_auditors_id');
-                                                    //             $app_certi_ib_id = BoardAuditor::whereIn('id',$auditors_id)->select('app_certi_lab_id');
-                                                    //             return $query->whereIn('certi_labs.id', $app_certi_ib_id);
-                                                    //         }
-                                                    //     }
-                                                    // })
+    //                                                 //         }else if(!is_null($filter_start_date) && is_null($filter_end_date)){
+    //                                                 //             $auditors_id = BoardAuditorDate::whereDate('end_date',$start_date)->select('board_auditors_id');
+    //                                                 //             $app_certi_ib_id = BoardAuditor::whereIn('id',$auditors_id)->select('app_certi_lab_id');
+    //                                                 //             return $query->whereIn('certi_labs.id', $app_certi_ib_id);
+    //                                                 //         }
+    //                                                 //     }
+    //                                                 // })
 
 
 
-                                                    // ->select(
-                                                    //     DB::raw('"1" AS type'),
-                                                    //     DB::raw('certificate_exports.id                       AS id'),
-                                                    //     DB::raw('certificate_exports.certificate_no           AS certificate_no'),
-                                                    //     DB::raw('certificate_exports.certificate_date_start   AS date_start'),
-                                                    //     DB::raw('app_certi_tracking.reference_refno           AS reference_refno'),
-                                                    //     DB::raw('app_certi_tracking.status_id                 AS status_id'),
-                                                    //     DB::raw('app_certi_tracking_status.title              AS status_title'),
-                                                    //     DB::raw('certi_labs.name                              AS org_name'),
-                                                    //     DB::raw('certi_labs.id                                AS certi_labs_id'),
-                                                    //     DB::raw('certi_labs.lab_name                          AS lab_name'),
-                                                    //     DB::raw('certificate_exports.updated_at               AS update_date')
-                                                    // );
+    //                                                 // ->select(
+    //                                                 //     DB::raw('"1" AS type'),
+    //                                                 //     DB::raw('certificate_exports.id                       AS id'),
+    //                                                 //     DB::raw('certificate_exports.certificate_no           AS certificate_no'),
+    //                                                 //     DB::raw('certificate_exports.certificate_date_start   AS date_start'),
+    //                                                 //     DB::raw('app_certi_tracking.reference_refno           AS reference_refno'),
+    //                                                 //     DB::raw('app_certi_tracking.status_id                 AS status_id'),
+    //                                                 //     DB::raw('app_certi_tracking_status.title              AS status_title'),
+    //                                                 //     DB::raw('certi_labs.name                              AS org_name'),
+    //                                                 //     DB::raw('certi_labs.id                                AS certi_labs_id'),
+    //                                                 //     DB::raw('certi_labs.lab_name                          AS lab_name'),
+    //                                                 //     DB::raw('certificate_exports.updated_at               AS update_date')
+    //                                                 // );
                 
-                $app_certi_tracking = Tracking::LeftJoin((new CertificateExport)->getTable()." AS certificate_exports", 'certificate_exports.id', '=', 'app_certi_tracking.ref_id')
-                                                ->LeftJoin((new CertiLab)->getTable()." AS certi_labs", 'certi_labs.id', '=', 'certificate_exports.certificate_for')
-                                                ->LeftJoin((new TrackingStatus)->getTable()." AS app_certi_tracking_status", 'app_certi_tracking_status.id', '=', 'app_certi_tracking.status_id')
-                                                ->LeftJoin((new BoardAuditor)->getTable()." AS board_auditors", 'board_auditors.app_certi_lab_id', '=', 'certi_labs.id')
-                                                ->LeftJoin((new BoardAuditorDate)->getTable()." AS board_auditors_date", 'board_auditors_date.board_auditors_id', '=', 'board_auditors.id')
-                                                ->where( function($query){
-                                                    $query->WhereNotNull('status_id')->Where('app_certi_tracking.ref_table',(new CertificateExport)->getTable());
-                                                })
-                                                ->where( function($query)  use($userLogIn, $roles, $app_certi_lab_id ) {
-                                                    if( in_array( 22 , $roles ) && Auth::check() && in_array( $userLogIn->IsGetIdRoles() , ['false'] )   ){ //ไม่ใช่ admin , ผอ , ลท ที่มี Role 22
-                                                        $scope_ids =  CertificateExport::leftJoin( (new CertifyTestScope)->getTable()." AS test_scope", 'test_scope.app_certi_lab_id','certificate_exports.certificate_for')
-                                                                                        ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.test_branch_id','test_scope.branch_id')
-                                                                                        ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
-                                                                                        ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
-                                                                                        ->select('certificate_exports.id');
+    //             $app_certi_tracking = Tracking::LeftJoin((new CertificateExport)->getTable()." AS certificate_exports", 'certificate_exports.id', '=', 'app_certi_tracking.ref_id')
+    //                                             ->LeftJoin((new CertiLab)->getTable()." AS certi_labs", 'certi_labs.id', '=', 'certificate_exports.certificate_for')
+    //                                             ->LeftJoin((new TrackingStatus)->getTable()." AS app_certi_tracking_status", 'app_certi_tracking_status.id', '=', 'app_certi_tracking.status_id')
+    //                                             ->LeftJoin((new BoardAuditor)->getTable()." AS board_auditors", 'board_auditors.app_certi_lab_id', '=', 'certi_labs.id')
+    //                                             ->LeftJoin((new BoardAuditorDate)->getTable()." AS board_auditors_date", 'board_auditors_date.board_auditors_id', '=', 'board_auditors.id')
+    //                                             ->where( function($query){
+    //                                                 $query->WhereNotNull('status_id')->Where('app_certi_tracking.ref_table',(new CertificateExport)->getTable());
+    //                                             })
+    //                                             ->where( function($query)  use($userLogIn, $roles, $app_certi_lab_id ) {
+    //                                                 if( in_array( 22 , $roles ) && Auth::check() && in_array( $userLogIn->IsGetIdRoles() , ['false'] )   ){ //ไม่ใช่ admin , ผอ , ลท ที่มี Role 22
+    //                                                     $scope_ids =  CertificateExport::leftJoin( (new CertifyTestScope)->getTable()." AS test_scope", 'test_scope.app_certi_lab_id','certificate_exports.certificate_for')
+    //                                                                                     ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.test_branch_id','test_scope.branch_id')
+    //                                                                                     ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
+    //                                                                                     ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
+    //                                                                                     ->select('certificate_exports.id');
     
-                                                        $calibrate_ids =  CertificateExport::leftJoin( (new CertifyLabCalibrate)->getTable()." AS calibrate", 'calibrate.app_certi_lab_id','certificate_exports.certificate_for')
-                                                                                        ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.items_id','calibrate.branch_id')
-                                                                                        ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
-                                                                                        ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
-                                                                                        ->select('certificate_exports.id');
+    //                                                     $calibrate_ids =  CertificateExport::leftJoin( (new CertifyLabCalibrate)->getTable()." AS calibrate", 'calibrate.app_certi_lab_id','certificate_exports.certificate_for')
+    //                                                                                     ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.items_id','calibrate.branch_id')
+    //                                                                                     ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
+    //                                                                                     ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
+    //                                                                                     ->select('certificate_exports.id');
     
-                                                        $query->whereIn('certificate_exports.id',$scope_ids)->OrwhereIn('certificate_exports.id',$calibrate_ids);
-                                                    }else if( in_array( $userLogIn->IsGetIdRoles() , ['false'] )){
-                                                        $query->whereHas('assigns_to', function($query) {
-                                                                    $query->where('user_id',  auth()->user()->runrecno);
-                                                                });
-                                                    }
-                                                })
-                                                ->when($filter_search, function ($query, $filter_search){
-                                                    $search_full = str_replace(' ', '', $filter_search );
-                                                    $query->where( function($query) use($search_full) {
-                                                        $query->where(DB::Raw("REPLACE(certificate_exports.certificate_no ,' ','')"),  'LIKE', "%$search_full%")
-                                                                ->OrWhere(DB::raw("REPLACE(app_certi_tracking.reference_refno,' ','')"), 'LIKE', "%".$search_full."%")
-                                                                ->OrWhere(DB::raw("REPLACE(certi_labs.name,' ','')"), 'LIKE', "%".$search_full."%")
-                                                                ->OrWhere(DB::raw("REPLACE(certi_labs.lab_name,' ','')"), 'LIKE', "%".$search_full."%");
-                                                            });
-                                                })   
-                                                ->when($filter_certificate_no, function ($query, $filter_certificate_no){
-                                                    return $query->where('certificate_exports.certificate_no', $filter_certificate_no);
-                                                })
-                                                ->when($filter_status_id, function ($query, $filter_status_id){
-                                                    return $query->where('app_certi_tracking.status_id', $filter_status_id);
-                                                })
-                                                ->when($filter_start_date, function ($query, $filter_start_date) use($filter_end_date, $from_filed){
+    //                                                     $query->whereIn('certificate_exports.id',$scope_ids)->OrwhereIn('certificate_exports.id',$calibrate_ids);
+    //                                                 }else if( in_array( $userLogIn->IsGetIdRoles() , ['false'] )){
+    //                                                     $query->whereHas('assigns_to', function($query) {
+    //                                                                 $query->where('user_id',  auth()->user()->runrecno);
+    //                                                             });
+    //                                                 }
+    //                                             })
+    //                                             ->when($filter_search, function ($query, $filter_search){
+    //                                                 $search_full = str_replace(' ', '', $filter_search );
+    //                                                 $query->where( function($query) use($search_full) {
+    //                                                     $query->where(DB::Raw("REPLACE(certificate_exports.certificate_no ,' ','')"),  'LIKE', "%$search_full%")
+    //                                                             ->OrWhere(DB::raw("REPLACE(app_certi_tracking.reference_refno,' ','')"), 'LIKE', "%".$search_full."%")
+    //                                                             ->OrWhere(DB::raw("REPLACE(certi_labs.name,' ','')"), 'LIKE', "%".$search_full."%")
+    //                                                             ->OrWhere(DB::raw("REPLACE(certi_labs.lab_name,' ','')"), 'LIKE', "%".$search_full."%");
+    //                                                         });
+    //                                             })   
+    //                                             ->when($filter_certificate_no, function ($query, $filter_certificate_no){
+    //                                                 return $query->where('certificate_exports.certificate_no', $filter_certificate_no);
+    //                                             })
+    //                                             ->when($filter_status_id, function ($query, $filter_status_id){
+    //                                                 return $query->where('app_certi_tracking.status_id', $filter_status_id);
+    //                                             })
+    //                                             ->when($filter_start_date, function ($query, $filter_start_date) use($filter_end_date, $from_filed){
     
-                                                    $start_date =  $this->config_date($filter_start_date);
-                                                    $end_date   =  $this->config_date($filter_end_date);
-                                                    if($from_filed == 1){
-                                                        if(!is_null($filter_start_date) && !is_null($filter_end_date) ){
-                                                            return $query->whereBetween('certificate_exports.certificate_date_start',[$start_date,$end_date]);
-                                                        }else if(!is_null($filter_start_date) && is_null($filter_end_date)){
-                                                            return $query->whereDate('certificate_exports.certificate_date_start',$start_date);
-                                                        }
-                                                    }else if($from_filed == 3){
-                                                        if(!is_null($filter_start_date) && !is_null($filter_end_date) ){
-                                                            $auditors_id = BoardAuditorDate::whereBetween('end_date',[$start_date,$end_date])->select('board_auditors_id');
-                                                            $app_certi_lab_id = BoardAuditor::whereIn('id',$auditors_id)->select('app_certi_lab_id');
-                                                            return $query->whereIn('certi_labs.id', $app_certi_lab_id);
+    //                                                 $start_date =  $this->config_date($filter_start_date);
+    //                                                 $end_date   =  $this->config_date($filter_end_date);
+    //                                                 if($from_filed == 1){
+    //                                                     if(!is_null($filter_start_date) && !is_null($filter_end_date) ){
+    //                                                         return $query->whereBetween('certificate_exports.certificate_date_start',[$start_date,$end_date]);
+    //                                                     }else if(!is_null($filter_start_date) && is_null($filter_end_date)){
+    //                                                         return $query->whereDate('certificate_exports.certificate_date_start',$start_date);
+    //                                                     }
+    //                                                 }else if($from_filed == 3){
+    //                                                     if(!is_null($filter_start_date) && !is_null($filter_end_date) ){
+    //                                                         $auditors_id = BoardAuditorDate::whereBetween('end_date',[$start_date,$end_date])->select('board_auditors_id');
+    //                                                         $app_certi_lab_id = BoardAuditor::whereIn('id',$auditors_id)->select('app_certi_lab_id');
+    //                                                         return $query->whereIn('certi_labs.id', $app_certi_lab_id);
                                 
-                                                        }else if(!is_null($filter_start_date) && is_null($filter_end_date)){
-                                                            $auditors_id = BoardAuditorDate::whereDate('end_date',$start_date)->select('board_auditors_id');
-                                                            $app_certi_ib_id = BoardAuditor::whereIn('id',$auditors_id)->select('app_certi_lab_id');
-                                                            return $query->whereIn('certi_labs.id', $app_certi_ib_id);
-                                                        }
-                                                    }
-                                                })
-                                                ->select(
-                                                    DB::raw('"2" AS type'),
-                                                    DB::raw('app_certi_tracking.id                        AS id'),
-                                                    DB::raw('certificate_exports.certificate_no           AS certificate_no'),
-                                                    DB::raw('certificate_exports.certificate_date_start   AS date_start'),
-                                                    DB::raw('app_certi_tracking.reference_refno           AS reference_refno'),
-                                                    DB::raw('app_certi_tracking.status_id                 AS status_id'),
-                                                    DB::raw('app_certi_tracking_status.title              AS status_title'),
-                                                    DB::raw('certi_labs.name                              AS org_name'),
-                                                    DB::raw('certi_labs.id                                AS certi_labs_id'),
-                                                    DB::raw('certi_labs.lab_name                          AS lab_name'),
-                                                    DB::raw('app_certi_tracking.updated_at                AS update_date')
-                                                );
+    //                                                     }else if(!is_null($filter_start_date) && is_null($filter_end_date)){
+    //                                                         $auditors_id = BoardAuditorDate::whereDate('end_date',$start_date)->select('board_auditors_id');
+    //                                                         $app_certi_ib_id = BoardAuditor::whereIn('id',$auditors_id)->select('app_certi_lab_id');
+    //                                                         return $query->whereIn('certi_labs.id', $app_certi_ib_id);
+    //                                                     }
+    //                                                 }
+    //                                             })
+    //                                             ->select(
+    //                                                 DB::raw('"2" AS type'),
+    //                                                 DB::raw('app_certi_tracking.id                        AS id'),
+    //                                                 DB::raw('certificate_exports.certificate_no           AS certificate_no'),
+    //                                                 DB::raw('certificate_exports.certificate_date_start   AS date_start'),
+    //                                                 DB::raw('app_certi_tracking.reference_refno           AS reference_refno'),
+    //                                                 DB::raw('app_certi_tracking.status_id                 AS status_id'),
+    //                                                 DB::raw('app_certi_tracking_status.title              AS status_title'),
+    //                                                 DB::raw('certi_labs.name                              AS org_name'),
+    //                                                 DB::raw('certi_labs.id                                AS certi_labs_id'),
+    //                                                 DB::raw('certi_labs.lab_name                          AS lab_name'),
+    //                                                 DB::raw('app_certi_tracking.updated_at                AS update_date')
+    //                                             );
            
-                $query =  $certificate_exports->union($app_certi_tracking);
-                // $query =  $certificate_exports;
-                // dd($filter_status_id );
-                return Datatables::of($query)
-                        ->with('filter_status_id', $filter_status_id) 
-                        ->addIndexColumn()
-                        ->addColumn('reference_refno', function ($item) {
-                            return   !empty($item->type)? $item->type:'อยู่ระหว่างรับเรื่อง';
-                        }) 
-                        ->addColumn('checkbox', function ($item) {           
-                            if(!empty($item->status_id)  && $item->status_id >= 8){
-                                return '';
-                            }else{
-                                return '<input type="checkbox" name="item_checkbox[]" class="item_checkbox"  value="'. $item->id .'" data-status="'.( !empty($item->status_id) ? $item->status_id : '1').'" data-tracking_id="'.( $item->type == 2 ? $item->id: '').'" >';
-                            }
-                        })
-                        ->addColumn('reference_refno', function ($item) {
-                            return  !empty($item->reference_refno)? $item->reference_refno:'<em class="text-muted">อยู่ระหว่างรับเรื่อง</em>';
-                        }) 
-                        ->addColumn('certificate_no', function ($item) {
-                            return  (!empty($item->certificate_no)? $item->certificate_no:'');
-                        })
-                        ->addColumn('org_name', function ($item) {
-                            return  !empty($item->org_name)? $item->org_name:'';
-                        }) 
-                        ->addColumn('lab_name', function ($item) {
-                            return  !empty($item->lab_name)? $item->lab_name:'';
-                        }) 
-                        ->addColumn('assign', function ($item) {
+    //             $query =  $certificate_exports->union($app_certi_tracking);
+    //             // $query =  $certificate_exports;
+    //             // dd($filter_status_id );
+    //             return Datatables::of($query)
+    //                     ->with('filter_status_id', $filter_status_id) 
+    //                     ->addIndexColumn()
+    //                     ->addColumn('reference_refno', function ($item) {
+    //                         return   !empty($item->type)? $item->type:'อยู่ระหว่างรับเรื่อง';
+    //                     }) 
+    //                     ->addColumn('checkbox', function ($item) {           
+    //                         if(!empty($item->status_id)  && $item->status_id >= 8){
+    //                             return '';
+    //                         }else{
+    //                             return '<input type="checkbox" name="item_checkbox[]" class="item_checkbox"  value="'. $item->id .'" data-status="'.( !empty($item->status_id) ? $item->status_id : '1').'" data-tracking_id="'.( $item->type == 2 ? $item->id: '').'" >';
+    //                         }
+    //                     })
+    //                     ->addColumn('reference_refno', function ($item) {
+    //                         return  !empty($item->reference_refno)? $item->reference_refno:'<em class="text-muted">อยู่ระหว่างรับเรื่อง</em>';
+    //                     }) 
+    //                     ->addColumn('certificate_no', function ($item) {
+    //                         return  (!empty($item->certificate_no)? $item->certificate_no:'');
+    //                     })
+    //                     ->addColumn('org_name', function ($item) {
+    //                         return  !empty($item->org_name)? $item->org_name:'';
+    //                     }) 
+    //                     ->addColumn('lab_name', function ($item) {
+    //                         return  !empty($item->lab_name)? $item->lab_name:'';
+    //                     }) 
+    //                     ->addColumn('assign', function ($item) {
 
-                            if( in_array( $item->type , [2] ) ){
-                                $tracking = Tracking::where('id',$item->id)->first();
-                                return !empty($tracking->assigns_to->user_assign->FullName)? $tracking->assigns_to->user_assign->FullName:'';
-                            }
+    //                         if( in_array( $item->type , [2] ) ){
+    //                             $tracking = Tracking::where('id',$item->id)->first();
+    //                             return !empty($tracking->assigns_to->user_assign->FullName)? $tracking->assigns_to->user_assign->FullName:'';
+    //                         }
         
-                        })
-                        ->addColumn('status', function ($item) {
-                                if(!empty($item->status_id) && $item->status_id == 3){
-                                    $data_input =  'data-id="'.( !empty($item->id) ? $item->id : '').'"';
-                                    $data_input .= 'data-refno="'.( !empty($item->reference_refno) ? $item->reference_refno : '').'" ';
-                                    return !empty($item->status_title) ?  '<button type="button" class="modal_status btn btn-secondary"  '.( $data_input ).' ">'. (!empty($item->status_title)? $item->status_title:'รอดำเนินการตรวจ'). '</button>':'';
-                                }else{
-                                    return   !empty($item->status_title)? $item->status_title:'รอดำเนินการตรวจ';
-                                }
-                        })
-                        ->addColumn('certificate_newfile', function ($item) {
+    //                     })
+    //                     ->addColumn('status', function ($item) {
+    //                             if(!empty($item->status_id) && $item->status_id == 3){
+    //                                 $data_input =  'data-id="'.( !empty($item->id) ? $item->id : '').'"';
+    //                                 $data_input .= 'data-refno="'.( !empty($item->reference_refno) ? $item->reference_refno : '').'" ';
+    //                                 return !empty($item->status_title) ?  '<button type="button" class="modal_status btn btn-secondary"  '.( $data_input ).' ">'. (!empty($item->status_title)? $item->status_title:'รอดำเนินการตรวจ'). '</button>':'';
+    //                             }else{
+    //                                 return   !empty($item->status_title)? $item->status_title:'รอดำเนินการตรวจ';
+    //                             }
+    //                     })
+    //                     ->addColumn('certificate_newfile', function ($item) {
 
-                            if(($item->type == 1)){
-                                $data = CertificateExport::where('id',$item->id)->first();
-                            }else{
-                                $tracking = Tracking::where('id',$item->id)->first();
-                                $data = $tracking->certificate_export_to;
-                            }
+    //                         if(($item->type == 1)){
+    //                             $data = CertificateExport::where('id',$item->id)->first();
+    //                         }else{
+    //                             $tracking = Tracking::where('id',$item->id)->first();
+    //                             $data = $tracking->certificate_export_to;
+    //                         }
 
-                            if(!empty($data->certificate_newfile)){
-                                $text =   '<a href="'. ( url('funtions/get-view').'/'.$data->certificate_path.'/'.$data->certificate_newfile.'/'.$data->certificate_no.'_'.date('Ymd_hms').'pdf' ).'" target="_blank">
-                                                    <img src="'.(asset('images/icon-certification.jpg')).'" width="15px" >
-                                            </a> ';
-                            }else if(!empty($data->CertiLabTo->attachs)){
-                                    $text =   '<a href="'. ( url('certify/check/file_client').'/'.$data->CertiLabTo->attachs.'/'. ( !empty($data->CertiLabTo->attachs_client_name) ? $data->CertiLabTo->attachs_client_name :  basename($data->CertiLabTo->attachs)  )).'" target="_blank">
-                                                    '. HP::FileExtension($data->CertiLabTo->attachs).' 
-                                            </a> ';
-                            }else{
-                                $text =  '<a class="btn btn-link" href="'.(url('certify/send-certificates/view-pdf/'.$data->ref_id.'/3')  ).'" target="_blank"> <i class="fa fa-file-pdf-o" style="color:red"></i> </a>'; 
-                            }
+    //                         if(!empty($data->certificate_newfile)){
+    //                             $text =   '<a href="'. ( url('funtions/get-view').'/'.$data->certificate_path.'/'.$data->certificate_newfile.'/'.$data->certificate_no.'_'.date('Ymd_hms').'pdf' ).'" target="_blank">
+    //                                                 <img src="'.(asset('images/icon-certification.jpg')).'" width="15px" >
+    //                                         </a> ';
+    //                         }else if(!empty($data->CertiLabTo->attachs)){
+    //                                 $text =   '<a href="'. ( url('certify/check/file_client').'/'.$data->CertiLabTo->attachs.'/'. ( !empty($data->CertiLabTo->attachs_client_name) ? $data->CertiLabTo->attachs_client_name :  basename($data->CertiLabTo->attachs)  )).'" target="_blank">
+    //                                                 '. HP::FileExtension($data->CertiLabTo->attachs).' 
+    //                                         </a> ';
+    //                         }else{
+    //                             $text =  '<a class="btn btn-link" href="'.(url('certify/send-certificates/view-pdf/'.$data->ref_id.'/3')  ).'" target="_blank"> <i class="fa fa-file-pdf-o" style="color:red"></i> </a>'; 
+    //                         }
 
-                            return  $text;
-                        })
-                        ->addColumn('end_date', function ($item) use ($from_filed, $condition_check, $check_first){
-                            // dd($item,$from_filed);
-                            switch ( $from_filed ):
-                                case "1": //วันที่ออกใบรับรอง
-                                    if(!empty($item->date_start)){
+    //                         return  $text;
+    //                     })
+    //                     ->addColumn('end_date', function ($item) use ($from_filed, $condition_check, $check_first){
+    //                         // dd($item,$from_filed);
+    //                         switch ( $from_filed ):
+    //                             case "1": //วันที่ออกใบรับรอง
+    //                                 if(!empty($item->date_start)){
                                         
-                                    $date_start = $item->date_start;
-                                        if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน      
-                                            $config_date_start = date('Y-m-d', strtotime('+6 months', strtotime($date_start)));
-                                        }else{
-                                            $config_date_start =  date('Y-m-d', strtotime('+'.$condition_check.' months', strtotime($date_start)));
-                                        }
-                                        return !empty($config_date_start) ? HP::DateThai($config_date_start):'-';
-                                    }                    
-                                    break;
-                                case "3": //วันที่ตรวจล่าสุด
-                                    if(!empty($item->certi_labs_id)){
-                                        $board_auditors = BoardAuditor::where('app_certi_lab_id',$item->certi_labs_id)->first();
-                                            if(!empty($board_auditors->id)){
-                                                $board_auditors_date = BoardAuditorDate::where('board_auditors_id',$board_auditors->id)->orderby('id','desc')->first();
-                                                $end_date = $board_auditors_date->end_date;
-                                            }
+    //                                 $date_start = $item->date_start;
+    //                                     if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน      
+    //                                         $config_date_start = date('Y-m-d', strtotime('+6 months', strtotime($date_start)));
+    //                                     }else{
+    //                                         $config_date_start =  date('Y-m-d', strtotime('+'.$condition_check.' months', strtotime($date_start)));
+    //                                     }
+    //                                     return !empty($config_date_start) ? HP::DateThai($config_date_start):'-';
+    //                                 }                    
+    //                                 break;
+    //                             case "3": //วันที่ตรวจล่าสุด
+    //                                 if(!empty($item->certi_labs_id)){
+    //                                     $board_auditors = BoardAuditor::where('app_certi_lab_id',$item->certi_labs_id)->first();
+    //                                         if(!empty($board_auditors->id)){
+    //                                             $board_auditors_date = BoardAuditorDate::where('board_auditors_id',$board_auditors->id)->orderby('id','desc')->first();
+    //                                             $end_date = $board_auditors_date->end_date;
+    //                                         }
 
-                                            if(isset($end_date)){
-                                                if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน
-                                                    $config_end_date =  date('Y-m-d', strtotime('+6 months', strtotime($end_date)));
-                                                }else{
-                                                    $config_end_date =  date('Y-m-d', strtotime('+'.$condition_check.' months', strtotime($end_date)));
-                                                }
-                                                return !empty($config_end_date) ? HP::DateThai($config_end_date):'-';
-                                            }
-                                    }
-                                    break;
-                                    default:
-                                            return '-';
-                                    break;
-                            endswitch;
-                        })
-                        ->addColumn('action', function ($item) use($model) {
-                            if($item->type == 2){
-                                return HP::buttonAction( $item->id, 'certificate/tracking-labs','Certificate\\TrackingLabsController@destroy', 'trackinglabs',false,true,false);
-                            }else{
-                                return '';
-                            }
-                        })
-                        ->order(function ($query) use ($filter_status_id) {
-                            // ตรวจสอบว่า $filter_status_id ไม่เป็น null
-                            if ($filter_status_id !== null) {
-                                // ถ้าไม่เป็น null ให้จัดเรียงโดยใช้ update_date
-                                $query->orderBy('update_date', 'DESC');
-                            }
-                        })
-                        ->rawColumns([ 'checkbox','certificate_newfile','assign','status', 'action', 'reference_refno']) 
-                        ->make(true);                                      
+    //                                         if(isset($end_date)){
+    //                                             if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน
+    //                                                 $config_end_date =  date('Y-m-d', strtotime('+6 months', strtotime($end_date)));
+    //                                             }else{
+    //                                                 $config_end_date =  date('Y-m-d', strtotime('+'.$condition_check.' months', strtotime($end_date)));
+    //                                             }
+    //                                             return !empty($config_end_date) ? HP::DateThai($config_end_date):'-';
+    //                                         }
+    //                                 }
+    //                                 break;
+    //                                 default:
+    //                                         return '-';
+    //                                 break;
+    //                         endswitch;
+    //                     })
+    //                     ->addColumn('action', function ($item) use($model) {
+    //                         if($item->type == 2){
+    //                             return HP::buttonAction( $item->id, 'certificate/tracking-labs','Certificate\\TrackingLabsController@destroy', 'trackinglabs',false,true,false);
+    //                         }else{
+    //                             return '';
+    //                         }
+    //                     })
+    //                     ->order(function ($query) use ($filter_status_id) {
+    //                         // ตรวจสอบว่า $filter_status_id ไม่เป็น null
+    //                         if ($filter_status_id !== null) {
+    //                             // ถ้าไม่เป็น null ให้จัดเรียงโดยใช้ update_date
+    //                             $query->orderBy('update_date', 'DESC');
+    //                         }
+    //                     })
+    //                     ->rawColumns([ 'checkbox','certificate_newfile','assign','status', 'action', 'reference_refno']) 
+    //                     ->make(true);                                      
 
-    }
+    // }
 
-    public function downloadFromCloud()
-    {
+    // public function downloadFromCloud()
+    // {
 
-        $signAssessmentReportTransaction = SignAssessmentTrackingReportTransaction::find(63);
-        $appId = $signAssessmentReportTransaction->app_id;
-        $certiLab = TrackingAssessment::where('reference_refno',$appId)->first()->certificate_export_to->applications;
+    //     $signAssessmentReportTransaction = SignAssessmentTrackingReportTransaction::find(63);
+    //     $appId = $signAssessmentReportTransaction->app_id;
+    //     $certiLab = TrackingAssessment::where('reference_refno',$appId)->first()->certificate_export_to->applications;
 
-        // dd($certiLab);
+    //     // dd($certiLab);
 
-        $certiLabFileAll = CertLabsFileAll::where('app_certi_lab_id',$certiLab->id)->first();
+    //     $certiLabFileAll = CertLabsFileAll::where('app_certi_lab_id',$certiLab->id)->first();
 
-        $filePath = 'files/applicants/check_files/' . $certiLabFileAll->attach_pdf ;
+    //     $filePath = 'files/applicants/check_files/' . $certiLabFileAll->attach_pdf ;
 
-        $localFilePath = HP::downloadFileFromTisiCloud($filePath);
+    //     $localFilePath = HP::downloadFileFromTisiCloud($filePath);
 
-        $trackingInspection = TrackingInspection::where('reference_refno',$appId)->first();
-
-
+    //     $trackingInspection = TrackingInspection::where('reference_refno',$appId)->first();
 
 
 
 
-        dd($trackingInspection);
 
-    }
 
-    public function getAttachedFileFromRequest()
-    {
-        $certificateExport = CertificateExport::where('request_number','CAL-68-007')->first();
-        if($certificateExport != null)
-        {
-            $trackingAssessment = TrackingAssessment::where('ref_table','certificate_exports')->where('ref_id',$certificateExport->id)->first();
-            if($trackingAssessment != null)
-            {
-                $trackingInspection = TrackingInspection::where('reference_refno',$trackingAssessment->reference_refno)->first();
-                if($trackingInspection != null)
-                {
-                    $attachFile = AttachFile::where('ref_table','app_certi_tracking_inspection')->where('ref_id',$trackingInspection->id)->first();
+    //     dd($trackingInspection);
+
+    // }
+
+    // public function getAttachedFileFromRequest()
+    // {
+    //     $certificateExport = CertificateExport::where('request_number','CAL-68-007')->first();
+    //     if($certificateExport != null)
+    //     {
+    //         $trackingAssessment = TrackingAssessment::where('ref_table','certificate_exports')->where('ref_id',$certificateExport->id)->first();
+    //         if($trackingAssessment != null)
+    //         {
+    //             $trackingInspection = TrackingInspection::where('reference_refno',$trackingAssessment->reference_refno)->first();
+    //             if($trackingInspection != null)
+    //             {
+    //                 $attachFile = AttachFile::where('ref_table','app_certi_tracking_inspection')->where('ref_id',$trackingInspection->id)->first();
                     
-                    if($attachFile->filename != null)
-                    {
-                        dd($attachFile->filename);
-                    }
-                }
-            }
-        }
+    //                 if($attachFile->filename != null)
+    //                 {
+    //                     dd($attachFile->filename);
+    //                 }
+    //             }
+    //         }
+    //     }
 
-    }
+    // }
 
 
-    public function getDocReviewAuditor()
-    {
-        $cbDocReviewAuditor = CbDocReviewAuditor::first();
-        $certi_cb= CertiCb::find($cbDocReviewAuditor->app_certi_cb_id);
-        // dd($certi_cb);
-        $this->sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor);
+    // public function getDocReviewAuditor()
+    // {
+    //     $cbDocReviewAuditor = CbDocReviewAuditor::first();
+    //     $certi_cb= CertiCb::find($cbDocReviewAuditor->app_certi_cb_id);
+    //     // dd($certi_cb);
+    //     $this->sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor);
        
-    }
+    // }
 
-    public function sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor)
-    {
-      if(!is_null($certi_cb->email))
-      {
+    // public function sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor)
+    // {
+    //   if(!is_null($certi_cb->email))
+    //   {
   
-          $config = HP::getConfig();
-          $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
+    //       $config = HP::getConfig();
+    //       $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
   
-          if(!empty($certi_cb->DataEmailDirectorCBCC)){
-              $mail_cc = $certi_cb->DataEmailDirectorCBCC;
-              array_push($mail_cc, auth()->user()->reg_email) ;
-          }
-          $auditors = json_decode($cbDocReviewAuditor->auditors, true);
+    //       if(!empty($certi_cb->DataEmailDirectorCBCC)){
+    //           $mail_cc = $certi_cb->DataEmailDirectorCBCC;
+    //           array_push($mail_cc, auth()->user()->reg_email) ;
+    //       }
+    //       $auditors = json_decode($cbDocReviewAuditor->auditors, true);
   
-          $data_app = [
-                        'title'          =>  'แต่งตั้งคณะผู้ตรวจประเมินเอกสาร',
-                        'cbDocReviewAuditor'       => $cbDocReviewAuditor,
-                        'auditors'       => $auditors,
-                        'certi_cb'       => $certi_cb ,
-                        'url'            => $url.'certify/applicant-cb' ?? '-',
-                        'email'          =>  !empty($certi_cb->DataEmailCertifyCenter) ? $certi_cb->DataEmailCertifyCenter : 'cb@tisi.mail.go.th',
-                        'email_cc'       =>  !empty($mail_cc) ? $mail_cc : 'cb@tisi.mail.go.th',
-                        'email_reply'    => !empty($certi_cb->DataEmailDirectorCBReply) ? $certi_cb->DataEmailDirectorCBReply : 'cb@tisi.mail.go.th'
-                  ];
+    //       $data_app = [
+    //                     'title'          =>  'แต่งตั้งคณะผู้ตรวจประเมินเอกสาร',
+    //                     'cbDocReviewAuditor'       => $cbDocReviewAuditor,
+    //                     'auditors'       => $auditors,
+    //                     'certi_cb'       => $certi_cb ,
+    //                     'url'            => $url.'certify/applicant-cb' ?? '-',
+    //                     'email'          =>  !empty($certi_cb->DataEmailCertifyCenter) ? $certi_cb->DataEmailCertifyCenter : 'cb@tisi.mail.go.th',
+    //                     'email_cc'       =>  !empty($mail_cc) ? $mail_cc : 'cb@tisi.mail.go.th',
+    //                     'email_reply'    => !empty($certi_cb->DataEmailDirectorCBReply) ? $certi_cb->DataEmailDirectorCBReply : 'cb@tisi.mail.go.th'
+    //               ];
   
-          $log_email =  HP::getInsertCertifyLogEmail($certi_cb->app_no,
-                                                  $certi_cb->id,
-                                                  (new CertiCb)->getTable(),
-                                                  $certi_cb->id,
-                                                  (new CbDocReviewAuditor)->getTable(),
-                                                  $cbDocReviewAuditor->id,
-                                                  'แต่งตั้งคณะผู้ตรวจประเมินเอกสาร',
-                                                  view('mail.CB.auditor_doc_review', $data_app),
-                                                  $certi_cb->created_by,
-                                                  $certi_cb->agent_id,
-                                                  auth()->user()->getKey(),
-                                                  !empty($certi_cb->DataEmailCertifyCenter) ?  implode(',',(array)$certi_cb->DataEmailCertifyCenter)  :  'cb@tisi.mail.go.th',
-                                                  $certi_cb->email,
-                                                  !empty($mail_cc) ?  implode(',',(array)$mail_cc)  : 'cb@tisi.mail.go.th',
-                                                  !empty($certi_cb->DataEmailDirectorCBReply) ?implode(',',(array)$certi_cb->DataEmailDirectorCBReply)   :   'cb@tisi.mail.go.th',
-                                                  null
-                                                  );
+    //       $log_email =  HP::getInsertCertifyLogEmail($certi_cb->app_no,
+    //                                               $certi_cb->id,
+    //                                               (new CertiCb)->getTable(),
+    //                                               $certi_cb->id,
+    //                                               (new CbDocReviewAuditor)->getTable(),
+    //                                               $cbDocReviewAuditor->id,
+    //                                               'แต่งตั้งคณะผู้ตรวจประเมินเอกสาร',
+    //                                               view('mail.CB.auditor_doc_review', $data_app),
+    //                                               $certi_cb->created_by,
+    //                                               $certi_cb->agent_id,
+    //                                               auth()->user()->getKey(),
+    //                                               !empty($certi_cb->DataEmailCertifyCenter) ?  implode(',',(array)$certi_cb->DataEmailCertifyCenter)  :  'cb@tisi.mail.go.th',
+    //                                               $certi_cb->email,
+    //                                               !empty($mail_cc) ?  implode(',',(array)$mail_cc)  : 'cb@tisi.mail.go.th',
+    //                                               !empty($certi_cb->DataEmailDirectorCBReply) ?implode(',',(array)$certi_cb->DataEmailDirectorCBReply)   :   'cb@tisi.mail.go.th',
+    //                                               null
+    //                                               );
   
-          $html = new CbDocReviewAuditorsMail($data_app);
-          $mail =  Mail::to($certi_cb->email)->send($html);
+    //       $html = new CbDocReviewAuditorsMail($data_app);
+    //       $mail =  Mail::to($certi_cb->email)->send($html);
   
-          if(is_null($mail) && !empty($log_email)){
-              HP::getUpdateCertifyLogEmail($log_email->id);
-          } 
-      }
-    }
+    //       if(is_null($mail) && !empty($log_email)){
+    //           HP::getUpdateCertifyLogEmail($log_email->id);
+    //       } 
+    //   }
+    // }
 
-    public function copyScopeCbFromAttachement()
-    {
-        $copiedScoped = null;
-        $fileSection = null;
+    // public function copyScopeCbFromAttachement()
+    // {
+    //     $copiedScoped = null;
+    //     $fileSection = null;
 
-        $appId = 237;
-        $latestRecord = CertiCBAttachAll::where('app_certi_cb_id', $appId)
-        ->where('file_section', 3)
-        ->where('table_name', 'app_certi_cb')
-        ->orderBy('created_at', 'desc') // เรียงลำดับจากใหม่ไปเก่า
-        ->first();
+    //     $appId = 237;
+    //     $latestRecord = CertiCBAttachAll::where('app_certi_cb_id', $appId)
+    //     ->where('file_section', 3)
+    //     ->where('table_name', 'app_certi_cb')
+    //     ->orderBy('created_at', 'desc') // เรียงลำดับจากใหม่ไปเก่า
+    //     ->first();
     
 
-        $existingFilePath = 'files/applicants/check_files_cb/' . $latestRecord->file ;
+    //     $existingFilePath = 'files/applicants/check_files_cb/' . $latestRecord->file ;
 
-        // ตรวจสอบว่าไฟล์มีอยู่ใน FTP และดาวน์โหลดลงมา
-        if (HP::checkFileStorage($existingFilePath)) {
-            $localFilePath = HP::getFileStoragePath($existingFilePath); // ดึงไฟล์ลงมาที่เซิร์ฟเวอร์
-            dd($localFilePath);
-            $no  = str_replace("RQ-","",$app->app_no);
-            $no  = str_replace("-","_",$no);
-            $dlName = 'scope_'.basename($existingFilePath);
-            $attach_path  =  'files/applicants/check_files_cb/'.$no.'/';
+    //     // ตรวจสอบว่าไฟล์มีอยู่ใน FTP และดาวน์โหลดลงมา
+    //     if (HP::checkFileStorage($existingFilePath)) {
+    //         $localFilePath = HP::getFileStoragePath($existingFilePath); // ดึงไฟล์ลงมาที่เซิร์ฟเวอร์
+    //         dd($localFilePath);
+    //         $no  = str_replace("RQ-","",$app->app_no);
+    //         $no  = str_replace("-","_",$no);
+    //         $dlName = 'scope_'.basename($existingFilePath);
+    //         $attach_path  =  'files/applicants/check_files_cb/'.$no.'/';
 
-            if (file_exists($localFilePath)) {
-                $storagePath = Storage::putFileAs($attach_path, new \Illuminate\Http\File($localFilePath),  $dlName );
-                $filePath = $attach_path . $dlName;
-                if (Storage::disk('ftp')->exists($filePath)) {
-                    $list  = new  stdClass;
-                    $list->attachs =  $no.'/'.$dlName;
-                    $list->file_client_name =  $dlName;
-                    $scope[] = $list;
-                    $copiedScoped = json_encode($scope);
-                } 
-                unlink($localFilePath);
-            }
-        }
+    //         if (file_exists($localFilePath)) {
+    //             $storagePath = Storage::putFileAs($attach_path, new \Illuminate\Http\File($localFilePath),  $dlName );
+    //             $filePath = $attach_path . $dlName;
+    //             if (Storage::disk('ftp')->exists($filePath)) {
+    //                 $list  = new  stdClass;
+    //                 $list->attachs =  $no.'/'.$dlName;
+    //                 $list->file_client_name =  $dlName;
+    //                 $scope[] = $list;
+    //                 $copiedScoped = json_encode($scope);
+    //             } 
+    //             unlink($localFilePath);
+    //         }
+    //     }
 
-        return $copiedScoped;
-    }
+    //     return $copiedScoped;
+    // }
 
-    public function textSpliter()
-    {
-        $text = "ลูกชายส่งข้อความถึงพ่อที่ล่วงลับ แต่กลับได้รับคำตอบอย่างไม่คาดคิด เบื้องหลังเรื่องราวนี้ช่างซาบซึ้งเกินบรรยาย
-        แม้โลกนี้จะเต็มไปด้วยความเจ็บปวด แต่โชคดีที่ความรักยังคงอยู่
-        ย้อนกลับไปเมื่อวันที่ 26 มีนาคม 2023 นักศึกษาชายคนหนึ่งจากซีอาน มณฑลส่านซี ประเทศจีน ได้ส่งข้อความถึงพ่อที่จากไปเมื่อ 3 ปีก่อน และไม่คาดคิดว่าจะได้รับคำตอบกลับมา
-        เขากำลังเผชิญกับความยากลำบากในการสอบเข้าปริญญาโท และด้วยความโศกเศร้า คิดถึงพ่อที่ล่วงลับ จึงตัดสินใจส่งข้อความไปยังเบอร์โทรศัพท์เก่าของพ่อ ก่อนจะได้รับกำลังใจจากคนแปลกหน้า
-        คุณเฉา ผู้รับข้อความ เล่าว่า ตอนแรกเขาคิดว่าเป็นการส่งผิด แต่เมื่ออ่านแล้วกลับรู้สึกว่าลูกชายคนนี้อาจกำลังต้องการกำลังใจ เขาอยากส่งให้พ่อ แต่ผมคิดว่าพ่อของเขาคงจากไปแล้ว อาจเป็นเพราะตอนนี้เขากำลังลำบากและต้องการคำปลอบโยน
-        หลังจากไตร่ตรอง คุณเฉาตัดสินใจตอบกลับ หวังให้คำพูดของเขาช่วยเติมพลังใจ เสมือนพ่อที่กำลังปลอบโยนลูกให้ก้าวผ่านช่วงเวลาที่ยากลำบาก
-        เมื่อได้รับข้อความตอบกลับจากเบอร์โทรศัพท์เก่าของพ่อ ผู้เป็นลูกชายถึงกับกลั้นน้ำตาไว้ไม่อยู่ เขาขอบคุณคุณเฉา บอกว่าจะไม่รบกวนอีก พร้อมสารภาพว่าน้ำตาไหล
-        เหตุการณ์อันแสนอบอุ่นนี้สร้างความประทับใจให้กับทุกคนที่ได้รับรู้";
-        $textArray = TextHelper::callLonganTokenizeArrayPost($text);
+    // public function textSpliter()
+    // {
+    //     $text = "ลูกชายส่งข้อความถึงพ่อที่ล่วงลับ แต่กลับได้รับคำตอบอย่างไม่คาดคิด เบื้องหลังเรื่องราวนี้ช่างซาบซึ้งเกินบรรยาย
+    //     แม้โลกนี้จะเต็มไปด้วยความเจ็บปวด แต่โชคดีที่ความรักยังคงอยู่
+    //     ย้อนกลับไปเมื่อวันที่ 26 มีนาคม 2023 นักศึกษาชายคนหนึ่งจากซีอาน มณฑลส่านซี ประเทศจีน ได้ส่งข้อความถึงพ่อที่จากไปเมื่อ 3 ปีก่อน และไม่คาดคิดว่าจะได้รับคำตอบกลับมา
+    //     เขากำลังเผชิญกับความยากลำบากในการสอบเข้าปริญญาโท และด้วยความโศกเศร้า คิดถึงพ่อที่ล่วงลับ จึงตัดสินใจส่งข้อความไปยังเบอร์โทรศัพท์เก่าของพ่อ ก่อนจะได้รับกำลังใจจากคนแปลกหน้า
+    //     คุณเฉา ผู้รับข้อความ เล่าว่า ตอนแรกเขาคิดว่าเป็นการส่งผิด แต่เมื่ออ่านแล้วกลับรู้สึกว่าลูกชายคนนี้อาจกำลังต้องการกำลังใจ เขาอยากส่งให้พ่อ แต่ผมคิดว่าพ่อของเขาคงจากไปแล้ว อาจเป็นเพราะตอนนี้เขากำลังลำบากและต้องการคำปลอบโยน
+    //     หลังจากไตร่ตรอง คุณเฉาตัดสินใจตอบกลับ หวังให้คำพูดของเขาช่วยเติมพลังใจ เสมือนพ่อที่กำลังปลอบโยนลูกให้ก้าวผ่านช่วงเวลาที่ยากลำบาก
+    //     เมื่อได้รับข้อความตอบกลับจากเบอร์โทรศัพท์เก่าของพ่อ ผู้เป็นลูกชายถึงกับกลั้นน้ำตาไว้ไม่อยู่ เขาขอบคุณคุณเฉา บอกว่าจะไม่รบกวนอีก พร้อมสารภาพว่าน้ำตาไหล
+    //     เหตุการณ์อันแสนอบอุ่นนี้สร้างความประทับใจให้กับทุกคนที่ได้รับรู้";
+    //     $textArray = TextHelper::callLonganTokenizeArrayPost($text);
 
-        print($textArray);
-    }
+    //     print($textArray);
+    // }
 
-    public function demo_html_pdf_editor()
-    {
-        return view('demo_html_pdf_editor.initial-message-record');
-    }
+    // public function demo_html_pdf_editor()
+    // {
+    //     return view('demo_html_pdf_editor.initial-message-record');
+    // }
 
-    public function createCbAssessmentReportPdf()
-    {
-        $lastRecord = CbReportInfo::orderBy('id', 'desc')->first();
-        $pdfService = new CreateCbAssessmentReportPdf($lastRecord->id,"ia");
-        $pdfContent = $pdfService->generateCbAssessmentReportPdf();
-    }
+    // public function createCbAssessmentReportPdf()
+    // {
+    //     $lastRecord = CbReportInfo::orderBy('id', 'desc')->first();
+    //     $pdfService = new CreateCbAssessmentReportPdf($lastRecord->id,"ia");
+    //     $pdfContent = $pdfService->generateCbAssessmentReportPdf();
+    // }
 
-    public function createCbAssessmentReportTwoPdf()
-    {
-        $lastRecord = CbReportTwoInfo::orderBy('id', 'desc')->first();
-        $pdfService = new CreateCbAssessmentReportTwoPdf($lastRecord->id,"ia");
-        $pdfContent = $pdfService->generateCbAssessmentReportTwoPdf();
-    }
+    // public function createCbAssessmentReportTwoPdf()
+    // {
+    //     $lastRecord = CbReportTwoInfo::orderBy('id', 'desc')->first();
+    //     $pdfService = new CreateCbAssessmentReportTwoPdf($lastRecord->id,"ia");
+    //     $pdfContent = $pdfService->generateCbAssessmentReportTwoPdf();
+    // }
 
-    public function createCbMessageRecordPdf()
-    {
-        $id = 365;
-        $boardAuditor = CertiCBAuditors::find($id);
-        // dd($boardAuditor);
-        $pdfService = new CreateCbMessageRecordPdf($boardAuditor,"ia");
-        $pdfContent = $pdfService->generateBoardAuditorMessageRecordPdf();
-    }
+    // public function createCbMessageRecordPdf()
+    // {
+    //     $id = 365;
+    //     $boardAuditor = CertiCBAuditors::find($id);
+    //     // dd($boardAuditor);
+    //     $pdfService = new CreateCbMessageRecordPdf($boardAuditor,"ia");
+    //     $pdfContent = $pdfService->generateBoardAuditorMessageRecordPdf();
+    // }
 
 
     public function runAllSchedules()
@@ -2952,223 +2952,223 @@ public function create_bill()
         return response()->json(['message' => 'All schedules have been run successfully']);
     }
 
-    public function check_payin2_cb()
-    {
-    // การทดสอบต้องลด invoiceStartDate ลง 1 วัน
-      $today = Carbon::today(); // กำหนดวันปัจจุบัน
+    // public function check_payin2_cb()
+    // {
+    //     // การทดสอบต้องลด invoiceStartDate ลง 1 วัน
+    //     $today = Carbon::today(); // กำหนดวันปัจจุบัน
 
-      $now = Carbon::now();
-  
-      $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $now)
-    ->where('invoiceEndDate', '>=', $now)
-    //   ->whereNull('status_confirmed')
-    ->where(function ($query) {
-        $query->where('status_confirmed', 0)
-            ->orWhereNull('status_confirmed');
-    })
-      ->where('state',2)
-      ->where('count','<=',3)
-      ->where(function ($query) {
-          $query->where('ref1', 'like', 'CB%');
-      })
-      ->get();
-      dd($transactionPayIns);
-      
-      
-      foreach ($transactionPayIns as $transactionPayIn) {
-        $ref1 = $transactionPayIn->ref1;
-        $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
+    //     $now = Carbon::now();
+    
+    //     $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $now)
+    //     ->where('invoiceEndDate', '>=', $now)
+    //     //   ->whereNull('status_confirmed')
+    //     ->where(function ($query) {
+    //         $query->where('status_confirmed', 0)
+    //             ->orWhereNull('status_confirmed');
+    //     })
+    //     ->where('state',2)
+    //     ->where('count','<=',3)
+    //     ->where(function ($query) {
+    //         $query->where('ref1', 'like', 'CB%');
+    //     })
+    //     ->get();
+    //     dd($transactionPayIns);
         
-        // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
-        if ($result instanceof \Illuminate\Http\JsonResponse) {
-            // แปลง JsonResponse เป็น array
-            $resultArray = $result->getData(true);
-            // dd($resultArray);
-            // ตรวจสอบค่า message
-            if (!empty($resultArray['message']) && $resultArray['message'] === true) {
-                // ดึงค่าทั้งหมดจาก response
-                $response = $resultArray['response'] ?? null;
+        
+    //     foreach ($transactionPayIns as $transactionPayIn) {
+    //         $ref1 = $transactionPayIn->ref1;
+    //         $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
+            
+    //         // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
+    //         if ($result instanceof \Illuminate\Http\JsonResponse) {
+    //             // แปลง JsonResponse เป็น array
+    //             $resultArray = $result->getData(true);
+    //             // dd($resultArray);
+    //             // ตรวจสอบค่า message
+    //             if (!empty($resultArray['message']) && $resultArray['message'] === true) {
+    //                 // ดึงค่าทั้งหมดจาก response
+    //                 $response = $resultArray['response'] ?? null;
+        
+    //                 // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
+    //                 if (is_array($response) && count($response) > 0) {
+    //                     // ใช้ array_map เพื่อดึง ref1
+    //                     $ref1List = array_map(function ($item) {
+    //                         return isset($item['ref1']) ? $item['ref1'] : null;
+    //                     }, $response);
+        
+    //                     // กรองเฉพาะ ref1 ที่ไม่เป็น null
+    //                     $validRef1 = array_filter($ref1List);
+    //                     $tb = new CertiCBPayInTwo;
+
+    //                     // $appCertiLabCostCertificateId = $transactionPayIn->ref_id;
+    //                     $PayIn = CertiCBPayInTwo::findOrFail($transactionPayIn->ref_id);
+    //                     $certi_cb = CertiCb::findOrFail($PayIn->app_certi_cb_id);
+    //                     $certiCBAttachAll = CertiCBAttachAll::where('table_name', $tb->getTable())
+    //                         ->where('app_certi_cb_id', $PayIn->app_certi_cb_id)
+    //                         ->where('ref_id', $PayIn->id)
+    //                         ->orderBy('created_at', 'desc') // หรือกรณีที่ใช้ฟิลด์อื่นในการจัดลำดับ
+    //                         ->first();
+
+
+    //                     $certi_cb = CertiCb::findOrFail($PayIn->app_certi_cb_id);
+    //                     $certi_cb_attach_more                    = new CertiCBAttachAll();
+    //                     $certi_cb_attach_more->app_certi_cb_id   = $certi_cb->id;
+    //                     $certi_cb_attach_more->ref_id            = $PayIn->id;
+    //                     $certi_cb_attach_more->table_name        = $tb->getTable();
+    //                     $certi_cb_attach_more->file              = $certiCBAttachAll->file;
+    //                     $certi_cb_attach_more->file_client_name  = $certiCBAttachAll->file_client_name;
+    //                     $certi_cb_attach_more->file_section      = '2';
+    //                     $certi_cb_attach_more->token             = str_random(16);
+    //                     $certi_cb_attach_more->save();
+
+    //                     $PayIn->degree = 3 ; 
+    //                     $PayIn->status = null ; 
+    //                     $PayIn->report_date = null ; 
+    //                     $PayIn->status = 2 ; 
+    //                     $PayIn->condition_pay = null ; 
+    //                     $PayIn->save();
+
+    //                     $certi_cb->status = 17;
+    //                     $certi_cb->save();
+
+    //                     $transaction_payin  =  TransactionPayIn::where('ref_id',$PayIn->id)->where('table_name', (new CertiCBPayInTwo)->getTable())->orderby('id','desc')->first();
+    //                     if(!is_null($transaction_payin)){
+    //                         $transaction_payin->ReceiptCreateDate     =  Carbon::now(); 
+    //                         $transaction_payin->ReceiptCode           =  '123456' ; 
+    //                         $transaction_payin->save();
+    //                     }
+                            
+
+    //                 } else {
+    //                     dd("Response is empty or not an array.");
+    //                 }
+    //             } else {
+    //                 dd("No valid message or response.");
+    //             }
+    //         } else {
+    //             dd("Invalid response type. Expected JsonResponse.");
+    //         }
+    //     }
+        
+    // }
+
+    // public function createLabAssessmentReportTwoPdf()
+    // {
+
+    //     $pdfService = new CreateLabAssessmentReportTwoPdf(2,"ia");
+    //     $pdfContent = $pdfService->generateLabReportTwoPdf();
+    // }
+
+    // public function getEmailInfo()
+    // {
+    //     $sendCertificateList = SendCertificateLists::find(525);
+    //     $app =null;
+    //     if($sendCertificateList->certificate_type == 3){
+    //         $app = $sendCertificateList->app_cert_to;
+    //     }else if($sendCertificateList->certificate_type == 2)
+    //     {
+    //         $app = $sendCertificateList->app_cert_ib_to;
+    //     }else if($sendCertificateList->certificate_type == 1)
+    //     {
+    //         // dd('cb');
+    //         $app = $sendCertificateList->app_cert_cb_to;
+    //     }
+    //     // dd($app);
+    //     $mail = auth()->user()->reg_email;
+    //     $app = $sendCertificateList->app_cert_to;
+    //     // dd($app);
+    //     $dataMailCenter = $app->DataEmailCertifyCenter;
+    //     $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
+    //     $EMail =  array_key_exists($app->subgroup,$dataMail)  ? $dataMail[$app->subgroup] :'admin@admin.com';
+    //     dd($dataMailCenter,$EMail);
+    // }
+
+    // public function check_ib_payin()
+    // {
+    //     $today = now(); // กำหนดวันปัจจุบัน
+
+    //     $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
+    //         ->where('invoiceEndDate', '>=', $today)
+    //         ->where(function ($query) {
+    //             $query->where('status_confirmed', 0)
+    //                 ->orWhereNull('status_confirmed');
+    //         })
+    //         ->where('state', 1)
+    //         ->where('count', '<=', 3)
+    //         ->where(function ($query) {
+    //             $query->where('ref1', 'like', 'IB%');
+    //         })
+    //         ->get();
+    //     dd($transactionPayIns);
+    // }
+
+    // public function createIbAssessmentReportPdf()
+    // {
+    //     $lastRecord = IbReportInfo::orderBy('id', 'desc')->first();
+    //     // dd($lastRecord->id);
+    //     $pdfService = new CreateIbAssessmentReportPdf($lastRecord->id,"ia");
+    //     $pdfContent = $pdfService->generateIbAssessmentReportPdf();
+    // }
+
+    // public function createIbAssessmentReportTwoPdf()
+    // {
+    //     $lastRecord = IbReportTwoInfo::orderBy('id', 'desc')->first();
+    //     $pdfService = new CreateIbAssessmentReportTwoPdf($lastRecord->id,"ia");
+    //     $pdfContent = $pdfService->generateIbAssessmentReportTwoPdf();
+    // }
+
+    // public function createTrackingIbMessageRecordPdf()
+    // {
+    //     $board = TrackingAuditors::find(317);
+    //     // dd($board);
+    //     $pdfService = new CreateTrackingIbMessageRecordPdf($board,"ia");
+    //     $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
+    // }
+
+    //     public function createTrackingCbMessageRecordPdf()
+    // {
+    //     $board = TrackingAuditors::find(316);
+    //     // dd($board);
+    //     $pdfService = new CreateTrackingCbMessageRecordPdf($board,"ia");
+    //     $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
+    // }
+
+
+    // public function createTrackingLabAssessmentReportOnePdf()
+    // {
+    //     $pdfService = new CreateTrackingLabAssessmentReportOnePdf(179);
+    //     $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    // }
+
+    // public function createTrackingIbAssessmentReportOnePdf()
+    // {
+    //     $pdfService = new CreateTrackingIbAssessmentReportOnePdf(180);
+    //     $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    // }
+
+    // public function createTrackingCbAssessmentReportOnePdf()
+    // {
+    //     $pdfService = new CreateTrackingCbAssessmentReportOnePdf(181);
+    //     $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    // }
     
-                // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
-                if (is_array($response) && count($response) > 0) {
-                    // ใช้ array_map เพื่อดึง ref1
-                    $ref1List = array_map(function ($item) {
-                        return isset($item['ref1']) ? $item['ref1'] : null;
-                    }, $response);
-    
-                    // กรองเฉพาะ ref1 ที่ไม่เป็น null
-                    $validRef1 = array_filter($ref1List);
-                    $tb = new CertiCBPayInTwo;
+    // public function createTrackingLabAssessmentReportTwoPdf()
+    // {
+    //     $pdfService = new CreateTrackingLabAssessmentReportTwoPdf(179);
+    //     $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    // }
 
-                    // $appCertiLabCostCertificateId = $transactionPayIn->ref_id;
-                    $PayIn = CertiCBPayInTwo::findOrFail($transactionPayIn->ref_id);
-                    $certi_cb = CertiCb::findOrFail($PayIn->app_certi_cb_id);
-                    $certiCBAttachAll = CertiCBAttachAll::where('table_name', $tb->getTable())
-                        ->where('app_certi_cb_id', $PayIn->app_certi_cb_id)
-                        ->where('ref_id', $PayIn->id)
-                        ->orderBy('created_at', 'desc') // หรือกรณีที่ใช้ฟิลด์อื่นในการจัดลำดับ
-                        ->first();
+    // public function createTrackingIbAssessmentReportTwoPdf()
+    // {
+    //     $pdfService = new CreateTrackingIbAssessmentReportTwoPdf(180);
+    //     $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    // }
 
-
-                    $certi_cb = CertiCb::findOrFail($PayIn->app_certi_cb_id);
-                    $certi_cb_attach_more                    = new CertiCBAttachAll();
-                    $certi_cb_attach_more->app_certi_cb_id   = $certi_cb->id;
-                    $certi_cb_attach_more->ref_id            = $PayIn->id;
-                    $certi_cb_attach_more->table_name        = $tb->getTable();
-                    $certi_cb_attach_more->file              = $certiCBAttachAll->file;
-                    $certi_cb_attach_more->file_client_name  = $certiCBAttachAll->file_client_name;
-                    $certi_cb_attach_more->file_section      = '2';
-                    $certi_cb_attach_more->token             = str_random(16);
-                    $certi_cb_attach_more->save();
-
-                    $PayIn->degree = 3 ; 
-                    $PayIn->status = null ; 
-                    $PayIn->report_date = null ; 
-                    $PayIn->status = 2 ; 
-                    $PayIn->condition_pay = null ; 
-                    $PayIn->save();
-
-                    $certi_cb->status = 17;
-                    $certi_cb->save();
-
-                    $transaction_payin  =  TransactionPayIn::where('ref_id',$PayIn->id)->where('table_name', (new CertiCBPayInTwo)->getTable())->orderby('id','desc')->first();
-                    if(!is_null($transaction_payin)){
-                        $transaction_payin->ReceiptCreateDate     =  Carbon::now(); 
-                        $transaction_payin->ReceiptCode           =  '123456' ; 
-                        $transaction_payin->save();
-                    }
-                        
-
-                } else {
-                    dd("Response is empty or not an array.");
-                }
-            } else {
-                dd("No valid message or response.");
-            }
-        } else {
-            dd("Invalid response type. Expected JsonResponse.");
-        }
-    }
-    
-    }
-
-    public function createLabAssessmentReportTwoPdf()
-    {
-
-        $pdfService = new CreateLabAssessmentReportTwoPdf(2,"ia");
-        $pdfContent = $pdfService->generateLabReportTwoPdf();
-    }
-
-    public function getEmailInfo()
-    {
-        $sendCertificateList = SendCertificateLists::find(525);
-        $app =null;
-        if($sendCertificateList->certificate_type == 3){
-            $app = $sendCertificateList->app_cert_to;
-        }else if($sendCertificateList->certificate_type == 2)
-        {
-            $app = $sendCertificateList->app_cert_ib_to;
-        }else if($sendCertificateList->certificate_type == 1)
-        {
-            // dd('cb');
-            $app = $sendCertificateList->app_cert_cb_to;
-        }
-        // dd($app);
-        $mail = auth()->user()->reg_email;
-        $app = $sendCertificateList->app_cert_to;
-        // dd($app);
-        $dataMailCenter = $app->DataEmailCertifyCenter;
-        $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
-        $EMail =  array_key_exists($app->subgroup,$dataMail)  ? $dataMail[$app->subgroup] :'admin@admin.com';
-        dd($dataMailCenter,$EMail);
-    }
-
-    public function check_ib_payin()
-    {
-        $today = now(); // กำหนดวันปัจจุบัน
-
-        $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
-            ->where('invoiceEndDate', '>=', $today)
-            ->where(function ($query) {
-                $query->where('status_confirmed', 0)
-                    ->orWhereNull('status_confirmed');
-            })
-            ->where('state', 1)
-            ->where('count', '<=', 3)
-            ->where(function ($query) {
-                $query->where('ref1', 'like', 'IB%');
-            })
-            ->get();
-        dd($transactionPayIns);
-    }
-
-    public function createIbAssessmentReportPdf()
-    {
-        $lastRecord = IbReportInfo::orderBy('id', 'desc')->first();
-        // dd($lastRecord->id);
-        $pdfService = new CreateIbAssessmentReportPdf($lastRecord->id,"ia");
-        $pdfContent = $pdfService->generateIbAssessmentReportPdf();
-    }
-
-    public function createIbAssessmentReportTwoPdf()
-    {
-        $lastRecord = IbReportTwoInfo::orderBy('id', 'desc')->first();
-        $pdfService = new CreateIbAssessmentReportTwoPdf($lastRecord->id,"ia");
-        $pdfContent = $pdfService->generateIbAssessmentReportTwoPdf();
-    }
-
-    public function createTrackingIbMessageRecordPdf()
-    {
-        $board = TrackingAuditors::find(317);
-        // dd($board);
-        $pdfService = new CreateTrackingIbMessageRecordPdf($board,"ia");
-        $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
-    }
-
-        public function createTrackingCbMessageRecordPdf()
-    {
-        $board = TrackingAuditors::find(316);
-        // dd($board);
-        $pdfService = new CreateTrackingCbMessageRecordPdf($board,"ia");
-        $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
-    }
-
-
-    public function createTrackingLabAssessmentReportOnePdf()
-    {
-        $pdfService = new CreateTrackingLabAssessmentReportOnePdf(179);
-        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-    }
-
-    public function createTrackingIbAssessmentReportOnePdf()
-    {
-        $pdfService = new CreateTrackingIbAssessmentReportOnePdf(180);
-        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-    }
-
-    public function createTrackingCbAssessmentReportOnePdf()
-    {
-        $pdfService = new CreateTrackingCbAssessmentReportOnePdf(181);
-        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-    }
-    
-    public function createTrackingLabAssessmentReportTwoPdf()
-    {
-        $pdfService = new CreateTrackingLabAssessmentReportTwoPdf(179);
-        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-    }
-
-    public function createTrackingIbAssessmentReportTwoPdf()
-    {
-        $pdfService = new CreateTrackingIbAssessmentReportTwoPdf(180);
-        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-    }
-
-    public function createTrackingCbAssessmentReportTwoPdf()
-    {
-        $pdfService = new CreateTrackingCbAssessmentReportTwoPdf(181);
-        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-    }
+    // public function createTrackingCbAssessmentReportTwoPdf()
+    // {
+    //     $pdfService = new CreateTrackingCbAssessmentReportTwoPdf(181);
+    //     $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    // }
     
     //    $trackingLabReportTwo = $signAssessmentTrackingReportTransaction->trackingLabReportTwo;
     //                 $pdfService = new CreateTrackingLabAssessmentReportTwoPdf($trackingLabReportTwo->tracking_assessment_id);
