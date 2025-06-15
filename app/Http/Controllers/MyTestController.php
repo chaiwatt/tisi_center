@@ -2114,136 +2114,131 @@ public function create_bill()
         ]);
     }
     
-    public function CreateTrackingLabMessageRecord()
-    {
-        $id = 278;
-        // สำหรับ admin และเจ้าหน้าที่ lab
-        if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
-            abort(403);
-        }
+    // public function CreateTrackingLabMessageRecord()
+    // {
+    //     $id = 278;
+    //     // สำหรับ admin และเจ้าหน้าที่ lab
+    //     if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
+    //         abort(403);
+    //     }
 
-        $trackingAuditor = TrackingAuditors::find($id);
-        $auditors_statuses= $trackingAuditor->auditors_status_many;
-        $statusAuditorMap = [];
-        foreach ($auditors_statuses as $auditors_status)
-        {
-            // dd($auditors_status->auditors_list_many);
-            $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
-            $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
+    //     $trackingAuditor = TrackingAuditors::find($id);
+    //     $auditors_statuses= $trackingAuditor->auditors_status_many;
+    //     $statusAuditorMap = [];
+    //     foreach ($auditors_statuses as $auditors_status)
+    //     {
+    //         // dd($auditors_status->auditors_list_many);
+    //         $statusAuditorId = $auditors_status->status_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+    //         $auditors = $auditors_status->auditors_list_many; // $auditors เป็น Collection
 
-            // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
-            if (!isset($statusAuditorMap[$statusAuditorId])) {
-                $statusAuditorMap[$statusAuditorId] = [];
-            }
-            // dd($auditors_status);
-            // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
-            foreach ($auditors as $auditor) {
+    //         // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+    //         if (!isset($statusAuditorMap[$statusAuditorId])) {
+    //             $statusAuditorMap[$statusAuditorId] = [];
+    //         }
+    //         // dd($auditors_status);
+    //         // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+    //         foreach ($auditors as $auditor) {
                 
-                $statusAuditorMap[$statusAuditorId][] = $auditor->id;
-            }
-        }
+    //             $statusAuditorMap[$statusAuditorId][] = $auditor->id;
+    //         }
+    //     }
 
-        // dd($statusAuditorMap);
+    //     // dd($statusAuditorMap);
 
         
-        $tracking = Tracking::find($trackingAuditor->tracking_id);
+    //     $tracking = Tracking::find($trackingAuditor->tracking_id);
 
-        $trackingAuditorsDate = TrackingAuditorsDate::where('auditors_id',$id)->first();
-        $dateRange = "";
+    //     $trackingAuditorsDate = TrackingAuditorsDate::where('auditors_id',$id)->first();
+    //     $dateRange = "";
 
-        if (!empty($trackingAuditorsDate->start_date) && !empty($trackingAuditorsDate->end_date)) {
-            if ($trackingAuditorsDate->start_date == $trackingAuditorsDate->end_date) {
-                // ถ้าเป็นวันเดียวกัน
-                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date);
-            } else {
-                // ถ้าเป็นคนละวัน
-                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date) . 
-                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->end_date);
-            }
-        }
+    //     if (!empty($trackingAuditorsDate->start_date) && !empty($trackingAuditorsDate->end_date)) {
+    //         if ($trackingAuditorsDate->start_date == $trackingAuditorsDate->end_date) {
+    //             // ถ้าเป็นวันเดียวกัน
+    //             $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date);
+    //         } else {
+    //             // ถ้าเป็นคนละวัน
+    //             $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->start_date) . 
+    //                         " ถึงวันที่ " . HP::formatDateThaiFullNumThai($trackingAuditorsDate->end_date);
+    //         }
+    //     }
 
-        // dd($dateRange );
+    //     // dd($dateRange );
 
-        $boardAuditorExpertTracking = BoardAuditoExpertTracking::where('tracking_auditor_id',$id)->first();
+    //     $boardAuditorExpertTracking = BoardAuditoExpertTracking::where('tracking_auditor_id',$id)->first();
 
-        $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
-        // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
-        // dd($boardAuditorExpert->expert);
-        if ($boardAuditorExpertTracking && $boardAuditorExpertTracking->expert) {
-            // แปลงข้อมูล JSON ใน expert กลับเป็น array
-            $categories = json_decode($boardAuditorExpertTracking->expert, true);
+    //     $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+    //     // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
+    //     // dd($boardAuditorExpert->expert);
+    //     if ($boardAuditorExpertTracking && $boardAuditorExpertTracking->expert) {
+    //         // แปลงข้อมูล JSON ใน expert กลับเป็น array
+    //         $categories = json_decode($boardAuditorExpertTracking->expert, true);
         
-            // ถ้ามีหลายรายการ
-            if (count($categories) > 1) {
-                // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
-                $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
-                $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
-            } elseif (count($categories) == 1) {
-                // ถ้ามีแค่รายการเดียว
-                $experts = $categories[0];
-            } else {
-                $experts = ''; // ถ้าไม่มีข้อมูล
-            }
+    //         // ถ้ามีหลายรายการ
+    //         if (count($categories) > 1) {
+    //             // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
+    //             $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
+    //             $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
+    //         } elseif (count($categories) == 1) {
+    //             // ถ้ามีแค่รายการเดียว
+    //             $experts = $categories[0];
+    //         } else {
+    //             $experts = ''; // ถ้าไม่มีข้อมูล
+    //         }
         
-        }
+    //     }
         
-        $certi_lab = $tracking->certificate_export_to->applications;
-        // dd($certi_lab);
-        $scope_branch = "";
-        if ($certi_lab->lab_type == 3){
-            $scope_branch =$certi_lab->BranchTitle;
-        }else if($certi_lab->lab_type == 4)
-        {
-            $scope_branch = $certi_lab->ClibrateBranchTitle;
-        }
+    //     $certi_lab = $tracking->certificate_export_to->applications;
+    //     // dd($certi_lab);
+    //     $scope_branch = "";
+    //     if ($certi_lab->lab_type == 3){
+    //         $scope_branch =$certi_lab->BranchTitle;
+    //     }else if($certi_lab->lab_type == 4)
+    //     {
+    //         $scope_branch = $certi_lab->ClibrateBranchTitle;
+    //     }
 
-        // dd($certi_lab);
+    //     // dd($certi_lab);
        
-        $data = new stdClass();
-        // $certiLabFileAll = CertLabsFileAll::where('app_certi_lab_id', $certi_lab->id)
-        //         ->whereNotNull('start_date')
-        //         ->whereNotNull('end_date')
-        //         // ->whereNotNull('ref_id')
-        //         ->first();
-        // dd($certi_lab)        ;
+    //     $data = new stdClass();
+
 
      
-        $data->header_text1 = '';
-        $data->header_text2 = '';
-        $data->header_text3 = '';
-        $data->header_text4 = $certi_lab->app_no;
-        $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
-        $data->lab_name = $certi_lab->lab_name;
-        $data->scope_branch = $scope_branch;
-        $data->tracking = $tracking;
-        $data->app_np = 'ทดสอบ ๑๖๗๑';
-        $data->certificate_no = '13-LB0037';
-        $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
-        $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
-        $data->experts = $experts;
-        // $data->certiLabFileAll = $certiLabFileAll;
-        $data->date_range = $dateRange;
-        $data->statusAuditorMap = $statusAuditorMap;
-        $data->fix_text1 = <<<HTML
-                    <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
-                    <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ "การขอใบรับรอง การตรวจสอบและการออกใบรับรอง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด"</div>
-                    <div style="text-indent:125px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข วันที่ ๔ มีนาคม ๒๕๕๑) การรับรองห้องปฏิบัติการ (ประกาศในราชกิจจานุเบกษา วันที่ ๑๗ พฤษภาคม ๒๕๖๔)"</div>
-                    <div style="text-indent:150px">ข้อ ๖.๑.๒ (๑) แต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าคณะผู้ตรวจ ประเมิน ผู้ตรวจประเมินด้านวิชาการ และผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความเหมาะสม</div>
-                    <div style="text-indent:150px">ข้อ ๖.๑.๒ (๒.๑) คณะผู้ตรวจประเมินจะทบทวนและประเมินและประเมินเอกสารของห้องปฏิบัติการ และข้อ ๖.๑.๒ (๒.๒) คณะผู้ตรวจประเมินจะตรวจประเมินความสามารถและ ประสิทธิผลของการดำเนินงานตามระบบการบริหารงานและมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง ณ สถานประกอบการของผู้ยื่นคำขอ และสถานที่ทำการอื่นในสาขาที่ขอรับการรับรอง</div>
-                    <div style="text-indent:125px">๒.๓ ประกาศสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม เรื่อง แนวทางการแต่งตั้งพนักงานเจ้าหน้าที่ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศ ณ วันที่ ๙ กุมภาพันธ์ พ.ศ. ๒๕๖๐) ซึ่งระบุพนักงานเจ้าหน้าที่ต้องมีคุณสมบัติตามข้อ ๑. ถึง ๓. </div>
-                    <div style="text-indent:125px">๒.๔ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓๔๒/๒๕๖๖ เรื่อง มอบอำนาจให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมในการเป็นผู้มีอำนาจพิจารณาดำเนินการตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (สั่ง ณ วันที่ ๑๓พฤศจิกายน ๒๕๖๖) ข้อ ๓ ระบุให้ผู้อำนวยการสำนักงานคณะกรรมการการมาตรฐานแห่งชาติ เป็นผู้มีอำนาจพิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ และข้อ ๕.๒ ในกรณีที่ข้าราชการผู้รับมอบอำนาจตามข้อ ๓.ไม่อาจปฏิบัติราชการได้ หรือไม่มีผู้ดำรงตำแหน่งดังกล่าว ให้รองเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมที่กำกับ เป็นผู้พิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑</div>
-                HTML;
+    //     $data->header_text1 = '';
+    //     $data->header_text2 = '';
+    //     $data->header_text3 = '';
+    //     $data->header_text4 = $certi_lab->app_no;
+    //     $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+    //     $data->lab_name = $certi_lab->lab_name;
+    //     $data->scope_branch = $scope_branch;
+    //     $data->tracking = $tracking;
+    //     $data->app_np = 'ทดสอบ ๑๖๗๑';
+    //     $data->certificate_no = '13-LB0037';
+    //     $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+    //     $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+    //     $data->experts = $experts;
+    //     // $data->certiLabFileAll = $certiLabFileAll;
+    //     $data->date_range = $dateRange;
+    //     $data->statusAuditorMap = $statusAuditorMap;
+    //     $data->fix_text1 = <<<HTML
+    //                 <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
+    //                 <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ "การขอใบรับรอง การตรวจสอบและการออกใบรับรอง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด"</div>
+    //                 <div style="text-indent:125px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข วันที่ ๔ มีนาคม ๒๕๕๑) การรับรองห้องปฏิบัติการ (ประกาศในราชกิจจานุเบกษา วันที่ ๑๗ พฤษภาคม ๒๕๖๔)"</div>
+    //                 <div style="text-indent:150px">ข้อ ๖.๑.๒ (๑) แต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าคณะผู้ตรวจ ประเมิน ผู้ตรวจประเมินด้านวิชาการ และผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความเหมาะสม</div>
+    //                 <div style="text-indent:150px">ข้อ ๖.๑.๒ (๒.๑) คณะผู้ตรวจประเมินจะทบทวนและประเมินและประเมินเอกสารของห้องปฏิบัติการ และข้อ ๖.๑.๒ (๒.๒) คณะผู้ตรวจประเมินจะตรวจประเมินความสามารถและ ประสิทธิผลของการดำเนินงานตามระบบการบริหารงานและมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง ณ สถานประกอบการของผู้ยื่นคำขอ และสถานที่ทำการอื่นในสาขาที่ขอรับการรับรอง</div>
+    //                 <div style="text-indent:125px">๒.๓ ประกาศสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม เรื่อง แนวทางการแต่งตั้งพนักงานเจ้าหน้าที่ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศ ณ วันที่ ๙ กุมภาพันธ์ พ.ศ. ๒๕๖๐) ซึ่งระบุพนักงานเจ้าหน้าที่ต้องมีคุณสมบัติตามข้อ ๑. ถึง ๓. </div>
+    //                 <div style="text-indent:125px">๒.๔ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓๔๒/๒๕๖๖ เรื่อง มอบอำนาจให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมในการเป็นผู้มีอำนาจพิจารณาดำเนินการตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (สั่ง ณ วันที่ ๑๓พฤศจิกายน ๒๕๖๖) ข้อ ๓ ระบุให้ผู้อำนวยการสำนักงานคณะกรรมการการมาตรฐานแห่งชาติ เป็นผู้มีอำนาจพิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ และข้อ ๕.๒ ในกรณีที่ข้าราชการผู้รับมอบอำนาจตามข้อ ๓.ไม่อาจปฏิบัติราชการได้ หรือไม่มีผู้ดำรงตำแหน่งดังกล่าว ให้รองเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมที่กำกับ เป็นผู้พิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑</div>
+    //             HTML;
 
-        $data->fix_text2 = <<<HTML
-                    <div class="section-title">๓. สาระสำคัญและข้อเท็จจริง</div>
-                    <div style="text-indent:125px">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองห้องปฏิบัติการ สมอ. มีอำนาจหน้าที่ในการรับรองความสามารถห้องปฏิบัติการ กำหนดให้มีการประเมินเพื่อพิจารณาให้การรับรองความสามารถห้องปฏิบัติการ{{$data->lab_type}} ตามมาตรฐานเลขที่ มอก. 17025-2561</div>
-                HTML;
+    //     $data->fix_text2 = <<<HTML
+    //                 <div class="section-title">๓. สาระสำคัญและข้อเท็จจริง</div>
+    //                 <div style="text-indent:125px">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองห้องปฏิบัติการ สมอ. มีอำนาจหน้าที่ในการรับรองความสามารถห้องปฏิบัติการ กำหนดให้มีการประเมินเพื่อพิจารณาให้การรับรองความสามารถห้องปฏิบัติการ{{$data->lab_type}} ตามมาตรฐานเลขที่ มอก. 17025-2561</div>
+    //             HTML;
 
-        return view('certificate.labs.auditor-labs.initial-message-record', [
-            'data' => $data,
-            'id' => $id
-        ]);
-    }
+    //     return view('certificate.labs.auditor-labs.initial-message-record', [
+    //         'data' => $data,
+    //         'id' => $id
+    //     ]);
+    // }
 
     public function genTrackingLabMessageRecordPdf()
     {
@@ -2385,8 +2380,8 @@ public function create_bill()
             } else {
                 dd("Invalid response type. Expected JsonResponse.");
             }
+        }
     }
-}
 
 
     public function trackingLabReportPdf()
