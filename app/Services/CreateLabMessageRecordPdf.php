@@ -328,8 +328,7 @@ public function ia($mpdf)
     $data->statusAuditorMap = $statusAuditorMap;
 
     $htmlLabMemorandumRequest = HtmlLabMemorandumPdfRequest::where('type', "ia")->first();
-
-    dd($htmlLabMemorandumRequest);
+    
 
     $data->fix_text1 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text1 : ''; // แก้ไข: กัน null
     $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : ''; // แก้ไข: กัน null
