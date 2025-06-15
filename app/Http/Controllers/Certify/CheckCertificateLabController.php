@@ -1024,7 +1024,7 @@ class CheckCertificateLabController extends Controller
        // ดาวน์โหลดเนื้อหา PDF (Demo)
        $pdf_content = file_get_contents($url);
 
-       // dd($pdf_content);
+       dd($pdf_content);
             
         $no  = str_replace("RQ-","",$app_no);
         $no  = str_replace("-","_",$no);
