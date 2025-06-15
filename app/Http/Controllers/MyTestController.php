@@ -2252,136 +2252,135 @@ public function create_bill()
         $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
     }
 
-    public function updateTrackingLabPayin1()
-    {
+    // public function updateTrackingLabPayin1()
+    // {
 
-        // $admin = DB::table('user_register')->where('reg_email', 'admin@admin.com')->first();  
-        // dd($admin);
 
-        $today = now(); // กำหนดวันปัจจุบัน
 
-        $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
-            ->where('invoiceEndDate', '>=', $today)
-            ->where(function ($query) {
-                $query->whereNull('status_confirmed')
-                      ->orWhere('status_confirmed', 0);
-            })
-            ->where('state',1)
-            ->where('count','<=',3)
-            ->where(function ($query) {
-                $query->where('ref1', 'like', 'SurLab%');
-            })
-            ->get();
+    //     $today = now(); // กำหนดวันปัจจุบัน
+
+    //     $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
+    //         ->where('invoiceEndDate', '>=', $today)
+    //         ->where(function ($query) {
+    //             $query->whereNull('status_confirmed')
+    //                   ->orWhere('status_confirmed', 0);
+    //         })
+    //         ->where('state',1)
+    //         ->where('count','<=',3)
+    //         ->where(function ($query) {
+    //             $query->where('ref1', 'like', 'SurLab%');
+    //         })
+    //         ->get();
 
         
 
-        foreach ($transactionPayIns as $transactionPayIn) {
-            $ref1 = $transactionPayIn->ref1;
-            $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
-            // dd($result);
-            // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
-            if ($result instanceof \Illuminate\Http\JsonResponse) {
-                // แปลง JsonResponse เป็น array
-                $resultArray = $result->getData(true);
+    //     foreach ($transactionPayIns as $transactionPayIn) {
+    //         $ref1 = $transactionPayIn->ref1;
+    //         $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
+    //         // dd($result);
+    //         // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
+    //         if ($result instanceof \Illuminate\Http\JsonResponse) {
+    //             // แปลง JsonResponse เป็น array
+    //             $resultArray = $result->getData(true);
         
-                // ตรวจสอบค่า message
-                if (!empty($resultArray['message']) && $resultArray['message'] === true) {
-                    // ดึงค่าทั้งหมดจาก response
-                    $response = $resultArray['response'] ?? null;
+    //             // ตรวจสอบค่า message
+    //             if (!empty($resultArray['message']) && $resultArray['message'] === true) {
+    //                 // ดึงค่าทั้งหมดจาก response
+    //                 $response = $resultArray['response'] ?? null;
         
-                    // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
-                    if (is_array($response) && count($response) > 0) {
-                        // ใช้ array_map เพื่อดึง ref1
+    //                 // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
+    //                 if (is_array($response) && count($response) > 0) {
+    //                     // ใช้ array_map เพื่อดึง ref1
             
                         
-                        $parts = explode('-', $ref1);
-                        $trackingBoardAuditorId = end($parts); // ค่าสุดท้ายคือ 336
-                        $auditor = TrackingAuditors::findOrFail($trackingBoardAuditorId);
-                        $referenceRefno = implode('-', array_slice($parts, 0, -1));
+    //                     $parts = explode('-', $ref1);
+    //                     $trackingBoardAuditorId = end($parts); // ค่าสุดท้ายคือ 336
+    //                     $auditor = TrackingAuditors::findOrFail($trackingBoardAuditorId);
+    //                     $referenceRefno = implode('-', array_slice($parts, 0, -1));
 
-                        // dd($referenceRefno);
+    //                     // dd($referenceRefno);
 
-                        $attachFile = AttachFile::where('section',"attach_payin1")
-                        ->where('ref_id',$transactionPayIn->ref_id)
-                        ->first();
-                        // dd($transactionPayIn->id,$attachFile);
-                        $url = null;
-                        $new_filename = null;
-                        $filename = null;
-                        if($attachFile != null)
-                        {
-                            if($attachFile->url != null)
-                            {
-                                $url = $attachFile->url;
-                            }
-                            if($attachFile->new_filename != null)
-                            {
-                                $new_filename = $attachFile->new_filename;
-                            }
-                            if($attachFile->filename != null)
-                            {
-                                $filename = $attachFile->filename;
-                            }
-                        }
+    //                     $attachFile = AttachFile::where('section',"attach_payin1")
+    //                     ->where('ref_id',$transactionPayIn->ref_id)
+    //                     ->first();
+    //                     // dd($transactionPayIn->id,$attachFile);
+    //                     $url = null;
+    //                     $new_filename = null;
+    //                     $filename = null;
+    //                     if($attachFile != null)
+    //                     {
+    //                         if($attachFile->url != null)
+    //                         {
+    //                             $url = $attachFile->url;
+    //                         }
+    //                         if($attachFile->new_filename != null)
+    //                         {
+    //                             $new_filename = $attachFile->new_filename;
+    //                         }
+    //                         if($attachFile->filename != null)
+    //                         {
+    //                             $filename = $attachFile->filename;
+    //                         }
+    //                     }
                         
-                        if ($url != null) {
-                            if (HP::checkFileStorage($url)) {
-                                // ดึงไฟล์ที่ดาวน์โหลดมา
-                                $localFilePath = HP::getFileStoragePath($url);
+    //                     if ($url != null) {
+    //                         if (HP::checkFileStorage($url)) {
+    //                             // ดึงไฟล์ที่ดาวน์โหลดมา
+    //                             $localFilePath = HP::getFileStoragePath($url);
 
-                                $tb       = new TrackingPayInOne;
-                                $pay_in   = TrackingPayInOne::where('reference_refno',$referenceRefno)->first();
-                                // $config   = HP::getConfig();
-                                $app_certi_tracking = Tracking::where('reference_refno',$referenceRefno)->first();
-                                $taxNumber = $app_certi_tracking->tax_id;
+    //                             $tb       = new TrackingPayInOne;
+    //                             $pay_in   = TrackingPayInOne::where('reference_refno',$referenceRefno)->first();
+    //                             // $config   = HP::getConfig();
+    //                             $app_certi_tracking = Tracking::where('reference_refno',$referenceRefno)->first();
+    //                             $taxNumber = $app_certi_tracking->tax_id;
 
-                                $filePath = 'files/trackinglabs/' . $referenceRefno;
+    //                             $filePath = 'files/trackinglabs/' . $referenceRefno;
 
                               
-                                $localFilePath = HP::getFileStoragePath($url);
+    //                             $localFilePath = HP::getFileStoragePath($url);
 
-                                if (file_exists($localFilePath)) {
-                                    // จำลองไฟล์อัปโหลด
-                                    $uploadedFile = new \Illuminate\Http\UploadedFile(
-                                        $localFilePath,      // Path ของไฟล์
-                                        basename($localFilePath), // ชื่อไฟล์
-                                        mime_content_type($localFilePath), // MIME type
-                                        null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
-                                        true                // เป็นไฟล์ที่ valid แล้ว
-                                    );
+    //                             if (file_exists($localFilePath)) {
+    //                                 // จำลองไฟล์อัปโหลด
+    //                                 $uploadedFile = new \Illuminate\Http\UploadedFile(
+    //                                     $localFilePath,      // Path ของไฟล์
+    //                                     basename($localFilePath), // ชื่อไฟล์
+    //                                     mime_content_type($localFilePath), // MIME type
+    //                                     null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
+    //                                     true                // เป็นไฟล์ที่ valid แล้ว
+    //                                 );
                         
-                                    // ใช้ไฟล์ที่จำลองในการอัปโหลด
-                                    $file_payin = HP::singleFileUploadRefno(
-                                        $uploadedFile,                          // ใช้ไฟล์ที่จำลองแทนไฟล์ input
-                                        $filePath,
-                                        $taxNumber,
-                                        $auditor->no,
-                                        'ACC',
-                                        $tb->getTable(),
-                                        $pay_in->id,
-                                        'attachs_file',
-                                        null
-                                    );
+    //                                 // ใช้ไฟล์ที่จำลองในการอัปโหลด
+    //                                 $file_payin = HP::singleFileUploadRefno(
+    //                                     $uploadedFile,                          // ใช้ไฟล์ที่จำลองแทนไฟล์ input
+    //                                     $filePath,
+    //                                     $taxNumber,
+    //                                     $auditor->no,
+    //                                     'ACC',
+    //                                     $tb->getTable(),
+    //                                     $pay_in->id,
+    //                                     'attachs_file',
+    //                                     null
+    //                                 );
                         
-                                    // ลบไฟล์ที่ดาวน์โหลดมา
-                                    unlink($localFilePath);
-                            }
-                            // dd($transactionPayIns);
-                        }
-                    }
+    //                                 // ลบไฟล์ที่ดาวน์โหลดมา
+    //                                 unlink($localFilePath);
+    //                         }
+    //                         // dd($transactionPayIns);
+    //                     }
+    //                 }
  
 
-                    } else {
-                        dd("Response is empty or not an array.");
-                    }
-                } else {
-                    dd("No valid message or response.");
-                }
-            } else {
-                dd("Invalid response type. Expected JsonResponse.");
-            }
-        }
-    }
+    //                 } else {
+    //                     dd("Response is empty or not an array.");
+    //                 }
+    //             } else {
+    //                 dd("No valid message or response.");
+    //             }
+    //         } else {
+    //             dd("Invalid response type. Expected JsonResponse.");
+    //         }
+    //     }
+    // }
 
 
     public function trackingLabReportPdf()
