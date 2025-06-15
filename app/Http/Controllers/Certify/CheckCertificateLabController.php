@@ -1019,12 +1019,28 @@ class CheckCertificateLabController extends Controller
     {
        $baseUrl = strstr($setting_payment->data, '/api', true);
 
-       $url = $baseUrl. '/images/PayIn2.pdf';
+          $url = $baseUrl. '/images/PayIn2.pdf';
+            $contextOptions = [
+                "ssl" => [
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
+                ]
+            ];
+
+            if (strpos($setting_payment->data, 'https') === 0) {
+                $context = stream_context_create($contextOptions);
+                $pdf_content = file_get_contents($url, false, $context);
+            } else {
+                $pdf_content = file_get_contents($url);
+            }
+
+            dd($pdf_content);
+     
     //    dd($url)   ;
        // ดาวน์โหลดเนื้อหา PDF (Demo)
-       $pdf_content = file_get_contents($url);
+    //    $pdf_content = file_get_contents($url);
 
-       dd($pdf_content);
+    //    dd($pdf_content);
             
         $no  = str_replace("RQ-","",$app_no);
         $no  = str_replace("-","_",$no);
