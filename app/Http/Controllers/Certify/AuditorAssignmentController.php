@@ -45,6 +45,7 @@ class AuditorAssignmentController extends Controller
         $userId = $user->runrecno;
         // ดึงข้อมูล signer โดยใช้ user_register_id
         $signer = Signer::where('user_register_id', $userId)->first();
+        dd($user);
 
         // ตรวจสอบว่าพบข้อมูลหรือไม่
         if ($signer) {
