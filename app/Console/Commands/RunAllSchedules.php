@@ -34,22 +34,22 @@ class RunAllSchedules extends Command
     {
         $this->call('check:lab-reject-date'); //ยกเลิกคำ LAB ขอถ้าไม่แก้ภายใน 30 วัน
         $this->call('check:lab-payin-one'); //อัพเดทสถานการจ่ายเงิน payin1 lab ผ่าน api
-        $this->call('command:generate-payin-lab'); //สร้าง payin1 (lab) ใหม่ 
-        $this->call('check:lab-payin-two'); ////อัพเดทสถานการจ่ายเงิน payin2 lab ผ่าน api
-        $this->call('command:generate-payin-two-lab'); //สร้าง payin2 (lab) ใหม่ 
-        $this->call('check:lab-notice'); //ยกเลิกคำขอ LAB ถ้าไม่แก้ข้อบกพร่องทุก transaction ภายใน 90 วัน
+        // $this->call('command:generate-payin-lab'); //สร้าง payin1 (lab) ใหม่ 
+        // $this->call('check:lab-payin-two'); ////อัพเดทสถานการจ่ายเงิน payin2 lab ผ่าน api
+        // $this->call('command:generate-payin-two-lab'); //สร้าง payin2 (lab) ใหม่ 
+        // $this->call('check:lab-notice'); //ยกเลิกคำขอ LAB ถ้าไม่แก้ข้อบกพร่องทุก transaction ภายใน 90 วัน
         
-        $this->call('check:tracking-lab-payin-one'); //อัพเดทสถานการจ่ายเงิน payin1 ตรวจติดตาม lab ผ่าน api
+        // $this->call('check:tracking-lab-payin-one'); //อัพเดทสถานการจ่ายเงิน payin1 ตรวจติดตาม lab ผ่าน api
 
 
-        $this->call('check:cb-reject-date'); //ยกเลิกคำ CB ขอถ้าไม่แก้ภายใน 30 วัน
-        $this->call('check:lab-payin-one-cb'); //อัพเดทสถานการจ่ายเงิน payin1 cb ผ่าน api
-        $this->call('check:cb-payin-two'); //อัพเดทสถานการจ่ายเงิน payin2 cb ผ่าน api
-        $this->call('check:ib-payin-one-ib'); //อัพเดทสถานการจ่ายเงิน payin1 ib ผ่าน api
-        $this->call('check:ib-payin-two'); 
+        // $this->call('check:cb-reject-date'); //ยกเลิกคำ CB ขอถ้าไม่แก้ภายใน 30 วัน
+        // $this->call('check:lab-payin-one-cb'); //อัพเดทสถานการจ่ายเงิน payin1 cb ผ่าน api
+        // $this->call('check:cb-payin-two'); //อัพเดทสถานการจ่ายเงิน payin2 cb ผ่าน api
+        // $this->call('check:ib-payin-one-ib'); //อัพเดทสถานการจ่ายเงิน payin1 ib ผ่าน api
+        // $this->call('check:ib-payin-two'); 
 
-        $this->call('check:tracking-ib-payin-one'); 
-        $this->call('check:tracking-cb-payin-one');
+        // $this->call('check:tracking-ib-payin-one'); 
+        // $this->call('check:tracking-cb-payin-one');
 
         
     }
