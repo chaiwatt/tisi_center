@@ -1285,7 +1285,7 @@ class BoardAuditorController extends Controller
         $boardAuditor = BoardAuditor::find($id);
         $groups = $boardAuditor->groups;
 
-        // $auditorIds = [];
+        $auditorIds = [];
         $statusAuditorMap = [];
 
         foreach ($groups as $group) {
@@ -1298,12 +1298,12 @@ class BoardAuditorController extends Controller
 
             foreach ($auditors as $auditor) {
                 $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
-                // $auditorIds[] = $auditor->auditor_id; // ✅ เพิ่มให้สมบูรณ์
+                $auditorIds[] = $auditor->auditor_id; // ✅ เพิ่มให้สมบูรณ์
             }
         }
 
-        // $uniqueAuditorIds = array_unique($auditorIds);
-        // $auditorInformations = AuditorInformation::whereIn('id', $uniqueAuditorIds)->get();
+        $uniqueAuditorIds = array_unique($auditorIds);
+        $auditorInformations = AuditorInformation::whereIn('id', $uniqueAuditorIds)->get();
         $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
 
         $boardAuditorDate = BoardAuditorDate::where('board_auditors_id', $id)->first();
@@ -1543,13 +1543,13 @@ class BoardAuditorController extends Controller
         }
 
         // รวม auditor_id ทั้งหมด
-        // $allAuditorIds = [];
-        // foreach ($statusAuditorMap as $ids) {
-        //     $allAuditorIds = array_merge($allAuditorIds, $ids);
-        // }
+        $allAuditorIds = [];
+        foreach ($statusAuditorMap as $ids) {
+            $allAuditorIds = array_merge($allAuditorIds, $ids);
+        }
 
-        // $uniqueAuditorIds = array_unique($allAuditorIds);
-        // $auditorInformations = AuditorInformation::whereIn('id', $uniqueAuditorIds)->get();
+        $uniqueAuditorIds = array_unique($allAuditorIds);
+        $auditorInformations = AuditorInformation::whereIn('id', $uniqueAuditorIds)->get();
 
         $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
         if (!$certi_lab) {
