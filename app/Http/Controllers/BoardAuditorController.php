@@ -1457,4 +1457,3 @@ class BoardAuditorController extends Controller
     }
 }
 
-?>
