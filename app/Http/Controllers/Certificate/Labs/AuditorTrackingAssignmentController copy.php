@@ -40,7 +40,11 @@ class AuditorTrackingAssignmentController extends Controller
 
         $userId = $user->runrecno;
         // ดึงข้อมูล signer โดยใช้ user_register_id
-        $signer = Signer::where('user_register_id', $userId)->first();
+        // $signer = Signer::where('user_register_id', $userId)->first();
+        $cleanId = preg_replace('/[\s-]/', '', $user->reg_13ID);
+        // ดึงข้อมูล signer โดยใช้ user_register_id
+        // $signer = Signer::where('user_register_id', $userId)->first();
+        $signer = Signer::where('tax_number', $cleanId)->first();
         // dd($signer->id);
         // ตรวจสอบว่าพบข้อมูลหรือไม่
         if ($signer) {

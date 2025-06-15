@@ -43,9 +43,14 @@ class AuditorAssignmentController extends Controller
         }
 
         $userId = $user->runrecno;
+        $cleanId = preg_replace('/[\s-]/', '', $user->reg_13ID);
         // ดึงข้อมูล signer โดยใช้ user_register_id
-        $signer = Signer::where('user_register_id', $userId)->first();
-        dd($signer);
+        // $signer = Signer::where('user_register_id', $userId)->first();
+        $signer = Signer::where('tax_number', $cleanId)->first();
+        // 3-9203-00409-81-4
+        // 3920300409814
+        // "reg_13ID" => "3-9203-00409-81-4"
+        // dd($user);
 
         // ตรวจสอบว่าพบข้อมูลหรือไม่
         if ($signer) {
