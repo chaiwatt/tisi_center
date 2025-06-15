@@ -1034,7 +1034,7 @@ class CheckCertificateLabController extends Controller
                 $pdf_content = file_get_contents($url);
             }
 
-            dd($pdf_content);
+            // dd($pdf_content);
      
     //    dd($url)   ;
        // ดาวน์โหลดเนื้อหา PDF (Demo)
