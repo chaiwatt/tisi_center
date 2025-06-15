@@ -1276,6 +1276,106 @@ class BoardAuditorController extends Controller
     //     ]);
     // }
 
+    public function CreateLabMessageRecord($id)
+{
+    if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
+        abort(403);
+    }
+
+    $boardAuditor = BoardAuditor::find($id);
+    $groups = $boardAuditor->groups;
+
+    $auditorIds = [];
+    $statusAuditorMap = [];
+
+    foreach ($groups as $group) {
+        $statusAuditorId = $group->status_auditor_id;
+        $auditors = $group->auditors;
+
+        if (!isset($statusAuditorMap[$statusAuditorId])) {
+            $statusAuditorMap[$statusAuditorId] = [];
+        }
+
+        foreach ($auditors as $auditor) {
+            $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+            $auditorIds[] = $auditor->auditor_id; // ✅ เพิ่มให้สมบูรณ์
+        }
+    }
+
+    $uniqueAuditorIds = array_unique($auditorIds);
+    $auditorInformations = AuditorInformation::whereIn('id', $uniqueAuditorIds)->get();
+    $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+
+    $boardAuditorDate = BoardAuditorDate::where('board_auditors_id', $id)->first();
+    $dateRange = '';
+    if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+        if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+            $dateRange = 'ในวันที่ ' . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+        } else {
+            $dateRange = 'ตั้งแต่วันที่ ' . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date)
+                       . ' ถึงวันที่ ' . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+        }
+    }
+
+    $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id', $id)->first();
+    $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+    if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+        $categories = json_decode($boardAuditorExpert->expert, true);
+        if (is_array($categories)) {
+            if (count($categories) > 1) {
+                $lastItem = array_pop($categories);
+                $experts = implode(' ', $categories) . ' และ' . $lastItem;
+            } elseif (count($categories) == 1) {
+                $experts = $categories[0];
+            } else {
+                $experts = '';
+            }
+        }
+    }
+
+    $scope_branch = '';
+    if ($certi_lab->lab_type == 3) {
+        $scope_branch = $certi_lab->BranchTitle;
+    } elseif ($certi_lab->lab_type == 4) {
+        $scope_branch = $certi_lab->ClibrateBranchTitle;
+    }
+
+    $data = new \stdClass();
+    $data->header_text1 = '';
+    $data->header_text2 = '';
+    $data->header_text3 = '';
+    $data->header_text4 = $certi_lab->app_no;
+    $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+    $data->lab_name = $certi_lab->lab_name;
+    $data->scope_branch = $scope_branch;
+    $data->app_np = 'ทดสอบ ๑๖๗๑';
+    $data->certificate_no = '13-LB0037';
+    $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+    $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+    $data->experts = $experts;
+    $data->date_range = $dateRange;
+    $data->statusAuditorMap = $statusAuditorMap;
+
+    // ✅ ป้องกัน error template parsing โดยไม่ใช้ Blade syntax ใน Heredoc
+    $labTypeText = $data->lab_type;
+    $data->fix_text1 = <<<HTML
+<div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
+<div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑...</div>
+<!-- (ย่อข้อความเพื่อความชัดเจน) -->
+HTML;
+
+    $data->fix_text2 = <<<HTML
+<div class="section-title">๓. สาระสำคัญและข้อเท็จจริง</div>
+<div style="text-indent:125px">ตามประกาศ... กำหนดให้มีการประเมินเพื่อพิจารณาให้การรับรองความสามารถห้องปฏิบัติการ{$labTypeText} ตามมาตรฐานเลขที่ มอก. 17025-2561</div>
+HTML;
+
+    return view('certify.auditor.initial-message-record', [
+        'data' => $data,
+        'id' => $id
+    ]);
+}
+
+
     public function SaveLabMessageRecord(Request $request)
     {
          // สร้างและบันทึกข้อมูลโดยตรง
@@ -1414,6 +1514,111 @@ class BoardAuditorController extends Controller
     //         'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo
     //     ]);
     // }
+
+
+    public function viewLabMessageRecord($id)
+{
+    $boardAuditor = BoardAuditor::find($id);
+    if (!$boardAuditor) {
+        abort(404, 'ไม่พบข้อมูล BoardAuditor');
+    }
+
+    $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
+
+    $groups = $boardAuditor->groups ?? collect();
+
+    $statusAuditorMap = [];
+
+    foreach ($groups as $group) {
+        $statusAuditorId = $group->status_auditor_id;
+        $auditors = $group->auditors ?? collect();
+
+        if (!isset($statusAuditorMap[$statusAuditorId])) {
+            $statusAuditorMap[$statusAuditorId] = [];
+        }
+
+        foreach ($auditors as $auditor) {
+            $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+        }
+    }
+
+    // รวม auditor_id ทั้งหมด
+    $allAuditorIds = [];
+    foreach ($statusAuditorMap as $ids) {
+        $allAuditorIds = array_merge($allAuditorIds, $ids);
+    }
+
+    $uniqueAuditorIds = array_unique($allAuditorIds);
+    $auditorInformations = AuditorInformation::whereIn('id', $uniqueAuditorIds)->get();
+
+    $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+    if (!$certi_lab) {
+        abort(404, 'ไม่พบข้อมูล CertiLab');
+    }
+
+    $boardAuditorDate = BoardAuditorDate::where('board_auditors_id', $id)->first();
+    $dateRange = "";
+
+    if (!empty($boardAuditorDate) && !empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+        if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+            $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+        } else {
+            $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) .
+                         " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+        }
+    }
+
+    $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id', $id)->first();
+    $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+
+    if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+        $categories = json_decode($boardAuditorExpert->expert, true);
+        if (is_array($categories)) {
+            if (count($categories) > 1) {
+                $lastItem = array_pop($categories);
+                $experts = implode(' ', $categories) . ' และ' . $lastItem;
+            } elseif (count($categories) == 1) {
+                $experts = $categories[0];
+            } else {
+                $experts = '';
+            }
+        }
+    }
+
+    $scope_branch = '';
+    if ($certi_lab->lab_type == 3) {
+        $scope_branch = $certi_lab->BranchTitle;
+    } elseif ($certi_lab->lab_type == 4) {
+        $scope_branch = $certi_lab->ClibrateBranchTitle;
+    }
+
+    $data = new \stdClass();
+    $data->header_text1 = '';
+    $data->header_text2 = '';
+    $data->header_text3 = '';
+    $data->header_text4 = '';
+    $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+    $data->lab_name = $certi_lab->lab_name;
+    $data->scope_branch = $scope_branch;
+    $data->app_no = $certi_lab->app_no;
+    $data->certificate_no = '13-LB0037';
+    $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+    $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+    $data->experts = $experts;
+    $data->date_range = $dateRange;
+    $data->statusAuditorMap = $statusAuditorMap;
+
+    $htmlLabMemorandumRequest = HtmlLabMemorandumRequest::where('type', "ia")->first();
+
+    $data->fix_text1 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text1 : '';
+    $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : '';
+
+    return view('certify.auditor.view-message-record', [
+        'data' => $data,
+        'id' => $id,
+        'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo
+    ]);
+}
 
     public function CreateLabMessageRecordPdf($id)
     {
