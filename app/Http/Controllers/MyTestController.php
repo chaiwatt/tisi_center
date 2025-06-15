@@ -2240,17 +2240,17 @@ public function create_bill()
     //     ]);
     // }
 
-    public function genTrackingLabMessageRecordPdf()
-    {
+    // public function genTrackingLabMessageRecordPdf()
+    // {
        
-        $board = TrackingAuditors::find(324);
+    //     $board = TrackingAuditors::find(324);
 
-        // dd($board);
+    //     // dd($board);
 
-        // $this->set_mail($board,$board->CertiLabs);
-        $pdfService = new CreateTrackingLabMessageRecordPdf($board,"ia");
-        $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
-    }
+    //     // $this->set_mail($board,$board->CertiLabs);
+    //     $pdfService = new CreateTrackingLabMessageRecordPdf($board,"ia");
+    //     $pdfContent = $pdfService->generateBoardTrackingAuditorMessageRecordPdf();
+    // }
 
     // public function updateTrackingLabPayin1()
     // {
@@ -2383,13 +2383,13 @@ public function create_bill()
     // }
 
 
-    public function trackingLabReportPdf()
-    {
-        // dd('ok');
-        $tracking_report_info_id = 3;
-        $pdfService = new CreateTrackingLabReportPdf($tracking_report_info_id,"ia");
-        $pdfContent = $pdfService->generateTrackingLabReportPdf();
-    }
+    // public function trackingLabReportPdf()
+    // {
+    //     // dd('ok');
+    //     $tracking_report_info_id = 3;
+    //     $pdfService = new CreateTrackingLabReportPdf($tracking_report_info_id,"ia");
+    //     $pdfContent = $pdfService->generateTrackingLabReportPdf();
+    // }
 
     public function trackingDataList()
     {
