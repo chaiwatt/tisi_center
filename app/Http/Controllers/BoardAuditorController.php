@@ -343,7 +343,7 @@ class BoardAuditorController extends Controller
         // foreach ($data['group'] as $group) {
         //     echo "Category: " . $group['category'] . PHP_EOL;
         // }
-    //    dd($request->all());
+
         $model = str_slug('board-auditor','-');
         if(auth()->user()->can('add-'.$model)) {
             $this->validate($request, [
@@ -1489,3 +1489,5 @@ class BoardAuditorController extends Controller
         ]);
     }
 }
+
+?>
