@@ -229,7 +229,7 @@ class BoardAuditorController extends Controller
                                                         'select_users'  => $select_users,
                                                         'signers'  => $signers,
                                                         'selectedCertiLab'  => $selectedCertiLab,
-                                                        'view_url'  => $request->current_url,
+                                                        'view_url'  => $request->current_url
                                                  ]);
         }   
         abort(403);
@@ -1483,7 +1483,6 @@ class BoardAuditorController extends Controller
     public function apiTextSplitter(Request $request)
     {
         $textArray = TextHelper::callLonganTokenizeArrayPost($request->inputText);
-        // dd($textArray);
         return response()->json([
             'success' => true,
             'data' => $textArray
