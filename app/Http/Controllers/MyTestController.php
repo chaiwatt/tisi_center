@@ -938,7 +938,21 @@ public function create_bill()
         $url = $baseUrl. '/images/PayIn2.pdf';
 
         // ดาวน์โหลดเนื้อหา PDF (Demo)
-        $pdf_content = file_get_contents($url);
+        // $pdf_content = file_get_contents($url);
+
+                $contextOptions = [
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ]
+        ];
+
+        if (strpos($setting_payment->data, 'https') === 0) {
+            $context = stream_context_create($contextOptions);
+            $pdf_content = file_get_contents($url, false, $context);
+        } else {
+            $pdf_content = file_get_contents($url);
+        }
 
         // dd($pdf_content);
              

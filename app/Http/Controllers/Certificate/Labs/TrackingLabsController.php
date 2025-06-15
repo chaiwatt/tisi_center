@@ -1183,7 +1183,21 @@ class TrackingLabsController extends Controller
                $url = $baseUrl. '/images/Payin2.pdf';
         
                // ดาวน์โหลดเนื้อหา PDF (Demo)
-               $url_pdf = file_get_contents($url);
+            //    $url_pdf = file_get_contents($url);
+
+                $contextOptions = [
+                    "ssl" => [
+                        "verify_peer" => false,
+                        "verify_peer_name" => false,
+                    ]
+                ];
+
+                if (strpos($setting_payment->data, 'https') === 0) {
+                    $context = stream_context_create($contextOptions);
+                    $url_pdf = file_get_contents($url, false, $context);
+                } else {
+                    $url_pdf = file_get_contents($url);
+                }
         
               if ($url_pdf) {
                     $attach_path     =  $this->attach_path.'/'.$app_no;
