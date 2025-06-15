@@ -120,1999 +120,1999 @@ class MyTestController extends Controller
     }
 
 
-    public function callCreateBill()
-    {
-        $ref1 = "SurLab-68-331-3311737346387";
-        $pid = 26;
-        $out = "json";
-        $epaymentDemoController = new EpaymentDemo();
-        return $epaymentDemoController->pmt1($ref1, $pid, $out);
-    }
+//     public function callCreateBill()
+//     {
+//         $ref1 = "SurLab-68-331-3311737346387";
+//         $pid = 26;
+//         $out = "json";
+//         $epaymentDemoController = new EpaymentDemo();
+//         return $epaymentDemoController->pmt1($ref1, $pid, $out);
+//     }
 
-    public function index()
-    {
+//     public function index()
+//     {
 
-        $nowTimeStamp = Carbon::now()->addDays(15)->timestamp;
+//         $nowTimeStamp = Carbon::now()->addDays(15)->timestamp;
 
-        // สร้าง Token โดยใช้ base64_encode
-        $encodedTimestamp = base64_encode($nowTimeStamp);
+//         // สร้าง Token โดยใช้ base64_encode
+//         $encodedTimestamp = base64_encode($nowTimeStamp);
 
-        // สร้าง Token พร้อมข้อมูลสุ่ม
-        $token = Str::random(30) . '_' . $encodedTimestamp;
+//         // สร้าง Token พร้อมข้อมูลสุ่ม
+//         $token = Str::random(30) . '_' . $encodedTimestamp;
 
-        $parts = explode('_', $token);
-        $randomString = $parts[0]; // ส่วน String แบบสุ่ม
-        $encodedTimestamp = $parts[1]; // Timestamp ที่เข้ารหัส
+//         $parts = explode('_', $token);
+//         $randomString = $parts[0]; // ส่วน String แบบสุ่ม
+//         $encodedTimestamp = $parts[1]; // Timestamp ที่เข้ารหัส
 
-        // ถอดรหัส Timestamp โดยใช้ base64_decode
-        $originalTimestamp = base64_decode($encodedTimestamp);
+//         // ถอดรหัส Timestamp โดยใช้ base64_decode
+//         $originalTimestamp = base64_decode($encodedTimestamp);
 
-        // แปลงตัวเลขที่ได้เป็นเวลา (Carbon DateTime)
-        $expiryDateTime = Carbon::createFromTimestamp($originalTimestamp);
+//         // แปลงตัวเลขที่ได้เป็นเวลา (Carbon DateTime)
+//         $expiryDateTime = Carbon::createFromTimestamp($originalTimestamp);
         
-        // ตรวจสอบว่าเวลาปัจจุบันน้อยกว่าเวลา expiryDateTime หรือไม่
-        if (Carbon::now()->lt($expiryDateTime)) {
-            dd($token, $nowTimeStamp, $originalTimestamp, Carbon::now(), $expiryDateTime);
-        }else{
-            dd('expire');
-        }
-    }
+//         // ตรวจสอบว่าเวลาปัจจุบันน้อยกว่าเวลา expiryDateTime หรือไม่
+//         if (Carbon::now()->lt($expiryDateTime)) {
+//             dd($token, $nowTimeStamp, $originalTimestamp, Carbon::now(), $expiryDateTime);
+//         }else{
+//             dd('expire');
+//         }
+//     }
 
 
-    public function getmaillist()
-    {
-        $board = BoardAuditor::find(1712);
+//     public function getmaillist()
+//     {
+//         $board = BoardAuditor::find(1712);
 
-        $signerEmails = $board->messageRecordTransactions()
-                      ->with('signer.user')
-                      ->get()
-                      ->pluck('signer.user.reg_email')
-                      ->filter() // กรองค่า null ออก
-                      ->unique()
-                      ->toArray();
-        dd($signerEmails);
+//         $signerEmails = $board->messageRecordTransactions()
+//                       ->with('signer.user')
+//                       ->get()
+//                       ->pluck('signer.user.reg_email')
+//                       ->filter() // กรองค่า null ออก
+//                       ->unique()
+//                       ->toArray();
+//         dd($signerEmails);
         
-    }
+//     }
 
-    public function getCompayInfo()
-    {
-      $certiLab = CertiLab::find(1879);
-      dd($certiLab->BelongsInformation);
-    }
-    public function apiPmt1()
-    {
-      $content =  file_get_contents('http://127.0.0.1:8082/api/v1/pmt1.php?pid=4&out=json&Ref1=IB-67-004', false, stream_context_create(array()));
+//     public function getCompayInfo()
+//     {
+//       $certiLab = CertiLab::find(1879);
+//       dd($certiLab->BelongsInformation);
+//     }
+//     public function apiPmt1()
+//     {
+//       $content =  file_get_contents('http://127.0.0.1:8082/api/v1/pmt1.php?pid=4&out=json&Ref1=IB-67-004', false, stream_context_create(array()));
      
-      $api = json_decode($content,true);
-      dd($api) ;
-    }
+//       $api = json_decode($content,true);
+//       dd($api) ;
+//     }
 
 
-    public function apiPdf()
-    {
-      $content_pdf =  file_get_contents('http://127.0.0.1:8082/images/Payin2.pdf', false, stream_context_create(array()));
-      // dd($content_pdf);
-      //Specify that the content has PDF Mime Type
-      header("Content-Type: application/pdf");
-      //Display it
-      echo $content_pdf;
-    }
+//     public function apiPdf()
+//     {
+//       $content_pdf =  file_get_contents('http://127.0.0.1:8082/images/Payin2.pdf', false, stream_context_create(array()));
+//       // dd($content_pdf);
+//       //Specify that the content has PDF Mime Type
+//       header("Content-Type: application/pdf");
+//       //Display it
+//       echo $content_pdf;
+//     }
 
-    public function downloadpdf()
-    {
-      $url = 'http://127.0.0.1:8082/images/Payin2.pdf';
-      $app_no = 'RQ-TEST-66-434';
+//     public function downloadpdf()
+//     {
+//       $url = 'http://127.0.0.1:8082/images/Payin2.pdf';
+//       $app_no = 'RQ-TEST-66-434';
 
-      // ดาวน์โหลดเนื้อหา PDF
-      $pdf_content = file_get_contents($url);
+//       // ดาวน์โหลดเนื้อหา PDF
+//       $pdf_content = file_get_contents($url);
 
-      // ลบ "RQ-" ออกจาก $app_no และเปลี่ยน "-" เป็น "_"
-      $no  = str_replace("RQ-","",$app_no);
-      $no  = str_replace("-", "_", $no);
+//       // ลบ "RQ-" ออกจาก $app_no และเปลี่ยน "-" เป็น "_"
+//       $no  = str_replace("RQ-","",$app_no);
+//       $no  = str_replace("-", "_", $no);
 
-      // สร้าง path สำหรับบันทึกไฟล์
-      $attach_path  = 'files/applicants/check_files/' . $no;
-      $fullFileName = $no . '-' . date('Ymd_His') . '.pdf';
+//       // สร้าง path สำหรับบันทึกไฟล์
+//       $attach_path  = 'files/applicants/check_files/' . $no;
+//       $fullFileName = $no . '-' . date('Ymd_His') . '.pdf';
 
-      // บันทึกไฟล์ใน storage path
-      $storagePath = Storage::disk('uploads')->put($attach_path . '/' . $fullFileName, $pdf_content);
-      // แสดง path เต็มที่ไฟล์ถูกบันทึก
+//       // บันทึกไฟล์ใน storage path
+//       $storagePath = Storage::disk('uploads')->put($attach_path . '/' . $fullFileName, $pdf_content);
+//       // แสดง path เต็มที่ไฟล์ถูกบันทึก
       
-      // $fullStoragePath = public_path('uploads/' . $attach_path . '/' . $fullFileName);
-      return  $no.'/'.$fullFileName;
-    }
+//       // $fullStoragePath = public_path('uploads/' . $attach_path . '/' . $fullFileName);
+//       return  $no.'/'.$fullFileName;
+//     }
 
-   // public function downloadpdf()
-   // {
-   //    $app_no = 'RQ-TEST-66-434';
+//    // public function downloadpdf()
+//    // {
+//    //    $app_no = 'RQ-TEST-66-434';
 
-   //    // ลบ "RQ-" ออกจาก $app_no และเปลี่ยน "-" เป็น "_"
-   //    $no  = str_replace("RQ-", "", $app_no);
-   //    $no  = str_replace("-", "_", $no);
+//    //    // ลบ "RQ-" ออกจาก $app_no และเปลี่ยน "-" เป็น "_"
+//    //    $no  = str_replace("RQ-", "", $app_no);
+//    //    $no  = str_replace("-", "_", $no);
 
-   //    // สร้าง path สำหรับบันทึกไฟล์
-   //    $attach_path  = 'files/applicants/check_files/' . $no;
-   //    $fullFileName = $no . '-' . date('Ymd_His') . '.txt';
+//    //    // สร้าง path สำหรับบันทึกไฟล์
+//    //    $attach_path  = 'files/applicants/check_files/' . $no;
+//    //    $fullFileName = $no . '-' . date('Ymd_His') . '.txt';
 
-   //    // เนื้อหาของ text file ที่ต้องการบันทึก
-   //    $text_content = "This is a test file content.";
+//    //    // เนื้อหาของ text file ที่ต้องการบันทึก
+//    //    $text_content = "This is a test file content.";
 
-   //    // บันทึกไฟล์ใน uploads disk
-   //    $storagePath = Storage::disk('uploads')->put($attach_path . '/' . $fullFileName, $text_content);
+//    //    // บันทึกไฟล์ใน uploads disk
+//    //    $storagePath = Storage::disk('uploads')->put($attach_path . '/' . $fullFileName, $text_content);
 
-   //    // แสดง path เต็มที่ไฟล์ถูกบันทึก
-   //    $fullStoragePath = public_path('uploads/' . $attach_path . '/' . $fullFileName);
-   //    dd($fullStoragePath);
-   // }
-
-
-   public function getCalScopeData()
-   {
-
-    $latestCertiLab = CertiLab::latest('created_at')->first();
-
-    $company = [];
-
-    if ($latestCertiLab) {
-        // ดึง LabCalRequest ที่มี app_certi_lab_id ตรงกับ $latestCertiLab->id (ทุกรายการ)
-        $labCalRequests = LabCalRequest::with([
-            'labCalTransactions.labCalMeasurements.labCalMeasurementRanges'
-        ])->where('app_certi_lab_id', $latestCertiLab->id)->get();
-
-        // สร้างข้อมูลในรูปแบบของ $company
-        foreach ($labCalRequests as $key => $labCalRequest) {
-            $data = [];
-            foreach ($labCalRequest->labCalTransactions as $transaction) {
+//    //    // แสดง path เต็มที่ไฟล์ถูกบันทึก
+//    //    $fullStoragePath = public_path('uploads/' . $attach_path . '/' . $fullFileName);
+//    //    dd($fullStoragePath);
+//    // }
 
 
-              $calibration_branch_name_en = null;
+//    public function getCalScopeData()
+//    {
 
-              if($transaction->category !== null){
-                $calibrationBranch = CalibrationBranch::find($transaction->category);
-                if($calibrationBranch!==null)
-                {
-                  $calibration_branch_name_en  = $calibrationBranch->title_en;
-                }
-              }
+//     $latestCertiLab = CertiLab::latest('created_at')->first();
 
-                $instrument_name = null;
+//     $company = [];
 
-                if($transaction->instrument !== null){
-                  $calibrationBranchInstrumentGroup = CalibrationBranchInstrumentGroup::find($transaction->instrument);
-                  if($calibrationBranchInstrumentGroup!==null)
-                  {
-                    $instrument_name  = $calibrationBranchInstrumentGroup->name;
-                  }
-                }
+//     if ($latestCertiLab) {
+//         // ดึง LabCalRequest ที่มี app_certi_lab_id ตรงกับ $latestCertiLab->id (ทุกรายการ)
+//         $labCalRequests = LabCalRequest::with([
+//             'labCalTransactions.labCalMeasurements.labCalMeasurementRanges'
+//         ])->where('app_certi_lab_id', $latestCertiLab->id)->get();
 
-                $instrument_two_name = null;
+//         // สร้างข้อมูลในรูปแบบของ $company
+//         foreach ($labCalRequests as $key => $labCalRequest) {
+//             $data = [];
+//             foreach ($labCalRequest->labCalTransactions as $transaction) {
 
-                if($transaction->instrument_two !== null){
-                  $calibrationBranchInstrument = CalibrationBranchInstrument::find($transaction->instrument_two);
-                  if($calibrationBranchInstrument!==null)
-                  {
-                    $instrument_two_name  = $calibrationBranchInstrument->name;
-                  }
-                }
 
-                $transactionData = [
-                    'index' => $transaction->index,
-                    'category' => $calibration_branch_name_en,
-                    'category_th' => $transaction->category_th,
-                    'instrument' => $instrument_name,
-                    'instrument_two' => $instrument_two_name,
-                    'description' => $transaction->description,
-                    'standard' => $transaction->standard,
-                    'code' => $transaction->code,
-                    'key' => $transaction->key,
-                    'measurements' => [],
-                ];
+//               $calibration_branch_name_en = null;
 
-                foreach ($transaction->labCalMeasurements as $measurement) {
-                    $measurementData = [
-                        'name' => $measurement->name,
-                        'type' => $measurement->type,
-                        'ranges' => [],
-                    ];
+//               if($transaction->category !== null){
+//                 $calibrationBranch = CalibrationBranch::find($transaction->category);
+//                 if($calibrationBranch!==null)
+//                 {
+//                   $calibration_branch_name_en  = $calibrationBranch->title_en;
+//                 }
+//               }
 
-                    foreach ($measurement->labCalMeasurementRanges as $range) {
-                        $rangeData = [
-                            'description' => $range->description,
-                            'range' => $range->range,
-                            'uncertainty' => $range->uncertainty,
-                        ];
+//                 $instrument_name = null;
 
-                        $measurementData['ranges'][] = $rangeData;
-                    }
+//                 if($transaction->instrument !== null){
+//                   $calibrationBranchInstrumentGroup = CalibrationBranchInstrumentGroup::find($transaction->instrument);
+//                   if($calibrationBranchInstrumentGroup!==null)
+//                   {
+//                     $instrument_name  = $calibrationBranchInstrumentGroup->name;
+//                   }
+//                 }
 
-                    $transactionData['measurements'][] = $measurementData;
-                }
+//                 $instrument_two_name = null;
 
-                $data[] = $transactionData;
-            }
+//                 if($transaction->instrument_two !== null){
+//                   $calibrationBranchInstrument = CalibrationBranchInstrument::find($transaction->instrument_two);
+//                   if($calibrationBranchInstrument!==null)
+//                   {
+//                     $instrument_two_name  = $calibrationBranchInstrument->name;
+//                   }
+//                 }
 
-            // dd($labCalRequest->no);
-            // สร้างชุดข้อมูลที่แบ่งตาม id, station_type, lab_type
-              $company[] = [
-                "id" => $key + 1,  // ให้เพิ่ม 1 เพื่อเริ่มจาก 1
-                "station_type" => $key === '0' ? "main" : "branch" . ($key),  // กำหนดประเภท station
-                "lab_type" => $labCalRequest->certiLab->lab_type,  // lab_type จาก certiLab
-                "app_certi_lab" => $labCalRequest->certiLab,  // lab_type จาก certiLab
-                // เพิ่มคีย์ใหม่จากฟิลด์ใน lab_cal_requests
-                "no" => trim($labCalRequest->no ?? '') ?: null,
-                "moo" => trim($labCalRequest->moo ?? '') ?: null,
-                "soi" => trim($labCalRequest->soi ?? '') ?: null,
-                "street" => trim($labCalRequest->street ?? '') ?: null,
-                "province_name" => trim($labCalRequest->province_name ?? '') ?: null,
-                "amphur_name" => trim($labCalRequest->amphur_name ?? '') ?: null,
-                "tambol_name" => trim($labCalRequest->tambol_name ?? '') ?: null,
-                "postal_code" => trim($labCalRequest->postal_code ?? '') ?: null,
-                "no_eng" => trim($labCalRequest->no_eng ?? '') ?: null,
-                "moo_eng" => trim($labCalRequest->moo_eng ?? '') ?: null,
-                "soi_eng" => trim($labCalRequest->soi_eng ?? '') ?: null,
-                "street_eng" => trim($labCalRequest->street_eng ?? '') ?: null,
-                "tambol_name_eng" => trim($labCalRequest->tambol_name_eng ?? '') ?: null,
-                "amphur_name_eng" => trim($labCalRequest->amphur_name_eng ?? '') ?: null,
-                "province_name_eng" => trim($labCalRequest->province_name_eng ?? '') ?: null,
+//                 $transactionData = [
+//                     'index' => $transaction->index,
+//                     'category' => $calibration_branch_name_en,
+//                     'category_th' => $transaction->category_th,
+//                     'instrument' => $instrument_name,
+//                     'instrument_two' => $instrument_two_name,
+//                     'description' => $transaction->description,
+//                     'standard' => $transaction->standard,
+//                     'code' => $transaction->code,
+//                     'key' => $transaction->key,
+//                     'measurements' => [],
+//                 ];
 
-                "scope" => $data
+//                 foreach ($transaction->labCalMeasurements as $measurement) {
+//                     $measurementData = [
+//                         'name' => $measurement->name,
+//                         'type' => $measurement->type,
+//                         'ranges' => [],
+//                     ];
 
-            ];
-        }
-    }
+//                     foreach ($measurement->labCalMeasurementRanges as $range) {
+//                         $rangeData = [
+//                             'description' => $range->description,
+//                             'range' => $range->range,
+//                             'uncertainty' => $range->uncertainty,
+//                         ];
 
-    // ส่งข้อมูลกลับในรูปแบบ JSON
-    return response()->json($company);
-   }
+//                         $measurementData['ranges'][] = $rangeData;
+//                     }
 
-    public function getPageList($scopes,$pdfData,$details)
-    {
+//                     $transactionData['measurements'][] = $measurementData;
+//                 }
 
-        $pageArray = $this->getFirstPageList($scopes,$pdfData,$details);
+//                 $data[] = $transactionData;
+//             }
 
-        $firstPageArray = $pageArray[0];
+//             // dd($labCalRequest->no);
+//             // สร้างชุดข้อมูลที่แบ่งตาม id, station_type, lab_type
+//               $company[] = [
+//                 "id" => $key + 1,  // ให้เพิ่ม 1 เพื่อเริ่มจาก 1
+//                 "station_type" => $key === '0' ? "main" : "branch" . ($key),  // กำหนดประเภท station
+//                 "lab_type" => $labCalRequest->certiLab->lab_type,  // lab_type จาก certiLab
+//                 "app_certi_lab" => $labCalRequest->certiLab,  // lab_type จาก certiLab
+//                 // เพิ่มคีย์ใหม่จากฟิลด์ใน lab_cal_requests
+//                 "no" => trim($labCalRequest->no ?? '') ?: null,
+//                 "moo" => trim($labCalRequest->moo ?? '') ?: null,
+//                 "soi" => trim($labCalRequest->soi ?? '') ?: null,
+//                 "street" => trim($labCalRequest->street ?? '') ?: null,
+//                 "province_name" => trim($labCalRequest->province_name ?? '') ?: null,
+//                 "amphur_name" => trim($labCalRequest->amphur_name ?? '') ?: null,
+//                 "tambol_name" => trim($labCalRequest->tambol_name ?? '') ?: null,
+//                 "postal_code" => trim($labCalRequest->postal_code ?? '') ?: null,
+//                 "no_eng" => trim($labCalRequest->no_eng ?? '') ?: null,
+//                 "moo_eng" => trim($labCalRequest->moo_eng ?? '') ?: null,
+//                 "soi_eng" => trim($labCalRequest->soi_eng ?? '') ?: null,
+//                 "street_eng" => trim($labCalRequest->street_eng ?? '') ?: null,
+//                 "tambol_name_eng" => trim($labCalRequest->tambol_name_eng ?? '') ?: null,
+//                 "amphur_name_eng" => trim($labCalRequest->amphur_name_eng ?? '') ?: null,
+//                 "province_name_eng" => trim($labCalRequest->province_name_eng ?? '') ?: null,
 
-        // ดึงค่า index ด้วย array_map และ array access
-        $indexes = array_map(function ($item) {
-            return $item->index;
-        }, $firstPageArray[0]);
+//                 "scope" => $data
 
-        $filteredScopes = array_filter($scopes, function ($item) use ($indexes) {
-            return !in_array($item->index, $indexes);
-        });
+//             ];
+//         }
+//     }
+
+//     // ส่งข้อมูลกลับในรูปแบบ JSON
+//     return response()->json($company);
+//    }
+
+//     public function getPageList($scopes,$pdfData,$details)
+//     {
+
+//         $pageArray = $this->getFirstPageList($scopes,$pdfData,$details);
+
+//         $firstPageArray = $pageArray[0];
+
+//         // ดึงค่า index ด้วย array_map และ array access
+//         $indexes = array_map(function ($item) {
+//             return $item->index;
+//         }, $firstPageArray[0]);
+
+//         $filteredScopes = array_filter($scopes, function ($item) use ($indexes) {
+//             return !in_array($item->index, $indexes);
+//         });
         
-        $filteredScopes = array_values($filteredScopes);
+//         $filteredScopes = array_values($filteredScopes);
 
-        $pageArray = $this->getOtherPageList($filteredScopes,$pdfData,$details);
+//         $pageArray = $this->getOtherPageList($filteredScopes,$pdfData,$details);
 
-        $mergedArray = array_merge($firstPageArray, $pageArray);
-        return $mergedArray;
-    }
+//         $mergedArray = array_merge($firstPageArray, $pageArray);
+//         return $mergedArray;
+//     }
     
-    public function getFirstPageList($scopes,$pdfData,$details)
-    {
-        $type = 'I';
-        $fontDirs = [public_path('pdf_fonts/')]; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
-        $fontData = [
-            'thsarabunnew' => [
-                'R' => "THSarabunNew.ttf",
-                'B' => "THSarabunNew-Bold.ttf",
-                'I' => "THSarabunNew-Italic.ttf",
-                'BI' => "THSarabunNew-BoldItalic.ttf",
-            ],
-        ];
+//     public function getFirstPageList($scopes,$pdfData,$details)
+//     {
+//         $type = 'I';
+//         $fontDirs = [public_path('pdf_fonts/')]; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
+//         $fontData = [
+//             'thsarabunnew' => [
+//                 'R' => "THSarabunNew.ttf",
+//                 'B' => "THSarabunNew-Bold.ttf",
+//                 'I' => "THSarabunNew-Italic.ttf",
+//                 'BI' => "THSarabunNew-BoldItalic.ttf",
+//             ],
+//         ];
 
-        $mpdf = new Mpdf([
-            'PDFA' 	=>  $type == 'F' ? true : false,
-            'PDFAauto'	 =>  $type == 'F' ? true : false,
-            'format'            => 'A4',
-            'mode'              => 'utf-8',
-            'default_font_size' => '15',
-            'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
-            'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
-            'default_font'     => 'thsarabunnew', // ใช้ฟอนต์ที่กำหนดเป็นค่าเริ่มต้น
-            'margin_left'      => 8, // ระบุขอบด้านซ้าย
-            'margin_right'     => 3, // ระบุขอบด้านขวา
-            // 'margin_top'       => 97, // ระบุขอบด้านบน
-            // 'margin_bottom'    => 40, // ระบุขอบด้านล่าง
-            'margin_top'       => 108, // ระบุขอบด้านบน
-            'margin_bottom'    => 40, // ระบุขอบด้านล่าง
-            'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
-        ]);         
+//         $mpdf = new Mpdf([
+//             'PDFA' 	=>  $type == 'F' ? true : false,
+//             'PDFAauto'	 =>  $type == 'F' ? true : false,
+//             'format'            => 'A4',
+//             'mode'              => 'utf-8',
+//             'default_font_size' => '15',
+//             'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+//             'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+//             'default_font'     => 'thsarabunnew', // ใช้ฟอนต์ที่กำหนดเป็นค่าเริ่มต้น
+//             'margin_left'      => 8, // ระบุขอบด้านซ้าย
+//             'margin_right'     => 3, // ระบุขอบด้านขวา
+//             // 'margin_top'       => 97, // ระบุขอบด้านบน
+//             // 'margin_bottom'    => 40, // ระบุขอบด้านล่าง
+//             'margin_top'       => 108, // ระบุขอบด้านบน
+//             'margin_bottom'    => 40, // ระบุขอบด้านล่าง
+//             'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
+//         ]);         
 
-        $stylesheet = file_get_contents(public_path('css/report/lab-scope.css'));
-        $mpdf->WriteHTML($stylesheet, 1);
+//         $stylesheet = file_get_contents(public_path('css/report/lab-scope.css'));
+//         $mpdf->WriteHTML($stylesheet, 1);
         
-        $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, '', [170, 4]); // กำหนด opacity, , ตำแหน่ง
-        $mpdf->showWatermarkImage = true; // เปิดใช้งาน watermark
+//         $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, '', [170, 4]); // กำหนด opacity, , ตำแหน่ง
+//         $mpdf->showWatermarkImage = true; // เปิดใช้งาน watermark
 
-        $footer = view('pdf.scope.calibration.cal-scope-footer', [
-            'qrImage' => null,
-            'sign1Image' => null,
-            'sign2Image' => null,
-            'sign3Image' => null
-        ]);
+//         $footer = view('pdf.scope.calibration.cal-scope-footer', [
+//             'qrImage' => null,
+//             'sign1Image' => null,
+//             'sign2Image' => null,
+//             'sign3Image' => null
+//         ]);
 
-        $viewBlade = "pdf.scope.calibration.cal-scope-first-header";
+//         $viewBlade = "pdf.scope.calibration.cal-scope-first-header";
 
-        if ($pdfData->siteType == "multi")
-        {
-            $viewBlade = "pdf.scope.calibration.cal-scope-first-header-multi";
-        }
-        // $scopes = $details->scope;
-        $header = view($viewBlade, [
-          'branchNo' => null,
-          'company' => $details,
-          'pdfData' => $pdfData
-        ]);
-        $mpdf->SetHTMLHeader($header,2);
-        $mpdf->SetHTMLFooter($footer,2);
+//         if ($pdfData->siteType == "multi")
+//         {
+//             $viewBlade = "pdf.scope.calibration.cal-scope-first-header-multi";
+//         }
+//         // $scopes = $details->scope;
+//         $header = view($viewBlade, [
+//           'branchNo' => null,
+//           'company' => $details,
+//           'pdfData' => $pdfData
+//         ]);
+//         $mpdf->SetHTMLHeader($header,2);
+//         $mpdf->SetHTMLFooter($footer,2);
         
-        $html = view('pdf.scope.calibration.pdf-cal-scope', [
-                'scopes' => collect($scopes)
-            ]);
-        $mpdf->WriteHTML($html);
+//         $html = view('pdf.scope.calibration.pdf-cal-scope', [
+//                 'scopes' => collect($scopes)
+//             ]);
+//         $mpdf->WriteHTML($html);
 
-        // แปลง PDF เป็น String
-        $pdfContent = $mpdf->Output('', 'S');
+//         // แปลง PDF เป็น String
+//         $pdfContent = $mpdf->Output('', 'S');
 
-        // ใช้ PdfParser อ่าน PDF จาก String
-        $parser = new Parser();
-        $pdf = $parser->parseContent($pdfContent);
+//         // ใช้ PdfParser อ่าน PDF จาก String
+//         $parser = new Parser();
+//         $pdf = $parser->parseContent($pdfContent);
 
-        $chunks = $this->generateRangesWithData($scopes,$pdf);
+//         $chunks = $this->generateRangesWithData($scopes,$pdf);
 
-        $firstPage = array_slice($chunks, 0, 1);
+//         $firstPage = array_slice($chunks, 0, 1);
 
-        $remainingItems = array_slice($chunks, 1);
+//         $remainingItems = array_slice($chunks, 1);
 
-        return [$firstPage,$remainingItems,$chunks];
-    }
+//         return [$firstPage,$remainingItems,$chunks];
+//     }
 
-    public function getOtherPageList($scope,$pdfData,$details)
-    {
-        $type = 'I';
-        $fontDirs = [public_path('pdf_fonts/')]; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
-        $fontData = [
-            'thsarabunnew' => [
-                'R' => "THSarabunNew.ttf",
-                'B' => "THSarabunNew-Bold.ttf",
-                'I' => "THSarabunNew-Italic.ttf",
-                'BI' => "THSarabunNew-BoldItalic.ttf",
-            ],
-        ];
+//     public function getOtherPageList($scope,$pdfData,$details)
+//     {
+//         $type = 'I';
+//         $fontDirs = [public_path('pdf_fonts/')]; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
+//         $fontData = [
+//             'thsarabunnew' => [
+//                 'R' => "THSarabunNew.ttf",
+//                 'B' => "THSarabunNew-Bold.ttf",
+//                 'I' => "THSarabunNew-Italic.ttf",
+//                 'BI' => "THSarabunNew-BoldItalic.ttf",
+//             ],
+//         ];
 
-        $mpdf = new Mpdf([
-            'PDFA' 	=>  $type == 'F' ? true : false,
-            'PDFAauto'	 =>  $type == 'F' ? true : false,
-            'format'            => 'A4',
-            'mode'              => 'utf-8',
-            'default_font_size' => '15',
-            'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
-            'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
-            'default_font'     => 'thsarabunnew', // ใช้ฟอนต์ที่กำหนดเป็นค่าเริ่มต้น
-            'margin_left'      => 8, // ระบุขอบด้านซ้าย
-            'margin_right'     => 3, // ระบุขอบด้านขวา
-            'margin_top'       => 97, // ระบุขอบด้านบน
-            'margin_bottom'    => 40, // ระบุขอบด้านล่าง
-            'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
-        ]);         
+//         $mpdf = new Mpdf([
+//             'PDFA' 	=>  $type == 'F' ? true : false,
+//             'PDFAauto'	 =>  $type == 'F' ? true : false,
+//             'format'            => 'A4',
+//             'mode'              => 'utf-8',
+//             'default_font_size' => '15',
+//             'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+//             'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+//             'default_font'     => 'thsarabunnew', // ใช้ฟอนต์ที่กำหนดเป็นค่าเริ่มต้น
+//             'margin_left'      => 8, // ระบุขอบด้านซ้าย
+//             'margin_right'     => 3, // ระบุขอบด้านขวา
+//             'margin_top'       => 97, // ระบุขอบด้านบน
+//             'margin_bottom'    => 40, // ระบุขอบด้านล่าง
+//             'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
+//         ]);         
 
-        // $data = $this->getMeasurementsData()->getData();
+//         // $data = $this->getMeasurementsData()->getData();
 
-        $stylesheet = file_get_contents(public_path('css/report/lab-scope.css'));
-        $mpdf->WriteHTML($stylesheet, 1);
+//         $stylesheet = file_get_contents(public_path('css/report/lab-scope.css'));
+//         $mpdf->WriteHTML($stylesheet, 1);
 
-        // $company = $data->main;
+//         // $company = $data->main;
         
-        $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, '', [170, 4]); // กำหนด opacity, , ตำแหน่ง
-        $mpdf->showWatermarkImage = true; // เปิดใช้งาน watermark
+//         $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, '', [170, 4]); // กำหนด opacity, , ตำแหน่ง
+//         $mpdf->showWatermarkImage = true; // เปิดใช้งาน watermark
 
-        $footer = view('pdf.scope.calibration.cal-scope-footer', [
-            'qrImage' => null,
-            'sign1Image' => null,
-            'sign2Image' => null,
-            'sign3Image' => null
-        ]);
+//         $footer = view('pdf.scope.calibration.cal-scope-footer', [
+//             'qrImage' => null,
+//             'sign1Image' => null,
+//             'sign2Image' => null,
+//             'sign3Image' => null
+//         ]);
 
-        $header = view('pdf.scope.calibration.cal-scope-first-header', [
-          'company' => $details,
-          'pdfData' => $pdfData
-        ]);
-        $mpdf->SetHTMLHeader($header,2);
-        $mpdf->SetHTMLFooter($footer,2);
+//         $header = view('pdf.scope.calibration.cal-scope-first-header', [
+//           'company' => $details,
+//           'pdfData' => $pdfData
+//         ]);
+//         $mpdf->SetHTMLHeader($header,2);
+//         $mpdf->SetHTMLFooter($footer,2);
         
-        $html = view('pdf.scope.calibration.pdf-cal-scope', [
-                'scopes' => collect($scope)
-            ]);
-        $mpdf->WriteHTML($html);
+//         $html = view('pdf.scope.calibration.pdf-cal-scope', [
+//                 'scopes' => collect($scope)
+//             ]);
+//         $mpdf->WriteHTML($html);
 
-        // แปลง PDF เป็น String
-        $pdfContent = $mpdf->Output('', 'S');
+//         // แปลง PDF เป็น String
+//         $pdfContent = $mpdf->Output('', 'S');
 
-        // ใช้ PdfParser อ่าน PDF จาก String
-        $parser = new Parser();
-        $pdf = $parser->parseContent($pdfContent);
+//         // ใช้ PdfParser อ่าน PDF จาก String
+//         $parser = new Parser();
+//         $pdf = $parser->parseContent($pdfContent);
 
-        $chunks = $this->generateRangesWithData($scope,$pdf);
+//         $chunks = $this->generateRangesWithData($scope,$pdf);
         
-        // $firstPage = reset($chunks);
+//         // $firstPage = reset($chunks);
 
-        // $remainingItems = array_slice($chunks, 1);
+//         // $remainingItems = array_slice($chunks, 1);
 
-        // dd($chunks,$firstPage,$remainingItems);
+//         // dd($chunks,$firstPage,$remainingItems);
 
-        return $chunks;
+//         return $chunks;
    
-    }
+//     }
 
-    function generateRangesWithData($data, $pdf)
-    {
-        $maxNumber = []; // เก็บตัวเลขที่มากที่สุดของแต่ละหน้า
+//     function generateRangesWithData($data, $pdf)
+//     {
+//         $maxNumber = []; // เก็บตัวเลขที่มากที่สุดของแต่ละหน้า
 
-        // ดึงข้อความและค้นหาตัวเลขที่มากที่สุดในแต่ละหน้า
-        foreach ($pdf->getPages() as $pageNumber => $page) {
-            preg_match_all('/\*(\d+)\*/', $page->getText(), $matches); // ค้นหาตัวเลขในรูปแบบ *number*
-            if (!empty($matches[1])) {
-                $maxNumber[$pageNumber + 1] = max($matches[1]); // เก็บเลขที่มากที่สุดในหน้า
-            }
-        }
-        // สร้างช่วงข้อมูลตาม maxNumber และดึงค่าจาก $data
-        $start = 0;
-        return array_map(function ($end) use (&$start, $data) {
-            $range = range($start, (int)$end); // สร้างช่วง index
-            $start = (int)$end + 1; // อัปเดตค่าเริ่มต้นสำหรับช่วงถัดไป
-            return array_map(function ($index) use ($data) {
-                return $data[$index] ?? null; // ดึงค่าจาก $data ตาม index
-            }, $range);
-        }, $maxNumber);
-    }
+//         // ดึงข้อความและค้นหาตัวเลขที่มากที่สุดในแต่ละหน้า
+//         foreach ($pdf->getPages() as $pageNumber => $page) {
+//             preg_match_all('/\*(\d+)\*/', $page->getText(), $matches); // ค้นหาตัวเลขในรูปแบบ *number*
+//             if (!empty($matches[1])) {
+//                 $maxNumber[$pageNumber + 1] = max($matches[1]); // เก็บเลขที่มากที่สุดในหน้า
+//             }
+//         }
+//         // สร้างช่วงข้อมูลตาม maxNumber และดึงค่าจาก $data
+//         $start = 0;
+//         return array_map(function ($end) use (&$start, $data) {
+//             $range = range($start, (int)$end); // สร้างช่วง index
+//             $start = (int)$end + 1; // อัปเดตค่าเริ่มต้นสำหรับช่วงถัดไป
+//             return array_map(function ($index) use ($data) {
+//                 return $data[$index] ?? null; // ดึงค่าจาก $data ตาม index
+//             }, $range);
+//         }, $maxNumber);
+//     }
 
-  public function generatePdfLabScope()
-  {
-      $siteType = "single";
-      $data = $this->getCalScopeData()->getData();
+//   public function generatePdfLabScope()
+//   {
+//       $siteType = "single";
+//       $data = $this->getCalScopeData()->getData();
       
-      // dd($data);
-      if(count($data) > 1){
-          $siteType = "multi";
-      }
-      $mpdfArray = []; 
+//       // dd($data);
+//       if(count($data) > 1){
+//           $siteType = "multi";
+//       }
+//       $mpdfArray = []; 
 
-    // วนลูปข้อมูล
-      foreach ($data as $key => $details) {
+//     // วนลูปข้อมูล
+//       foreach ($data as $key => $details) {
 
-        $scopes = $details->scope;
+//         $scopes = $details->scope;
 
-          // ใช้ array_map เพื่อดึงค่าของ 'key' จากแต่ละรายการใน $scopes
-          $keys = array_map(function ($item) {
-            return $item->key;
-          }, $scopes);
+//           // ใช้ array_map เพื่อดึงค่าของ 'key' จากแต่ละรายการใน $scopes
+//           $keys = array_map(function ($item) {
+//             return $item->key;
+//           }, $scopes);
 
-          // ใช้ array_unique เพื่อลบค่าซ้ำใน $keys
-          $uniqueKeys = array_unique($keys);
+//           // ใช้ array_unique เพื่อลบค่าซ้ำใน $keys
+//           $uniqueKeys = array_unique($keys);
 
-          $pdfData =  (object)[
-            'certificate_no' => 'xx-LBxxx',
-            'acc_no' => '',
-            'book_no' => '',
-            'from_date_th' => '',
-            'from_date_en' => '',
-            'to_date_th' => '',
-            'to_date_en' => '',
-            'uniqueKeys' => $uniqueKeys,
-            'siteType' => $siteType
-        ];
+//           $pdfData =  (object)[
+//             'certificate_no' => 'xx-LBxxx',
+//             'acc_no' => '',
+//             'book_no' => '',
+//             'from_date_th' => '',
+//             'from_date_en' => '',
+//             'to_date_th' => '',
+//             'to_date_en' => '',
+//             'uniqueKeys' => $uniqueKeys,
+//             'siteType' => $siteType
+//         ];
 
-          // dd($uniqueKeys);
+//           // dd($uniqueKeys);
 
-          $scopePages = $this->getPageList($scopes,$pdfData,$details);
+//           $scopePages = $this->getPageList($scopes,$pdfData,$details);
           
-          $type = 'I';
-          $fontDirs = [public_path('fonts/')]; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
-          $fontData = [
-              'thsarabunnew' => [
-                  'R' => "THSarabunNew.ttf",
-                  'B' => "THSarabunNew-Bold.ttf",
-                  'I' => "THSarabunNew-Italic.ttf",
-                  'BI' => "THSarabunNew-BoldItalic.ttf",
-              ],
-          ];
+//           $type = 'I';
+//           $fontDirs = [public_path('fonts/')]; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
+//           $fontData = [
+//               'thsarabunnew' => [
+//                   'R' => "THSarabunNew.ttf",
+//                   'B' => "THSarabunNew-Bold.ttf",
+//                   'I' => "THSarabunNew-Italic.ttf",
+//                   'BI' => "THSarabunNew-BoldItalic.ttf",
+//               ],
+//           ];
   
-          if ($siteType == "single") {
-              $mpdf = new Mpdf([
-                  'PDFA'             => $type == 'F' ? true : false,
-                  'PDFAauto'         => $type == 'F' ? true : false,
-                  'format'           => 'A4',
-                  'mode'             => 'utf-8',
-                  'default_font_size'=> '15',
-                  'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
-                  'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
-                  'default_font'     => 'thsarabunnew',
-                  'margin_left'      => 6,
-                  'margin_right'     => 5,
-                  'margin_top'       => 97,
-                  'margin_bottom'    => 40,
-                  'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
-              ]);
-          } else { // multiple
-              if($key == 0){
-                  // $marginTop = 108;
-                  $mpdf = new Mpdf([
-                      'PDFA'             => $type == 'F' ? true : false,
-                      'PDFAauto'         => $type == 'F' ? true : false,
-                      'format'           => 'A4',
-                      'mode'             => 'utf-8',
-                      'default_font_size'=> '15',
-                      'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
-                      'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
-                      'default_font'     => 'thsarabunnew',
-                      'margin_left'      => 6,
-                      'margin_right'     => 5,
-                      'margin_top'       => 108,
-                      'margin_bottom'    => 40,
-                      'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
-                  ]);
-              }else{
-                  $mpdf = new Mpdf([
-                      'PDFA'             => $type == 'F' ? true : false,
-                      'PDFAauto'         => $type == 'F' ? true : false,
-                      'format'           => 'A4',
-                      'mode'             => 'utf-8',
-                      'default_font_size'=> '15',
-                      'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
-                      'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
-                      'default_font'     => 'thsarabunnew',
-                      'margin_left'      => 6,
-                      'margin_right'     => 5,
-                      'margin_top'       => 85,
-                      'margin_bottom'    => 40,
-                      'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
-                  ]);
-              }
+//           if ($siteType == "single") {
+//               $mpdf = new Mpdf([
+//                   'PDFA'             => $type == 'F' ? true : false,
+//                   'PDFAauto'         => $type == 'F' ? true : false,
+//                   'format'           => 'A4',
+//                   'mode'             => 'utf-8',
+//                   'default_font_size'=> '15',
+//                   'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+//                   'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+//                   'default_font'     => 'thsarabunnew',
+//                   'margin_left'      => 6,
+//                   'margin_right'     => 5,
+//                   'margin_top'       => 97,
+//                   'margin_bottom'    => 40,
+//                   'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
+//               ]);
+//           } else { // multiple
+//               if($key == 0){
+//                   // $marginTop = 108;
+//                   $mpdf = new Mpdf([
+//                       'PDFA'             => $type == 'F' ? true : false,
+//                       'PDFAauto'         => $type == 'F' ? true : false,
+//                       'format'           => 'A4',
+//                       'mode'             => 'utf-8',
+//                       'default_font_size'=> '15',
+//                       'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+//                       'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+//                       'default_font'     => 'thsarabunnew',
+//                       'margin_left'      => 6,
+//                       'margin_right'     => 5,
+//                       'margin_top'       => 108,
+//                       'margin_bottom'    => 40,
+//                       'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
+//                   ]);
+//               }else{
+//                   $mpdf = new Mpdf([
+//                       'PDFA'             => $type == 'F' ? true : false,
+//                       'PDFAauto'         => $type == 'F' ? true : false,
+//                       'format'           => 'A4',
+//                       'mode'             => 'utf-8',
+//                       'default_font_size'=> '15',
+//                       'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+//                       'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+//                       'default_font'     => 'thsarabunnew',
+//                       'margin_left'      => 6,
+//                       'margin_right'     => 5,
+//                       'margin_top'       => 85,
+//                       'margin_bottom'    => 40,
+//                       'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
+//                   ]);
+//               }
             
-          }
+//           }
                 
   
-          $data = $this->getCalScopeData()->getData();
+//           $data = $this->getCalScopeData()->getData();
   
-          $stylesheet = file_get_contents(public_path('css/report/lab-scope.css'));
-          $mpdf->WriteHTML($stylesheet, 1);
+//           $stylesheet = file_get_contents(public_path('css/report/lab-scope.css'));
+//           $mpdf->WriteHTML($stylesheet, 1);
   
-          // $mpdf->SetWatermarkImage(public_path(...), opacity, [size], [position]); 
+//           // $mpdf->SetWatermarkImage(public_path(...), opacity, [size], [position]); 
   
-          $mpdf->SetWatermarkImage(public_path('images/nc_logo.jpg'), 1, [23, 23], [170, 4]);
+//           $mpdf->SetWatermarkImage(public_path('images/nc_logo.jpg'), 1, [23, 23], [170, 4]);
   
-          $mpdf->showWatermarkImage = true; // เปิดใช้งาน watermark
+//           $mpdf->showWatermarkImage = true; // เปิดใช้งาน watermark
   
-          // เพิ่ม Text Watermark
-          $mpdf->SetWatermarkText('Confidential', 0.1); // ระบุข้อความและ opacity
-          $mpdf->showWatermarkText = true; // เปิดใช้งาน text watermark
+//           // เพิ่ม Text Watermark
+//           $mpdf->SetWatermarkText('Confidential', 0.1); // ระบุข้อความและ opacity
+//           $mpdf->showWatermarkText = true; // เปิดใช้งาน text watermark
               
-          $signImage = public_path('images/sign.jpg');
-          $sign1Image = public_path('images/sign1.png');
+//           $signImage = public_path('images/sign.jpg');
+//           $sign1Image = public_path('images/sign1.png');
   
-          // $footer = view('pdf.scope.calibration.cal-scope-footer', [
-          //     'sign1Image' => null,
-          //     'sign2Image' => null,
-          //     'sign3Image' => null
-          // ]);
-          // $mpdf->SetHTMLFooter($footer,2);
+//           // $footer = view('pdf.scope.calibration.cal-scope-footer', [
+//           //     'sign1Image' => null,
+//           //     'sign2Image' => null,
+//           //     'sign3Image' => null
+//           // ]);
+//           // $mpdf->SetHTMLFooter($footer,2);
   
-          $headerBlade = "pdf.scope.calibration.cal-scope-first-header";
-          $branchNo = null;
+//           $headerBlade = "pdf.scope.calibration.cal-scope-first-header";
+//           $branchNo = null;
 
-          if ($siteType == "multi")
-          {
-              $branchNo = $key + 1;
-              if ($key == 0){
-                  $headerBlade = "pdf.scope.calibration.cal-scope-first-header-multi";
-              }else{
-                  $headerBlade = "pdf.scope.calibration.cal-scope-first-header-multi-branch";
-              }   
-          }
+//           if ($siteType == "multi")
+//           {
+//               $branchNo = $key + 1;
+//               if ($key == 0){
+//                   $headerBlade = "pdf.scope.calibration.cal-scope-first-header-multi";
+//               }else{
+//                   $headerBlade = "pdf.scope.calibration.cal-scope-first-header-multi-branch";
+//               }   
+//           }
           
-          foreach ($scopePages as $index => $scopes) {
-              if ($index == 0) {
-                  $firstPageHeader = view($headerBlade, [
-                      'branchNo' => $branchNo,
-                      'company' => $details,
-                      'pdfData' => $pdfData
-                  ]);
-                  $mpdf->SetHTMLHeader($firstPageHeader, 2);
-                  $html = view('pdf.scope.calibration.pdf-cal-scope', [
-                      'scopes' => collect($scopes)
-                  ]);
-                  $mpdf->WriteHTML($html);
-              } else if ($index > 0) {
+//           foreach ($scopePages as $index => $scopes) {
+//               if ($index == 0) {
+//                   $firstPageHeader = view($headerBlade, [
+//                       'branchNo' => $branchNo,
+//                       'company' => $details,
+//                       'pdfData' => $pdfData
+//                   ]);
+//                   $mpdf->SetHTMLHeader($firstPageHeader, 2);
+//                   $html = view('pdf.scope.calibration.pdf-cal-scope', [
+//                       'scopes' => collect($scopes)
+//                   ]);
+//                   $mpdf->WriteHTML($html);
+//               } else if ($index > 0) {
   
-                  $header = view('pdf.scope.calibration.cal-scope-other-header', [
-                      'branchNo' => null,
-                      'company' => $details,
-                      'pdfData' => $pdfData
-                  ]);
-                  $mpdf->SetHTMLHeader($header, 2);
-                  $mpdf->AddPage('', '', '', '', '', 6, 5, 75, 30); 
-                  $html = view('pdf.scope.calibration.pdf-cal-scope', [
-                      'scopes' => collect($scopes)
-                  ]);
-                  $mpdf->WriteHTML($html);
-              }
-          }
+//                   $header = view('pdf.scope.calibration.cal-scope-other-header', [
+//                       'branchNo' => null,
+//                       'company' => $details,
+//                       'pdfData' => $pdfData
+//                   ]);
+//                   $mpdf->SetHTMLHeader($header, 2);
+//                   $mpdf->AddPage('', '', '', '', '', 6, 5, 75, 30); 
+//                   $html = view('pdf.scope.calibration.pdf-cal-scope', [
+//                       'scopes' => collect($scopes)
+//                   ]);
+//                   $mpdf->WriteHTML($html);
+//               }
+//           }
 
-          $mpdfArray[$key] = $mpdf;
-      }
+//           $mpdfArray[$key] = $mpdf;
+//       }
 
-      $combinedPdf = new \Mpdf\Mpdf([
-          'PDFA'             => $type == 'F' ? true : false,
-          'PDFAauto'         => $type == 'F' ? true : false,
-          'format'           => 'A4',
-          'mode'             => 'utf-8',
-          'default_font_size'=> '15',
-          'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
-          'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
-          'default_font'     => 'thsarabunnew',
-          'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
-      ]);
+//       $combinedPdf = new \Mpdf\Mpdf([
+//           'PDFA'             => $type == 'F' ? true : false,
+//           'PDFAauto'         => $type == 'F' ? true : false,
+//           'format'           => 'A4',
+//           'mode'             => 'utf-8',
+//           'default_font_size'=> '15',
+//           'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+//           'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+//           'default_font'     => 'thsarabunnew',
+//           'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
+//       ]);
 
-      $combinedPdf->SetImportUse();
+//       $combinedPdf->SetImportUse();
       
-      // สร้างไฟล์ PDF ชั่วคราวจาก `$mpdfArray`
-      $tempFiles = []; // เก็บรายชื่อไฟล์ชั่วคราว
-      foreach ($mpdfArray as $key => $mpdf) {
-          $tempFileName = "{$key}.pdf"; // เช่น main.pdf, branch0.pdf
-          $mpdf->Output($tempFileName, \Mpdf\Output\Destination::FILE); // บันทึก PDF ชั่วคราว
-          $tempFiles[] = $tempFileName;
-      }
+//       // สร้างไฟล์ PDF ชั่วคราวจาก `$mpdfArray`
+//       $tempFiles = []; // เก็บรายชื่อไฟล์ชั่วคราว
+//       foreach ($mpdfArray as $key => $mpdf) {
+//           $tempFileName = "{$key}.pdf"; // เช่น main.pdf, branch0.pdf
+//           $mpdf->Output($tempFileName, \Mpdf\Output\Destination::FILE); // บันทึก PDF ชั่วคราว
+//           $tempFiles[] = $tempFileName;
+//       }
 
-      // รวม PDF
-      foreach ($tempFiles as $fileName) {
-          $pageCount = $combinedPdf->SetSourceFile($fileName); // เปิดไฟล์ PDF
-          for ($i = 1; $i <= $pageCount; $i++) {
-              $templateId = $combinedPdf->ImportPage($i);
-              $combinedPdf->AddPage();
-              $combinedPdf->UseTemplate($templateId);
+//       // รวม PDF
+//       foreach ($tempFiles as $fileName) {
+//           $pageCount = $combinedPdf->SetSourceFile($fileName); // เปิดไฟล์ PDF
+//           for ($i = 1; $i <= $pageCount; $i++) {
+//               $templateId = $combinedPdf->ImportPage($i);
+//               $combinedPdf->AddPage();
+//               $combinedPdf->UseTemplate($templateId);
 
-              // ดึง HTML Footer จาก Blade Template
-              $signImage = public_path('images/sign.jpg');
-              $footer = view('pdf.scope.calibration.cal-scope-footer', [
-                  'sign1Image' => $signImage, // ส่งรูปภาพที่ต้องการใช้
-                  'sign2Image' => $signImage,
-                  'sign3Image' => $signImage
-              ])->render();
+//               // ดึง HTML Footer จาก Blade Template
+//               $signImage = public_path('images/sign.jpg');
+//               $footer = view('pdf.scope.calibration.cal-scope-footer', [
+//                   'sign1Image' => $signImage, // ส่งรูปภาพที่ต้องการใช้
+//                   'sign2Image' => $signImage,
+//                   'sign3Image' => $signImage
+//               ])->render();
 
-              // ตั้งค่า Footer ใหม่สำหรับหน้า PDF
-              $combinedPdf->SetHTMLFooter($footer);
-          }
-      }
+//               // ตั้งค่า Footer ใหม่สำหรับหน้า PDF
+//               $combinedPdf->SetHTMLFooter($footer);
+//           }
+//       }
 
-      // ส่งออกไฟล์ PDF
-      $combinedPdf->Output('combined.pdf', \Mpdf\Output\Destination::INLINE);
+//       // ส่งออกไฟล์ PDF
+//       $combinedPdf->Output('combined.pdf', \Mpdf\Output\Destination::INLINE);
 
-      // ลบไฟล์ชั่วคราว
-      foreach ($tempFiles as $fileName) {
-          unlink($fileName);
-      }
+//       // ลบไฟล์ชั่วคราว
+//       foreach ($tempFiles as $fileName) {
+//           unlink($fileName);
+//       }
 
-  }
+//   }
 
-  public function create_folder()
-  {
-    $attach = 'files/applicants/check_files/my_folder';
+//   public function create_folder()
+//   {
+//     $attach = 'files/applicants/check_files/my_folder';
 
-        // ตรวจสอบว่ามีโฟลเดอร์อยู่หรือไม่ ถ้าไม่มีให้สร้าง
-        if (!Storage::disk('uploads')->exists($attach)) {
-            Storage::disk('uploads')->makeDirectory($attach);
-        }
+//         // ตรวจสอบว่ามีโฟลเดอร์อยู่หรือไม่ ถ้าไม่มีให้สร้าง
+//         if (!Storage::disk('uploads')->exists($attach)) {
+//             Storage::disk('uploads')->makeDirectory($attach);
+//         }
 
-        // if (!Storage::disk('uploads')->exists($attach)) {
-        //     Storage::disk('uploads')->makeDirectory($attach);
-        //     chmod(Storage::disk('uploads')->path($attach), 0777); // เปลี่ยน 0755 หากต้องการ
-        // }
+//         // if (!Storage::disk('uploads')->exists($attach)) {
+//         //     Storage::disk('uploads')->makeDirectory($attach);
+//         //     chmod(Storage::disk('uploads')->path($attach), 0777); // เปลี่ยน 0755 หากต้องการ
+//         // }
 
-  }
+//   }
 
-  public function check_payin()
-  {
+//   public function check_payin()
+//   {
   
-    $today = Carbon::now(); // กำหนดวันปัจจุบัน
+//     $today = Carbon::now(); // กำหนดวันปัจจุบัน
 
-    // $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
-    //             ->where('invoiceEndDate', '>=', $today)
-    //             ->whereNull('status_confirmed')
-    //             ->where(function($query) {
-    //                 $query->where('ref1', 'like', 'TEST%')
-    //                     ->orWhere('ref1', 'like', 'CAL%');
-    //             })
-    //             ->get();
-    $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
-    ->where('invoiceEndDate', '>=', $today)
-    ->whereNull('status_confirmed')
-    ->where('state',1)
-    ->where('count','<=',3)
-    ->where(function ($query) {
-        $query->where('ref1', 'like', 'TEST%')
-              ->orWhere('ref1', 'like', 'CAL%');
-    })
-    ->get();
+//     // $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
+//     //             ->where('invoiceEndDate', '>=', $today)
+//     //             ->whereNull('status_confirmed')
+//     //             ->where(function($query) {
+//     //                 $query->where('ref1', 'like', 'TEST%')
+//     //                     ->orWhere('ref1', 'like', 'CAL%');
+//     //             })
+//     //             ->get();
+//     $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
+//     ->where('invoiceEndDate', '>=', $today)
+//     ->whereNull('status_confirmed')
+//     ->where('state',1)
+//     ->where('count','<=',3)
+//     ->where(function ($query) {
+//         $query->where('ref1', 'like', 'TEST%')
+//               ->orWhere('ref1', 'like', 'CAL%');
+//     })
+//     ->get();
 
-    dd($transactionPayIns);
+//     dd($transactionPayIns);
 
-    foreach ($transactionPayIns as $transactionPayIn) {
-        $ref1 = $transactionPayIn->ref1;
-        // dd('jjj');
-        $result = $this->callCheckBill($ref1);
-        // dd($result);
-        // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
-        if ($result instanceof \Illuminate\Http\JsonResponse) {
-            // แปลง JsonResponse เป็น array
-            $resultArray = $result->getData(true);
+//     foreach ($transactionPayIns as $transactionPayIn) {
+//         $ref1 = $transactionPayIn->ref1;
+//         // dd('jjj');
+//         $result = $this->callCheckBill($ref1);
+//         // dd($result);
+//         // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
+//         if ($result instanceof \Illuminate\Http\JsonResponse) {
+//             // แปลง JsonResponse เป็น array
+//             $resultArray = $result->getData(true);
 
-            // dd($resultArray);
+//             // dd($resultArray);
             
-            // ตรวจสอบค่า message
-            if (!empty($resultArray['message']) && $resultArray['message'] === true) {
-                // ดึงค่าทั้งหมดจาก response
-                $response = $resultArray['response'] ?? null;
+//             // ตรวจสอบค่า message
+//             if (!empty($resultArray['message']) && $resultArray['message'] === true) {
+//                 // ดึงค่าทั้งหมดจาก response
+//                 $response = $resultArray['response'] ?? null;
                 
-                // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
-                if (is_array($response) && count($response) > 0) {
-                    // ใช้ array_map เพื่อดึง ref1
-                    $ref1List = array_map(function ($item) {
-                        return isset($item['ref1']) ? $item['ref1'] : null;
-                    }, $response);
+//                 // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
+//                 if (is_array($response) && count($response) > 0) {
+//                     // ใช้ array_map เพื่อดึง ref1
+//                     $ref1List = array_map(function ($item) {
+//                         return isset($item['ref1']) ? $item['ref1'] : null;
+//                     }, $response);
 
-                    // dd($response);
+//                     // dd($response);
     
-                    // กรองเฉพาะ ref1 ที่ไม่เป็น null
-                    // $validRef1 = array_filter($ref1List);
+//                     // กรองเฉพาะ ref1 ที่ไม่เป็น null
+//                     // $validRef1 = array_filter($ref1List);
     
-                    // แสดงผล ref1 ทั้งหมด
-                    // $this->info("Valid ref1: " . implode(", ", $validRef1));
+//                     // แสดงผล ref1 ทั้งหมด
+//                     // $this->info("Valid ref1: " . implode(", ", $validRef1));
 
-                    $appCertiLabCostAssessmentId = $transactionPayIn->ref_id;
-                    $costAssessment = CostAssessment::find($appCertiLabCostAssessmentId);
-                    $amountInvoice = $costAssessment->amount_invoice;
-                    $fileClientName = $costAssessment->file_client_name;
+//                     $appCertiLabCostAssessmentId = $transactionPayIn->ref_id;
+//                     $costAssessment = CostAssessment::find($appCertiLabCostAssessmentId);
+//                     $amountInvoice = $costAssessment->amount_invoice;
+//                     $fileClientName = $costAssessment->file_client_name;
 
                     
-                    if($costAssessment->status_confirmed === null){
+//                     if($costAssessment->status_confirmed === null){
                        
-                        CostAssessment::find($appCertiLabCostAssessmentId)->update([
-                            'invoice' => $amountInvoice,
-                            'invoice_client_name' => $fileClientName,
-                            'state' => 3,
-                            'status_confirmed' => 1,
-                            'remark' => null,
-                            'condition_pay' => null,
-                        ]);
+//                         CostAssessment::find($appCertiLabCostAssessmentId)->update([
+//                             'invoice' => $amountInvoice,
+//                             'invoice_client_name' => $fileClientName,
+//                             'state' => 3,
+//                             'status_confirmed' => 1,
+//                             'remark' => null,
+//                             'condition_pay' => null,
+//                         ]);
 
-                        $find_cost_assessment = CostAssessment::find($appCertiLabCostAssessmentId);
-                        if(!empty($find_cost_assessment->assessment->auditor_id)){
-                            // สถานะ แต่งตั้งคณะกรรมการ
-                            $auditor = BoardAuditor::findOrFail($find_cost_assessment->assessment->auditor_id);
-                            if(!is_null($auditor)){
-                                if($find_cost_assessment->state == 3){
-                                    $auditor->step_id = 6; // ยืนยันการชำระเงินค่าตรวจประเมิน
-                                }else{
-                                    $auditor->step_id = 4; // แจ้งรายละเอียดค่าตรวจประเมิน
-                                }
-                                $auditor->save();
-                            }
-                        }
-                    }           
+//                         $find_cost_assessment = CostAssessment::find($appCertiLabCostAssessmentId);
+//                         if(!empty($find_cost_assessment->assessment->auditor_id)){
+//                             // สถานะ แต่งตั้งคณะกรรมการ
+//                             $auditor = BoardAuditor::findOrFail($find_cost_assessment->assessment->auditor_id);
+//                             if(!is_null($auditor)){
+//                                 if($find_cost_assessment->state == 3){
+//                                     $auditor->step_id = 6; // ยืนยันการชำระเงินค่าตรวจประเมิน
+//                                 }else{
+//                                     $auditor->step_id = 4; // แจ้งรายละเอียดค่าตรวจประเมิน
+//                                 }
+//                                 $auditor->save();
+//                             }
+//                         }
+//                     }           
 
-                } else {
-                    // $this->info("Response is empty or not an array.");
-                }
-            } else {
-                // $this->info("No valid message or response.");
-            }
-        } else {
-            // $this->info("Invalid response type. Expected JsonResponse.");
-        }
-    }
+//                 } else {
+//                     // $this->info("Response is empty or not an array.");
+//                 }
+//             } else {
+//                 // $this->info("No valid message or response.");
+//             }
+//         } else {
+//             // $this->info("Invalid response type. Expected JsonResponse.");
+//         }
+//     }
     
 
-}
+// }
 
-public function create_bill()
-{
+// public function create_bill()
+// {
     
-    $find_cost_assessment   =  CostAssessment::findOrFail(1644);  //  ตารางธรรรมเนียม
+//     $find_cost_assessment   =  CostAssessment::findOrFail(1644);  //  ตารางธรรรมเนียม
     
-    $certi_lab = CertiLab::findOrFail($find_cost_assessment->app_certi_lab_id); // ตารางใบสมัคร
-    $app_no          =  $certi_lab->app_no;
+//     $certi_lab = CertiLab::findOrFail($find_cost_assessment->app_certi_lab_id); // ตารางใบสมัคร
+//     $app_no          =  $certi_lab->app_no;
    
-    $setting_payment = CertiSettingPayment::where('certify',1)->where('payin',1)->where('type',1)->first();
+//     $setting_payment = CertiSettingPayment::where('certify',1)->where('payin',1)->where('type',1)->first();
     
-    $storagePath = $this->storeFilePayinDemo($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
-    // dd($storagePath);
-}
+//     $storagePath = $this->storeFilePayinDemo($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
+//     // dd($storagePath);
+// }
 
-     // สำหรับเพิ่มรูปไปที่ store
-     public function storeFilePayinDemo($setting_payment, $app_no = 'files_lab', $auditor_id = '')
-     {
-        $baseUrl = strstr($setting_payment->data, '/api', true);
+//      // สำหรับเพิ่มรูปไปที่ store
+//      public function storeFilePayinDemo($setting_payment, $app_no = 'files_lab', $auditor_id = '')
+//      {
+//         $baseUrl = strstr($setting_payment->data, '/api', true);
 
-        $url = $baseUrl. '/images/PayIn2.pdf';
+//         $url = $baseUrl. '/images/PayIn2.pdf';
 
-        // ดาวน์โหลดเนื้อหา PDF (Demo)
-        // $pdf_content = file_get_contents($url);
+//         // ดาวน์โหลดเนื้อหา PDF (Demo)
+//         // $pdf_content = file_get_contents($url);
 
-                $contextOptions = [
-            "ssl" => [
-                "verify_peer" => false,
-                "verify_peer_name" => false,
-            ]
-        ];
+//                 $contextOptions = [
+//             "ssl" => [
+//                 "verify_peer" => false,
+//                 "verify_peer_name" => false,
+//             ]
+//         ];
 
-        if (strpos($setting_payment->data, 'https') === 0) {
-            $context = stream_context_create($contextOptions);
-            $pdf_content = file_get_contents($url, false, $context);
-        } else {
-            $pdf_content = file_get_contents($url);
-        }
+//         if (strpos($setting_payment->data, 'https') === 0) {
+//             $context = stream_context_create($contextOptions);
+//             $pdf_content = file_get_contents($url, false, $context);
+//         } else {
+//             $pdf_content = file_get_contents($url);
+//         }
 
-        // dd($pdf_content);
+//         // dd($pdf_content);
              
-             $no  = str_replace("RQ-","",$app_no);
-             $no  = str_replace("-","_",$no);
-         if ($pdf_content) {
-             $attach_path  =  $this->attach_path.$no;
-             $fullFileName =  $no.'-'.date('Ymd_hms').'.pdf';
-             $storagePath = Storage::put($attach_path.'/'.$fullFileName, $pdf_content);
+//              $no  = str_replace("RQ-","",$app_no);
+//              $no  = str_replace("-","_",$no);
+//          if ($pdf_content) {
+//              $attach_path  =  $this->attach_path.$no;
+//              $fullFileName =  $no.'-'.date('Ymd_hms').'.pdf';
+//              $storagePath = Storage::put($attach_path.'/'.$fullFileName, $pdf_content);
 
 
-            $filePath = $attach_path .'/'. $fullFileName;
-            if (Storage::disk('ftp')->exists($filePath)) {
-                // dd('File Path on Server: ' . $filePath);
-            } else {
-                // dd('File not found on server!');
-            }
-             return  $no.'/'.$fullFileName;
-         }else{
-             return null;
-         }
-      }
+//             $filePath = $attach_path .'/'. $fullFileName;
+//             if (Storage::disk('ftp')->exists($filePath)) {
+//                 // dd('File Path on Server: ' . $filePath);
+//             } else {
+//                 // dd('File not found on server!');
+//             }
+//              return  $no.'/'.$fullFileName;
+//          }else{
+//              return null;
+//          }
+//       }
 
-      public function CreateLabReport()
-      {
-          // สำหรับ admin และเจ้าหน้าที่ lab
-        //   if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
-        //       abort(403);
-        //   }
+//       public function CreateLabReport()
+//       {
+//           // สำหรับ admin และเจ้าหน้าที่ lab
+//         //   if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
+//         //       abort(403);
+//         //   }
   
-        $id = 1767;
-          $boardAuditor = BoardAuditor::find($id);
+//         $id = 1767;
+//           $boardAuditor = BoardAuditor::find($id);
   
-          $groups = $boardAuditor->groups;
+//           $groups = $boardAuditor->groups;
   
-          $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
+//           $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
   
-          $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
+//           $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
   
-          foreach ($groups as $group) {
-              $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
-              $auditors = $group->auditors; // $auditors เป็น Collection
+//           foreach ($groups as $group) {
+//               $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+//               $auditors = $group->auditors; // $auditors เป็น Collection
   
-              // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
-              if (!isset($statusAuditorMap[$statusAuditorId])) {
-                  $statusAuditorMap[$statusAuditorId] = [];
-              }
+//               // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+//               if (!isset($statusAuditorMap[$statusAuditorId])) {
+//                   $statusAuditorMap[$statusAuditorId] = [];
+//               }
   
-              // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
-              foreach ($auditors as $auditor) {
-                  $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
-              }
-          }
+//               // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+//               foreach ($auditors as $auditor) {
+//                   $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+//               }
+//           }
   
-          $uniqueAuditorIds = array_unique($auditorIds);
+//           $uniqueAuditorIds = array_unique($auditorIds);
   
-          $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
+//           $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
   
-          $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+//           $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
   
-          $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
-          $dateRange = "";
+//           $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
+//           $dateRange = "";
   
-          if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
-              if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
-                  // ถ้าเป็นวันเดียวกัน
-                  $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
-              } else {
-                  // ถ้าเป็นคนละวัน
-                  $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                              " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
-              }
-          }
+//           if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+//               if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+//                   // ถ้าเป็นวันเดียวกัน
+//                   $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+//               } else {
+//                   // ถ้าเป็นคนละวัน
+//                   $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
+//                               " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+//               }
+//           }
   
-          $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
-          $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
-          // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
-          if ($boardAuditorExpert && $boardAuditorExpert->expert) {
-              // แปลงข้อมูล JSON ใน expert กลับเป็น array
-              $categories = json_decode($boardAuditorExpert->expert, true);
+//           $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
+//           $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+//           // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
+//           if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+//               // แปลงข้อมูล JSON ใน expert กลับเป็น array
+//               $categories = json_decode($boardAuditorExpert->expert, true);
           
-              // ถ้ามีหลายรายการ
-              if (count($categories) > 1) {
-                  // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
-                  $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
-                  $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
-              } elseif (count($categories) == 1) {
-                  // ถ้ามีแค่รายการเดียว
-                  $experts = $categories[0];
-              } else {
-                  $experts = ''; // ถ้าไม่มีข้อมูล
-              }
+//               // ถ้ามีหลายรายการ
+//               if (count($categories) > 1) {
+//                   // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
+//                   $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
+//                   $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
+//               } elseif (count($categories) == 1) {
+//                   // ถ้ามีแค่รายการเดียว
+//                   $experts = $categories[0];
+//               } else {
+//                   $experts = ''; // ถ้าไม่มีข้อมูล
+//               }
           
-          }
+//           }
   
-          $scope_branch = "";
-          if ($certi_lab->lab_type == 3){
-              $scope_branch = $certi_lab->BranchTitle;
-          }else if($certi_lab->lab_type == 4)
-          {
-              $scope_branch = $certi_lab->ClibrateBranchTitle;
-          }
+//           $scope_branch = "";
+//           if ($certi_lab->lab_type == 3){
+//               $scope_branch = $certi_lab->BranchTitle;
+//           }else if($certi_lab->lab_type == 4)
+//           {
+//               $scope_branch = $certi_lab->ClibrateBranchTitle;
+//           }
   
-          $data = new stdClass();
+//           $data = new stdClass();
   
-          $data->header_text1 = '';
-          $data->header_text2 = '';
-          $data->header_text3 = '';
-          $data->header_text4 = $certi_lab->app_no;
-          $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
-          $data->lab_name = $certi_lab->lab_name;
-          $data->scope_branch = $scope_branch;
-          $data->app_np = 'ทดสอบ ๑๖๗๑';
-          $data->certificate_no = '13-LB0037';
-          $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
-          $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
-          $data->experts = $experts;
-          $data->date_range = $dateRange;
-          $data->statusAuditorMap = $statusAuditorMap;
+//           $data->header_text1 = '';
+//           $data->header_text2 = '';
+//           $data->header_text3 = '';
+//           $data->header_text4 = $certi_lab->app_no;
+//           $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+//           $data->lab_name = $certi_lab->lab_name;
+//           $data->scope_branch = $scope_branch;
+//           $data->app_np = 'ทดสอบ ๑๖๗๑';
+//           $data->certificate_no = '13-LB0037';
+//           $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+//           $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+//           $data->experts = $experts;
+//           $data->date_range = $dateRange;
+//           $data->statusAuditorMap = $statusAuditorMap;
   
   
-        //   dd('ok');
-          return view('certify.save_assessment.report', [
-              'data' => $data,
-              'id' => $id
-          ]);
-      }
+//         //   dd('ok');
+//           return view('certify.save_assessment.report', [
+//               'data' => $data,
+//               'id' => $id
+//           ]);
+//       }
 
 
-      public function CreateLabReportPdf()
-      {
-        $id = 1;
-        $labReportInfo = LabReportInfo::find($id);
+//       public function CreateLabReportPdf()
+//       {
+//         $id = 1;
+//         $labReportInfo = LabReportInfo::find($id);
         
-        $notice = $labReportInfo->notice;
-        $assessment = $notice->assessment;
+//         $notice = $labReportInfo->notice;
+//         $assessment = $notice->assessment;
 
-        $app_certi_lab = $notice->applicant;
-        $boardAuditor = $assessment->board_auditor_to;
-        $id = $boardAuditor->auditor_id;
+//         $app_certi_lab = $notice->applicant;
+//         $boardAuditor = $assessment->board_auditor_to;
+//         $id = $boardAuditor->auditor_id;
 
-        // dd($labReportInfo,$notice);
+//         // dd($labReportInfo,$notice);
        
-        $groups = $boardAuditor->groups;
+//         $groups = $boardAuditor->groups;
     
-        $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
+//         $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 
-        $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
+//         $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
 
-        foreach ($groups as $group) {
-            $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
-            $auditors = $group->auditors; // $auditors เป็น Collection
+//         foreach ($groups as $group) {
+//             $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+//             $auditors = $group->auditors; // $auditors เป็น Collection
 
-            // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
-            if (!isset($statusAuditorMap[$statusAuditorId])) {
-                $statusAuditorMap[$statusAuditorId] = [];
-            }
+//             // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+//             if (!isset($statusAuditorMap[$statusAuditorId])) {
+//                 $statusAuditorMap[$statusAuditorId] = [];
+//             }
 
-            // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
-            foreach ($auditors as $auditor) {
-                $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
-            }
-        }
+//             // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+//             foreach ($auditors as $auditor) {
+//                 $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+//             }
+//         }
 
-        $uniqueAuditorIds = array_unique($auditorIds);
+//         $uniqueAuditorIds = array_unique($auditorIds);
 
-        $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
+//         $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
 
-        $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+//         $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
 
-        $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
-        $dateRange = "";
+//         $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
+//         $dateRange = "";
 
-        if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
-            if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
-                // ถ้าเป็นวันเดียวกัน
-                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
-            } else {
-                // ถ้าเป็นคนละวัน
-                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
-            }
-        }
+//         if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+//             if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+//                 // ถ้าเป็นวันเดียวกัน
+//                 $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+//             } else {
+//                 // ถ้าเป็นคนละวัน
+//                 $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
+//                             " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+//             }
+//         }
 
-        $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
-        $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
-        // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
-        if ($boardAuditorExpert && $boardAuditorExpert->expert) {
-            // แปลงข้อมูล JSON ใน expert กลับเป็น array
-            $categories = json_decode($boardAuditorExpert->expert, true);
+//         $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
+//         $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+//         // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
+//         if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+//             // แปลงข้อมูล JSON ใน expert กลับเป็น array
+//             $categories = json_decode($boardAuditorExpert->expert, true);
         
-            // ถ้ามีหลายรายการ
-            if (count($categories) > 1) {
-                // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
-                $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
-                $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
-            } elseif (count($categories) == 1) {
-                // ถ้ามีแค่รายการเดียว
-                $experts = $categories[0];
-            } else {
-                $experts = ''; // ถ้าไม่มีข้อมูล
-            }
+//             // ถ้ามีหลายรายการ
+//             if (count($categories) > 1) {
+//                 // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
+//                 $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
+//                 $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
+//             } elseif (count($categories) == 1) {
+//                 // ถ้ามีแค่รายการเดียว
+//                 $experts = $categories[0];
+//             } else {
+//                 $experts = ''; // ถ้าไม่มีข้อมูล
+//             }
         
-        }
+//         }
 
-        $scope_branch = "";
-        if ($certi_lab->lab_type == 3){
-            $scope_branch = $certi_lab->BranchTitle;
-        }else if($certi_lab->lab_type == 4)
-        {
-            $scope_branch = $certi_lab->ClibrateBranchTitle;
-        }
+//         $scope_branch = "";
+//         if ($certi_lab->lab_type == 3){
+//             $scope_branch = $certi_lab->BranchTitle;
+//         }else if($certi_lab->lab_type == 4)
+//         {
+//             $scope_branch = $certi_lab->ClibrateBranchTitle;
+//         }
 
-        $data = new stdClass();
+//         $data = new stdClass();
 
-        $data->header_text1 = '';
-        $data->header_text2 = '';
-        $data->header_text3 = '';
-        $data->header_text4 = $certi_lab->app_no;
-        $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
-        $data->lab_name = $certi_lab->lab_name;
-        $data->scope_branch = $scope_branch;
-        $data->app_np = 'ทดสอบ ๑๖๗๑';
-        $data->certificate_no = '13-LB0037';
-        $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
-        $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
-        $data->experts = $experts;
-        $data->date_range = $dateRange;
-        $data->statusAuditorMap = $statusAuditorMap;
+//         $data->header_text1 = '';
+//         $data->header_text2 = '';
+//         $data->header_text3 = '';
+//         $data->header_text4 = $certi_lab->app_no;
+//         $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+//         $data->lab_name = $certi_lab->lab_name;
+//         $data->scope_branch = $scope_branch;
+//         $data->app_np = 'ทดสอบ ๑๖๗๑';
+//         $data->certificate_no = '13-LB0037';
+//         $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+//         $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+//         $data->experts = $experts;
+//         $data->date_range = $dateRange;
+//         $data->statusAuditorMap = $statusAuditorMap;
 
-        // $notice = Notice::find($notice_id);
-        $assessment = $notice->assessment;
-        // dd($statusAuditorMap);
-        $app_certi_lab = $notice->applicant;
-        $boardAuditor = $assessment->board_auditor_to;
-        $id = $boardAuditor->auditor_id;
-        $labRequest = null;
+//         // $notice = Notice::find($notice_id);
+//         $assessment = $notice->assessment;
+//         // dd($statusAuditorMap);
+//         $app_certi_lab = $notice->applicant;
+//         $boardAuditor = $assessment->board_auditor_to;
+//         $id = $boardAuditor->auditor_id;
+//         $labRequest = null;
         
-        if($app_certi_lab->lab_type == 4){
-            $labRequest = LabCalRequest::where('app_certi_lab_id',$app_certi_lab->id)->where('type',1)->first();
-        }else if($app_certi_lab->lab_type == 3)
-        {
-            $labRequest = LabTestRequest::where('app_certi_lab_id',$app_certi_lab->id)->where('type',1)->first();
-        }
+//         if($app_certi_lab->lab_type == 4){
+//             $labRequest = LabCalRequest::where('app_certi_lab_id',$app_certi_lab->id)->where('type',1)->first();
+//         }else if($app_certi_lab->lab_type == 3)
+//         {
+//             $labRequest = LabTestRequest::where('app_certi_lab_id',$app_certi_lab->id)->where('type',1)->first();
+//         }
 
-        $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)->get();
+//         $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)->get();
 
 
         
-        $signer = new stdClass();
+//         $signer = new stdClass();
 
 
        
-        $signer->signer_1 = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)->where('report_type',1)->where('signer_order','1')->first();
+//         $signer->signer_1 = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)->where('report_type',1)->where('signer_order','1')->first();
 
         
-        $signer->signer_2 = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)->where('report_type',1)->where('signer_order','2')->first();
-        $signer->signer_3 = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)->where('report_type',1)->where('signer_order','3')->first();
+//         $signer->signer_2 = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)->where('report_type',1)->where('signer_order','2')->first();
+//         $signer->signer_3 = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)->where('report_type',1)->where('signer_order','3')->first();
 
 
 
-        $attach1 = !empty($signer->signer_1->signer->AttachFileAttachTo) ? $signer->signer_1->signer->AttachFileAttachTo : null;
-        $attach2 = !empty($signer->signer_2->signer->AttachFileAttachTo) ? $signer->signer_2->signer->AttachFileAttachTo : null;
-        $attach3 = !empty($signer->signer_3->signer->AttachFileAttachTo) ? $signer->signer_3->signer->AttachFileAttachTo : null;
-        // $attach4 = !empty($signer->signer_4->signer->AttachFileAttachTo) ? $signer->signer_4->signer->AttachFileAttachTo : null;
-        // dd($attach1->url);
+//         $attach1 = !empty($signer->signer_1->signer->AttachFileAttachTo) ? $signer->signer_1->signer->AttachFileAttachTo : null;
+//         $attach2 = !empty($signer->signer_2->signer->AttachFileAttachTo) ? $signer->signer_2->signer->AttachFileAttachTo : null;
+//         $attach3 = !empty($signer->signer_3->signer->AttachFileAttachTo) ? $signer->signer_3->signer->AttachFileAttachTo : null;
+//         // $attach4 = !empty($signer->signer_4->signer->AttachFileAttachTo) ? $signer->signer_4->signer->AttachFileAttachTo : null;
+//         // dd($attach1->url);
 
-        $sign_url1 = $this->getSignature($attach1);
-        $sign_url2 = $this->getSignature($attach2);
-        $sign_url3 = $this->getSignature($attach3);
-        // $sign_url4 = $this->getSignature($attach4);
+//         $sign_url1 = $this->getSignature($attach1);
+//         $sign_url2 = $this->getSignature($attach2);
+//         $sign_url3 = $this->getSignature($attach3);
+//         // $sign_url4 = $this->getSignature($attach4);
 
 
-        $signer->signer_url1 = $sign_url1;
-        $signer->signer_url2 = $sign_url2;
-        $signer->signer_url3 = $sign_url3;
-        // $signer->signer_url4 = $sign_url4;
+//         $signer->signer_url1 = $sign_url1;
+//         $signer->signer_url2 = $sign_url2;
+//         $signer->signer_url3 = $sign_url3;
+//         // $signer->signer_url4 = $sign_url4;
 
-        $type = 'I';
-        $fontDirs = [public_path('pdf_fonts/')]; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
-        $fontData = [
-            'thsarabunnew' => [
-                'R' => "THSarabunNew.ttf",
-                'B' => "THSarabunNew-Bold.ttf",
-                'I' => "THSarabunNew-Italic.ttf",
-                'BI' => "THSarabunNew-BoldItalic.ttf",
-            ],
-        ];
+//         $type = 'I';
+//         $fontDirs = [public_path('pdf_fonts/')]; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
+//         $fontData = [
+//             'thsarabunnew' => [
+//                 'R' => "THSarabunNew.ttf",
+//                 'B' => "THSarabunNew-Bold.ttf",
+//                 'I' => "THSarabunNew-Italic.ttf",
+//                 'BI' => "THSarabunNew-BoldItalic.ttf",
+//             ],
+//         ];
 
-        $mpdf = new Mpdf([
-            'PDFA' 	=>  $type == 'F' ? true : false,
-            'PDFAauto'	 =>  $type == 'F' ? true : false,
-            'format'            => 'A4',
-            'mode'              => 'utf-8',
-            'default_font_size' => '15',
-            'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
-            'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
-            'default_font'     => 'thsarabunnew', // ใช้ฟอนต์ที่กำหนดเป็นค่าเริ่มต้น
-            'margin_left'      => 12, // ระบุขอบด้านซ้าย
-            'margin_right'     => 15, // ระบุขอบด้านขวา
-            'margin_top'       => 15, // ระบุขอบด้านบน
-            'margin_bottom'    => 15, // ระบุขอบด้านล่าง
-            'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
-        ]);         
+//         $mpdf = new Mpdf([
+//             'PDFA' 	=>  $type == 'F' ? true : false,
+//             'PDFAauto'	 =>  $type == 'F' ? true : false,
+//             'format'            => 'A4',
+//             'mode'              => 'utf-8',
+//             'default_font_size' => '15',
+//             'fontDir'          => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+//             'fontdata'         => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+//             'default_font'     => 'thsarabunnew', // ใช้ฟอนต์ที่กำหนดเป็นค่าเริ่มต้น
+//             'margin_left'      => 12, // ระบุขอบด้านซ้าย
+//             'margin_right'     => 15, // ระบุขอบด้านขวา
+//             'margin_top'       => 15, // ระบุขอบด้านบน
+//             'margin_bottom'    => 15, // ระบุขอบด้านล่าง
+//             'shrink_tables_to_fit'    => 0, // ระบุขอบด้านล่าง
+//         ]);         
 
-        $mpdf->useDictionaryLBR = false;
-        // $mpdf->shrink_tables_to_fit=0;
-        $mpdf->SetDefaultBodyCSS('KeepTableProportions', 1);
-        $body = view('certify.save_assessment.report-pdf.ia.body', [
-            'labReportInfo' => $labReportInfo,
-            'data' => $data,
-            'notice' => $notice,
-            'assessment' => $assessment,
-            'boardAuditor' => $boardAuditor,
-            'certi_lab' => $app_certi_lab,
-            'labRequest' => $labRequest,
-            'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
-            'id' => $id,
-            'signer' => $signer
-        ]);
-        $footer = view('certify.save_assessment.report-pdf.ia.footer', []);
+//         $mpdf->useDictionaryLBR = false;
+//         // $mpdf->shrink_tables_to_fit=0;
+//         $mpdf->SetDefaultBodyCSS('KeepTableProportions', 1);
+//         $body = view('certify.save_assessment.report-pdf.ia.body', [
+//             'labReportInfo' => $labReportInfo,
+//             'data' => $data,
+//             'notice' => $notice,
+//             'assessment' => $assessment,
+//             'boardAuditor' => $boardAuditor,
+//             'certi_lab' => $app_certi_lab,
+//             'labRequest' => $labRequest,
+//             'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
+//             'id' => $id,
+//             'signer' => $signer
+//         ]);
+//         $footer = view('certify.save_assessment.report-pdf.ia.footer', []);
 
-        $stylesheet = file_get_contents(public_path('css/report/lab-report.css'));
-        $mpdf->WriteHTML($stylesheet, 1);
+//         $stylesheet = file_get_contents(public_path('css/report/lab-report.css'));
+//         $mpdf->WriteHTML($stylesheet, 1);
        
         
-        $mpdf->WriteHTML($body,2);
+//         $mpdf->WriteHTML($body,2);
 
-        $mpdf->SetHTMLFooter($footer,2);
+//         $mpdf->SetHTMLFooter($footer,2);
 
-        $title = "labreport.pdf";
+//         $title = "labreport.pdf";
         
-        $mpdf->Output($title, $type);  
+//         $mpdf->Output($title, $type);  
                                                     
-    }
+//     }
 
-    public function getSignature($attach)
-    {
+//     public function getSignature($attach)
+//     {
         
-        $existingFilePath = $attach->url;//  'files/signers/3210100336046/tvE4QPMaEC-date_time20241211_011258.png'  ;
+//         $existingFilePath = $attach->url;//  'files/signers/3210100336046/tvE4QPMaEC-date_time20241211_011258.png'  ;
 
-        $attachPath = 'bcertify_attach/signer';
-        $fileName = basename($existingFilePath) ;// 'tvE4QPMaEC-date_time20241211_011258.png';
-        // dd($existingFilePath);
+//         $attachPath = 'bcertify_attach/signer';
+//         $fileName = basename($existingFilePath) ;// 'tvE4QPMaEC-date_time20241211_011258.png';
+//         // dd($existingFilePath);
 
-        // ตรวจสอบไฟล์ใน disk uploads ก่อน
-        if (Storage::disk('uploads')->exists("{$attachPath}/{$fileName}")) {
-            // หากพบไฟล์ใน disk
-            $storagePath = Storage::disk('uploads')->path("{$attachPath}/{$fileName}");
-            $filePath = 'uploads/'.$attachPath .'/'.$fileName;
-            // dd('File already exists in uploads',  $filePath);
-            return $filePath;
-        } else {
-            // หากไม่พบไฟล์ใน disk ให้ไปตรวจสอบในเซิร์ฟเวอร์
-            if (HP::checkFileStorage($existingFilePath)) {
-                // ดึง path ของไฟล์ที่อยู่ในเซิร์ฟเวอร์
-                $localFilePath = HP::getFileStoragePath($existingFilePath);
+//         // ตรวจสอบไฟล์ใน disk uploads ก่อน
+//         if (Storage::disk('uploads')->exists("{$attachPath}/{$fileName}")) {
+//             // หากพบไฟล์ใน disk
+//             $storagePath = Storage::disk('uploads')->path("{$attachPath}/{$fileName}");
+//             $filePath = 'uploads/'.$attachPath .'/'.$fileName;
+//             // dd('File already exists in uploads',  $filePath);
+//             return $filePath;
+//         } else {
+//             // หากไม่พบไฟล์ใน disk ให้ไปตรวจสอบในเซิร์ฟเวอร์
+//             if (HP::checkFileStorage($existingFilePath)) {
+//                 // ดึง path ของไฟล์ที่อยู่ในเซิร์ฟเวอร์
+//                 $localFilePath = HP::getFileStoragePath($existingFilePath);
 
-                // ตรวจสอบว่าไฟล์มีอยู่หรือไม่
-                if (file_exists($localFilePath)) {
-                    // บันทึกไฟล์ลง disk 'uploads' โดยใช้ subfolder ที่กำหนด
-                    $storagePath = Storage::disk('uploads')->putFileAs($attachPath, new \Illuminate\Http\File($localFilePath), $fileName);
+//                 // ตรวจสอบว่าไฟล์มีอยู่หรือไม่
+//                 if (file_exists($localFilePath)) {
+//                     // บันทึกไฟล์ลง disk 'uploads' โดยใช้ subfolder ที่กำหนด
+//                     $storagePath = Storage::disk('uploads')->putFileAs($attachPath, new \Illuminate\Http\File($localFilePath), $fileName);
 
-                    // ตอบกลับว่าพบไฟล์และบันทึกสำเร็จ
-                    $filePath = 'uploads/'.$attachPath .'/'.$fileName;
-                    return $filePath;
-                    // dd('File exists in server and saved to uploads', $storagePath);
-                } else {
-                    // กรณีไฟล์ไม่สามารถเข้าถึงได้ใน path เดิม
-                    return null;
-                }
-            } else {
-                // ตอบกลับกรณีไม่มีไฟล์ในเซิร์ฟเวอร์
-                return null;
-            }
-        }
+//                     // ตอบกลับว่าพบไฟล์และบันทึกสำเร็จ
+//                     $filePath = 'uploads/'.$attachPath .'/'.$fileName;
+//                     return $filePath;
+//                     // dd('File exists in server and saved to uploads', $storagePath);
+//                 } else {
+//                     // กรณีไฟล์ไม่สามารถเข้าถึงได้ใน path เดิม
+//                     return null;
+//                 }
+//             } else {
+//                 // ตอบกลับกรณีไม่มีไฟล์ในเซิร์ฟเวอร์
+//                 return null;
+//             }
+//         }
         
-    }
-    public function CreateLabMessageRecordPdfDemo()
-    {
-        // http://127.0.0.1:8081/certify/auditor/create-lab-message-record-pdf/1754
-        $boardAuditor = BoardAuditor::find(1850);
-        // dd( $boardAuditor);
-        $pdfService = new CreateLabMessageRecordPdf($boardAuditor,"ia");
-        $pdfContent = $pdfService->generateBoardAuditorMessageRecordPdf();
-    }
+//     }
+//     public function CreateLabMessageRecordPdfDemo()
+//     {
+//         // http://127.0.0.1:8081/certify/auditor/create-lab-message-record-pdf/1754
+//         $boardAuditor = BoardAuditor::find(1850);
+//         // dd( $boardAuditor);
+//         $pdfService = new CreateLabMessageRecordPdf($boardAuditor,"ia");
+//         $pdfContent = $pdfService->generateBoardAuditorMessageRecordPdf();
+//     }
 
-    public function upDatePayin()
-    {
-        $arrContextOptions=array();
-        // dd('555555555');
-        $expiredTransactionPayIns = $this->CheckPayInExpire();
-        // dd($expiredTransactionPayIns);
-        if($expiredTransactionPayIns->count() !== 0){
-            foreach($expiredTransactionPayIns as $expiredTransactionPayIn){
-                $data = $expiredTransactionPayIn-> ref1;
-                $splitData = explode('-', $data); // แยกข้อมูลด้วย '-'
-                $lastPart = end($splitData); // ดึงค่าตัวสุดท้าย
-                $assessmentId = (int)$lastPart; // แปลงเป็น int
-                $assessment = Assessment::find($assessmentId);
-                $appCertiLab = $assessment->applicant;
-                // dd($appCertiLab);
+//     public function upDatePayin()
+//     {
+//         $arrContextOptions=array();
+//         // dd('555555555');
+//         $expiredTransactionPayIns = $this->CheckPayInExpire();
+//         // dd($expiredTransactionPayIns);
+//         if($expiredTransactionPayIns->count() !== 0){
+//             foreach($expiredTransactionPayIns as $expiredTransactionPayIn){
+//                 $data = $expiredTransactionPayIn-> ref1;
+//                 $splitData = explode('-', $data); // แยกข้อมูลด้วย '-'
+//                 $lastPart = end($splitData); // ดึงค่าตัวสุดท้าย
+//                 $assessmentId = (int)$lastPart; // แปลงเป็น int
+//                 $assessment = Assessment::find($assessmentId);
+//                 $appCertiLab = $assessment->applicant;
+//                 // dd($appCertiLab);
 
-                $find_cost_assessment   =  $assessment->cost_assessment ;  //  ตารางธรรรมเนียม
+//                 $find_cost_assessment   =  $assessment->cost_assessment ;  //  ตารางธรรรมเนียม
 
-                // dd($find_cost_assessment);
+//                 // dd($find_cost_assessment);
 
-                $setting_payment = CertiSettingPayment::where('certify',1)->where('payin',1)->where('type',1)->first();
+//                 $setting_payment = CertiSettingPayment::where('certify',1)->where('payin',1)->where('type',1)->first();
 
-                $app_no =  $appCertiLab->app_no;
+//                 $app_no =  $appCertiLab->app_no;
 
-                if(!is_null($setting_payment)){
-                    // dd('ok');
-                    if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
-                        $arrContextOptions["ssl"] = array(
-                                                "verify_peer" => false,
-                                                "verify_peer_name" => false,
-                                          );
-                    }
-                    $ao = new CostAssessment;
-                    $timestamp = Carbon::now()->timestamp;
-                    $refNo = $app_no.'-'.$find_cost_assessment->app_certi_assessment_id.$timestamp;
+//                 if(!is_null($setting_payment)){
+//                     // dd('ok');
+//                     if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
+//                         $arrContextOptions["ssl"] = array(
+//                                                 "verify_peer" => false,
+//                                                 "verify_peer_name" => false,
+//                                           );
+//                     }
+//                     $ao = new CostAssessment;
+//                     $timestamp = Carbon::now()->timestamp;
+//                     $refNo = $app_no.'-'.$find_cost_assessment->app_certi_assessment_id.$timestamp;
                     
-                    $content =  file_get_contents("$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo", false, stream_context_create($arrContextOptions));
+//                     $content =  file_get_contents("$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo", false, stream_context_create($arrContextOptions));
 
-                    $api = json_decode($content,false);
+//                     $api = json_decode($content,false);
                     
-                    // if(strpos($setting_payment->data, '127.0.0.1')===0){
-                    // if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
-                    $host = parse_url($setting_payment->data, PHP_URL_HOST);
+//                     // if(strpos($setting_payment->data, '127.0.0.1')===0){
+//                     // if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
+//                     $host = parse_url($setting_payment->data, PHP_URL_HOST);
 
-                    if (!filter_var($host, FILTER_VALIDATE_IP) && strpos($host, 'accr2.tisi.go.th') === false) {
+//                     if (!filter_var($host, FILTER_VALIDATE_IP) && strpos($host, 'accr2.tisi.go.th') === false) {
                         
-                        $find_cost_assessment->amount_invoice =   $this->storeFilePayin($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
-                    }else{
+//                         $find_cost_assessment->amount_invoice =   $this->storeFilePayin($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
+//                     }else{
                         
-                        $find_cost_assessment->amount_invoice =   $this->storeFilePayinDemo($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
-                    }
-                    // dd('aha');
-                    $find_cost_assessment->file_client_name =   isset($find_cost_assessment->amount_invoice) ? basename($find_cost_assessment->amount_invoice)  : null;
+//                         $find_cost_assessment->amount_invoice =   $this->storeFilePayinDemo($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
+//                     }
+//                     // dd('aha');
+//                     $find_cost_assessment->file_client_name =   isset($find_cost_assessment->amount_invoice) ? basename($find_cost_assessment->amount_invoice)  : null;
                     
-                    $find_cost_assessment->save();
-                    // dd($find_cost_assessment->id);
-                    HP::TransactionPayIn1($find_cost_assessment->id,$ao->getTable(),'1','1',$api,$app_no.'-'.$find_cost_assessment->app_certi_assessment_id,$timestamp);
+//                     $find_cost_assessment->save();
+//                     // dd($find_cost_assessment->id);
+//                     HP::TransactionPayIn1($find_cost_assessment->id,$ao->getTable(),'1','1',$api,$app_no.'-'.$find_cost_assessment->app_certi_assessment_id,$timestamp);
                     
-                    // Send email to client and owner
-                    QueSendEmailGeneratePayInOneLabJob::dispatch($appCertiLab->id,$find_cost_assessment->id);
-                 }
-            }
-        }
-    }  
+//                     // Send email to client and owner
+//                     QueSendEmailGeneratePayInOneLabJob::dispatch($appCertiLab->id,$find_cost_assessment->id);
+//                  }
+//             }
+//         }
+//     }  
 
-    public function CheckPayInExpire()
-    {
-        $this->CancelCertiLab();
-        // 
-        $today = now(); // กำหนดวันปัจจุบัน
+//     public function CheckPayInExpire()
+//     {
+//         $this->CancelCertiLab();
+//         // 
+//         $today = now(); // กำหนดวันปัจจุบัน
 
-        $expiredTransactionPayIns = TransactionPayIn::where('invoiceEndDate', '<', $today) // ค้นหาที่ invoiceEndDate น้อยกว่า today
-            ->whereNull('status_confirmed') // เงื่อนไข status_confirmed เป็น NULL
-            ->whereNotNull('suffix') // เงื่อนไข suffix ต้องไม่เป็น NULL
-            ->where('count','<',3)
-            ->where(function ($query) {
-                $query->where('ref1', 'like', 'TEST%') // ref1 เริ่มต้นด้วย TEST
-                    ->orWhere('ref1', 'like', 'CAL%'); // หรือ ref1 เริ่มต้นด้วย CAL
-            })
-            ->get();
-            // dd('aha');
-        // Return หรือจัดการข้อมูล
-        return $expiredTransactionPayIns;
-    }
+//         $expiredTransactionPayIns = TransactionPayIn::where('invoiceEndDate', '<', $today) // ค้นหาที่ invoiceEndDate น้อยกว่า today
+//             ->whereNull('status_confirmed') // เงื่อนไข status_confirmed เป็น NULL
+//             ->whereNotNull('suffix') // เงื่อนไข suffix ต้องไม่เป็น NULL
+//             ->where('count','<',3)
+//             ->where(function ($query) {
+//                 $query->where('ref1', 'like', 'TEST%') // ref1 เริ่มต้นด้วย TEST
+//                     ->orWhere('ref1', 'like', 'CAL%'); // หรือ ref1 เริ่มต้นด้วย CAL
+//             })
+//             ->get();
+//             // dd('aha');
+//         // Return หรือจัดการข้อมูล
+//         return $expiredTransactionPayIns;
+//     }
 
-    public function CancelCertiLab()
-    {
-        $today = now();
-        $expiredTransactionPayIns = TransactionPayIn::where('invoiceEndDate', '<', $today) // ค้นหาที่ invoiceEndDate น้อยกว่า today
-            ->where('count','>=',3)
-            ->where(function ($query) {
-                $query->where('ref1', 'like', 'TEST%') // ref1 เริ่มต้นด้วย TEST
-                    ->orWhere('ref1', 'like', 'CAL%'); // หรือ ref1 เริ่มต้นด้วย CAL
-            })
-            ->get();
-// dd($expiredTransactionPayIns);
-        $admin = DB::table('user_register')->where('reg_email', 'admin@admin.com')->first();        
-        if($expiredTransactionPayIns->count() !== 0){
-            foreach($expiredTransactionPayIns as $expiredTransactionPayIn){
-                $data = $expiredTransactionPayIn-> ref1;
-                $splitData = explode('-', $data); // แยกข้อมูลด้วย '-'
-                $lastPart = end($splitData); // ดึงค่าตัวสุดท้าย
-                $assessmentId = (int)$lastPart; // แปลงเป็น int
-                $assessment = Assessment::find($assessmentId);
-                $appCertiLab = $assessment->applicant;
+//     public function CancelCertiLab()
+//     {
+//         $today = now();
+//         $expiredTransactionPayIns = TransactionPayIn::where('invoiceEndDate', '<', $today) // ค้นหาที่ invoiceEndDate น้อยกว่า today
+//             ->where('count','>=',3)
+//             ->where(function ($query) {
+//                 $query->where('ref1', 'like', 'TEST%') // ref1 เริ่มต้นด้วย TEST
+//                     ->orWhere('ref1', 'like', 'CAL%'); // หรือ ref1 เริ่มต้นด้วย CAL
+//             })
+//             ->get();
+// // dd($expiredTransactionPayIns);
+//         $admin = DB::table('user_register')->where('reg_email', 'admin@admin.com')->first();        
+//         if($expiredTransactionPayIns->count() !== 0){
+//             foreach($expiredTransactionPayIns as $expiredTransactionPayIn){
+//                 $data = $expiredTransactionPayIn-> ref1;
+//                 $splitData = explode('-', $data); // แยกข้อมูลด้วย '-'
+//                 $lastPart = end($splitData); // ดึงค่าตัวสุดท้าย
+//                 $assessmentId = (int)$lastPart; // แปลงเป็น int
+//                 $assessment = Assessment::find($assessmentId);
+//                 $appCertiLab = $assessment->applicant;
 
-                CertificateHistory::create([
-                    'app_no'=> $appCertiLab->app_no ?? null,
-                    'system'=> 9,
-                    'table_name'=> 'app_certi_labs',
-                    'status'=> 4,
-                    'ref_id'=> $appCertiLab->id,
-                    'details'=> 'ยกเลิกคำขออัตโนมัติ เนื่องจากไม่มีชำระภายใน 90 วัน',
-                    'attachs'=> null,
-                    'created_by' =>  $admin->runrecno
-                    ]);
-                CertiLab::find($appCertiLab->id)->update([
-                    'status' => 4
-                ]);
-            }
-        }
-    }
+//                 CertificateHistory::create([
+//                     'app_no'=> $appCertiLab->app_no ?? null,
+//                     'system'=> 9,
+//                     'table_name'=> 'app_certi_labs',
+//                     'status'=> 4,
+//                     'ref_id'=> $appCertiLab->id,
+//                     'details'=> 'ยกเลิกคำขออัตโนมัติ เนื่องจากไม่มีชำระภายใน 90 วัน',
+//                     'attachs'=> null,
+//                     'created_by' =>  $admin->runrecno
+//                     ]);
+//                 CertiLab::find($appCertiLab->id)->update([
+//                     'status' => 4
+//                 ]);
+//             }
+//         }
+//     }
 
-    public function createByExpert(Request $request,$notice_id=null)
-    {
-        // http://127.0.0.1:8081/create-by-expert/1390?token=62FfUJeXwNIBkg9FZmAQwJTO1ODu73_MTczNjc2NTg5Mw==
-        $config = HP::getConfig();
-        $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
-        $token = $request->query('token');
-        $notice = Notice::find($notice_id);
-        $assessment = $notice->assessment;
-        $boardAuditor = $assessment->board_auditor_to;
-        $expertToken = $notice->expert_token;
+//     public function createByExpert(Request $request,$notice_id=null)
+//     {
+//         // http://127.0.0.1:8081/create-by-expert/1390?token=62FfUJeXwNIBkg9FZmAQwJTO1ODu73_MTczNjc2NTg5Mw==
+//         $config = HP::getConfig();
+//         $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
+//         $token = $request->query('token');
+//         $notice = Notice::find($notice_id);
+//         $assessment = $notice->assessment;
+//         $boardAuditor = $assessment->board_auditor_to;
+//         $expertToken = $notice->expert_token;
        
-        if($token != $expertToken)
-        {
-            return redirect($url);
-        }
+//         if($token != $expertToken)
+//         {
+//             return redirect($url);
+//         }
        
 
-        $parts = explode('_', $notice->expert_token);
-        $randomString = $parts[0]; // ส่วน String แบบสุ่ม
-        $encodedTimestamp = $parts[1]; // Timestamp ที่เข้ารหัส
+//         $parts = explode('_', $notice->expert_token);
+//         $randomString = $parts[0]; // ส่วน String แบบสุ่ม
+//         $encodedTimestamp = $parts[1]; // Timestamp ที่เข้ารหัส
     
-        // ถอดรหัส Timestamp โดยใช้ base64_decode
-        $originalTimestamp = base64_decode($encodedTimestamp);
+//         // ถอดรหัส Timestamp โดยใช้ base64_decode
+//         $originalTimestamp = base64_decode($encodedTimestamp);
     
-        // แปลงตัวเลขที่ได้เป็นเวลา (Carbon DateTime)
-        $expiryDateTime = Carbon::createFromTimestamp($originalTimestamp);
+//         // แปลงตัวเลขที่ได้เป็นเวลา (Carbon DateTime)
+//         $expiryDateTime = Carbon::createFromTimestamp($originalTimestamp);
         
-        // ตรวจสอบว่าเวลาปัจจุบันน้อยกว่าเวลา expiryDateTime หรือไม่
-        if (Carbon::now()->gt($expiryDateTime)) {
-            return redirect($url);
-        }
+//         // ตรวจสอบว่าเวลาปัจจุบันน้อยกว่าเวลา expiryDateTime หรือไม่
+//         if (Carbon::now()->gt($expiryDateTime)) {
+//             return redirect($url);
+//         }
 
-        $app = new CertiLab();
-        $NoticeItem = NoticeItem::where('app_certi_lab_notice_id',$notice_id)
-        ->whereNull('owner_id')
-        ->get();
+//         $app = new CertiLab();
+//         $NoticeItem = NoticeItem::where('app_certi_lab_notice_id',$notice_id)
+//         ->whereNull('owner_id')
+//         ->get();
        
-        $app_no = [];
+//         $app_no = [];
 
-        $auditor = BoardAuditor::select('id','app_certi_lab_id','auditor')
-                                       ->whereIn('step_id',[6])
-                                      ->orderby('id','desc')
-                                      ->get();
-        if(count($auditor) > 0 ){
-            foreach ($auditor as $item)
-            {
-                $app_no[$item->id] = $item->auditor . " ( ". @$item->applicant->app_no . " )";
-            }
-        }
+//         $auditor = BoardAuditor::select('id','app_certi_lab_id','auditor')
+//                                        ->whereIn('step_id',[6])
+//                                       ->orderby('id','desc')
+//                                       ->get();
+//         if(count($auditor) > 0 ){
+//             foreach ($auditor as $item)
+//             {
+//                 $app_no[$item->id] = $item->auditor . " ( ". @$item->applicant->app_no . " )";
+//             }
+//         }
 
-        $board_auditor_id = $boardAuditor->id;
+//         $board_auditor_id = $boardAuditor->id;
 
-        return view('certify.save_assessment.create-expert', compact('app','NoticeItem','app_no','board_auditor_id','notice','expiryDateTime'));
-    }
+//         return view('certify.save_assessment.create-expert', compact('app','NoticeItem','app_no','board_auditor_id','notice','expiryDateTime'));
+//     }
 
-    public function storeByExpert(Request $request)
-    {
-        $notice = Notice::find($request->notice_id);
+//     public function storeByExpert(Request $request)
+//     {
+//         $notice = Notice::find($request->notice_id);
 
-        $notices = $request->notice;
-        $report = $request->report;
-        $noks = $request->nok;
-        $types = $request->type;
-        // $founds = $request->input('found');
+//         $notices = $request->notice;
+//         $report = $request->report;
+//         $noks = $request->nok;
+//         $types = $request->type;
+//         // $founds = $request->input('found');
           
-        NoticeItem::where('app_certi_lab_notice_id',$notice->id)
-        ->whereNull('owner_id')
-        ->delete();
+//         NoticeItem::where('app_certi_lab_notice_id',$notice->id)
+//         ->whereNull('owner_id')
+//         ->delete();
 
-        if(isset($notices)){
-           foreach ($notices as $key => $notice) 
-           {
-               if($notice != ''){
-                   $item = new NoticeItem;
-                   $item->app_certi_lab_notice_id = $request->notice_id;
-                   $item->remark = $notice;
-                   $item->report = $report[$key];
-                   $item->no = $noks[$key];
-                   $item->type = $types[$key];
-                   $item->reporter_id = null;
-                   $item->save();
-               }
-           }
-       }
+//         if(isset($notices)){
+//            foreach ($notices as $key => $notice) 
+//            {
+//                if($notice != ''){
+//                    $item = new NoticeItem;
+//                    $item->app_certi_lab_notice_id = $request->notice_id;
+//                    $item->remark = $notice;
+//                    $item->report = $report[$key];
+//                    $item->no = $noks[$key];
+//                    $item->type = $types[$key];
+//                    $item->reporter_id = null;
+//                    $item->save();
+//                }
+//            }
+//        }
 
-        return redirect()->back();
-    }
+//         return redirect()->back();
+//     }
 
-    public function storeByExpertGetApp($id) {
+//     public function storeByExpertGetApp($id) {
        
 
-        $board_auditor = BoardAuditor::where('id', $id)->groupBy('no')->orderby('id','desc')->first();
+//         $board_auditor = BoardAuditor::where('id', $id)->groupBy('no')->orderby('id','desc')->first();
 
-        if(!is_null($board_auditor)){
-            return response()->json([
-                                'group_id' => $board_auditor->assessment_to->id ?? '',
-                                'app'   => $board_auditor->applicant,
-                                'created_at' => !empty($board_auditor->created_at) ?  HP::revertDate($board_auditor->created_at->format('Y-m-d'),true) : null  ?? '',
-                                'message' =>true
-                          ], 200); 
-        }else{
-             return response()->json([  'message' => false   ], 200); 
-        }
+//         if(!is_null($board_auditor)){
+//             return response()->json([
+//                                 'group_id' => $board_auditor->assessment_to->id ?? '',
+//                                 'app'   => $board_auditor->applicant,
+//                                 'created_at' => !empty($board_auditor->created_at) ?  HP::revertDate($board_auditor->created_at->format('Y-m-d'),true) : null  ?? '',
+//                                 'message' =>true
+//                           ], 200); 
+//         }else{
+//              return response()->json([  'message' => false   ], 200); 
+//         }
  
  
-    }
+//     }
 
-    public function mergePdf()
-    {
-        $report_info_id = 11;
-        $pdfService = new CreateLabAssessmentReportPdf($report_info_id,"ia");
-        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-    }
+//     public function mergePdf()
+//     {
+//         $report_info_id = 11;
+//         $pdfService = new CreateLabAssessmentReportPdf($report_info_id,"ia");
+//         $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+//     }
 
     
-    public function checkPayIn2()
-    {
-        // type = 2 ใบเสร็จ
-        $setting_payment = CertiSettingPayment::where('certify',1)->where('payin',1)->where('type',2)->first();
+//     public function checkPayIn2()
+//     {
+//         // type = 2 ใบเสร็จ
+//         $setting_payment = CertiSettingPayment::where('certify',1)->where('payin',1)->where('type',2)->first();
 
-        $arrContextOptions = array();
+//         $arrContextOptions = array();
   
 
-        if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
-            $arrContextOptions["ssl"] = array(
-                                    "verify_peer" => false,
-                                    "verify_peer_name" => false,
-                              );
-        }
+//         if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
+//             $arrContextOptions["ssl"] = array(
+//                                     "verify_peer" => false,
+//                                     "verify_peer_name" => false,
+//                               );
+//         }
     
-        $today = now(); // กำหนดวันปัจจุบัน
+//         $today = now(); // กำหนดวันปัจจุบัน
 
-        $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
-            ->where('invoiceEndDate', '>=', $today)
-            ->whereNull('status_confirmed')
-            ->where('state',2)
-            ->where('count','<=',3)
-            ->where(function ($query) {
-                $query->where('ref1', 'like', 'TEST%')
-                      ->orWhere('ref1', 'like', 'CAL%');
-            })
-            ->get();
+//         $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
+//             ->where('invoiceEndDate', '>=', $today)
+//             ->whereNull('status_confirmed')
+//             ->where('state',2)
+//             ->where('count','<=',3)
+//             ->where(function ($query) {
+//                 $query->where('ref1', 'like', 'TEST%')
+//                       ->orWhere('ref1', 'like', 'CAL%');
+//             })
+//             ->get();
         
-            // dd($transactionPayIns );
-        foreach ($transactionPayIns as $transactionPayIn) {
-            // 
-            $ref1 = $transactionPayIn->ref1;
-            $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
-            // dd($result);
-            // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
-            if ($result instanceof \Illuminate\Http\JsonResponse) {
-                // แปลง JsonResponse เป็น array
-                $resultArray = $result->getData(true);
+//             // dd($transactionPayIns );
+//         foreach ($transactionPayIns as $transactionPayIn) {
+//             // 
+//             $ref1 = $transactionPayIn->ref1;
+//             $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
+//             // dd($result);
+//             // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
+//             if ($result instanceof \Illuminate\Http\JsonResponse) {
+//                 // แปลง JsonResponse เป็น array
+//                 $resultArray = $result->getData(true);
         
-                // ตรวจสอบค่า message
-                if (!empty($resultArray['message']) && $resultArray['message'] === true) {
+//                 // ตรวจสอบค่า message
+//                 if (!empty($resultArray['message']) && $resultArray['message'] === true) {
                    
-                    // ดึงค่าทั้งหมดจาก response
-                    $response = $resultArray['response'] ?? null;
+//                     // ดึงค่าทั้งหมดจาก response
+//                     $response = $resultArray['response'] ?? null;
         
-                    // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
-                    if (is_array($response) && count($response) > 0) {
-                        // ใช้ array_map เพื่อดึง ref1
-                        $ref1List = array_map(function ($item) {
-                            return isset($item['ref1']) ? $item['ref1'] : null;
-                        }, $response);
+//                     // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
+//                     if (is_array($response) && count($response) > 0) {
+//                         // ใช้ array_map เพื่อดึง ref1
+//                         $ref1List = array_map(function ($item) {
+//                             return isset($item['ref1']) ? $item['ref1'] : null;
+//                         }, $response);
         
-                        // กรองเฉพาะ ref1 ที่ไม่เป็น null
-                        $validRef1 = array_filter($ref1List);
+//                         // กรองเฉพาะ ref1 ที่ไม่เป็น null
+//                         $validRef1 = array_filter($ref1List);
         
-                        // แสดงผล ref1 ทั้งหมด
-                        // $this->info("Valid ref1: " . implode(", ", $validRef1));
+//                         // แสดงผล ref1 ทั้งหมด
+//                         // $this->info("Valid ref1: " . implode(", ", $validRef1));
 
-                        $appCertiLabCostCertificateId = $transactionPayIn->ref_id;
-                        $costCertificate = CostCertificate::find($appCertiLabCostCertificateId);
-                        $amountInvoice = $costCertificate->invoice;
-                        $fileClientName = $costCertificate->invoice_client_name;
-                        // if($costCertificate->status_confirmed === null){
+//                         $appCertiLabCostCertificateId = $transactionPayIn->ref_id;
+//                         $costCertificate = CostCertificate::find($appCertiLabCostCertificateId);
+//                         $amountInvoice = $costCertificate->invoice;
+//                         $fileClientName = $costCertificate->invoice_client_name;
+//                         // if($costCertificate->status_confirmed === null){
 
-                        CostCertificate::find($appCertiLabCostCertificateId)->update([
-                            'invoice' => $costCertificate->assessment->invoice,
-                            'invoice_client_name' => $costCertificate->assessment->invoice_client_name,
-                        ]);
+//                         CostCertificate::find($appCertiLabCostCertificateId)->update([
+//                             'invoice' => $costCertificate->assessment->invoice,
+//                             'invoice_client_name' => $costCertificate->assessment->invoice_client_name,
+//                         ]);
 
-                        $find_certi_lab = CertiLab::findOrFail($costCertificate->app_certi_lab_id);
-                        $find_certi_lab->status = 24; //แจ้งหลักฐานการชำระค่าใบรับรอง
-                        $find_certi_lab->save();
+//                         $find_certi_lab = CertiLab::findOrFail($costCertificate->app_certi_lab_id);
+//                         $find_certi_lab->status = 24; //แจ้งหลักฐานการชำระค่าใบรับรอง
+//                         $find_certi_lab->save();
 
-                        $status_confirmed = 1;
-                        $costcerti =   CostCertificate::findOrFail($appCertiLabCostCertificateId);
-                        $attach =  $costcerti->attach ?? null ;//
-                        $invoice =  $costcerti->invoice ?? null ;//
-                        $costcerti->update([
-                                            'status_confirmed'  =>  1 ?? 2,
-                                            'detail'            =>  null,
-                                            'condition_pay'     =>   null,
-                                            ]);
+//                         $status_confirmed = 1;
+//                         $costcerti =   CostCertificate::findOrFail($appCertiLabCostCertificateId);
+//                         $attach =  $costcerti->attach ?? null ;//
+//                         $invoice =  $costcerti->invoice ?? null ;//
+//                         $costcerti->update([
+//                                             'status_confirmed'  =>  1 ?? 2,
+//                                             'detail'            =>  null,
+//                                             'condition_pay'     =>   null,
+//                                             ]);
         
-                        $CertiLab = CertiLab::findOrFail($costCertificate->app_certi_lab_id);
-                        // dd($CertiLab->purpose_type,$CertiLab->certificate_export_to2);
-                            if($CertiLab->purpose_type == 1 || (!is_null($CertiLab) && is_null($CertiLab->certificate_export_to2)) ){ // ขอใบรับรอง
+//                         $CertiLab = CertiLab::findOrFail($costCertificate->app_certi_lab_id);
+//                         // dd($CertiLab->purpose_type,$CertiLab->certificate_export_to2);
+//                             if($CertiLab->purpose_type == 1 || (!is_null($CertiLab) && is_null($CertiLab->certificate_export_to2)) ){ // ขอใบรับรอง
                                 
-                                $CertiLab->update([ 'status' =>25 ]);   // ยืนยันการชำระเงินค่าใบรับรอง
-                            }else{
-                                    $CertiLab->update([ 'status' =>28 ]);   // ออกใบรับรอง และ ลงนาม
-                            }
+//                                 $CertiLab->update([ 'status' =>25 ]);   // ยืนยันการชำระเงินค่าใบรับรอง
+//                             }else{
+//                                     $CertiLab->update([ 'status' =>28 ]);   // ออกใบรับรอง และ ลงนาม
+//                             }
                             
-                            // เงื่อนไขเช็คมีใบรับรอง 
-                            $this->save_certilab_export_mapreq( $CertiLab );
+//                             // เงื่อนไขเช็คมีใบรับรอง 
+//                             $this->save_certilab_export_mapreq( $CertiLab );
         
                         
-                            $ao = new CostCertificate;
-                            $detail_costcerti =   CostCertificate::select('amount','amount_fee','notification_date','detail','start_date_feewaiver','end_date_feewaiver','remark','conditional_type')
-                                                            ->where('id',$costcerti->id)
-                                                            ->orderby('id','desc')
-                                                            ->first();
+//                             $ao = new CostCertificate;
+//                             $detail_costcerti =   CostCertificate::select('amount','amount_fee','notification_date','detail','start_date_feewaiver','end_date_feewaiver','remark','conditional_type')
+//                                                             ->where('id',$costcerti->id)
+//                                                             ->orderby('id','desc')
+//                                                             ->first();
 
-                            // dd($detail_costcerti)                                ;
-                            CertificateHistory::create([
-                                                        'app_no'        => $CertiLab->app_no ?? null,
-                                                        'system'        => 6, // Pay-In ครั้งที่ 2
-                                                        'table_name'    => $ao->getTable(),
-                                                        'ref_id'        => $costcerti->id,
-                                                        'details'       =>  json_encode($detail_costcerti) ?? null,
-                                                        'status'        => $status_confirmed ?? null,
-                                                        'attachs'       => $attach ?? null,
-                                                        'attachs_file'  => $invoice ?? null,
-                                                        'created_by'    =>  448
-                                                    ]);
+//                             // dd($detail_costcerti)                                ;
+//                             CertificateHistory::create([
+//                                                         'app_no'        => $CertiLab->app_no ?? null,
+//                                                         'system'        => 6, // Pay-In ครั้งที่ 2
+//                                                         'table_name'    => $ao->getTable(),
+//                                                         'ref_id'        => $costcerti->id,
+//                                                         'details'       =>  json_encode($detail_costcerti) ?? null,
+//                                                         'status'        => $status_confirmed ?? null,
+//                                                         'attachs'       => $attach ?? null,
+//                                                         'attachs_file'  => $invoice ?? null,
+//                                                         'created_by'    =>  448
+//                                                     ]);
 
-                        // }
+//                         // }
 
-                    } else {
-                        // $this->info("Response is empty or not an array.");
-                    }
-                } else {
-                    // $this->info("No valid message or response.");
-                }
-            } else {
-                // $this->info("Invalid response type. Expected JsonResponse.");
-            }
-        }
+//                     } else {
+//                         // $this->info("Response is empty or not an array.");
+//                     }
+//                 } else {
+//                     // $this->info("No valid message or response.");
+//                 }
+//             } else {
+//                 // $this->info("Invalid response type. Expected JsonResponse.");
+//             }
+//         }
         
         
         
         
         
-        // $this->info('ตรวจสอบการชำระเงินระบบ epayment ของ payin2 lab เสร็จสิ้น');
-    }
+//         // $this->info('ตรวจสอบการชำระเงินระบบ epayment ของ payin2 lab เสร็จสิ้น');
+//     }
 
 
 
-    public function CheckPayInExpireLab2()
-    {
-        // $this->CancelCertiLab2();
-        // 
-        $today = now(); // กำหนดวันปัจจุบัน
+//     public function CheckPayInExpireLab2()
+//     {
+//         // $this->CancelCertiLab2();
+//         // 
+//         $today = now(); // กำหนดวันปัจจุบัน
 
-        $expiredTransactionPayIns = TransactionPayIn::where('invoiceEndDate', '<', $today) // ค้นหาที่ invoiceEndDate น้อยกว่า today
-            ->whereNull('status_confirmed') // เงื่อนไข status_confirmed เป็น NULL
-            ->whereNotNull('suffix') // เงื่อนไข suffix ต้องไม่เป็น NULL
-            ->where('state',2)
-            ->where('count','<',3)
-            ->where(function ($query) {
-                $query->where('ref1', 'like', 'TEST%') // ref1 เริ่มต้นด้วย TEST
-                    ->orWhere('ref1', 'like', 'CAL%'); // หรือ ref1 เริ่มต้นด้วย CAL
-            })
-            ->get();
-            // dd('aha');
-        // Return หรือจัดการข้อมูล
-        return $expiredTransactionPayIns;
-    }
+//         $expiredTransactionPayIns = TransactionPayIn::where('invoiceEndDate', '<', $today) // ค้นหาที่ invoiceEndDate น้อยกว่า today
+//             ->whereNull('status_confirmed') // เงื่อนไข status_confirmed เป็น NULL
+//             ->whereNotNull('suffix') // เงื่อนไข suffix ต้องไม่เป็น NULL
+//             ->where('state',2)
+//             ->where('count','<',3)
+//             ->where(function ($query) {
+//                 $query->where('ref1', 'like', 'TEST%') // ref1 เริ่มต้นด้วย TEST
+//                     ->orWhere('ref1', 'like', 'CAL%'); // หรือ ref1 เริ่มต้นด้วย CAL
+//             })
+//             ->get();
+//             // dd('aha');
+//         // Return หรือจัดการข้อมูล
+//         return $expiredTransactionPayIns;
+//     }
 
-    public function CancelCertiLab2()
-    {
-        $today = now();
-        $expiredTransactionPayIns = TransactionPayIn::where('invoiceEndDate', '<', $today) // ค้นหาที่ invoiceEndDate น้อยกว่า today
-            ->where('count','>=',3)
-            ->where('state',2)
-            ->whereNull('status_confirmed')
-            ->where(function ($query) {
-                $query->where('ref1', 'like', 'TEST%') // ref1 เริ่มต้นด้วย TEST
-                    ->orWhere('ref1', 'like', 'CAL%'); // หรือ ref1 เริ่มต้นด้วย CAL
-            })
-            ->get();
+//     public function CancelCertiLab2()
+//     {
+//         $today = now();
+//         $expiredTransactionPayIns = TransactionPayIn::where('invoiceEndDate', '<', $today) // ค้นหาที่ invoiceEndDate น้อยกว่า today
+//             ->where('count','>=',3)
+//             ->where('state',2)
+//             ->whereNull('status_confirmed')
+//             ->where(function ($query) {
+//                 $query->where('ref1', 'like', 'TEST%') // ref1 เริ่มต้นด้วย TEST
+//                     ->orWhere('ref1', 'like', 'CAL%'); // หรือ ref1 เริ่มต้นด้วย CAL
+//             })
+//             ->get();
 
-        $admin = DB::table('user_register')->where('reg_email', 'admin@admin.com')->first();        
-        if($expiredTransactionPayIns->count() !== 0){
-            foreach($expiredTransactionPayIns as $expiredTransactionPayIn){
-                $appCertiLab = CertiLab::where('app_no',$expiredTransactionPayIn->ref1)->first();
-                HP::CancelCertiLab($appCertiLab,'ยกเลิกคำขออัตโนมัติ เนื่องจากไม่มีชำระภายใน 90 วัน');
-            }
-        }
-    }
+//         $admin = DB::table('user_register')->where('reg_email', 'admin@admin.com')->first();        
+//         if($expiredTransactionPayIns->count() !== 0){
+//             foreach($expiredTransactionPayIns as $expiredTransactionPayIn){
+//                 $appCertiLab = CertiLab::where('app_no',$expiredTransactionPayIn->ref1)->first();
+//                 HP::CancelCertiLab($appCertiLab,'ยกเลิกคำขออัตโนมัติ เนื่องจากไม่มีชำระภายใน 90 วัน');
+//             }
+//         }
+//     }
     
-    public function regenPayin2()
-    {
-        // dd('ok');
-        $arrContextOptions=array();
-        $expiredTransactionPayIns = $this->CheckPayInExpireLab2();
-        // dd($expiredTransactionPayIns);
-        $ao = new CostCertificate;
-        $attach_path =  $this->attach_path ;
-        if($expiredTransactionPayIns->count() !== 0){
-            foreach($expiredTransactionPayIns as $expiredTransactionPayIn)
-            {
-                $costCertificateId = $expiredTransactionPayIn->ref_id;
-                $costcerti = CostCertificate::findOrFail($costCertificateId);
-                $setting_payment = CertiSettingPayment::where('certify',1)->where('payin',2)->where('type',1)->first();
-                if(!is_null($setting_payment)){
-                    if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
-                        $arrContextOptions["ssl"] = array(
-                                                "verify_peer" => false,
-                                                "verify_peer_name" => false,
-                                          );
-                    }
-                    $timestamp = Carbon::now()->timestamp;
-                    $CertiLab = CertiLab::where('app_no',$expiredTransactionPayIn->ref1)->first();
-                    $refNo = $CertiLab->app_no.'-'.$timestamp;
+//     public function regenPayin2()
+//     {
+//         // dd('ok');
+//         $arrContextOptions=array();
+//         $expiredTransactionPayIns = $this->CheckPayInExpireLab2();
+//         // dd($expiredTransactionPayIns);
+//         $ao = new CostCertificate;
+//         $attach_path =  $this->attach_path ;
+//         if($expiredTransactionPayIns->count() !== 0){
+//             foreach($expiredTransactionPayIns as $expiredTransactionPayIn)
+//             {
+//                 $costCertificateId = $expiredTransactionPayIn->ref_id;
+//                 $costcerti = CostCertificate::findOrFail($costCertificateId);
+//                 $setting_payment = CertiSettingPayment::where('certify',1)->where('payin',2)->where('type',1)->first();
+//                 if(!is_null($setting_payment)){
+//                     if(strpos($setting_payment->data, 'https')===0){//ถ้าเป็น https
+//                         $arrContextOptions["ssl"] = array(
+//                                                 "verify_peer" => false,
+//                                                 "verify_peer_name" => false,
+//                                           );
+//                     }
+//                     $timestamp = Carbon::now()->timestamp;
+//                     $CertiLab = CertiLab::where('app_no',$expiredTransactionPayIn->ref1)->first();
+//                     $refNo = $CertiLab->app_no.'-'.$timestamp;
 
-                    $content =  file_get_contents("$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo", false, stream_context_create($arrContextOptions));
-                    // dd($content);
+//                     $content =  file_get_contents("$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo", false, stream_context_create($arrContextOptions));
+//                     // dd($content);
 
-                    $api = json_decode($content);
+//                     $api = json_decode($content);
                     
-                    // $costcerti->attach              =   $this->storeFilePayin($setting_payment,$CertiLab->app_no);
+//                     // $costcerti->attach              =   $this->storeFilePayin($setting_payment,$CertiLab->app_no);
 
-                    // if(strpos($setting_payment->data, '127.0.0.1')===0){
-                    // if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
-                    $host = parse_url($setting_payment->data, PHP_URL_HOST);
+//                     // if(strpos($setting_payment->data, '127.0.0.1')===0){
+//                     // if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
+//                     $host = parse_url($setting_payment->data, PHP_URL_HOST);
 
-                    if (!filter_var($host, FILTER_VALIDATE_IP) && strpos($host, 'accr2.tisi.go.th') === false) {
+//                     if (!filter_var($host, FILTER_VALIDATE_IP) && strpos($host, 'accr2.tisi.go.th') === false) {
                         
-                        $costcerti->attach              =   $this->storeFilePayin($setting_payment,$CertiLab->app_no);
-                    }else{//ถ้าเป็น 127.0.0 (การทดสอบ)
+//                         $costcerti->attach              =   $this->storeFilePayin($setting_payment,$CertiLab->app_no);
+//                     }else{//ถ้าเป็น 127.0.0 (การทดสอบ)
                         
-                        $costcerti->attach              =   $this->storeFilePayinDemo($setting_payment,$CertiLab->app_no);
-                    }
+//                         $costcerti->attach              =   $this->storeFilePayinDemo($setting_payment,$CertiLab->app_no);
+//                     }
 
-                    $costcerti->attach_client_name  =   basename($costcerti->attach);
-                    $costcerti->amount_fixed        =   1000;
-                    $costcerti->amount_fee          =  !empty(str_replace(",","",$api->AmountCert))?str_replace(",","",$api->AmountCert):null;
-                    $costcerti->save();
+//                     $costcerti->attach_client_name  =   basename($costcerti->attach);
+//                     $costcerti->amount_fixed        =   1000;
+//                     $costcerti->amount_fee          =  !empty(str_replace(",","",$api->AmountCert))?str_replace(",","",$api->AmountCert):null;
+//                     $costcerti->save();
                     
-                    $transaction = HP::TransactionPayIn2($costCertificateId,$ao->getTable(),'1','2',$api,$timestamp);
-                    // dd($api);
-                    if(HP::checkFileStorage($attach_path.$costcerti->attach)){
-                        HP::getFileStoragePath($attach_path.$costcerti->attach);
-                    }
-               }
-            }
-        }
-    }
+//                     $transaction = HP::TransactionPayIn2($costCertificateId,$ao->getTable(),'1','2',$api,$timestamp);
+//                     // dd($api);
+//                     if(HP::checkFileStorage($attach_path.$costcerti->attach)){
+//                         HP::getFileStoragePath($attach_path.$costcerti->attach);
+//                     }
+//                }
+//             }
+//         }
+//     }
 
-    public function quickRandom($length = 6)
-    {
-        $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        return substr(str_shuffle(str_repeat($pool, 5)), 0, $length);
-    }
+//     public function quickRandom($length = 6)
+//     {
+//         $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+//         return substr(str_shuffle(str_repeat($pool, 5)), 0, $length);
+//     }
     
 
-    public function demoEmailOtp(Request $request)
-    {
-        $_refTop = '1iVXCA';
-        $_otp = '915175';
-        $send  =  SendCertificateLists::find(399);
+//     public function demoEmailOtp(Request $request)
+//     {
+//         $_refTop = '1iVXCA';
+//         $_otp = '915175';
+//         $send  =  SendCertificateLists::find(399);
        
-        if(!is_null($send)){
-            if( !empty($send->send_certificates_to->signer_to)){
+//         if(!is_null($send)){
+//             if( !empty($send->send_certificates_to->signer_to)){
               
                 
-                    $sign                       =  $send->send_certificates_to->signer_to;
-                        $input                  = [];
-                        $input['Ref_otp']       =   $_refTop;
-                        $input['otp']           =   $_otp;  
-                        $input['Req_date']      =    date('Y-m-d H:i:s'); 
-                        $input['Req_by']        =   auth()->user()->getKey(); 
-                        $input['state']         =  1; 
-                        $detail =  SignCertificateOtp::where('Ref_otp',$input['Ref_otp'])->where('otp', $input['otp'])->first();
+//                     $sign                       =  $send->send_certificates_to->signer_to;
+//                         $input                  = [];
+//                         $input['Ref_otp']       =   $_refTop;
+//                         $input['otp']           =   $_otp;  
+//                         $input['Req_date']      =    date('Y-m-d H:i:s'); 
+//                         $input['Req_by']        =   auth()->user()->getKey(); 
+//                         $input['state']         =  1; 
+//                         $detail =  SignCertificateOtp::where('Ref_otp',$input['Ref_otp'])->where('otp', $input['otp'])->first();
 
-                        if(is_null($detail)){
-                            $otp_sign =  SignCertificateOtp::create($input);
+//                         if(is_null($detail)){
+//                             $otp_sign =  SignCertificateOtp::create($input);
                             
-                             SignCertificateOtp::where('Ref_otp',$request->ref_otp)->update(['state'=> 3]);
+//                              SignCertificateOtp::where('Ref_otp',$request->ref_otp)->update(['state'=> 3]);
                             
-                            $mail = 'joerocknpc@mail.com';
-                            $app = $send->app_cert_to;
+//                             $mail = 'joerocknpc@mail.com';
+//                             $app = $send->app_cert_to;
                            
-                            if($mail !== null){
+//                             if($mail !== null){
 
-                                $config = HP::getConfig();
-                                $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
-                                $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
-                                $EMail =  array_key_exists($app->subgroup,$dataMail)  ? $dataMail[$app->subgroup] :'admin@admin.com';
+//                                 $config = HP::getConfig();
+//                                 $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
+//                                 $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
+//                                 $EMail =  array_key_exists($app->subgroup,$dataMail)  ? $dataMail[$app->subgroup] :'admin@admin.com';
                     
-                                $data_app =    [
-                                                'certi_lab'     => $app,
-                                                'otp'           => $otp_sign->otp,
-                                                'ref_otp'       => $otp_sign->Ref_otp,
-                                                'email'         =>  !empty($app->DataEmailCertifyCenter) ? $app->DataEmailCertifyCenter : $EMail,
-                                            ];
+//                                 $data_app =    [
+//                                                 'certi_lab'     => $app,
+//                                                 'otp'           => $otp_sign->otp,
+//                                                 'ref_otp'       => $otp_sign->Ref_otp,
+//                                                 'email'         =>  !empty($app->DataEmailCertifyCenter) ? $app->DataEmailCertifyCenter : $EMail,
+//                                             ];
                             
-                                $log_email =  HP::getInsertCertifyLogEmail( $app->app_no,
-                                                                            $app->id,
-                                                                            (new CertiLab)->getTable(),
-                                                                            $send->id,
-                                                                            (new SendCertificateLists)->getTable(),
-                                                                            1,
-                                                                            'OTP ลงนามใบรับรอง',
-                                                                            view('mail.Lab.mail_otp_notification', $data_app),
-                                                                            $app->created_by,
-                                                                            $app->agent_id,
-                                                                            auth()->user()->getKey(),
-                                                                            !empty($app->DataEmailCertifyCenter) ?  implode(',',(array)$app->DataEmailCertifyCenter)  : $EMail,
-                                                                            $app->email,
-                                                                            !empty($app->DataEmailDirectorLABCC) ? implode(',',(array)$app->DataEmailDirectorLABCC)   :  $EMail,
-                                                                            !empty($app->DataEmailDirectorLABReply) ?implode(',',(array)$app->DataEmailDirectorLABReply)   :  $EMail,
-                                                                            null
-                                                                            );
-                                  $html = new  OtpNofitication($data_app);
-                                  $mail = Mail::to($app->email)->send($html);
+//                                 $log_email =  HP::getInsertCertifyLogEmail( $app->app_no,
+//                                                                             $app->id,
+//                                                                             (new CertiLab)->getTable(),
+//                                                                             $send->id,
+//                                                                             (new SendCertificateLists)->getTable(),
+//                                                                             1,
+//                                                                             'OTP ลงนามใบรับรอง',
+//                                                                             view('mail.Lab.mail_otp_notification', $data_app),
+//                                                                             $app->created_by,
+//                                                                             $app->agent_id,
+//                                                                             auth()->user()->getKey(),
+//                                                                             !empty($app->DataEmailCertifyCenter) ?  implode(',',(array)$app->DataEmailCertifyCenter)  : $EMail,
+//                                                                             $app->email,
+//                                                                             !empty($app->DataEmailDirectorLABCC) ? implode(',',(array)$app->DataEmailDirectorLABCC)   :  $EMail,
+//                                                                             !empty($app->DataEmailDirectorLABReply) ?implode(',',(array)$app->DataEmailDirectorLABReply)   :  $EMail,
+//                                                                             null
+//                                                                             );
+//                                   $html = new  OtpNofitication($data_app);
+//                                   $mail = Mail::to($app->email)->send($html);
                     
-                                  if(is_null($mail) && !empty($log_email)){
-                                    HP::getUpdateCertifyLogEmail($log_email->id);
-                                  }
-                              }
+//                                   if(is_null($mail) && !empty($log_email)){
+//                                     HP::getUpdateCertifyLogEmail($log_email->id);
+//                                   }
+//                               }
 
 
-                            return response()->json([
-                                                    'message' =>  true,
-                                                    'Ref_otp' =>  $otp_sign->Ref_otp,
-                                                    // 'otp' =>  $otp_sign->otp,
-                                                ]);
-                            exit;
-                        }
-                }else{
-                    return response()->json([
-                                             'message' =>  false 
-                                         ]);
-                }
-        }else{
-            return response()->json([
-                                     'message' =>  false 
-                                 ]);
-        }
-    } 
+//                             return response()->json([
+//                                                     'message' =>  true,
+//                                                     'Ref_otp' =>  $otp_sign->Ref_otp,
+//                                                     // 'otp' =>  $otp_sign->otp,
+//                                                 ]);
+//                             exit;
+//                         }
+//                 }else{
+//                     return response()->json([
+//                                              'message' =>  false 
+//                                          ]);
+//                 }
+//         }else{
+//             return response()->json([
+//                                      'message' =>  false 
+//                                  ]);
+//         }
+//     } 
 
-    public function directorSignMail()
-    {
-        $config = HP::getConfig();
-        $url  =   !empty($config->url_center) ? $config->url_center : url('');
-        $mail = "jo@mail.com";
-        $data_app = [
-                        'url' =>  $url.'/certify/send-certificates/create'
-                    ];
+//     public function directorSignMail()
+//     {
+//         $config = HP::getConfig();
+//         $url  =   !empty($config->url_center) ? $config->url_center : url('');
+//         $mail = "jo@mail.com";
+//         $data_app = [
+//                         'url' =>  $url.'/certify/send-certificates/create'
+//                     ];
 
-          $html = new  DirectorSignNotification($data_app);
-          $mail = Mail::to($mail)->send($html);
-    }
+//           $html = new  DirectorSignNotification($data_app);
+//           $mail = Mail::to($mail)->send($html);
+//     }
 
-    public function checkNoticeExpire()
-    {
-        $expiredNotices = Notice::whereNotNull('notice_confirm_date')
-                ->where('report_status', 1)
-                ->where('degree', '!=', 7)
-                ->where('submit_type', "confirm")
-                ->whereHas('applicant', function ($query) {
-                    $query->where('status', '!=', 4);
-                })
-                ->whereDoesntHave('applicant.notices', function ($subQuery) {
-                    $subQuery->whereRaw('DATE_ADD(notice_confirm_date, INTERVAL notice_duration DAY) > ?', [now()]);
-                })
-                ->get();
+//     public function checkNoticeExpire()
+//     {
+//         $expiredNotices = Notice::whereNotNull('notice_confirm_date')
+//                 ->where('report_status', 1)
+//                 ->where('degree', '!=', 7)
+//                 ->where('submit_type', "confirm")
+//                 ->whereHas('applicant', function ($query) {
+//                     $query->where('status', '!=', 4);
+//                 })
+//                 ->whereDoesntHave('applicant.notices', function ($subQuery) {
+//                     $subQuery->whereRaw('DATE_ADD(notice_confirm_date, INTERVAL notice_duration DAY) > ?', [now()]);
+//                 })
+//                 ->get();
 
-        // Pluck และ Unique
-        $uniqueAppCertiLabIds = $expiredNotices->pluck('app_certi_lab_id')->unique();
-        $certiLabs = CertiLab::whereIn('id',$uniqueAppCertiLabIds)->get();
-        // dd($certiLabs);
-        if($certiLabs->count() != 0)
-        {
-            foreach($certiLabs as $certiLab)
-            {
-                HP::CancelCertiLab($certiLab,'ยกเลิกคำขออัตโนมัติ เนื่องจากแก้ไขข้อบกพร่องเกิน 90 วัน');
-            }
-        }
+//         // Pluck และ Unique
+//         $uniqueAppCertiLabIds = $expiredNotices->pluck('app_certi_lab_id')->unique();
+//         $certiLabs = CertiLab::whereIn('id',$uniqueAppCertiLabIds)->get();
+//         // dd($certiLabs);
+//         if($certiLabs->count() != 0)
+//         {
+//             foreach($certiLabs as $certiLab)
+//             {
+//                 HP::CancelCertiLab($certiLab,'ยกเลิกคำขออัตโนมัติ เนื่องจากแก้ไขข้อบกพร่องเกิน 90 วัน');
+//             }
+//         }
        
-    }
+//     }
 
  
-    public function generateCbScopeBcmsPdf()
-    {
-     $certi_cb = CertiLab::find(251);
-    //  dd($certilab);
+//     public function generateCbScopeBcmsPdf()
+//     {
+//      $certi_cb = CertiLab::find(251);
+//     //  dd($certilab);
 
-     // dd($certilab->DataEmailDirectorLAB);
+//      // dd($certilab->DataEmailDirectorLAB);
 
-     $pdfService = new CreateCbScopeBcmsPdf($certi_cb);
-     $pdfContent = $pdfService->generatePdf();
-    }
+//      $pdfService = new CreateCbScopeBcmsPdf($certi_cb);
+//      $pdfContent = $pdfService->generatePdf();
+//     }
 
-    public function generateCbScopeIsicPdf()
-    {
-     $certi_cb = CertiLab::find(252);
-
-
-     $pdfService = new CreateCbScopeIsicPdf($certi_cb);
-     $pdfContent = $pdfService->generatePdf();
-    }
-
-    public function generateCbScopeIbPdf()
-    {
-     $certi_ib = CertiIb::find(143);
+//     public function generateCbScopeIsicPdf()
+//     {
+//      $certi_cb = CertiLab::find(252);
 
 
-     $pdfService = new CreateIbScopePdf($certi_ib);
-     $pdfContent = $pdfService->generatePdf();
-    }
+//      $pdfService = new CreateCbScopeIsicPdf($certi_cb);
+//      $pdfContent = $pdfService->generatePdf();
+//     }
 
-    public function generateScopePDF()
-    {
-     $certilab = CertiLab::find(2141);
-    //  dd($certilab);
-
-     // dd($certilab->DataEmailDirectorLAB);
-
-     $pdfService = new CreateLabScopePdf($certilab);
-     $pdfContent = $pdfService->generatePdf();
-    }
+//     public function generateCbScopeIbPdf()
+//     {
+//      $certi_ib = CertiIb::find(143);
 
 
-    public function CreateLabMessageRecord()
-    {
-        $id = 1842;
-        // สำหรับ admin และเจ้าหน้าที่ lab
-        if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
-            abort(403);
-        }
+//      $pdfService = new CreateIbScopePdf($certi_ib);
+//      $pdfContent = $pdfService->generatePdf();
+//     }
 
-        $boardAuditor = BoardAuditor::find($id);
+//     public function generateScopePDF()
+//     {
+//      $certilab = CertiLab::find(2141);
+//     //  dd($certilab);
 
-        $groups = $boardAuditor->groups;
+//      // dd($certilab->DataEmailDirectorLAB);
+
+//      $pdfService = new CreateLabScopePdf($certilab);
+//      $pdfContent = $pdfService->generatePdf();
+//     }
+
+
+//     public function CreateLabMessageRecord()
+//     {
+//         $id = 1842;
+//         // สำหรับ admin และเจ้าหน้าที่ lab
+//         if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
+//             abort(403);
+//         }
+
+//         $boardAuditor = BoardAuditor::find($id);
+
+//         $groups = $boardAuditor->groups;
 
 
 
-        $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
+//         $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
 
-        foreach ($groups as $group) {
-            $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
-            $auditors = $group->auditors; // $auditors เป็น Collection
+//         foreach ($groups as $group) {
+//             $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+//             $auditors = $group->auditors; // $auditors เป็น Collection
 
-            // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
-            if (!isset($statusAuditorMap[$statusAuditorId])) {
-                $statusAuditorMap[$statusAuditorId] = [];
-            }
+//             // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+//             if (!isset($statusAuditorMap[$statusAuditorId])) {
+//                 $statusAuditorMap[$statusAuditorId] = [];
+//             }
 
-            // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
-            foreach ($auditors as $auditor) {
-                // dd($auditor);
-                $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
-            }
-        }
+//             // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+//             foreach ($auditors as $auditor) {
+//                 // dd($auditor);
+//                 $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+//             }
+//         }
 
-        // dd($statusAuditorMap);
+//         // dd($statusAuditorMap);
   
 
-        $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+//         $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
 
-        $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
-        $dateRange = "";
+//         $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
+//         $dateRange = "";
 
-        if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
-            if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
-                // ถ้าเป็นวันเดียวกัน
-                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
-            } else {
-                // ถ้าเป็นคนละวัน
-                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
-            }
-        }
+//         if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+//             if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+//                 // ถ้าเป็นวันเดียวกัน
+//                 $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+//             } else {
+//                 // ถ้าเป็นคนละวัน
+//                 $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
+//                             " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+//             }
+//         }
 
-        $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
+//         $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
 
         
-        $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
-        // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
-        // dd($boardAuditorExpert->expert);
-        if ($boardAuditorExpert && $boardAuditorExpert->expert) {
-            // แปลงข้อมูล JSON ใน expert กลับเป็น array
-            $categories = json_decode($boardAuditorExpert->expert, true);
+//         $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+//         // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
+//         // dd($boardAuditorExpert->expert);
+//         if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+//             // แปลงข้อมูล JSON ใน expert กลับเป็น array
+//             $categories = json_decode($boardAuditorExpert->expert, true);
         
-            // ถ้ามีหลายรายการ
-            if (count($categories) > 1) {
-                // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
-                $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
-                $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
-            } elseif (count($categories) == 1) {
-                // ถ้ามีแค่รายการเดียว
-                $experts = $categories[0];
-            } else {
-                $experts = ''; // ถ้าไม่มีข้อมูล
-            }
+//             // ถ้ามีหลายรายการ
+//             if (count($categories) > 1) {
+//                 // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
+//                 $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
+//                 $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
+//             } elseif (count($categories) == 1) {
+//                 // ถ้ามีแค่รายการเดียว
+//                 $experts = $categories[0];
+//             } else {
+//                 $experts = ''; // ถ้าไม่มีข้อมูล
+//             }
         
-        }
-        dd($experts);
-        $scope_branch = "";
-        if ($certi_lab->lab_type == 3){
-            $scope_branch = $certi_lab->BranchTitle;
-        }else if($certi_lab->lab_type == 4)
-        {
-            $scope_branch = $certi_lab->ClibrateBranchTitle;
-        }
+//         }
+//         dd($experts);
+//         $scope_branch = "";
+//         if ($certi_lab->lab_type == 3){
+//             $scope_branch = $certi_lab->BranchTitle;
+//         }else if($certi_lab->lab_type == 4)
+//         {
+//             $scope_branch = $certi_lab->ClibrateBranchTitle;
+//         }
 
-        $data = new stdClass();
+//         $data = new stdClass();
 
-        $data->header_text1 = '';
-        $data->header_text2 = '';
-        $data->header_text3 = '';
-        $data->header_text4 = $certi_lab->app_no;
-        $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
-        $data->lab_name = $certi_lab->lab_name;
-        $data->scope_branch = $scope_branch;
-        $data->app_np = 'ทดสอบ ๑๖๗๑';
-        $data->certificate_no = '13-LB0037';
-        $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
-        $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
-        $data->experts = $experts;
-        $data->date_range = $dateRange;
-        $data->statusAuditorMap = $statusAuditorMap;
-        $data->fix_text1 = <<<HTML
-                    <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
-                    <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ "การขอใบรับรอง การตรวจสอบและการออกใบรับรอง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด"</div>
-                    <div style="text-indent:125px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข วันที่ ๔ มีนาคม ๒๕๕๑) การรับรองห้องปฏิบัติการ (ประกาศในราชกิจจานุเบกษา วันที่ ๑๗ พฤษภาคม ๒๕๖๔)"</div>
-                    <div style="text-indent:150px">ข้อ ๖.๑.๒ (๑) แต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าคณะผู้ตรวจ ประเมิน ผู้ตรวจประเมินด้านวิชาการ และผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความเหมาะสม</div>
-                    <div style="text-indent:150px">ข้อ ๖.๑.๒ (๒.๑) คณะผู้ตรวจประเมินจะทบทวนและประเมินและประเมินเอกสารของห้องปฏิบัติการ และข้อ ๖.๑.๒ (๒.๒) คณะผู้ตรวจประเมินจะตรวจประเมินความสามารถและ ประสิทธิผลของการดำเนินงานตามระบบการบริหารงานและมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง ณ สถานประกอบการของผู้ยื่นคำขอ และสถานที่ทำการอื่นในสาขาที่ขอรับการรับรอง</div>
-                    <div style="text-indent:125px">๒.๓ ประกาศสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม เรื่อง แนวทางการแต่งตั้งพนักงานเจ้าหน้าที่ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศ ณ วันที่ ๙ กุมภาพันธ์ พ.ศ. ๒๕๖๐) ซึ่งระบุพนักงานเจ้าหน้าที่ต้องมีคุณสมบัติตามข้อ ๑. ถึง ๓. </div>
-                    <div style="text-indent:125px">๒.๔ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓๔๒/๒๕๖๖ เรื่อง มอบอำนาจให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมในการเป็นผู้มีอำนาจพิจารณาดำเนินการตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (สั่ง ณ วันที่ ๑๓พฤศจิกายน ๒๕๖๖) ข้อ ๓ ระบุให้ผู้อำนวยการสำนักงานคณะกรรมการการมาตรฐานแห่งชาติ เป็นผู้มีอำนาจพิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ และข้อ ๕.๒ ในกรณีที่ข้าราชการผู้รับมอบอำนาจตามข้อ ๓.ไม่อาจปฏิบัติราชการได้ หรือไม่มีผู้ดำรงตำแหน่งดังกล่าว ให้รองเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมที่กำกับ เป็นผู้พิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑</div>
-                HTML;
+//         $data->header_text1 = '';
+//         $data->header_text2 = '';
+//         $data->header_text3 = '';
+//         $data->header_text4 = $certi_lab->app_no;
+//         $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+//         $data->lab_name = $certi_lab->lab_name;
+//         $data->scope_branch = $scope_branch;
+//         $data->app_np = 'ทดสอบ ๑๖๗๑';
+//         $data->certificate_no = '13-LB0037';
+//         $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+//         $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+//         $data->experts = $experts;
+//         $data->date_range = $dateRange;
+//         $data->statusAuditorMap = $statusAuditorMap;
+//         $data->fix_text1 = <<<HTML
+//                     <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
+//                     <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ "การขอใบรับรอง การตรวจสอบและการออกใบรับรอง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด"</div>
+//                     <div style="text-indent:125px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข วันที่ ๔ มีนาคม ๒๕๕๑) การรับรองห้องปฏิบัติการ (ประกาศในราชกิจจานุเบกษา วันที่ ๑๗ พฤษภาคม ๒๕๖๔)"</div>
+//                     <div style="text-indent:150px">ข้อ ๖.๑.๒ (๑) แต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าคณะผู้ตรวจ ประเมิน ผู้ตรวจประเมินด้านวิชาการ และผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความเหมาะสม</div>
+//                     <div style="text-indent:150px">ข้อ ๖.๑.๒ (๒.๑) คณะผู้ตรวจประเมินจะทบทวนและประเมินและประเมินเอกสารของห้องปฏิบัติการ และข้อ ๖.๑.๒ (๒.๒) คณะผู้ตรวจประเมินจะตรวจประเมินความสามารถและ ประสิทธิผลของการดำเนินงานตามระบบการบริหารงานและมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง ณ สถานประกอบการของผู้ยื่นคำขอ และสถานที่ทำการอื่นในสาขาที่ขอรับการรับรอง</div>
+//                     <div style="text-indent:125px">๒.๓ ประกาศสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม เรื่อง แนวทางการแต่งตั้งพนักงานเจ้าหน้าที่ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศ ณ วันที่ ๙ กุมภาพันธ์ พ.ศ. ๒๕๖๐) ซึ่งระบุพนักงานเจ้าหน้าที่ต้องมีคุณสมบัติตามข้อ ๑. ถึง ๓. </div>
+//                     <div style="text-indent:125px">๒.๔ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓๔๒/๒๕๖๖ เรื่อง มอบอำนาจให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมในการเป็นผู้มีอำนาจพิจารณาดำเนินการตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (สั่ง ณ วันที่ ๑๓พฤศจิกายน ๒๕๖๖) ข้อ ๓ ระบุให้ผู้อำนวยการสำนักงานคณะกรรมการการมาตรฐานแห่งชาติ เป็นผู้มีอำนาจพิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ และข้อ ๕.๒ ในกรณีที่ข้าราชการผู้รับมอบอำนาจตามข้อ ๓.ไม่อาจปฏิบัติราชการได้ หรือไม่มีผู้ดำรงตำแหน่งดังกล่าว ให้รองเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมที่กำกับ เป็นผู้พิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑</div>
+//                 HTML;
 
-        $data->fix_text2 = <<<HTML
-                    <div class="section-title">๓. สาระสำคัญและข้อเท็จจริง</div>
-                    <div style="text-indent:125px">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองห้องปฏิบัติการ สมอ. มีอำนาจหน้าที่ในการรับรองความสามารถห้องปฏิบัติการ กำหนดให้มีการประเมินเพื่อพิจารณาให้การรับรองความสามารถห้องปฏิบัติการ{{$data->lab_type}} ตามมาตรฐานเลขที่ มอก. 17025-2561</div>
-                HTML;
+//         $data->fix_text2 = <<<HTML
+//                     <div class="section-title">๓. สาระสำคัญและข้อเท็จจริง</div>
+//                     <div style="text-indent:125px">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองห้องปฏิบัติการ สมอ. มีอำนาจหน้าที่ในการรับรองความสามารถห้องปฏิบัติการ กำหนดให้มีการประเมินเพื่อพิจารณาให้การรับรองความสามารถห้องปฏิบัติการ{{$data->lab_type}} ตามมาตรฐานเลขที่ มอก. 17025-2561</div>
+//                 HTML;
         
 
-        return view('certify.auditor.initial-message-record', [
-            'data' => $data,
-            'id' => $id
-        ]);
-    }
+//         return view('certify.auditor.initial-message-record', [
+//             'data' => $data,
+//             'id' => $id
+//         ]);
+//     }
     
     // public function CreateTrackingLabMessageRecord()
     // {
