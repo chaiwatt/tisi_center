@@ -453,6 +453,8 @@
                 var expert_id       = $(input_expert).val();
                 var expert_name     = $(input_expert).find('option:selected').text();
                 var expert_all      = $('#table_committee_lists').find(".input_expert_id").map(function(){return $(this).val(); }).get();
+
+                // console.log(expert_all);
      
                 if( expert_all.indexOf( String(expert_id) ) == -1 ){     
                    
@@ -461,7 +463,9 @@
                     $.ajax({
                         type: 'GET',
                         url: url,
+                        dataType: 'json', // บังคับให้ jQuery ตีความ response เป็น JSON
                         success: function (data) {
+                            console.log(data)
 
                             var department_name = '';
                             if(checkNone(data.title)){
@@ -489,16 +493,19 @@
                                 committee_position  += '<select name="committee_position[]" class="form-control select2 committee_position" required>';
                                     committee_position  +=          '<option value="">-เลือกประธาน/กรรมการ-</option>';
                                     if(data.board_types.length > 0){
+                                        
                                         $.each(data.board_types, function(index, item) {
                                                   committee_position  +=          '<option value="'+item.id+'">'+item.title+'</option>';
                                          });
                                     }
                                   
-                                // committee_position  +=          '<option value="">-เลือกประธาน/กรรมการ-</option>';
-                                // committee_position  +=          '<option value="1">ประธาน</option>';
-                                // committee_position  +=          '<option value="2">กรรมการ</option>';
-                                // committee_position  +=          '<option value="3">กรรมการและเลขานุการ</option>';
-                                // committee_position  +=          '<option value="4">กรรมการและผู้ช่วยเลขานุการ</option>';
+                                committee_position  +=          '<option value="1">ประธานกรรมการ</option>';
+                                committee_position  +=          '<option value="2">กรรมการ</option>';
+                                committee_position  +=          '<option value="3">กรรมการและเลขานุการ</option>';
+                                committee_position  +=          '<option value="4">กรรมการและผู้ช่วยเลขานุการ</option>';
+                                committee_position  +=          '<option value="5">เลขานุการ</option>';
+                                committee_position  +=          '<option value="6">ผู้ช่วยเลขานุการ</option>';
+                                committee_position  +=          '<option value="7">ผู้ช่วยเลขานุการ</option>';
                                 committee_position  += '</select>';
                     
                             var tr  = '<tr>';

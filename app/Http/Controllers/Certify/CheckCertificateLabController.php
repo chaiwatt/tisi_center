@@ -446,7 +446,10 @@ class CheckCertificateLabController extends Controller
                             
                         
                         // if(strpos($setting_payment->data, '127.0.0.1')===0){
-                        if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
+                        // if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
+                        $host = parse_url($setting_payment->data, PHP_URL_HOST);
+
+                        if (!filter_var($host, FILTER_VALIDATE_IP) && strpos($host, 'accr2.tisi.go.th') === false) {
                             // dd("here");
                             // dd($content,"$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$refNo",$api);
                             $find_cost_assessment->amount_invoice =   $this->storeFilePayin($setting_payment,$app_no,$find_cost_assessment->app_certi_assessment_id);
@@ -1135,8 +1138,10 @@ class CheckCertificateLabController extends Controller
 
 
                         // if(strpos($setting_payment->data, '127.0.0.1')===0){
-                        if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
-                            
+                        // if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
+                        $host = parse_url($setting_payment->data, PHP_URL_HOST);
+
+                        if (!filter_var($host, FILTER_VALIDATE_IP) && strpos($host, 'accr2.tisi.go.th') === false) {                           
                             $costcerti->attach              =   $this->storeFilePayin($setting_payment,$CertiLab->app_no);
                         }else{//ถ้าเป็น 127.0.0 (การทดสอบ)
                             

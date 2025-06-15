@@ -25,6 +25,7 @@ class StandardController extends Controller
 
     public function index(Request $request)
     {
+        // dd("ok");
         $model = str_slug('bsection5-standard','-');
         if(auth()->user()->can('view-'.$model)) {
 

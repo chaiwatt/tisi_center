@@ -31,6 +31,7 @@ class StandardPlansController extends Controller
 
     public function index(Request $request)
     {
+        
         $model = str_slug('standardplans','-');
         if(auth()->user()->can('view-'.$model)) {
  
@@ -218,6 +219,7 @@ class StandardPlansController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // dd($request->all());
         $model = str_slug('standardplans','-');
         if(auth()->user()->can('edit-'.$model)) {
             
@@ -228,12 +230,15 @@ class StandardPlansController extends Controller
             $requestData['plan_enddate']        =   !empty($requestData['plan_enddate']) ? HP::convertDate($requestData['plan_enddate'],true) : null;  
             $requestData['budget']              =  !empty($requestData['budget'])   ? str_replace(",","",$requestData['budget']) : null; 
             $standardplan                       = TisiEstandardDraftPlan::findOrFail($id);
+           
             $data_old = $standardplan->toArray();
             $standardplan->update($requestData);
             $data_changes = $standardplan->getChanges();
 
              $set_standards  =  SetStandards::where('plan_id', $standardplan->id)->first();
+//  
             if($standardplan->status_id == 3 && is_null($set_standards)){  // นำส่งแผน
+                // dd($set_standards);
                   $standards            = new  SetStandards;
                   $standards->plan_id   = $standardplan->id;
                 //   $standards->projectid =  self::get_projectid();

@@ -214,7 +214,7 @@
         {!! $errors->first('status_id', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
-<div class="form-group {{ $errors->has('method_id') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('method_id') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('method_id', 'วิธีการ'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
         {!! Form::select('method_id',

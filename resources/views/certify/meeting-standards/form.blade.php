@@ -98,6 +98,108 @@
     </div>
 </div>
  
+ <div class="form-group {{ $errors->has('meeting_group') ? 'has-error' : '' }}">
+    <label for="meeting_group" class="col-md-3 control-label">
+        คณะประชุม : <span class="text-danger">*</span>
+    </label>
+    <div class="col-md-8">
+        <select name="meeting_group" id="meeting_group" class="form-control" required>
+            <option value="">- เลือกประเภท -</option>
+            <option value="0" {{ old('meeting_group') === '0' ? 'selected' : '' }}>คณะกรรมาธิการ</option>
+            <option value="1" {{ old('meeting_group') === '1' ? 'selected' : '' }}>คณะกำหนด</option>
+        </select>
+        @if ($errors->has('meeting_group'))
+            <p class="help-block">{{ $errors->first('meeting_group') }}</p>
+        @endif
+    </div>
+</div>
+
+
+<div class="form-group {{ $errors->has('commitee_id') ? 'has-error' : ''}}">
+{!! Html::decode(Form::label('commitee_id', '<span class="select-label">คณะวิชาการกำหนด :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
+    <div class="col-md-8">
+        {!! Form::select('commitee_id[]',
+         App\CommitteeSpecial::pluck('committee_group', 'id'),
+          !empty($meetingstandard_commitees) ? $meetingstandard_commitees : null, 
+          ['class' => 'select2-multiple',
+           'multiple'=>'multiple',
+           'id' => 'commitee_id', 
+           'data-placeholder' => '-เลือกผู้เข้าร่วม-',
+            'required' => true]); !!}
+        {!! $errors->first('commitee_id', '<p class="help-block">:message</p>') !!}
+    </div>
+</div>
+<div class="form-group {{ $errors->has('commitee_id') ? 'has-error' : ''}}">
+    {!! Html::decode(Form::label('', '', ['class' => 'col-md-3 control-label '])) !!}
+        <div class="col-md-9">
+                <span id="committee_lists"></span>
+        </div>
+ </div>
+
+
+
+
+<div class="form-group {{ $errors->has('detail') ? 'has-error' : ''}}">
+{!! Html::decode(Form::label('detail', '<span class="select-label">วาระการประชุม :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
+    <div class="col-md-9">
+        <table class="table color-bordered-table primary-bordered-table">
+            <thead>
+                <tr>
+                    <th class="text-center" width="2%">ลำดับ</th>
+                    <th class="text-center" width="30%">วาระการประชุม</th>
+                    <th class="text-center" width="60%">Project ID</th>
+                    <th class="text-center meetingstandard_remove" width="10%">
+                          <button type="button" class="btn btn-success btn-sm "  id="addCostInput"><i class="icon-plus"></i>เพิ่ม</button>  
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="table_body">
+                @if(count($setstandard_meeting_types) > 0 )
+                @php
+                    if(!empty($meetingstandard) && $meetingstandard->status_id >= 4){
+                        $standards =  App\Models\Certify\SetStandards::pluck('projectid', 'id');
+                    }else{
+                        $standards =  App\Models\Certify\SetStandards::whereIn('status_id',[2,3])->pluck('projectid', 'id');
+                    }
+                @endphp
+                @foreach($setstandard_meeting_types as $item)
+                @php
+                     $projectids =  App\Models\Certify\CertifySetstandardMeetingType::where('meetingtype_id',$item->meetingtype_id)->where('setstandard_meeting_id',@$meetingstandard->id)->pluck('setstandard_id');
+                @endphp
+                <tr>
+                    <td  class="text-center">
+                        1
+                    </td>
+                    <td>
+                        {!! Form::select('detail[meetingtype_id][]',
+                        App\Models\Bcertify\Meetingtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id'),
+                        $item->meetingtype_id ?? null, 
+                        ['class' => 'form-control select2 meetingtype_id', 
+                        'required'=>true,
+                        'placeholder'=>'- เลือกวาระการประชุม -']); !!}
+                    </td>
+                    <td>
+                        {!! Form::select('detail[projectid]['.$item->meetingtype_id .'][]',
+                            $standards ,
+                              $projectids  ?? null, 
+                            ['class' => 'select2-multiple select2 projectid',
+                            'multiple'=>'multiple', 
+                            'required' => true]); !!}
+                        {!! $errors->first('projectid', '<p class="help-block">:message</p>') !!}
+                    </td>
+ 
+                    <td  class="text-center meetingstandard_remove">
+                        <button type="button" class="btn btn-danger btn-xs remove-row "><i class="fa fa-trash"></i></button>
+                    </td>
+                </tr>
+                 @endforeach  
+            @endif
+            </tbody>
+   
+        </table>
+    </div>
+</div>
+
 <div class=" {{ $errors->has('attach') ? 'has-error' : ''}}">
     {!! Html::decode(Form::label('attach', 'เอกสารประกอบการประชุม'.' : ', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-9" >
@@ -196,89 +298,6 @@
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('commitee_id') ? 'has-error' : ''}}">
-{!! Html::decode(Form::label('commitee_id', '<span class="select-label">คณะวิชาการกำหนด :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
-    <div class="col-md-6">
-        {!! Form::select('commitee_id[]',
-         App\CommitteeSpecial::pluck('committee_group', 'id'),
-          !empty($meetingstandard_commitees) ? $meetingstandard_commitees : null, 
-          ['class' => 'select2-multiple',
-           'multiple'=>'multiple',
-           'id' => 'commitee_id', 
-           'data-placeholder' => '-เลือกผู้เข้าร่วม-',
-            'required' => true]); !!}
-        {!! $errors->first('commitee_id', '<p class="help-block">:message</p>') !!}
-    </div>
-</div>
-<div class="form-group {{ $errors->has('commitee_id') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('', '', ['class' => 'col-md-3 control-label '])) !!}
-        <div class="col-md-9">
-                <span id="committee_lists"></span>
-        </div>
- </div>
-
-
-
-<div class="form-group {{ $errors->has('detail') ? 'has-error' : ''}}">
-{!! Html::decode(Form::label('detail', '<span class="select-label">วาระการประชุม :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
-    <div class="col-md-9">
-        <table class="table color-bordered-table primary-bordered-table">
-            <thead>
-                <tr>
-                    <th class="text-center" width="2%">ลำดับ</th>
-                    <th class="text-center" width="30%">วาระการประชุม</th>
-                    <th class="text-center" width="60%">Project ID</th>
-                    <th class="text-center meetingstandard_remove" width="10%">
-                          <button type="button" class="btn btn-success btn-sm "  id="addCostInput"><i class="icon-plus"></i>เพิ่ม</button>  
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="table_body">
-                @if(count($setstandard_meeting_types) > 0 )
-                @php
-                    if(!empty($meetingstandard) && $meetingstandard->status_id >= 4){
-                        $standards =  App\Models\Certify\SetStandards::pluck('projectid', 'id');
-                    }else{
-                        $standards =  App\Models\Certify\SetStandards::whereIn('status_id',[2,3])->pluck('projectid', 'id');
-                    }
-                @endphp
-                @foreach($setstandard_meeting_types as $item)
-                @php
-                     $projectids =  App\Models\Certify\CertifySetstandardMeetingType::where('meetingtype_id',$item->meetingtype_id)->where('setstandard_meeting_id',@$meetingstandard->id)->pluck('setstandard_id');
-                @endphp
-                <tr>
-                    <td  class="text-center">
-                        1
-                    </td>
-                    <td>
-                        {!! Form::select('detail[meetingtype_id][]',
-                        App\Models\Bcertify\Meetingtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id'),
-                        $item->meetingtype_id ?? null, 
-                        ['class' => 'form-control select2 meetingtype_id', 
-                        'required'=>true,
-                        'placeholder'=>'- เลือกวาระการประชุม -']); !!}
-                    </td>
-                    <td>
-                        {!! Form::select('detail[projectid]['.$item->meetingtype_id .'][]',
-                            $standards ,
-                              $projectids  ?? null, 
-                            ['class' => 'select2-multiple select2 projectid',
-                            'multiple'=>'multiple', 
-                            'required' => true]); !!}
-                        {!! $errors->first('projectid', '<p class="help-block">:message</p>') !!}
-                    </td>
- 
-                    <td  class="text-center meetingstandard_remove">
-                        <button type="button" class="btn btn-danger btn-xs remove-row "><i class="fa fa-trash"></i></button>
-                    </td>
-                </tr>
-                 @endforeach  
-            @endif
-            </tbody>
-   
-        </table>
-    </div>
-</div>
 
 <div class="form-group  {{ $errors->has('title') ? 'has-error' : ''}}">
     {!! Form::label('title', 'ผู้บันทึก'.' :', ['class' => 'col-md-3 control-label']) !!}

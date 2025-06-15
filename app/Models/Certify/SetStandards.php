@@ -90,6 +90,22 @@ class SetStandards extends Model
       return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_id');
    }
 
+    public function certify_setstandard_meeting_type_group_main_committees()
+    {
+        return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_id')
+                    ->whereHas('meeting_standard_to', function ($query) {
+                        $query->where('meeting_group', 1);
+                    });
+    }
+
+    public function certify_setstandard_meeting_type_group_sub_committees()
+    {
+        return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_id')
+                    ->whereHas('meeting_standard_to', function ($query) {
+                        $query->where('meeting_group', 0);
+                    });
+    }
+
     public function getMetThodNameAttribute() {
   		return @$this->method_to->title;
   	}

@@ -42,7 +42,8 @@ class MeetingStandard extends Model
                            'attach',
                            'status_id',
                            'created_by',
-                           'updated_by'
+                           'updated_by',
+                           'meeting_group'
                         ];
 
     /*
@@ -99,7 +100,20 @@ class MeetingStandard extends Model
     public function certify_setstandard_meeting_type_many(){
         return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_meeting_id');
     }
+
+    //     public function certify_setstandard_meeting_type_sub_committees()
+    // {
+    //     return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_meeting_id')
+    //                 ->where('meeting_group', 0);
+    // }
+
+    // public function certify_setstandard_meeting_type_main_committees()
+    // {
+    //     return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_meeting_id')
+    //                 ->where('meeting_group', 1);
+    // }
     
+
     // วาระการประชุม
     public function getMeetingTypesNameAttribute() {
         $datas = [];

@@ -16,23 +16,10 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">กำหนดมาตรฐานการตรวจสอบและรับรอง</h3>
+                    <h3 class="box-title pull-left">กำหนดมาตรฐานการตรวจสอบและรับรอง #</h3>
 
                     <div class="pull-right">
 
-
-                      {{-- @can('add-'.str_slug('setstandard'))
-                          <a class="btn btn-success btn-sm waves-effect waves-light" href="{{ url('/certify/set-standards/create') }}">
-                            <span class="btn-label"><i class="fa fa-plus"></i></span><b>เพิ่ม</b>
-                          </a>
-                      @endcan
-
-                      @can('delete-'.str_slug('setstandard'))
-                        <button class="btn btn-danger btn-sm waves-effect waves-light"  type="button"
-                        id="bulk_delete">
-                            <span class="btn-label"><i class="fa fa-trash-o"></i></span><b>ปิด</b>
-                        </button>
-                      @endcan --}}
 
                     </div>
 
@@ -40,7 +27,7 @@
                     <hr>
 
                
-                    <div class="row ">
+                    {{-- <div class="row ">
                         <div class="col-md-5 form-group">
                           <div class=" {{ $errors->has('filter_search') ? 'has-error' : ''}}">
                               {!! Form::label('filter_search', 'คำค้น'.' :', ['class' => 'col-md-3 control-label text-right ']) !!}
@@ -62,9 +49,9 @@
                             </div>
                          </div>
                       </div> 
-                    </div>
+                    </div> --}}
   
-    
+{{--     
                     <div class="row ">
                       <div class="col-md-5 form-group ">
                         <div class=" {{ $errors->has('filter_standard_type') ? 'has-error' : ''}}">
@@ -94,10 +81,10 @@
                           </div>
                        </div> 
                     </div>
-                  </div>
+                  </div> --}}
   
     
-                  <div class="row  ">
+                  {{-- <div class="row  ">
                     <div class="col-md-5 form-group ">
                       <div class=" {{ $errors->has('filter_status') ? 'has-error' : ''}}">
                           {!! Form::label('filter_status', 'สถานะ'.' :', ['class' => 'col-md-3 control-label text-right ']) !!}
@@ -127,29 +114,194 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </div> --}}
+
+                {!! Form::open(['route' => 'set-standards.search_data_list', 'method' => 'GET', 'id' => 'search_form']) !!}
+                    <div class="row">
+                        <div class="col-md-5 form-group">
+                            <div class="{{ $errors->has('filter_search') ? 'has-error' : '' }}">
+                                {!! Form::label('filter_search', 'คำค้น :', ['class' => 'col-md-3 control-label text-right']) !!}
+                                <div class="col-md-9">
+                                    {!! Form::text('filter_search', request('filter_search'), ['id' => 'filter_search', 'class' => 'form-control']) !!}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="{{ $errors->has('filter_year') ? 'has-error' : '' }}">
+                                {!! Form::label('filter_year', 'ร่างแผนปี :', ['class' => 'col-md-3 control-label text-right']) !!}
+                                <div class="col-md-9">
+                                    {!! Form::select('filter_year', HP::Years(), request('filter_year'), ['class' => 'form-control', 'id' => 'filter_year', 'placeholder' => '-- เลือกร่างแผนปี --']) !!}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 form-group">
+                            <div class="{{ $errors->has('filter_standard_type') ? 'has-error' : '' }}">
+                                {!! Form::label('filter_standard_type', 'ประเภท :', ['class' => 'col-md-3 control-label text-right']) !!}
+                                <div class="col-md-9">
+                                    {!! Form::select('filter_standard_type', App\Models\Bcertify\Standardtype::orderByRaw('CONVERT(title USING tis620)')->pluck('title', 'id'), request('filter_standard_type'), ['class' => 'form-control', 'id' => 'filter_standard_type', 'placeholder' => '-- เลือกประเภท --']) !!}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="{{ $errors->has('filter_method_id') ? 'has-error' : '' }}">
+                                {!! Form::label('filter_method_id', 'วิธีการ :', ['class' => 'col-md-3 control-label text-right']) !!}
+                                <div class="col-md-9">
+                                    {!! Form::select('filter_method_id', App\Models\Basic\Method::orderByRaw('CONVERT(title USING tis620)')->pluck('title', 'id'), request('filter_method_id'), ['class' => 'form-control', 'id' => 'filter_method_id', 'placeholder' => '-- เลือกวิธีการ --']) !!}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 form-group">
+                            <div class="{{ $errors->has('filter_status') ? 'has-error' : '' }}">
+                                {!! Form::label('filter_status', 'สถานะ :', ['class' => 'col-md-3 control-label text-right']) !!}
+                                <div class="col-md-9">
+                                    {!! Form::select('filter_status', [
+                                        '-1' => 'รอกำหนดมาตรฐาน',
+                                        '1' => 'อยู่ระหว่างดำเนินการ',
+                                        '2' => 'อยู่ระหว่างการประชุม',
+                                        '3' => 'อยู่ระหว่างสรุปรายงานการประชุม',
+                                        '4' => 'อยู่ระหว่างจัดทำมาตรฐาน',
+                                        '5' => 'สรุปวาระการประชุมเรียบร้อย'
+                                    ], request('filter_status'), ['class' => 'form-control', 'id' => 'filter_status', 'placeholder' => '-- เลือกสถานะ --']) !!}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5"></div>
+                        <div class="col-md-2">
+                            <div class="pull-left">
+                                <button type="submit" class="btn btn-info waves-effect waves-light" id="button_search" style="margin-bottom: -1px;">ค้นหา</button>
+                            </div>
+                            <div class="pull-left m-l-15">
+                                <a href="{{ route('set-standards.search_data_list') }}" class="btn btn-warning waves-effect waves-light" id="filter_clear">ล้าง</a>
+                            </div>
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
     
                 <div class="clearfix"></div>
                 <div class="row">
                         <div class="col-md-12">
-                            <table class="table table-striped" id="myTable">
-                            <thead>
-                            <tr>
-                                <th width="1%" class="text-center">#</th>
-                                <th  width="1%" ><input type="checkbox" id="checkall"></th>
-                                <th width="10%" class="text-center">รหัสโครงการ</th>
-                                <th width="25%" class="text-center">ชื่อมาตรฐาน</th>
-                                <th width="15%" class="text-center">ประเภท</th>
-                                <th width="10%" class="text-center">วิธีการ</th>
-                                <th width="10%" class="text-center">บรรจุแผนปี</th>
-                                <th width="10%" class="text-center">ระยะเวลาจัดทำ</th>
-                                <th width="15%" class="text-center">สถานะ</th>
-                                <th width="10%" class="text-center">จัดการ</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                            {{-- <table class="table table-striped" id="myTable">
+                                <thead>
+                                <tr>
+                                    <th width="1%" class="text-center">#</th>
+                                    <th  width="1%" ><input type="checkbox" id="checkall"></th>
+                                    <th width="10%" class="text-center">รหัสโครงการ</th>
+                                    <th width="25%" class="text-center">ชื่อมาตรฐาน</th>
+                                    <th width="15%" class="text-center">ประเภท</th>
+                                    <th width="10%" class="text-center">วิธีการ</th>
+                                    <th width="10%" class="text-center">บรรจุแผนปี</th>
+                                    <th width="10%" class="text-center">ระยะเวลาจัดทำ</th>
+                                    <th width="15%" class="text-center">สถานะ</th>
+                                    <th width="10%" class="text-center">จัดการ</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table> --}}
+
+                             <table class="table table-striped" id="myTable">
+                                <thead>
+                                    <tr>
+                                        <th width="1%" class="text-center">#</th>
+                                        {{-- <th width="1%"></th> --}}
+                                        <th width="15%" >รหัสโครงการ</th>
+                                        <th width="20%" >ชื่อมาตรฐาน</th>
+                                        <th width="10%" >ประเภท</th>
+                                        <th width="10%" class="text-center">วิธีการ</th>
+                                        <th width="10%" class="text-center">บรรจุแผนปี</th>
+                                        <th width="10%" class="text-center">ระยะเวลาจัดทำ</th>
+                                        <th width="10%" >สถานะ</th>
+                                        <th width="20%" class="text-center">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($setStandards as $index => $item)
+                                        <tr>
+                                            <td class="text-center">{{ $setStandards->firstItem() + $index }}</td>
+                                            {{-- <td>
+                                                @if($item->state == 99)
+                                                    <input type="checkbox" name="item_checkbox[]" class="item_checkbox" value="{{ $item->id }}">
+                                                @else
+                                                    <!-- Empty checkbox cell if state is not 99 -->
+                                                @endif
+                                            </td> --}}
+                                            <td >{{ $item->projectid ?? 'อยู่ระหว่างกำหนดมาตรฐาน' }}</td>
+                                            <td >{{ $item->TisName ?? '' }}</td>
+                                            <td >{{ $item->StdTypeName ?? '' }}</td>
+                                            <td class="text-center">{{ $item->estandard_plan_to->method_to->title ?? '' }}</td>
+                                            <td class="text-center">{{ $item->TisYear ?? '' }}</td>
+                                            <td class="text-center">{{ $item->Period ? $item->Period . ' เดือน' : '' }}</td>
+                                            <td >{{ $item->StatusText ?? '' }}</td>
+                                            <td class="text-center">
+                                                
+                                                {{-- {{$item->estandard_plan_to->method_id}}
+                                                @if ($item->estandard_plan_to->method_id == 1 || $item->estandard_plan_to->method_id == 2)
+                                                    สูง
+                                                    @elseif($item->estandard_plan_to->method_id == 3)
+                                                    ต่ำ/ร่าง
+                                                @endif --}}
+
+                                                {{-- <div class="dropdown">
+                                                    <button class="btn btn-warning btn-xs dropdown-toggle" title="View setstandard" data-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fa fa-pencil-square-o"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a href="#">รายการ1</a></li>
+                                                        <li><a href="#">รายการ2</a></li>
+                                                    </ul>
+                                                </div>
+
+                                                <a href="/certify/set-standards/{{$item->id}}" title="View setstandar" class="btn btn-info btn-xs">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                                <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandar" class="btn btn-warning btn-xs">
+                                                    <i class="fa fa-pencil-square-o"></i>
+                                                </a> --}}
+
+                                                <div style="display: inline-flex; align-items: center; gap: 5px;">
+                                                    <a href="" title="View setstandard" class="btn btn-danger btn-xs" style="display: inline-block;">
+                                                        <i class="fa fa-cog"></i>
+                                                    </a>
+                                                    <div class="dropdown" style="display: inline-block;">
+                                                        <button class="btn btn-warning btn-xs dropdown-toggle" title="View setstandard" data-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fa fa-pencil-square-o"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a href="#">คณะกรรมธิการ</a></li>
+                                                            <li><a href="#">เวียนรมาตรฐาน</a></li>
+                                                            <li><a href="#">คณะกรรมหนด</a></li>
+                                                        </ul>
+                                                    </div>
+                                                    <a href="/certify/set-standards/{{$item->id}}" title="View setstandard" class="btn btn-info btn-xs" style="display: inline-block;">
+                                                        <i class="fa fa-eye"></i>
+                                                    </a>
+                                                    <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                        <i class="fa fa-pencil-square-o"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                            <!-- Pagination Links -->
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div id="myTable_length">
+                                    <span class="totalrec" style="color:green;">
+                                        <b>(ทั้งหมด {{ $setStandards->total() }} รายการ)</b>
+                                    </span>
+                                </div>
+                                <div>
+                                    {{ $setStandards->links() }}
+                                </div>
+                            </div>
 
                     </div>
                 </div>
@@ -193,43 +345,43 @@
             });
             @endif
             
-            var table = $('#myTable').DataTable({
-                processing: true,
-                serverSide: true,
-                searching: false,
-                ajax: {
-                    url: '{!! url('/certify/set-standards/data_list') !!}',
-                    data: function (d) {
-                        d.filter_search = $('#filter_search').val();
-                        d.filter_year = $('#filter_year').val();
-                        d.filter_standard_type = $('#filter_standard_type').val();
-                        d.filter_method_id = $('#filter_method_id').val();
-                        d.filter_status = $('#filter_status').val();
-                    }
-                },
-                columns: [
-                    { data: 'DT_Row_Index', searchable: false, orderable: false},
-                    { data: 'checkbox', searchable: false, orderable: false},
-                    { data: 'projectid', name: 'projectid' },
-                    { data: 'tis_name', name: 'tis_name' }, 
-                    { data: 'std_type', name: 'std_type' },
-                    { data: 'method_id', name: 'method_id' },
-                    { data: 'tis_year', name: 'tis_year' },
-                    { data: 'period', name: 'period' },
-                    { data: 'status', name: 'status' },
-                    { data: 'action', name: 'action' },
-                ],
-                columnDefs: [
-                    { className: "text-center", targets:[0,-1] }
-                ],
-                fnDrawCallback: function() {
-                    $('#myTable_length').find('.totalrec').remove();
-                    var el = ' <span class=" totalrec" style="color:green;"><b>(ทั้งหมด '+ Comma(table.page.info().recordsTotal) +' รายการ)</b></span>';
-                    $('#myTable_length').append(el);
+            // var table = $('#myTable').DataTable({
+            //     processing: true,
+            //     serverSide: true,
+            //     searching: false,
+            //     ajax: {
+            //         url: '{!! url('/certify/set-standards/data_list') !!}',
+            //         data: function (d) {
+            //             d.filter_search = $('#filter_search').val();
+            //             d.filter_year = $('#filter_year').val();
+            //             d.filter_standard_type = $('#filter_standard_type').val();
+            //             d.filter_method_id = $('#filter_method_id').val();
+            //             d.filter_status = $('#filter_status').val();
+            //         }
+            //     },
+            //     columns: [
+            //         { data: 'DT_Row_Index', searchable: false, orderable: false},
+            //         { data: 'checkbox', searchable: false, orderable: false},
+            //         { data: 'projectid', name: 'projectid' },
+            //         { data: 'tis_name', name: 'tis_name' }, 
+            //         { data: 'std_type', name: 'std_type' },
+            //         { data: 'method_id', name: 'method_id' },
+            //         { data: 'tis_year', name: 'tis_year' },
+            //         { data: 'period', name: 'period' },
+            //         { data: 'status', name: 'status' },
+            //         { data: 'action', name: 'action' },
+            //     ],
+            //     columnDefs: [
+            //         { className: "text-center", targets:[0,-1] }
+            //     ],
+            //     fnDrawCallback: function() {
+            //         $('#myTable_length').find('.totalrec').remove();
+            //         var el = ' <span class=" totalrec" style="color:green;"><b>(ทั้งหมด '+ Comma(table.page.info().recordsTotal) +' รายการ)</b></span>';
+            //         $('#myTable_length').append(el);
 
-                    $('#myTable tbody').find('.dataTables_empty').addClass('text-center');
-                }
-            });
+            //         $('#myTable tbody').find('.dataTables_empty').addClass('text-center');
+            //     }
+            // });
 
 
 

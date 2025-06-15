@@ -230,7 +230,7 @@
     
     </div>
 </div>
-
+{{-- {{$setstandard->status_id}} --}}
 @if (!empty($setstandard->condition) && $setstandard->condition == 'form_edit')
         @if (in_array($setstandard->status_id,[2,3]))
         <div class="form-group">

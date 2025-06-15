@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">จัดทำมาตรฐานรับรอง</h3>
+                    <h3 class="box-title pull-left">จัดทำมาตรฐานรับรอง #</h3>
                     @can('view-'.str_slug('certifystandard'))
                         <a class="btn btn-success pull-right" href="{{url('/certify/standards')}}">
                             <i class="icon-arrow-left-circle"></i> กลับ
@@ -21,9 +21,10 @@
                         </ul>
                     @endif
 
+
                     {!! Form::open(['url' => '/certify/standards', 'class' => 'form-horizontal', 'files' => true, 'id' => "standard_form", 'target' => "_blank"]) !!}
 
-                    @include ('certify/standards.form')
+                    @include ('certify.standards.form')
 
                     {!! Form::close() !!}
 

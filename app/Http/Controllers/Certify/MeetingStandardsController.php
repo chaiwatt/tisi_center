@@ -168,6 +168,7 @@ class MeetingStandardsController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $model = str_slug('meetingstandards','-');
         if(auth()->user()->can('add-'.$model)) {
 
@@ -357,6 +358,7 @@ class MeetingStandardsController extends Controller
 
     public function conclusion($id)
     {
+        // dd($id);
         $model = str_slug('meetingstandards','-');
         if(auth()->user()->can('edit-'.$model)) {
 
@@ -406,7 +408,7 @@ class MeetingStandardsController extends Controller
 
     public function update_conclusion(Request $request, $id)
     {
-
+        // dd($request->all());
         $model = str_slug('meetingstandards','-');
         if(auth()->user()->can('edit-'.$model)) {
 

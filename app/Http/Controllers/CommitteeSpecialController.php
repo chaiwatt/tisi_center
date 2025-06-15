@@ -490,9 +490,11 @@ class CommitteeSpecialController extends Controller
 
     public function get_position_name($register_experts_id,$group_id = '') {
         $register_experts = RegisterExpert::where('id',$register_experts_id)->first();
+       
         $appoint_departments = AppointDepartment::where('id',$register_experts->department_id)->first();
+        
         $board_types = BoardType::select('title','id')->where('expert_group_id',$group_id)->get();  
-
+//  dd($appoint_departments->title,$board_types->pluck('title')->toArray());
         return response()->json([
                                   'title' =>   !empty($appoint_departments->title) ? $appoint_departments->title : '',
                                   'board_types' =>   count($board_types) > 0 ? $board_types : []

@@ -599,9 +599,11 @@ try {
                     $certi_ib_attach_more->file_desc            = 'เรียกเก็บค่าธรรมเนียม';
 
 
-                    // if(strpos($setting_payment->data, '127.0.0.1')===0){ฃ
-                    if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {
-                            
+                    // if(strpos($setting_payment->data, '127.0.0.1')===0){
+                    // if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {  
+                    $host = parse_url($setting_payment->data, PHP_URL_HOST);
+
+                    if (!filter_var($host, FILTER_VALIDATE_IP) && strpos($host, 'accr2.tisi.go.th') === false) {
                         $certi_ib_attach_more->file                 =  $this->storeFilePayin($setting_payment,$certi_ib->app_no,$PayIn->auditors_id);
                     }else{//ถ้าเป็น 127.0.0 (การทดสอบ)
                         
@@ -1182,7 +1184,10 @@ try {
 
 
                         // if(strpos($setting_payment->data, '127.0.0.1')===0){
-                        if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {  
+                        // if (!filter_var(parse_url($setting_payment->data, PHP_URL_HOST), FILTER_VALIDATE_IP)) {  
+                        $host = parse_url($setting_payment->data, PHP_URL_HOST);
+
+                        if (!filter_var($host, FILTER_VALIDATE_IP) && strpos($host, 'accr2.tisi.go.th') === false) {
                             
                             $certi_ib_attach_more->file                 =  $this->storeFilePayin($setting_payment,$certi_ib->app_no);
                         }else{//ถ้าเป็น 127.0.0 (การทดสอบ)

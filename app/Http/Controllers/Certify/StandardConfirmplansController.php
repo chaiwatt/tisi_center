@@ -148,6 +148,7 @@ class StandardConfirmplansController extends Controller
      */
     public function edit($id)
     {
+    
         $model = str_slug('standardconfirmplans','-');
         if(auth()->user()->can('edit-'.$model)) {
             $standardconfirmplans = TisiEstandardDraftPlan::findOrFail($id);
@@ -175,7 +176,7 @@ class StandardConfirmplansController extends Controller
         $model = str_slug('standardconfirmplans','-');
         if(auth()->user()->can('edit-'.$model)) {
             
-           
+        //    dd($request->all());
             $requestData = $request->all();
             $requestData['confirm_by']          =  auth()->user()->getKey(); 
             $requestData['confirm_at']          =  date('Y-m-d H:i:s'); 

@@ -46,15 +46,133 @@ class SetStandardsController extends Controller
      */
 
 
-    public function index(Request $request)
+public function index(Request $request)
     {
-        $model = str_slug('setstandard','-');
-        if(auth()->user()->can('view-'.$model)) {
-            return view('certify.set-standards.index');
+        $roles = !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : [];
+        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles)); // ไม่ใช่ Admin หรือไม่ใช่ ผอ.
+
+        $filter_search = $request->input('filter_search');
+        $filter_year = $request->input('filter_year');
+        $filter_standard_type = $request->input('filter_standard_type');
+        $filter_method_id = $request->input('filter_method_id');
+        $filter_status = $request->input('filter_status');
+
+        $query = SetStandards::query()->with([
+            'estandard_plan_to'
+        ])
+        ->when($not_admin, function ($query) {
+            return $query->where(function ($query) {
+                return $query->whereHas('estandard_plan_to', function ($query) {
+                    return $query->where('assign_id', auth()->user()->getKey());
+                })
+                ->orWhereHas('estandard_plan_to.tisi_estandard_draft_to', function ($query) {
+                    return $query->where('created_by', auth()->user()->getKey());
+                });
+            });
+        })
+        ->when($filter_search, function ($query, $filter_search) {
+            $search_full = str_replace(' ', '', $filter_search);
+            $query->where(function ($query2) use ($search_full) {
+                $query2->whereHas('estandard_plan_to', function ($query) use ($search_full) {
+                    return $query->where(DB::raw("REPLACE(tis_name,' ','')"), 'LIKE', "%".$search_full."%");
+                })
+                ->orWhere(DB::raw("REPLACE(projectid,' ','')"), 'LIKE', "%".$search_full."%");
+            });
+        })
+        ->when($filter_method_id, function ($query, $filter_method_id) {
+            $query->where('method_id', $filter_method_id);
+        })
+        ->when($filter_standard_type, function ($query, $filter_standard_type) {
+            $draft_plan = TisiEstandardDraftPlan::select('id')->where('std_type', $filter_standard_type);
+            $query->whereIn('plan_id', $draft_plan);
+        })
+        ->when($filter_year, function ($query, $filter_year) {
+            $draft = TisiEstandardDraft::select('id')->where('draft_year', $filter_year);
+            $draft_plan = TisiEstandardDraftPlan::select('id')->whereIn('draft_id', $draft);
+            $query->whereIn('plan_id', $draft_plan);
+        })
+        ->when($filter_status, function ($query, $filter_status) {
+            if ($filter_status == '-1') {
+                $query->where('status_id', 0);
+            } else {
+                $query->where('status_id', $filter_status);
+            }
+        })
+        ->orderBy('id', 'DESC'); // Reverse order by id
+
+        $model = str_slug('setstandard', '-');
+        if (auth()->user()->can('view-'.$model)) {
+            return view('certify.set-standards.index', [
+                'setStandards' => $query->paginate(10) // Paginate with 10 records per page
+            ]);
         }
         abort(403);
-
     }
+
+    public function search_data_list(Request $request)
+       {
+           $roles = !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : [];
+           $not_admin = (!in_array(1, $roles) && !in_array(25, $roles)); // ไม่ใช่ Admin หรือไม่ใช่ ผอ.
+
+           $filter_search = $request->input('filter_search');
+           $filter_year = $request->input('filter_year');
+           $filter_standard_type = $request->input('filter_standard_type');
+           $filter_method_id = $request->input('filter_method_id');
+           $filter_status = $request->input('filter_status');
+
+           $query = SetStandards::query()->with([
+               'estandard_plan_to'
+           ])
+           ->when($not_admin, function ($query) {
+               return $query->where(function ($query) {
+                   return $query->whereHas('estandard_plan_to', function ($query) {
+                       return $query->where('assign_id', auth()->user()->getKey());
+                   })
+                   ->orWhereHas('estandard_plan_to.tisi_estandard_draft_to', function ($query) {
+                       return $query->where('created_by', auth()->user()->getKey());
+                   });
+               });
+           })
+           ->when($filter_search, function ($query, $filter_search) {
+               $search_full = str_replace(' ', '', $filter_search);
+               $query->where(function ($query2) use ($search_full) {
+                   $query2->whereHas('estandard_plan_to', function ($query) use ($search_full) {
+                       return $query->where(DB::raw("REPLACE(tis_name,' ','')"), 'LIKE', "%".$search_full."%");
+                   })
+                   ->orWhere(DB::raw("REPLACE(projectid,' ','')"), 'LIKE', "%".$search_full."%");
+               });
+           })
+           ->when($filter_method_id, function ($query, $filter_method_id) {
+               $query->where('method_id', $filter_method_id);
+           })
+           ->when($filter_standard_type, function ($query, $filter_standard_type) {
+               $draft_plan = TisiEstandardDraftPlan::select('id')->where('std_type', $filter_standard_type);
+               $query->whereIn('plan_id', $draft_plan);
+           })
+           ->when($filter_year, function ($query, $filter_year) {
+               $draft = TisiEstandardDraft::select('id')->where('draft_year', $filter_year);
+               $draft_plan = TisiEstandardDraftPlan::select('id')->whereIn('draft_id', $draft);
+               $query->whereIn('plan_id', $draft_plan);
+           })
+           ->when($filter_status, function ($query, $filter_status) {
+               if ($filter_status == '-1') {
+                   $query->where('status_id', 0);
+               } else {
+                   $query->where('status_id', $filter_status);
+               }
+           })
+           ->orderBy('id', 'DESC');
+
+        //    dd($query->get()->first()->estandard_plan_to);
+
+           $model = str_slug('setstandard', '-');
+           if (auth()->user()->can('view-'.$model)) {
+               return view('certify.set-standards.index', [
+                   'setStandards' => $query->paginate(10)
+               ]);
+           }
+           abort(403);
+       }
 
     public function data_list(Request $request)
     {
@@ -112,7 +230,7 @@ class SetStandardsController extends Controller
                                                 }
                                             
                                          });
-
+        // dd($query->get());
         return Datatables::of($query)
                             ->addIndexColumn()
                             ->addColumn('checkbox', function ($item) {
@@ -252,6 +370,7 @@ class SetStandardsController extends Controller
      */
     public function edit($id)
     {
+        // dd($id);
         $model = str_slug('setstandard','-');
         if(auth()->user()->can('edit-'.$model)) {
 
@@ -261,6 +380,8 @@ class SetStandardsController extends Controller
             $standardplan           =  $setstandard->estandard_plan_to;
             $setstandard_commitees  = SetStandardCommitee::where('setstandard_id', $setstandard->id)->select('commitee_id')->get();
             $setstandard_summeeting = SetStandardSummeetings::where('setstandard_id', $setstandard->id)->first();
+
+            // dd($setstandard_commitees, $setstandard_summeeting, $setstandard);
             
             $meetingstandards = collect();
 
@@ -296,7 +417,7 @@ class SetStandardsController extends Controller
         $model = str_slug('setstandard','-');
         if(auth()->user()->can('edit-'.$model)) {
 
-          
+        //   dd($request->all());
             $requestData = $request->all();
 
             $set_standards = SetStandards::findOrFail($id);
@@ -428,42 +549,6 @@ class SetStandardsController extends Controller
             
      
          
-
-            // $this->save_commitee($requestData['commitee_id'], $set_standards);
-
-            // if(!empty($requestData['amount_sum'])){
-
-            //     $set_standards_summeeting = SetStandardSummeetings::where('setstandard_id', $id)->first();
-
-            //     if(!is_null($set_standards_summeeting)){
-            //         $set_standards_summeeting->update($requestData);
-
-            //     }else{
-            //         $requestData['setstandard_id'] = $id;
-            //         $requestData['created_by'] = auth()->user()->runrecno;
-            //         $set_standards_summeeting = SetStandardSummeetings::create($requestData);
-
-            //     }
-
-            //     $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
-            //     if ($request->file && $request->hasFile('file')){
-            //         foreach($request->file as $key => $item) {
-            //             HP::singleFileUpload(
-            //                 $item,
-            //                 $this->attach_path,
-            //                 ($tax_number),
-            //                 (auth()->user()->FullName ?? null),
-            //                 'Center',
-            //                 ((new SetStandardSummeetings)->getTable()),
-            //                 $set_standards_summeeting->id,
-            //                 'file_set_standards_summeeting',
-            //                 @$request->file_desc[$key] ?? null
-            //             );
-            //         }
-
-            //     }
-
-            // }
 
 
             return redirect('certify/set-standards/'.$id.'/edit')->with('flash_message', 'เรียบร้อยแล้ว!');

@@ -47,6 +47,7 @@ class StandardController extends Controller
 
     public function index(Request $request)
     {
+        
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('view-'.$model)) {
             return view('certify.standards.index');
@@ -159,6 +160,7 @@ class StandardController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $model = str_slug('certifystandard', '-');
 
         if (auth()->user()->can('add-' . $model)) {
@@ -298,6 +300,7 @@ class StandardController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // dd("ooo");
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('edit-'.$model)) {
             try {

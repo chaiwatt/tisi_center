@@ -35,7 +35,7 @@ class StandardDraftsController extends Controller
 
     public function index(Request $request)
     {
-        
+        // dd("ok");
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('view-'.$model)) {
             return view('certify.standard-drafts.index');
@@ -98,7 +98,7 @@ class StandardDraftsController extends Controller
                                                })
                                               ;
 
-
+// dd($query->get());
         return Datatables::of($query)
                             ->addIndexColumn()
                             ->addColumn('checkbox', function ($item) {
@@ -179,6 +179,7 @@ class StandardDraftsController extends Controller
      */
     public function store(Request $request)
     {
+        
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('add-'.$model)) {
 
@@ -231,6 +232,7 @@ class StandardDraftsController extends Controller
      */
     public function edit($id)
     {
+        // dd('ok');
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('edit-'.$model)) {
 
@@ -244,7 +246,7 @@ class StandardDraftsController extends Controller
 
             $estandard_draft_plans = $standarddraft->TisiEstandardDraftPlanMany;//รายการมาตรฐาน
             $estandard_draft_plans = count($estandard_draft_plans) > 0 ? $estandard_draft_plans : collect([new TisiEstandardDraftPlan]) ;
-
+// dd($estandard_draft_plans);
             return view('certify.standard-drafts.edit', compact('standarddraft', 'estandard_draft_plans'));
         }
         abort(403);

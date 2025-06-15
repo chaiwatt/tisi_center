@@ -857,6 +857,8 @@ Route::group(['prefix' => 'certify'], function () {
 
 
     Route::get('certify/set-standards/data_list', 'Certify\\SetStandardsController@data_list');
+    // Route::get('certify/set-standards/search_data_list', 'Certify\\SetStandardsController@search_data_list');
+    Route::get('certify/set-standards/search_data_list', 'Certify\\SetStandardsController@search_data_list')->name('set-standards.search_data_list');
     Route::get('/certify/set-standards/get-estandard-plan/{plan_id?}', 'Certify\\SetStandardsController@GetEstandardPlan');
     Route::resource('certify/set-standards', 'Certify\\SetStandardsController');
 
