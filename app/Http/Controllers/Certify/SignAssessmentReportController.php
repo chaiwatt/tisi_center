@@ -212,7 +212,7 @@ class SignAssessmentReportController extends Controller
                 })
                 ->make(true);
         }else{
-            return response()->json(['error' => 'ไม่พบข้อมูล signer'], 404);
+            return response()->json(['error' => 'signer info not found'], 404);
         }
     }
 
