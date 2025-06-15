@@ -1303,117 +1303,117 @@ class BoardAuditorController extends Controller
 
     }
 
-    public function viewLabMessageRecord($id)
-    {
-        $boardAuditor = BoardAuditor::find($id);
-        $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
+    // public function viewLabMessageRecord($id)
+    // {
+    //     $boardAuditor = BoardAuditor::find($id);
+    //     $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
 
-        $groups = $boardAuditor->groups;
+    //     $groups = $boardAuditor->groups;
 
-        $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
+    //     $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 
-        $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
+    //     $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
 
-        foreach ($groups as $group) {
-            $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
-            $auditors = $group->auditors; // $auditors เป็น Collection
+    //     foreach ($groups as $group) {
+    //         $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+    //         $auditors = $group->auditors; // $auditors เป็น Collection
 
-            // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
-            if (!isset($statusAuditorMap[$statusAuditorId])) {
-                $statusAuditorMap[$statusAuditorId] = [];
-            }
+    //         // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+    //         if (!isset($statusAuditorMap[$statusAuditorId])) {
+    //             $statusAuditorMap[$statusAuditorId] = [];
+    //         }
 
-            // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
-            foreach ($auditors as $auditor) {
-                $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
-            }
-        }
+    //         // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+    //         foreach ($auditors as $auditor) {
+    //             $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+    //         }
+    //     }
 
-        $uniqueAuditorIds = array_unique($auditorIds);
+    //     $uniqueAuditorIds = array_unique($auditorIds);
 
 
-        $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
+    //     $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
 
-        $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+    //     $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
 
-        $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
-        $dateRange = "";
+    //     $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
+    //     $dateRange = "";
 
-        if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
-            if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
-                // ถ้าเป็นวันเดียวกัน
-                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
-            } else {
-                // ถ้าเป็นคนละวัน
-                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
-            }
-        }
+    //     if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+    //         if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+    //             // ถ้าเป็นวันเดียวกัน
+    //             $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+    //         } else {
+    //             // ถ้าเป็นคนละวัน
+    //             $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
+    //                         " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+    //         }
+    //     }
 
-        $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
-        $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
-        // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
-        if ($boardAuditorExpert && $boardAuditorExpert->expert) {
-            // แปลงข้อมูล JSON ใน expert กลับเป็น array
-            $categories = json_decode($boardAuditorExpert->expert, true);
+    //     $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
+    //     $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+    //     // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
+    //     if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+    //         // แปลงข้อมูล JSON ใน expert กลับเป็น array
+    //         $categories = json_decode($boardAuditorExpert->expert, true);
         
-            // ถ้ามีหลายรายการ
-            if (count($categories) > 1) {
-                // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
-                $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
-                $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
-            } elseif (count($categories) == 1) {
-                // ถ้ามีแค่รายการเดียว
-                $experts = $categories[0];
-            } else {
-                $experts = ''; // ถ้าไม่มีข้อมูล
-            }
+    //         // ถ้ามีหลายรายการ
+    //         if (count($categories) > 1) {
+    //             // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
+    //             $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
+    //             $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
+    //         } elseif (count($categories) == 1) {
+    //             // ถ้ามีแค่รายการเดียว
+    //             $experts = $categories[0];
+    //         } else {
+    //             $experts = ''; // ถ้าไม่มีข้อมูล
+    //         }
         
-        }
+    //     }
 
-        $scope_branch = "";
-        if ($certi_lab->lab_type == 3){
-            $scope_branch = $certi_lab->BranchTitle;
-        }else if($certi_lab->lab_type == 4)
-        {
-            $scope_branch = $certi_lab->ClibrateBranchTitle;
-        }
+    //     $scope_branch = "";
+    //     if ($certi_lab->lab_type == 3){
+    //         $scope_branch = $certi_lab->BranchTitle;
+    //     }else if($certi_lab->lab_type == 4)
+    //     {
+    //         $scope_branch = $certi_lab->ClibrateBranchTitle;
+    //     }
 
-        $data = new stdClass();
+    //     $data = new stdClass();
 
-        $data->header_text1 = '';
-        $data->header_text2 = '';
-        $data->header_text3 = '';
-        $data->header_text4 = '';
-        $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
-        $data->lab_name = $certi_lab->lab_name;
-        $data->scope_branch = $scope_branch;
-        $data->app_no = $certi_lab->app_no;
-        $data->certificate_no = '13-LB0037';
-        $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
-        $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
-        $data->experts = $experts;
-        $data->date_range = $dateRange;
-        $data->statusAuditorMap = $statusAuditorMap;
-
-
-        $htmlLabMemorandumRequest = HtmlLabMemorandumRequest::where('type',"ia")->first();
-
-        $data->fix_text1 = <<<HTML
-               $htmlLabMemorandumRequest->text1
-            HTML;
-
-        $data->fix_text2 = <<<HTML
-               $htmlLabMemorandumRequest->text2
-            HTML;
+    //     $data->header_text1 = '';
+    //     $data->header_text2 = '';
+    //     $data->header_text3 = '';
+    //     $data->header_text4 = '';
+    //     $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+    //     $data->lab_name = $certi_lab->lab_name;
+    //     $data->scope_branch = $scope_branch;
+    //     $data->app_no = $certi_lab->app_no;
+    //     $data->certificate_no = '13-LB0037';
+    //     $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+    //     $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+    //     $data->experts = $experts;
+    //     $data->date_range = $dateRange;
+    //     $data->statusAuditorMap = $statusAuditorMap;
 
 
-        return view('certify.auditor.view-message-record', [
-            'data' => $data,
-            'id' => $id,
-            'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo
-        ]);
-    }
+    //     $htmlLabMemorandumRequest = HtmlLabMemorandumRequest::where('type',"ia")->first();
+
+    //     $data->fix_text1 = <<<HTML
+    //            $htmlLabMemorandumRequest->text1
+    //         HTML;
+
+    //     $data->fix_text2 = <<<HTML
+    //            $htmlLabMemorandumRequest->text2
+    //         HTML;
+
+
+    //     return view('certify.auditor.view-message-record', [
+    //         'data' => $data,
+    //         'id' => $id,
+    //         'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo
+    //     ]);
+    // }
 
     public function CreateLabMessageRecordPdf($id)
     {
