@@ -74,226 +74,310 @@ class CreateLabMessageRecordPdf
     
     }
 
-    public function ia($mpdf)
-    {
-        $boardAuditor = BoardAuditor::find($this->board_auditor_id);
-        $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
+    // public function ia($mpdf)
+    // {
+    //     $boardAuditor = BoardAuditor::find($this->board_auditor_id);
+    //     $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
 
-        // dd( $boardAuditorMsRecordInfo);
+    //     $groups = $boardAuditor->groups;
 
-        $groups = $boardAuditor->groups;
+    //     $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 
-        $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
+    //     $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
 
-        $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
+    //     foreach ($groups as $group) {
+    //         $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+    //         $auditors = $group->auditors; // $auditors เป็น Collection
 
-        foreach ($groups as $group) {
-            $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
-            $auditors = $group->auditors; // $auditors เป็น Collection
+    //         // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+    //         if (!isset($statusAuditorMap[$statusAuditorId])) {
+    //             $statusAuditorMap[$statusAuditorId] = [];
+    //         }
 
-            // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
-            if (!isset($statusAuditorMap[$statusAuditorId])) {
-                $statusAuditorMap[$statusAuditorId] = [];
-            }
+    //         // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+    //         foreach ($auditors as $auditor) {
+    //             $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+    //         }
+    //     }
 
-            // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
-            foreach ($auditors as $auditor) {
-                $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
-            }
-        }
+    //     $uniqueAuditorIds = array_unique($auditorIds);
 
-        $uniqueAuditorIds = array_unique($auditorIds);
+    //     $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
 
+    //     $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+
+    //     $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$this->board_auditor_id)->first();
+    //     $dateRange = "";
+
+    //     if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+    //         if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+    //             // ถ้าเป็นวันเดียวกัน
+    //             $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+    //         } else {
+    //             // ถ้าเป็นคนละวัน
+    //             $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
+    //                         " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+    //         }
+    //     }
+
+    //     $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$this->board_auditor_id)->first();
+    //     $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+
+    //     if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+    //         // แปลงข้อมูล JSON ใน expert กลับเป็น array
+    //         $categories = json_decode($boardAuditorExpert->expert, true);
         
-        $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
-
-        $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
-
-        $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$this->board_auditor_id)->first();
-        $dateRange = "";
-
-        if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
-            if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
-                // ถ้าเป็นวันเดียวกัน
-                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
-            } else {
-                // ถ้าเป็นคนละวัน
-                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
-            }
-        }
-
-        $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$this->board_auditor_id)->first();
-        $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
-        // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
-        if ($boardAuditorExpert && $boardAuditorExpert->expert) {
-            // แปลงข้อมูล JSON ใน expert กลับเป็น array
-            $categories = json_decode($boardAuditorExpert->expert, true);
+    //         // ถ้ามีหลายรายการ
+    //         if (count($categories) > 1) {
+    //             // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
+    //             $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
+    //             $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
+    //         } elseif (count($categories) == 1) {
+    //             // ถ้ามีแค่รายการเดียว
+    //             $experts = $categories[0];
+    //         } else {
+    //             $experts = ''; // ถ้าไม่มีข้อมูล
+    //         }
         
-            // ถ้ามีหลายรายการ
-            if (count($categories) > 1) {
-                // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
-                $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
-                $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
-            } elseif (count($categories) == 1) {
-                // ถ้ามีแค่รายการเดียว
-                $experts = $categories[0];
-            } else {
-                $experts = ''; // ถ้าไม่มีข้อมูล
-            }
-        
-        }
+    //     }
 
-        $scope_branch = "";
-        if ($certi_lab->lab_type == 3){
-            $scope_branch = $certi_lab->BranchTitle;
-        }else if($certi_lab->lab_type == 4)
-        {
-            $scope_branch = $certi_lab->ClibrateBranchTitle;
-        }
+    //     $scope_branch = "";
+    //     if ($certi_lab->lab_type == 3){
+    //         $scope_branch = $certi_lab->BranchTitle;
+    //     }else if($certi_lab->lab_type == 4)
+    //     {
+    //         $scope_branch = $certi_lab->ClibrateBranchTitle;
+    //     }
 
-        $data = new stdClass();
+    //     $data = new stdClass();
 
-        $data->header_text1 = '';
-        $data->header_text2 = '';
-        $data->header_text3 = '';
-        $data->header_text4 = '';
-        $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
-        $data->lab_name = $certi_lab->lab_name;
-        $data->app_no = $certi_lab->app_no;
-        $data->scope_branch = $scope_branch;
-        $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
-        $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
-        $data->experts = $experts;
-        $data->date_range = $dateRange;
-        $data->statusAuditorMap = $statusAuditorMap;
+    //     $data->header_text1 = '';
+    //     $data->header_text2 = '';
+    //     $data->header_text3 = '';
+    //     $data->header_text4 = '';
+    //     $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+    //     $data->lab_name = $certi_lab->lab_name;
+    //     $data->app_no = $certi_lab->app_no;
+    //     $data->scope_branch = $scope_branch;
+    //     $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+    //     $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+    //     $data->experts = $experts;
+    //     $data->date_range = $dateRange;
+    //     $data->statusAuditorMap = $statusAuditorMap;
 
 
-        $htmlLabMemorandumRequest = HtmlLabMemorandumPdfRequest::where('type',"ia")->first();
+    //     $htmlLabMemorandumRequest = HtmlLabMemorandumPdfRequest::where('type',"ia")->first();
 
-        $data->fix_text1 = <<<HTML
-               $htmlLabMemorandumRequest->text1
-            HTML;
+    //     $data->fix_text1 = <<<HTML
+    //            $htmlLabMemorandumRequest->text1
+    //         HTML;
 
-        $data->fix_text2 = <<<HTML
-               $htmlLabMemorandumRequest->text2
-            HTML;
+    //     $data->fix_text2 = <<<HTML
+    //            $htmlLabMemorandumRequest->text2
+    //         HTML;
 
-        // $data->fix_text1 = <<<HTML
-        //         <div style="font-weight: bold;margin-left:90px ;margin-top:5px;">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
-        //         <div>
-        //             <div style="margin-left:105px; letter-spacing: 0.4px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา</div>
-        //             <p style="margin: top 0; letter-spacing: 0.3px">วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ “การขอใบรับรอง การตรวจสอบและการออกใบรับรอง ให้เป็นไปตาม หลักเกณฑ์ วิธีการและเงื่อนไขที่คณะกรรมการประกาศ กําหนด”</p>
-        //             <div style="margin-left:105px; letter-spacing: 0.3px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข</div>
-        //             <p style="margin: top 0;">การรับรองห้องปฏิบัติการ (ประกาศในราชกิจจานุเบกษา วันที่ ๑๗ พฤษภาคม ๒๕๖๔)</p>
-        //             <div style="margin-left:130px; letter-spacing: 0.8px">ข้อ ๖.๑.๒ (๑) แต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าคณะผู้ตรวจ</div>
-        //             <p style="margin: top 0;">ประเมิน ผู้ตรวจประเมินด้านวิชาการ และผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความเหมาะสม</p>
-        //             <div style="margin-left:130px;letter-spacing: -0.2px">ข้อ ๖.๑.๒ (๒.๑) คณะผู้ตรวจประเมินจะทบทวน<span style="letter-spacing:0.1px">และประเมินเอกสารของห้องปฏิบัติการ</span></div>
-        //             <p style="margin: top 0;"><span style="letter-spacing:0.2px">และข้อ ๖.๑.๒ (๒.๒) คณะผู้ตรวจประเมินจะตรวจประเมินความสามารถและประสิทธิผลของการดําเนินงาน </span> <span style="letter-spacing:-0.15px">ตามระบบการบริหารของห้องปฏิบัติการโดยพิจารณาหลักฐานและเอกสารที่เกี่ยวข้อง การสัมภาษณ์ รวมทั้งสังเกต</span> <span style="letter-spacing: 0.15px;">การปฏิบัติงานตามระบบบริหารงานและมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง ณ สถานประกอบการ</span> ของผู้ยืนคําขอและสถานที่ทําการอื่นในสาขาที่ขอรับการรับรอง</p>
-        //             <div style="margin-left:105px; letter-spacing: 0.75px">๒.๓ ประกาศสํานักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม เรื่อง แนวทางการแต่งตั้ง</div>
-        //             <p style="margin: top 0;letter-spacing: 0.3px">พนักงานเจ้าหน้าที่ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศ ณ วันที่ ๙ กุมภาพันธ์ พ.ศ. ๒๕๖๐) ซึ่งระบุพนักงานเจ้าหน้าที่ต้องมีคุณสมบัติตามข้อ ๑. ถึง ๓.</p>
-        //             <div style="margin-left:105px; letter-spacing: 0.5px">๒.๔ คําสั่งสํานักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓/๒๕๖๕ เรื่อง มอบอํานาจ</div>
-        //             <p style="margin: top 0; letter-spacing: 0.25px">ให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสํานักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมในการเป็นผู้มี<span style="letter-spacing:-0.1px">อำนาจพิจารณาดำเนินการตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (สั่ง ณ วันที่ ๑๓ พฤศจิกายน</span> ๒๕๖๖) <span style="letter-spacing: 0.35px;">ข้อ ๓. ระบุให้ผู้อํานวยการสํานักงานคณะกรรมการการมาตรฐานแห่งชาติเป็นผู้มีอํานาจพิจารณา</span> <span style="letter-spacing:0.4px">แต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ และข้อ ๕.๒ ในกรณี</span></p>
-        //             <p style="margin: bottom 0;"><span style="letter-spacing: 0.45px;">ที่ข้าราชการผู้รับมอบอํานาจตามข้อ ๓. ไม่อาจปฏิบัติราชการได้หรือไม่มีผู้ดํารงตําแหน่งดังกล่าว ให้รอง</span></p>
-        //         </div>
-        //     HTML;
-        // // 
-        // $data->fix_text2 = <<<HTML
-        //         <div style="font-weight: bold;margin-left:90px;margin-top:5px;">๓. ข้อเท็จจริง</div>
-        //         <div style="margin-left:105px;letter-spacing: 0.1px;">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไขการ</div>
-        //         <p style="margin: top 0;letter-spacing: 0.5px;"> <span style="letter-spacing: 0.05px;">รับรองห้องปฏิบัติการ สมอ. มีอํานาจหน้าที่ในการรับรองความสามารถห้องปฏิบัติการ กําหนดให้มีการประเมิน</span> เพื่อพิจารณาให้การรับรองความสามารถห้องปฏิบัติการ ตามมาตรฐานเลขที่ มอก. 17025-2561</p>
-        //     HTML;
 
+    //     $signer = new stdClass();
 
 
        
+    //     $signer->signer_1 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id','Signature1')
+    //     ->where('certificate_type',2)
+    //     ->first();
+    //     $signer->signer_2 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id','Signature2')
+    //     ->where('certificate_type',2)
+    //     ->first();
+    //     $signer->signer_3 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id','Signature3')
+    //     ->where('certificate_type',2)
+    //     ->first();
+    //     $signer->signer_4 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id','Signature4')
+    //     ->where('certificate_type',2)
+    //     ->first();
 
 
-        // $messageRecordTransactions = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->get();
-        // $signerIds = $messageRecordTransactions->pluck('signer_id')->toArray();
+    //     $attach1 = !empty($signer->signer_1->signer->AttachFileAttachTo) ? $signer->signer_1->signer->AttachFileAttachTo : null;
+    //     $attach2 = !empty($signer->signer_2->signer->AttachFileAttachTo) ? $signer->signer_2->signer->AttachFileAttachTo : null;
+    //     $attach3 = !empty($signer->signer_3->signer->AttachFileAttachTo) ? $signer->signer_3->signer->AttachFileAttachTo : null;
+    //     $attach4 = !empty($signer->signer_4->signer->AttachFileAttachTo) ? $signer->signer_4->signer->AttachFileAttachTo : null;
 
-        $signer = new stdClass();
-
-
-       
-        $signer->signer_1 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id','Signature1')
-        ->where('certificate_type',2)
-        ->first();
-        $signer->signer_2 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id','Signature2')
-        ->where('certificate_type',2)
-        ->first();
-        $signer->signer_3 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id','Signature3')
-        ->where('certificate_type',2)
-        ->first();
-        $signer->signer_4 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id','Signature4')
-        ->where('certificate_type',2)
-        ->first();
+    //     $sign_url1 = $this->getSignature($attach1);
+    //     $sign_url2 = $this->getSignature($attach2);
+    //     $sign_url3 = $this->getSignature($attach3);
+    //     $sign_url4 = $this->getSignature($attach4);
 
 
-        $attach1 = !empty($signer->signer_1->signer->AttachFileAttachTo) ? $signer->signer_1->signer->AttachFileAttachTo : null;
-        $attach2 = !empty($signer->signer_2->signer->AttachFileAttachTo) ? $signer->signer_2->signer->AttachFileAttachTo : null;
-        $attach3 = !empty($signer->signer_3->signer->AttachFileAttachTo) ? $signer->signer_3->signer->AttachFileAttachTo : null;
-        $attach4 = !empty($signer->signer_4->signer->AttachFileAttachTo) ? $signer->signer_4->signer->AttachFileAttachTo : null;
-        // dd($attach1->url);
-
-        $sign_url1 = $this->getSignature($attach1);
-        $sign_url2 = $this->getSignature($attach2);
-        $sign_url3 = $this->getSignature($attach3);
-        $sign_url4 = $this->getSignature($attach4);
+    //     $signer->signer_url1 = $sign_url1;
+    //     $signer->signer_url2 = $sign_url2;
+    //     $signer->signer_url3 = $sign_url3;
+    //     $signer->signer_url4 = $sign_url4;
 
 
-        $signer->signer_url1 = $sign_url1;
-        $signer->signer_url2 = $sign_url2;
-        $signer->signer_url3 = $sign_url3;
-        $signer->signer_url4 = $sign_url4;
+    //     $body = view('certify.auditor.ia_lab_message_record_pdf.body', [
+    //         'data' => $data,
+    //         'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo,
+    //         'signer' => $signer
+    //     ]);
+    //     $footer = view('certify.auditor.ia_lab_message_record_pdf.footer', []);
 
-       
+    //     $mpdf->WriteHTML($body, 2);
 
-
-        // dd($boardAuditorMsRecordInfo);
-        $body = view('certify.auditor.ia_lab_message_record_pdf.body', [
-            'data' => $data,
-            'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo,
-            'signer' => $signer
-        ]);
-        $footer = view('certify.auditor.ia_lab_message_record_pdf.footer', []);
-
-        // $mpdf->WriteHTML($header,2);
-        // $mpdf->SetHTMLFooter($footer);
-        $mpdf->WriteHTML($body, 2);
-
-        // $title = "message_record.pdf";
-
-        // $mpdf->Output($title, 'I');
         
-        // return;
-        $no = str_replace("RQ-", "", $certi_lab->app_no);
-        $no = str_replace("-", "_", $no);
+    //     // return;
+    //     $no = str_replace("RQ-", "", $certi_lab->app_no);
+    //     $no = str_replace("-", "_", $no);
     
-        $attachPath = '/files/applicants/check_files/' . $no . '/';
-        $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+    //     $attachPath = '/files/applicants/check_files/' . $no . '/';
+    //     $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
     
-        // สร้างไฟล์ชั่วคราว
-        $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+    //     // สร้างไฟล์ชั่วคราว
+    //     $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
     
-        // บันทึก PDF ไปยังไฟล์ชั่วคราว
-        $mpdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);
+    //     // บันทึก PDF ไปยังไฟล์ชั่วคราว
+    //     $mpdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);
     
-        // ใช้ Storage::putFileAs เพื่อย้ายไฟล์
-        Storage::putFileAs($attachPath, new \Illuminate\Http\File($tempFilePath), $fullFileName);
+    //     // ใช้ Storage::putFileAs เพื่อย้ายไฟล์
+    //     Storage::putFileAs($attachPath, new \Illuminate\Http\File($tempFilePath), $fullFileName);
    
-        $filePath = $attachPath .'/'. $fullFileName;
-        if (Storage::disk('ftp')->exists($filePath)) {
-            $storePath = $no  . '/' . $fullFileName;
-            $boardAuditor = BoardAuditor::find($this->board_auditor_id)->update([
-                'file' => $storePath,
-                'file_client_name' => 'memorandum' . '_' . $no . '.pdf'
-            ]);
-            // dd('File Path on Server: ' . $filePath);
-        } else {
-            // dd('File not found on server!');
+    //     $filePath = $attachPath .'/'. $fullFileName;
+    //     if (Storage::disk('ftp')->exists($filePath)) {
+    //         $storePath = $no  . '/' . $fullFileName;
+    //         $boardAuditor = BoardAuditor::find($this->board_auditor_id)->update([
+    //             'file' => $storePath,
+    //             'file_client_name' => 'memorandum' . '_' . $no . '.pdf'
+    //         ]);
+    //     } 
+    // }
+
+public function ia($mpdf)
+{
+    $boardAuditor = BoardAuditor::find($this->board_auditor_id);
+    $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first() ?? null; // แก้ไข: กัน first() คืนค่า null แล้วเกิด error
+
+    $groups = $boardAuditor->groups;
+
+    $auditorIds = []; // แก้ไข: ใช้จริงแล้วใน array_unique ด้านล่าง
+    $statusAuditorMap = [];
+
+    foreach ($groups as $group) {
+        $statusAuditorId = $group->status_auditor_id;
+        $auditors = $group->auditors;
+
+        if (!isset($statusAuditorMap[$statusAuditorId])) {
+            $statusAuditorMap[$statusAuditorId] = [];
+        }
+
+        foreach ($auditors as $auditor) {
+            $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+            $auditorIds[] = $auditor->auditor_id; // แก้ไข: เพิ่มเพื่อให้ $auditorIds มีข้อมูลจริง
         }
     }
+
+    $uniqueAuditorIds = array_unique($auditorIds);
+    $auditorInformations = AuditorInformation::whereIn('id', $uniqueAuditorIds)->get();
+    $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+
+    $boardAuditorDate = BoardAuditorDate::where('board_auditors_id', $this->board_auditor_id)->first();
+    $dateRange = "";
+
+    if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+        if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+            $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+        } else {
+            $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) .
+                        " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+        }
+    }
+
+    $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id', $this->board_auditor_id)->first();
+    $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+
+    if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+        $categories = json_decode($boardAuditorExpert->expert, true);
+
+        if (count($categories) > 1) {
+            $lastItem = array_pop($categories);
+            $experts = implode(' ', $categories) . ' และ' . $lastItem;
+        } elseif (count($categories) == 1) {
+            $experts = $categories[0];
+        } else {
+            $experts = '';
+        }
+    }
+
+    $scope_branch = '';
+    if ($certi_lab->lab_type == 3) {
+        $scope_branch = $certi_lab->BranchTitle;
+    } elseif ($certi_lab->lab_type == 4) {
+        $scope_branch = $certi_lab->ClibrateBranchTitle;
+    }
+
+    $data = new stdClass();
+    $data->header_text1 = '';
+    $data->header_text2 = '';
+    $data->header_text3 = '';
+    $data->header_text4 = '';
+    $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+    $data->lab_name = $certi_lab->lab_name;
+    $data->app_no = $certi_lab->app_no;
+    $data->scope_branch = $scope_branch;
+
+    $data->register_date = $certi_lab->created_at ? HP::formatDateThaiFullNumThai($certi_lab->created_at) : ''; // แก้ไข: กัน null
+    $data->get_date = $certi_lab->get_date ? HP::formatDateThaiFullNumThai($certi_lab->get_date) : ''; // แก้ไข: กัน null
+    $data->experts = $experts;
+    $data->date_range = $dateRange;
+    $data->statusAuditorMap = $statusAuditorMap;
+
+    $htmlLabMemorandumRequest = HtmlLabMemorandumPdfRequest::where('type', "ia")->first();
+
+    $data->fix_text1 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text1 : ''; // แก้ไข: กัน null
+    $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : ''; // แก้ไข: กัน null
+
+    $signer = new stdClass();
+    $signer->signer_1 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id', 'Signature1')->where('certificate_type', 2)->first();
+    $signer->signer_2 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id', 'Signature2')->where('certificate_type', 2)->first();
+    $signer->signer_3 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id', 'Signature3')->where('certificate_type', 2)->first();
+    $signer->signer_4 = MessageRecordTransaction::where('board_auditor_id', $this->board_auditor_id)->where('signature_id', 'Signature4')->where('certificate_type', 2)->first();
+
+    $attach1 = isset($signer->signer_1->signer->AttachFileAttachTo) ? $signer->signer_1->signer->AttachFileAttachTo : null; // แก้ไข: ป้องกัน error
+    $attach2 = isset($signer->signer_2->signer->AttachFileAttachTo) ? $signer->signer_2->signer->AttachFileAttachTo : null;
+    $attach3 = isset($signer->signer_3->signer->AttachFileAttachTo) ? $signer->signer_3->signer->AttachFileAttachTo : null;
+    $attach4 = isset($signer->signer_4->signer->AttachFileAttachTo) ? $signer->signer_4->signer->AttachFileAttachTo : null;
+
+    $signer->signer_url1 = $this->getSignature($attach1);
+    $signer->signer_url2 = $this->getSignature($attach2);
+    $signer->signer_url3 = $this->getSignature($attach3);
+    $signer->signer_url4 = $this->getSignature($attach4);
+
+    $body = view('certify.auditor.ia_lab_message_record_pdf.body', [
+        'data' => $data,
+        'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo,
+        'signer' => $signer
+    ]);
+    $footer = view('certify.auditor.ia_lab_message_record_pdf.footer', []);
+
+    $mpdf->WriteHTML($body, 2);
+
+    $no = str_replace("RQ-", "", $certi_lab->app_no);
+    $no = str_replace("-", "_", $no);
+
+    $attachPath = '/files/applicants/check_files/' . $no . '/';
+    $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+
+    $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+    $mpdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);
+    Storage::putFileAs($attachPath, new \Illuminate\Http\File($tempFilePath), $fullFileName);
+
+    $filePath = $attachPath . $fullFileName; // แก้ไข: ลบ '/' เกินออก
+
+    if (Storage::disk('ftp')->exists($filePath)) {
+        $storePath = $no . '/' . $fullFileName;
+        BoardAuditor::find($this->board_auditor_id)->update([
+            'file' => $storePath,
+            'file_client_name' => 'memorandum_' . $no . '.pdf'
+        ]);
+    }
+}
+
 
     public function getSignature($attach)
     {
