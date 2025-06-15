@@ -71,7 +71,6 @@ class BoardAuditorController extends Controller
      */
     public function index(Request $request)
     {
-        
         $model = str_slug('board-auditor','-');
         if(auth()->user()->can('view-'.$model)) {
             $keyword = $request->get('search');
@@ -117,17 +116,7 @@ class BoardAuditorController extends Controller
             $app_id = $request->app;
             $app = $app_id ? CertiLab::find($app_id) : null;
             if ($app) {
-//                $ids = collect();
-//                $groups = $app->assessment->groups;
-//                foreach($groups as $group) {
-//                    $auditors = $group->auditors;
-//
-//                    foreach ($auditors as $auditor) {
-//                        if (!$ids->has($auditor->id)) {
-//                            $ids->put($auditor->auditor_id, $auditor);
-//                        }
-//                    }
-//                }
+
 
                 $boardAuditors = BoardAuditor::where('certi_no', $app->app_no)->sortable()->with('user_created')
                     ->with('user_updated')   ->orderby('id','desc')
@@ -144,16 +133,10 @@ class BoardAuditorController extends Controller
         abort(403);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @param CertiLab|null $app
-     * @return Response
-     */
+
     public function create(Request $request)
     {
-        // dd($request->all());
-        // dd($request->current_url, $request->current_route);
+
         $model = str_slug('board-auditor','-');
         if(auth()->user()->can('add-'.$model)) {
 
@@ -211,16 +194,10 @@ class BoardAuditorController extends Controller
                               ->pluck('title','runrecno');
            }
 
-        //    $signers = Signer::orderbyRaw('CONVERT(name USING tis620)')->pluck('name','id','position');
+
            $signers = Signer::all();
            $selectedCertiLab = CertiLab::find($app_certi_lab_id);
-        //    dd($selectedCertiLab);
-        //    dd(User::select(DB::raw("CONCAT(reg_fname,' ',reg_lname) AS title"),'runrecno')
-        //    ->whereIn('reg_subdepart',[1804,1805,1806])
-        //    ->orderbyRaw('CONVERT(title USING tis620)')
-        //    ->pluck('title','runrecno'));
 
-        // dd(Signer::all());
 
             return view('certify/auditor/create', [
                                                         'status_auditor'    => $status_auditor,
@@ -330,19 +307,10 @@ class BoardAuditorController extends Controller
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return Response
-     */
+
     public function store(Request $request)
     {
-        // $data = $request->all(); // รับข้อมูลทั้งหมดจากฟอร์ม
-        // ตรวจสอบว่ามี key 'group' และเป็น array
-        // foreach ($data['group'] as $group) {
-        //     echo "Category: " . $group['category'] . PHP_EOL;
-        // }
+
 
         $model = str_slug('board-auditor','-');
         if(auth()->user()->can('add-'.$model)) {
@@ -500,7 +468,6 @@ class BoardAuditorController extends Controller
         ->get();
         if($check->count() == 0){
             $signatures = json_decode($request->input('signaturesJson'), true);
-            // $viewUrl = url('/certify/auditor/'.$baId.'/edit/'.$request->app_certi_lab_id);
             $viewUrl = url('/certify/auditor/view-lab-message-record/'.$baId);
             if ($signatures) {
                 foreach ($signatures as $signatureId => $signature) {
@@ -524,7 +491,7 @@ class BoardAuditorController extends Controller
                             'pos_x' => 0,
                             'pos_y' => 0,
                             'linesapce' => 20,
-                            'approval' => 0,
+                            'approval' => 0
                         ]);
                     
 
@@ -607,7 +574,7 @@ class BoardAuditorController extends Controller
                         'pos_x' => $x,
                         'pos_y' => $y,
                         'linesapce' => $lineSpace,
-                        'approval' => 0,
+                        'approval' => 0
                     ]);
                 } else {
                     echo "No matching signature found for ID: $signatureId<br>";
@@ -633,7 +600,7 @@ class BoardAuditorController extends Controller
             if ($sa) {
                 $input = [
                     'board_auditor_id' => $baId,
-                    'status_auditor_id' => $sa->id,
+                    'status_auditor_id' => $sa->id
                 ];
                 if ($groupId = $this->savingGroup($input)) {
                     if (!$this->storeAuditor($groupId, $group['users'])) {
@@ -780,7 +747,7 @@ class BoardAuditorController extends Controller
                 // 'other_attach' => 'nullable|file',
                 'group' => 'required|array',
                 'group.*.status' => 'required',
-                'group.*.users' => 'required',
+                'group.*.users' => 'required'
             ]);
 
             // try {
@@ -1341,7 +1308,7 @@ class BoardAuditorController extends Controller
             'header_text3' => $request->header_text3,
             'header_text4' => $request->header_text4,
             'body_text1'   => $request->body_text1,
-            'body_text2'   => $request->body_text2,
+            'body_text2'   => $request->body_text2
         ]);
 
 
@@ -1358,117 +1325,117 @@ class BoardAuditorController extends Controller
 
     }
 
-    // public function viewLabMessageRecord($id)
-    // {
-    //     $boardAuditor = BoardAuditor::find($id);
-    //     $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
+    public function viewLabMessageRecord($id)
+    {
+        $boardAuditor = BoardAuditor::find($id);
+        $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
 
-    //     $groups = $boardAuditor->groups;
+        $groups = $boardAuditor->groups;
 
-    //     $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
+        $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 
-    //     $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
+        $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
 
-    //     foreach ($groups as $group) {
-    //         $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
-    //         $auditors = $group->auditors; // $auditors เป็น Collection
+        foreach ($groups as $group) {
+            $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+            $auditors = $group->auditors; // $auditors เป็น Collection
 
-    //         // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
-    //         if (!isset($statusAuditorMap[$statusAuditorId])) {
-    //             $statusAuditorMap[$statusAuditorId] = [];
-    //         }
+            // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+            if (!isset($statusAuditorMap[$statusAuditorId])) {
+                $statusAuditorMap[$statusAuditorId] = [];
+            }
 
-    //         // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
-    //         foreach ($auditors as $auditor) {
-    //             $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
-    //         }
-    //     }
+            // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+            foreach ($auditors as $auditor) {
+                $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+            }
+        }
 
-    //     $uniqueAuditorIds = array_unique($auditorIds);
+        $uniqueAuditorIds = array_unique($auditorIds);
 
 
-    //     $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
+        $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
 
-    //     $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+        $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
 
-    //     $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
-    //     $dateRange = "";
+        $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
+        $dateRange = "";
 
-    //     if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
-    //         if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
-    //             // ถ้าเป็นวันเดียวกัน
-    //             $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
-    //         } else {
-    //             // ถ้าเป็นคนละวัน
-    //             $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-    //                         " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
-    //         }
-    //     }
+        if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+            if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+                // ถ้าเป็นวันเดียวกัน
+                $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+            } else {
+                // ถ้าเป็นคนละวัน
+                $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
+                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+            }
+        }
 
-    //     $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
-    //     $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
-    //     // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
-    //     if ($boardAuditorExpert && $boardAuditorExpert->expert) {
-    //         // แปลงข้อมูล JSON ใน expert กลับเป็น array
-    //         $categories = json_decode($boardAuditorExpert->expert, true);
+        $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
+        $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+        // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
+        if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+            // แปลงข้อมูล JSON ใน expert กลับเป็น array
+            $categories = json_decode($boardAuditorExpert->expert, true);
         
-    //         // ถ้ามีหลายรายการ
-    //         if (count($categories) > 1) {
-    //             // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
-    //             $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
-    //             $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
-    //         } elseif (count($categories) == 1) {
-    //             // ถ้ามีแค่รายการเดียว
-    //             $experts = $categories[0];
-    //         } else {
-    //             $experts = ''; // ถ้าไม่มีข้อมูล
-    //         }
+            // ถ้ามีหลายรายการ
+            if (count($categories) > 1) {
+                // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
+                $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
+                $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
+            } elseif (count($categories) == 1) {
+                // ถ้ามีแค่รายการเดียว
+                $experts = $categories[0];
+            } else {
+                $experts = ''; // ถ้าไม่มีข้อมูล
+            }
         
-    //     }
+        }
 
-    //     $scope_branch = "";
-    //     if ($certi_lab->lab_type == 3){
-    //         $scope_branch = $certi_lab->BranchTitle;
-    //     }else if($certi_lab->lab_type == 4)
-    //     {
-    //         $scope_branch = $certi_lab->ClibrateBranchTitle;
-    //     }
+        $scope_branch = "";
+        if ($certi_lab->lab_type == 3){
+            $scope_branch = $certi_lab->BranchTitle;
+        }else if($certi_lab->lab_type == 4)
+        {
+            $scope_branch = $certi_lab->ClibrateBranchTitle;
+        }
 
-    //     $data = new stdClass();
+        $data = new stdClass();
 
-    //     $data->header_text1 = '';
-    //     $data->header_text2 = '';
-    //     $data->header_text3 = '';
-    //     $data->header_text4 = '';
-    //     $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
-    //     $data->lab_name = $certi_lab->lab_name;
-    //     $data->scope_branch = $scope_branch;
-    //     $data->app_no = $certi_lab->app_no;
-    //     $data->certificate_no = '13-LB0037';
-    //     $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
-    //     $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
-    //     $data->experts = $experts;
-    //     $data->date_range = $dateRange;
-    //     $data->statusAuditorMap = $statusAuditorMap;
-
-
-    //     $htmlLabMemorandumRequest = HtmlLabMemorandumRequest::where('type',"ia")->first();
-
-    //     $data->fix_text1 = <<<HTML
-    //            $htmlLabMemorandumRequest->text1
-    //         HTML;
-
-    //     $data->fix_text2 = <<<HTML
-    //            $htmlLabMemorandumRequest->text2
-    //         HTML;
+        $data->header_text1 = '';
+        $data->header_text2 = '';
+        $data->header_text3 = '';
+        $data->header_text4 = '';
+        $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+        $data->lab_name = $certi_lab->lab_name;
+        $data->scope_branch = $scope_branch;
+        $data->app_no = $certi_lab->app_no;
+        $data->certificate_no = '13-LB0037';
+        $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+        $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+        $data->experts = $experts;
+        $data->date_range = $dateRange;
+        $data->statusAuditorMap = $statusAuditorMap;
 
 
-    //     return view('certify.auditor.view-message-record', [
-    //         'data' => $data,
-    //         'id' => $id,
-    //         'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo
-    //     ]);
-    // }
+        $htmlLabMemorandumRequest = HtmlLabMemorandumRequest::where('type',"ia")->first();
+
+        $data->fix_text1 = <<<HTML
+               $htmlLabMemorandumRequest->text1
+            HTML;
+
+        $data->fix_text2 = <<<HTML
+               $htmlLabMemorandumRequest->text2
+            HTML;
+
+
+        return view('certify.auditor.view-message-record', [
+            'data' => $data,
+            'id' => $id,
+            'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo
+        ]);
+    }
 
     // public function CreateLabMessageRecordPdf()
     public function CreateLabMessageRecordPdf($id)
