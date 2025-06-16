@@ -990,7 +990,7 @@
                     _token: _token
                 },
                 success: function(result) {
-                    let baseUrl = window.location.origin; // ดึง base URL ปัจจุบัน (เช่น https://example.com)
+                    // let baseUrl = window.location.origin; // ดึง base URL ปัจจุบัน (เช่น https://example.com)
                     // let redirectUrl = baseUrl + "/certify/check_certificate-cb/" + certiCb.token + "/show/" + certiCb.id;
 
                     //  const redirectUrl = "{{ url('/certify/check_certificate-cb/" + certiCb.token + "/show/" + certiCb.id') }}";
