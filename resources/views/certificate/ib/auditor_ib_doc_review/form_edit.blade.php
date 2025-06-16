@@ -965,10 +965,14 @@
                     _token: _token
                 },
                 success: function(result) {
-                    let baseUrl = window.location.origin; // ดึง base URL ปัจจุบัน (เช่น https://example.com)
-                    // let redirectUrl = baseUrl + "/certify/check_certificate-cb/" + certiIb.token + "/show/" + certiIb.id;
-                       let redirectUrl =  baseUrl + "/certificate/tracking-ib/"+trackingId+"/edit/";
-                    window.location.href = redirectUrl; // เปลี่ยนเส้นทางไปยัง URL ที่สร้าง
+                    // let baseUrl = window.location.origin; // ดึง base URL ปัจจุบัน (เช่น https://example.com)
+                    //    let redirectUrl =  baseUrl + "/certificate/tracking-ib/"+trackingId+"/edit/";
+                    // window.location.href = redirectUrl; // เปลี่ยนเส้นทางไปยัง URL ที่สร้าง
+
+
+                    const baseUrl = "{{ url('/certificate/tracking-ib') }}";
+                    const redirectUrl = `${baseUrl}/${trackingId}/edit/`;
+                     window.location.href = redirectUrl;
                 }
             });
         }
