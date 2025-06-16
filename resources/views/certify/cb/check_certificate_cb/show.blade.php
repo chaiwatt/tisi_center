@@ -1101,7 +1101,10 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Swal.fire("แต่งตั้งเรียบร้อย!", "", "success");
-                    window.location.href = "/certify/auditor_cb_doc_review/auditor_cb_doc_review/" + certiCbId;
+                    // window.location.href = "/certify/auditor_cb_doc_review/auditor_cb_doc_review/" + certiCbId;
+
+                    const baseUrl = "{{ url('/certify/auditor_cb_doc_review/auditor_cb_doc_review') }}";
+                    window.location.href = baseUrl + '/' + certiCbId;
                 } else if (result.isDenied) {
                     $.ajax({
                         

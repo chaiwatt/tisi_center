@@ -626,7 +626,10 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Swal.fire("แต่งตั้งเรียบร้อย!", "", "success");
-                    window.location.href = "/certificate/auditor_cb_doc_review/auditor_cb_doc_review/" + trackingId;
+
+                    const baseUrl = "{{ url('/certificate/auditor_cb_doc_review/auditor_cb_doc_review') }}";
+                    // window.location.href = "/certificate/auditor_cb_doc_review/auditor_cb_doc_review/" + trackingId;
+                    window.location.href = baseUrl + '/' + trackingId;
                 } else if (result.isDenied) {
                     // alert('here');
                     $.ajax({
