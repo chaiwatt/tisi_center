@@ -996,7 +996,7 @@
                     //  const redirectUrl = "{{ url('/certify/check_certificate-cb/" + certiCb.token + "/show/" + certiCb.id') }}";
 
                     // window.location.href = redirectUrl; // เปลี่ยนเส้นทางไปยัง URL ที่สร้าง
-
+console.log(window.location.origin);
                     const baseUrl = "{{ url('/certify/check_certificate-cb') }}";
                     const redirectUrl = `${baseUrl}/${certiCb.token}/show/${certiCb.id}`;
                      window.location.href = redirectUrl;
