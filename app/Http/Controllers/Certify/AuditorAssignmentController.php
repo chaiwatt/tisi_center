@@ -47,10 +47,7 @@ class AuditorAssignmentController extends Controller
         // ดึงข้อมูล signer โดยใช้ user_register_id
         // $signer = Signer::where('user_register_id', $userId)->first();
         $signer = Signer::where('tax_number', $cleanId)->first();
-        // 3-9203-00409-81-4
-        // 3920300409814
-        // "reg_13ID" => "3-9203-00409-81-4"
-        // dd($user);
+
 
         // ตรวจสอบว่าพบข้อมูลหรือไม่
         if ($signer) {
@@ -129,7 +126,7 @@ class AuditorAssignmentController extends Controller
                 })
                 ->make(true);
         }else{
-            return response()->json(['error' => 'ไม่พบข้อมูล signer in AuditorAssignmentController'], 404);
+            return response()->json(['error' => 'ไม่พบข้อมูล signer'], 404);
         }
     }
 

@@ -117,7 +117,7 @@ class AuditorCBController extends Controller
      */
     public function create(Request $request)
     {
-     
+    //  dd("ok");
         $model = str_slug('auditorcb','-');
         if(auth()->user()->can('add-'.$model)) {
           $previousUrl = app('url')->previous();
@@ -178,6 +178,7 @@ class AuditorCBController extends Controller
 
     public function store(Request $request)
     {
+      
         $cbAuditorTeam = CbAuditorTeam::find($request->cbAuditorTeam);
         $auditorTeamData = json_decode($cbAuditorTeam->auditor_team_json, true);
         // dd($request->all());
@@ -192,6 +193,7 @@ class AuditorCBController extends Controller
                 $requestData['step_id'] =  2  ;//ขอความเห็นแต่งคณะผู้ตรวจประเมิน
                 $requestData['vehicle'] = isset($request->vehicle) ? 1 : null ;
                 $auditors =  CertiCBAuditors::create($requestData);
+               
               // ไฟล์แนบ
                   // if ($request->other_attach){
                   //   $this->set_attachs($request->other_attach, $auditors,"1");
@@ -631,6 +633,8 @@ class AuditorCBController extends Controller
          $check = MessageRecordTransaction::where('board_auditor_id',$baId)
          ->where('certificate_type',0)
          ->get();
+
+          // dd($request->input('signaturesJson'));
          if($check->count() == 0){
              $signatures = json_decode($request->input('signaturesJson'), true);
              $viewUrl = url('/certify/auditor/view-cb-message-record/'.$baId);

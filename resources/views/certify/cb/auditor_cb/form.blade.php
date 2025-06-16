@@ -22,7 +22,7 @@
 
 <div class="row">
 
-    <input type="hidden" name="signaturesJson" id="signaturesJson">
+    {{-- <input type="hidden" name="signaturesJson" id="signaturesJson"> --}}
     <div class="col-md-12">
         <div class="col-md-9">
             <div class="form-group {{ $errors->has('certi_no') ? 'has-error' : ''}}" hidden>
@@ -528,6 +528,8 @@
             var signer3 = $('#signer_3').val();
             var signer4 = $('#signer_4').val();
 
+          
+
             if (selectUserId === "") {
                 alert('กรุณาเลือกผู้ลงนามท้ายขอบข่าย');
                 return
@@ -581,6 +583,7 @@
             }
         ];
 
+
             // ดึงค่าที่ถูกเลือกและอัปเดต signatures
             for (let i = 1; i <= 4; i++) {
                 const selectElement = $(`#signer_${i}`);
@@ -594,9 +597,15 @@
                 signatures[i - 1].signer_position = selectedPosition || "";
             }
 
-            console.log("Updated signatures:", signatures);
 
         $('#signaturesJson').val(JSON.stringify(signatures));
+
+        // console.log("ก่อน set", $('#signaturesJson').val());
+// $('#signaturesJson').val("hello");
+// console.log("หลัง set", $('#signaturesJson').val());
+
+                    // console.log("Updated signatures:", signatures,JSON.stringify(signatures));
+// return;
          Swal.fire({
               title: 'ยืนยันทำรายการ !',
               icon: 'warning',
