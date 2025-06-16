@@ -180,13 +180,13 @@ class CreateTrackingLabMessageRecordPdf
 
         $htmlLabMemorandumRequest = HtmlLabMemorandumPdfRequest::where('type',"ia")->first();
 
-        $data->fix_text1 = <<<HTML
-                $htmlLabMemorandumRequest->text1
-            HTML;
+$data->fix_text1 = <<<HTML
+$htmlLabMemorandumRequest->text1
+HTML;
 
-        $data->fix_text2 = <<<HTML
-                $htmlLabMemorandumRequest->text2
-            HTML;
+$data->fix_text2 = <<<HTML
+$htmlLabMemorandumRequest->text2
+HTML;
 
      
 

@@ -1358,13 +1358,12 @@ class BoardAuditorController extends Controller
 
     // ✅ ป้องกัน error template parsing โดยไม่ใช้ Blade syntax ใน Heredoc
     $labTypeText = $data->lab_type;
-    $data->fix_text1 = <<<HTML
+$data->fix_text1 = <<<HTML
 <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
 <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑...</div>
-<!-- (ย่อข้อความเพื่อความชัดเจน) -->
 HTML;
 
-    $data->fix_text2 = <<<HTML
+$data->fix_text2 = <<<HTML
 <div class="section-title">๓. สาระสำคัญและข้อเท็จจริง</div>
 <div style="text-indent:125px">ตามประกาศ... กำหนดให้มีการประเมินเพื่อพิจารณาให้การรับรองความสามารถห้องปฏิบัติการ{$labTypeText} ตามมาตรฐานเลขที่ มอก. 17025-2561</div>
 HTML;
