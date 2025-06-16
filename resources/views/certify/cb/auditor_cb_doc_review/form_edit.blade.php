@@ -999,7 +999,8 @@
 console.log(window.location.origin);
                     const baseUrl = "{{ url('/certify/check_certificate-cb') }}";
                     const redirectUrl = `${baseUrl}/${certiCb.token}/show/${certiCb.id}`;
-                     window.location.href = redirectUrl;
+                    console.log(redirectUrl)
+                    //  window.location.href = redirectUrl;
                 }
             });
         }
