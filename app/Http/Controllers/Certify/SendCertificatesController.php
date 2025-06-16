@@ -248,7 +248,7 @@ class SendCertificatesController extends Controller
             $signer = Signer::findOrFail($requestData['sign_id']);
 
 
-            $user = Signer::whereRaw("REPLACE(reg_13ID, '-', '') = ?", [$signer->tax_number])->first();
+            $user = User::whereRaw("REPLACE(reg_13ID, '-', '') = ?", [$signer->tax_number])->first();
 
             // $user = User::find($signer->user_register_id);
                 

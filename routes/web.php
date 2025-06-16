@@ -101,6 +101,8 @@ Route::get('/create-ib-assessment-report-two-pdf','MyTestController@createIbAsse
 Route::get('/create-tracking-ib-message-record-pdf','MyTestController@createTrackingIbMessageRecordPdf');
 Route::get('/create-tracking-cb-message-record-pdf','MyTestController@createTrackingCbMessageRecordPdf');
 
+Route::get('/check-tax-number','MyTestController@checkTaxNumber');
+
 
 Route::get('/proxy', function (\Illuminate\Http\Request $request) {
     $url = $request->query('url'); // รับ URL ของ PDF ที่ต้องการ

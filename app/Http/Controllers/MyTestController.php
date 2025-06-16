@@ -120,6 +120,16 @@ class MyTestController extends Controller
     }
 
 
+
+    public function checkTaxNumber()
+    {
+         $signer = Signer::findOrFail(167);
+         $user = User::whereRaw("REPLACE(reg_13ID, '-', '') = ?", [$signer->tax_number])->first();
+
+         dd($signer->tax_number,$user);
+    }
+
+
 //     public function callCreateBill()
 //     {
 //         $ref1 = "SurLab-68-331-3311737346387";
