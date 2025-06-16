@@ -944,9 +944,13 @@
                 _token: _token
             },
             success: function(result) {
-                let baseUrl = window.location.origin; // ดึง base URL ปัจจุบัน (เช่น https://example.com)
-                 let redirectUrl =  baseUrl + "/certificate/tracking-cb/"+trackingId+"/edit/";
-                window.location.href = redirectUrl; // เปลี่ยนเส้นทางไปยัง URL ที่สร้าง
+                // let baseUrl = window.location.origin; // ดึง base URL ปัจจุบัน (เช่น https://example.com)
+                //  let redirectUrl =  baseUrl + "/certificate/tracking-cb/"+trackingId+"/edit/";
+                // window.location.href = redirectUrl; // เปลี่ยนเส้นทางไปยัง URL ที่สร้าง
+
+                  const baseUrl = "{{ url('/certificate/tracking-cb') }}";
+                    const redirectUrl = `${baseUrl}/${trackingId}/edit/`;
+                    window.location.href = redirectUrl;
             }
 
             });

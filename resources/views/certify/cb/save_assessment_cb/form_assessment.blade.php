@@ -548,7 +548,14 @@
                                 
                                 if (result.record_count == 0) {
                                     alert('ยังไม่ได้สร้างรายงานปิด Car(รายงานที่2)');
-                                    window.location.href = window.location.origin + '/certify/save_assessment-cb/cb-report-two-create/' + assessment_id;
+                                    // window.location.href = window.location.origin + '/certify/save_assessment-cb/cb-report-two-create/' + assessment_id;
+
+
+       const baseUrl = "{{ url('/certify/save_assessment-cb/cb-report-two-create') }}";
+                    const redirectUrl = `${baseUrl}/${assessment_id}`;
+                    window.location.href = redirectUrl;
+
+
                                 }else{
                                     alert('อยู่ระหว่างการลงนามรายงานปิด Car(รายงานที่2)');
                                 }

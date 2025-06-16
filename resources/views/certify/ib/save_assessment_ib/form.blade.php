@@ -781,9 +781,16 @@
                                                                 alert('ยังไม่ได้สร้างรายงานการตรวจประเมิน(รายงานที่1)');
                                                             
                                                                 if (!assessment_id) {
-                                                                    window.location.href = window.location.origin + '/certify/save_assessment-ib/create/' + id;
+                                                                    // window.location.href = window.location.origin + '/certify/save_assessment-ib/create/' + id;
+
+                                                                      const baseUrl1 = "{{ url('/certify/save_assessment-ib/create') }}";
+                                                                        const redirectUrl1 = `${baseUrl1}/${id}`;
+                                                                        window.location.href = redirectUrl1;
                                                                 }else{
-                                                                    window.location.href = window.location.origin + '/certify/save_assessment-ib/view-ib-info/' + assessment_id;
+                                                                    // window.location.href = window.location.origin + '/certify/save_assessment-ib/view-ib-info/' + assessment_id;
+                                                                    const baseUrl = "{{ url('/certify/save_assessment-ib/view-ib-info') }}";
+                                                                        const redirectUrl = `${baseUrl}/${assessment_id}`;
+                                                                        window.location.href = redirectUrl;
                                                                 }
                                                             }else{
                                                                 alert('อยู่ระหว่างการลงนามรายงานการตรวจประเมิน(รายงานที่1)');

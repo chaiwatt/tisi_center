@@ -629,10 +629,17 @@
                                                         alert('ยังไม่ได้สร้างรายงานการตรวจประเมิน(รายงานที่1)');
                                                        
                                                         if (!notice_id) {
-                                                            window.location.href = window.location.origin + '/certify/save_assessment/create/' + id;
+                                                            // window.location.href = window.location.origin + '/certify/save_assessment/create/' + id;
+                                                              const baseUrl1 = "{{ url('/certify/save_assessment/create') }}";
+                                                                const redirectUrl1 = `${baseUrl1}/${id}`;
+                                                                window.location.href = redirectUrl1;
                                                         }else{
                                                             // $notice->applicant->
-                                                            window.location.href = window.location.origin + '/certify/check_certificate/'+$('#app_id').val()+'/show';
+                                                            // window.location.href = window.location.origin + '/certify/check_certificate/'+$('#app_id').val()+'/show';
+                                                            var app_id = $('#app_id').val();
+                                                            const baseUrl1 = "{{ url('/certify/check_certificate') }}";
+                                                                const redirectUrl1 = `${baseUrl1}/${app_id}/show`;
+                                                                window.location.href = redirectUrl1;
                                                         }
                                                     }else{
                                                         alert('อยู่ระหว่างการลงนามรายงานการตรวจประเมิน(รายงานที่1)');
