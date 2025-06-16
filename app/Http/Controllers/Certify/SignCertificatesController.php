@@ -342,7 +342,9 @@ class SignCertificatesController extends Controller
                                                 'ref_otp'       => $otp_sign->Ref_otp,
                                                 'email'         =>  !empty($app->DataEmailCertifyCenter) ? $app->DataEmailCertifyCenter : $EMail,
                                             ];                            
-                                $user = User::find($sign->user_register_id);
+                                // $user = User::find($sign->user_register_id);
+
+                                $user = User::whereRaw("REPLACE(reg_13ID, '-', '') = ?", [$sign->tax_number])->first();
                 
                                 $mail = $user->reg_email;
 
