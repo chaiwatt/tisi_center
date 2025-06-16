@@ -430,9 +430,11 @@ $(document).ready(function() {
                 var tracking_id = $('#tracking_id').val();
                 // var certi_ib_token =  $('#certi_ib_token').val();  // ถ้าคุณมีค่าจาก Blade
 
-                window.location.href = '/certificate/tracking-ib/' + tracking_id + '/edit';
+                // window.location.href = '/certificate/tracking-ib/' + tracking_id + '/edit';
 
-
+  const baseUrl = "{{ url('/certificate/tracking-ib') }}";
+                    const redirectUrl = `${baseUrl}/${tracking_id}/edit`;
+                    window.location.href = redirectUrl;
                 // $('#loadingStatus').hide();
 
             },

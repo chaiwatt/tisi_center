@@ -428,8 +428,11 @@ $(document).ready(function() {
                 var certi_cb_id = $('#certi_cb_id').val();
                 var certi_cb_token =  $('#certi_cb_token').val();  // ถ้าคุณมีค่าจาก Blade
 
-                window.location.href = '/certify/check_certificate-cb/' + certi_cb_token + '/show/' + certi_cb_id;
+                // window.location.href = '/certify/check_certificate-cb/' + certi_cb_token + '/show/' + certi_cb_id;
 
+                  const baseUrl = "{{ url('/certify/check_certificate-cb') }}";
+                    const redirectUrl = `${baseUrl}/${certi_cb_token}/show/${certi_cb_id}`;
+                    window.location.href = redirectUrl;
 
                 // $('#loadingStatus').hide();
 

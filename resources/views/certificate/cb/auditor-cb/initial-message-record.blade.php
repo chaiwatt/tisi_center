@@ -429,8 +429,12 @@ $(document).ready(function() {
                 var tracking_id = $('#tracking_id').val();
 
 
-                window.location.href = '/certificate/tracking-cb/' + tracking_id + '/edit';
+                // window.location.href = '/certificate/tracking-cb/' + tracking_id + '/edit';
 
+
+                  const baseUrl = "{{ url('/certificate/tracking-cb') }}";
+                    const redirectUrl = `${baseUrl}/${tracking_id}/edit`;
+                    window.location.href = redirectUrl;
 
                 // $('#loadingStatus').hide();
 

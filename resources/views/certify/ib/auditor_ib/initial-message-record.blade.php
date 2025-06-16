@@ -428,8 +428,11 @@ $(document).ready(function() {
                 var certi_ib_id = $('#certi_ib_id').val();
                 var certi_ib_token =  $('#certi_ib_token').val();  // ถ้าคุณมีค่าจาก Blade
 
-                window.location.href = '/certify/check_certificate-ib/' + certi_ib_token ;
+                // window.location.href = '/certify/check_certificate-ib/' + certi_ib_token ;
 
+   const baseUrl = "{{ url('/certify/check_certificate-ib') }}";
+                    const redirectUrl = `${baseUrl}/${certi_ib_token}`;
+                    window.location.href = redirectUrl;
 
                 // $('#loadingStatus').hide();
 
