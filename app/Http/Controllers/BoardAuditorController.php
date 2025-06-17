@@ -213,9 +213,6 @@ class BoardAuditorController extends Controller
                 return in_array($signer->tax_number, $reg_13_ids);
             })->values();
 
-            // dd($select_users);
-
-            // $labUsers = User::whereIn('reg_subdepart', [1804, 1805, 1806])
 
             return view('certify/auditor/create', [
                                                         'status_auditor'    => $status_auditor,

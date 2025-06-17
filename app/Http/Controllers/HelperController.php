@@ -379,6 +379,43 @@ class HelperController extends Controller
         //     $admin_role->givePermissionTo($save_ib_board_auditor_doc_review_delete);
         // }
 
+
+        // $appointed_academic_sub_committee_add    = Permission::firstOrCreate(['name' => 'add-appointed-academic-sub-committee']);
+        // $appointed_academic_sub_committee_view   = Permission::firstOrCreate(['name' => 'view-appointed-academic-sub-committee']);
+        // $appointed_academic_sub_committee_edit   = Permission::firstOrCreate(['name' => 'edit-appointed-academic-sub-committee']);
+        // $appointed_academic_sub_committee_delete = Permission::firstOrCreate(['name' => 'delete-appointed-academic-sub-committee']);
+
+        // if (!$admin->hasPermission($appointed_academic_sub_committee_add)) {
+        //     $admin_role->givePermissionTo($appointed_academic_sub_committee_add);
+        // }
+        // if (!$admin->hasPermission($appointed_academic_sub_committee_view)) {
+        //     $admin_role->givePermissionTo($appointed_academic_sub_committee_view);
+        // }
+        // if (!$admin->hasPermission($appointed_academic_sub_committee_edit)) {
+        //     $admin_role->givePermissionTo($appointed_academic_sub_committee_edit);
+        // }
+        // if (!$admin->hasPermission($appointed_academic_sub_committee_delete)) {
+        //     $admin_role->givePermissionTo($appointed_academic_sub_committee_delete);
+        // }
+
+        // $appointed_committee_add    = Permission::firstOrCreate(['name' => 'add-appointed-committee']);
+        // $appointed_committee_view   = Permission::firstOrCreate(['name' => 'view-appointed-committee']);
+        // $appointed_committee_edit   = Permission::firstOrCreate(['name' => 'edit-appointed-committee']);
+        // $appointed_committee_delete = Permission::firstOrCreate(['name' => 'delete-appointed-committee']);
+
+        // if (!$admin->hasPermission($appointed_committee_add)) {
+        //     $admin_role->givePermissionTo($appointed_committee_add);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_view)) {
+        //     $admin_role->givePermissionTo($appointed_committee_view);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_edit)) {
+        //     $admin_role->givePermissionTo($appointed_committee_edit);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_delete)) {
+        //     $admin_role->givePermissionTo($appointed_committee_delete);
+        // }
+
         return "done";
 
     }

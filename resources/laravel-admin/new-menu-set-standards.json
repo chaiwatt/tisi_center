@@ -82,12 +82,6 @@
                             "url": "\/certify\/set-standards"
                         },
                         {
-                            "title": "meetingstandards",
-                            "display": "นัดหมายการประชุม",
-                            "icon": "mdi mdi-chevron-double-right",
-                            "url": "\/certify\/meeting-standards"
-                        },
-                        {
                             "title": "certifystandard",
                             "display": "มาตรฐานรับรอง",
                             "icon": "mdi mdi-chevron-double-right",
@@ -98,6 +92,24 @@
                             "display": "ประกาศราชกิจจานุเบกษา",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/gazette"
+                        },
+                        {
+                            "title": "meetingstandards",
+                            "display": "นัดหมายการประชุม",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/meeting-standards"
+                        },
+                                                {
+                            "title": "appointed-academic-sub-committee",
+                            "display": "แต่งตั้งคณะอนุกรรมการวิชาการ",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/appointed-academic-sub-committee"
+                        },
+                        {
+                            "title": "appointed-committee",
+                            "display": "แต่งตั้งคณะกำหนด",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/appointed-committee"
                         }
                     ]
                 },
