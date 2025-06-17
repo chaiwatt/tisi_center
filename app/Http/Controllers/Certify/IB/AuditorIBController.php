@@ -171,6 +171,7 @@ class AuditorIBController extends Controller
      */
     public function store(Request $request)
     {
+       
         $ibAuditorTeam = IbAuditorTeam::find($request->ibAuditorTeam);
         
         $auditorTeamData = json_decode($ibAuditorTeam->auditor_team_json, true);
@@ -465,7 +466,7 @@ class AuditorIBController extends Controller
        $check = MessageRecordTransaction::where('board_auditor_id',$baId)
        ->where('certificate_type',1)
        ->get();
-       
+        // dd($request->input('signaturesJson') );
        if($check->count() == 0){
            $signatures = json_decode($request->input('signaturesJson'), true);
         //    dd($signatures);
@@ -473,6 +474,7 @@ class AuditorIBController extends Controller
            if ($signatures) {
                foreach ($signatures as $signatureId => $signature) {
                    try {
+                    // dd("ok");
                        // ลองสร้างข้อมูลในฐานข้อมูล
                        MessageRecordTransaction::create([
                            'board_auditor_id' => $baId,
