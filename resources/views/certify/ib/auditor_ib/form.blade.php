@@ -17,7 +17,7 @@
     <div class="col-md-12">
         <div class="col-md-9">
             {{-- {{$auditorib->messageRecordTransactions()->count()}} --}}
-            <input type="text" name="signaturesJson" id="signaturesJson">
+            <input type="hidden" name="signaturesJson" id="signaturesJson">
             <div class="form-group {{ $errors->has('certi_no') ? 'has-error' : ''}}" hidden>
                 {!! HTML::decode(Form::label('certi_no', '<span class="text-danger">*</span>  เลขคำขอ', ['class' => 'col-md-5 control-label'])) !!}
                 <div class="col-md-7">

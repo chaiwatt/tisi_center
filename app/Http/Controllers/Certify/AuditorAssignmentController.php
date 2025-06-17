@@ -36,7 +36,6 @@ class AuditorAssignmentController extends Controller
 
     public function dataList(Request $request)
     {
-        // dd('ok');
         $user = auth()->user();
         if (!$user) {
             return response()->json(['error' => 'ผู้ใช้ไม่ได้เข้าสู่ระบบ'], 401);
@@ -51,15 +50,13 @@ class AuditorAssignmentController extends Controller
 
         // ตรวจสอบว่าพบข้อมูลหรือไม่
         if ($signer) {
-            // dd(MessageRecordTransaction::where('signer_id',$signer->id)->get());
+
             $filter_approval = $request->input('filter_state');
             $filter_certificate_type = $request->input('filter_certificate_type');
         
             $query = MessageRecordTransaction::query();
             $query->where('signer_id',$signer->id);
-            // ->whereHas('boardAuditor', function ($query) {
-            //     $query->where('message_record_status', 2);
-            // });
+
         
             if ($filter_approval) {
                 $query->where('approval', $filter_approval);
@@ -173,15 +170,31 @@ class AuditorAssignmentController extends Controller
         
         if ($messageRecordTransaction->certificate_type == 2)
         {
-            $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
-            // dd($boardAuditorMsRecordInfo);
-            if($boardAuditorMsRecordInfo == null)
-            {
+
+            if (is_null($boardAuditor->boardAuditorMsRecordInfos)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
                 ]);
             }
+
+            $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
+
+               if (is_null($boardAuditorMsRecordInfo)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
+                ]);
+            }
+
+            // dd($boardAuditorMsRecordInfo);
+            // if($boardAuditorMsRecordInfo == null)
+            // {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
+            //     ]);
+            // }
             
             MessageRecordTransaction::find($request->id)->update([
                 'approval' => 1
@@ -203,14 +216,31 @@ class AuditorAssignmentController extends Controller
 
         }else if($messageRecordTransaction->certificate_type == 0)
         {
-            $cbBoardAuditorMsRecordInfo = $boardAuditor->cbBoardAuditorMsRecordInfos->first();
-            if($cbBoardAuditorMsRecordInfo == null)
-            {
+
+             if (is_null($boardAuditor->cbBoardAuditorMsRecordInfos)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
                 ]);
             }
+
+            $cbBoardAuditorMsRecordInfo = $boardAuditor->cbBoardAuditorMsRecordInfos->first();
+
+            if (is_null($cbBoardAuditorMsRecordInfo)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
+                ]);
+            }
+
+
+            // if($cbBoardAuditorMsRecordInfo == null)
+            // {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
+            //     ]);
+            // }
             // dd($cbBoardAuditorMsRecordInfo);
             MessageRecordTransaction::find($request->id)->update([
                 'approval' => 1
@@ -230,14 +260,23 @@ class AuditorAssignmentController extends Controller
 
         }else if($messageRecordTransaction->certificate_type == 1)
         {
-            $ibBoardAuditorMsRecordInfo = $boardAuditor->ibBoardAuditorMsRecordInfos->first();
-            if($ibBoardAuditorMsRecordInfo == null)
-            {
+
+            if (is_null($boardAuditor->ibBoardAuditorMsRecordInfos)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
                 ]);
             }
+
+            $ibBoardAuditorMsRecordInfos = $boardAuditor->ibBoardAuditorMsRecordInfos->first();
+
+            if (is_null($ibBoardAuditorMsRecordInfos)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
+                ]);
+            }
+
             // dd($cbBoardAuditorMsRecordInfo);
             MessageRecordTransaction::find($request->id)->update([
                 'approval' => 1
