@@ -195,9 +195,27 @@ class BoardAuditorController extends Controller
            }
 
 
-           $signers = Signer::all();
-           $selectedCertiLab = CertiLab::find($app_certi_lab_id);
+            $selectedCertiLab = CertiLab::find($app_certi_lab_id);
 
+           $signers = Signer::all();
+       
+            // ดึง reg_13ID จาก User ที่ reg_subdepart เป็น 1804, 1805, 1806
+            $reg_13_ids = User::whereIn('reg_subdepart', [1804, 1805, 1806])
+                ->pluck('reg_13ID')
+                ->map(function ($reg_13_id) {
+                    return str_replace('-', '', $reg_13_id); // ลบขีด เช่น 3-5406-00200-10-8 -> 3540600200108
+                })
+                ->toArray();
+
+            // ดึง Signer ที่ tax_number ตรงกับ reg_13ID ที่แปลงแล้ว
+            $signers = Signer::all();
+            $select_users = $signers->filter(function ($signer) use ($reg_13_ids) {
+                return in_array($signer->tax_number, $reg_13_ids);
+            })->values();
+
+            // dd($select_users);
+
+            // $labUsers = User::whereIn('reg_subdepart', [1804, 1805, 1806])
 
             return view('certify/auditor/create', [
                                                         'status_auditor'    => $status_auditor,

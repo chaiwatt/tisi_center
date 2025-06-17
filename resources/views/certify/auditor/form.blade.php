@@ -193,11 +193,12 @@
             </div>
 
             <div class="form-group">
-                {!! HTML::decode(Form::label('signer_1', '<span class="text-danger">*</span> เจ้าหน้าที่ผู้รับผิดชอบ', ['class' => 'col-md-5 control-label'])) !!}
+                {{-- {!! HTML::decode(Form::label('signer_1', '<span class="text-danger">*</span> เจ้าหน้าที่ผู้รับผิดชอบ', ['class' => 'col-md-5 control-label'])) !!} --}}
+                {!! HTML::decode(Form::label('signer_1', '<span class="text-danger">*</span> เจ้าหน้าที่ผู้รับผิดชอบ<br><span class="small text-warning" >ถ้าไม่มีรายชื่อโปรดเพิ่มเป็นผู้ลงนาม</span>', ['class' => 'col-md-5 control-label'])) !!}
                 <div class="col-md-7">
                     <select name="signer_1" id="signer_1" class="form-control" required>
                         <option value="" selected>- เจ้าหน้าที่ผู้รับผิดชอบ -</option>
-                        @foreach ($signers as $signer)
+                        @foreach ($select_users as $signer)
                             <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
                         @endforeach
                         

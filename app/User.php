@@ -2,24 +2,26 @@
 
 namespace App;
 
-use App\Models\Bcertify\AuditorInformation;
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
+use HP;
 use App\HasRoles;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Kyslik\ColumnSortable\Sortable;
-
-use App\Models\Basic\SubDepartment;
-use App\Models\Besurv\TisUserEsurv;
 use App\RoleUser;
+use Illuminate\Support\Str;
+use App\Models\Besurv\Signer;
 use App\Models\Elicense\RosUsers;
+use App\Models\Basic\SubDepartment;
 
+use App\Models\Besurv\TisUserEsurv;
+use Kyslik\ColumnSortable\Sortable;
+use App\Models\Certify\SetStandardUser;
+use Illuminate\Notifications\Notifiable;
+
+use App\Models\Certify\SetStandardUserSub;
+use App\Models\Bcertify\AuditorInformation;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Certify\Applicant\CertifyTestScope;
 use App\Models\Certify\Applicant\CertifyLabCalibrate;
-use App\Models\Certify\SetStandardUser;
-use App\Models\Certify\SetStandardUserSub;
-use HP;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -54,6 +56,16 @@ class User extends Authenticatable
         'reg_pword', 'remember_token',
     ];
 
+    public function getFormattedReg13IdAttribute()
+    {
+        return str_replace('-', '', $this->reg_13ID); // e.g., 3-5406-00200-10-8 -> 3540600200108
+    }
+
+    // Define relationship with Signer
+    public function signer()
+    {
+        return $this->hasOne(Signer::class, 'tax_number', 'formatted_reg_13_id');
+    }
 
     public function profile(){
         return $this->hasOne(Profile::class);
