@@ -717,8 +717,8 @@ class CertificateExportLABController extends Controller
                         //E-mail
                         $this->set_mail($export_lab,$certi_lab);
                     }
-
-                    return redirect('certify/certificate-export-lab')->with('flash_message', 'เรียบร้อยแล้ว');
+// http://127.0.0.1:8081/certify/check_certificate/2113/show
+                    return redirect('certify/check_certificate/'.$certi_lab->check->id .'/show')->with('flash_message', 'เรียบร้อยแล้ว');
                 }else{
                     return  $this->ExportLAB($request,$request->app_certi_lab_id);
                 }

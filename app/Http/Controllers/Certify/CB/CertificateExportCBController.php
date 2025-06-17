@@ -595,8 +595,8 @@ class CertificateExportCBController extends Controller
                     //E-mail
                         $this->set_mail($export_cb,$certi_cb);
                     }
-
-                    return redirect('certify/certificate-export-cb')->with('flash_message', 'เรียบร้อยแล้ว');
+                    // http://127.0.0.1:8081/certify/check_certificate-cb/jyKyT934qDVgPzP7/show/259
+                    return redirect('certify/check_certificate-cb/'.$certi_cb->token.'/show/'.$certi_cb->id)->with('flash_message', 'เรียบร้อยแล้ว');
                 }else{
 
                     return $this->ExportCB($request,$export_cb->app_certi_cb_id);

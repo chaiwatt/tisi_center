@@ -464,7 +464,7 @@ class CertificateExportIBController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // dd('ok');
+       
         $model = str_slug('certificateexportib','-');
         if(auth()->user()->can('edit-'.$model)) {
 
@@ -474,6 +474,7 @@ class CertificateExportIBController extends Controller
             $certi_ib = CertiIb::findOrFail($export_ib->app_certi_ib_id);
 
             if($request->submit == "submit"){
+                //  dd($request->all(),$certi_ib);
             
              $requestData['updated_by'] =   auth()->user()->runrecno;
                 // if($request->status <= 2){
@@ -508,6 +509,7 @@ class CertificateExportIBController extends Controller
                     $requestData['attach_client_name'] = $files->getClientOriginalName();
                     $requestData['attachs']     =  $this->storeFile($request->attachs, $certi_ib->app_no) ;
                 }
+//  dd($request->all());
 
                 $export_ib->update($requestData);
                 
@@ -594,7 +596,11 @@ class CertificateExportIBController extends Controller
                     $this->set_mail($export_ib,$certi_ib);
                 }
 
-                return redirect('certify/certificate-export-ib')->with('flash_message', 'เรียบร้อยแล้ว');
+                // dd($request->all(),$certi_ib);
+
+                // http://127.0.0.1:8081/certify/check_certificate-ib/SF8Syd2w8NQo7zk4
+
+                return redirect('certify/check_certificate-ib/'.$certi_ib->token)->with('flash_message', 'เรียบร้อยแล้ว');
             }else{
                 $export_ib =  CertiIBExport::findOrFail(base64_decode($id));
                 return    $this->ExportIB($request,$export_ib->app_certi_ib_id);
