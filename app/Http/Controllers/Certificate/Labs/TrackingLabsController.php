@@ -650,7 +650,7 @@ class TrackingLabsController extends Controller
    
     public function edit($id)
     {
-        dd("ok");
+        // dd("ok");
         $model = str_slug('trackinglabs','-');
         if(auth()->user()->can('edit-'.$model)) {
  
