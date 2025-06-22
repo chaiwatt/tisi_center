@@ -541,7 +541,7 @@ $SumCost = !empty($pay_in->auditors_to->SumCostConFirm) ? $pay_in->auditors_to->
                                     icon: 'warning',
                                     width: 600,
                                     position: 'center',
-                                    title: 'กรุณารอข้อมูล E-payment จาก สมอ.',
+                                    title: 'กรุณารอข้อมูลรบบ E-payment จาก สมอ.',
                                     showConfirmButton: true,
                                 });
                             }
