@@ -2,11 +2,14 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-
-use   App\Models\Basic\ProductGroup;
 use App\User;
+use App\CommitteeLists;
+
+use Illuminate\Support\Facades\DB;
+use   App\Models\Basic\ProductGroup;
+use App\Certificate\MeetingInvitation;
+use Illuminate\Database\Eloquent\Model;
+
 class CommitteeSpecial extends Model
 {
     protected $table = 'bcertify_committee_specials'; 
@@ -63,5 +66,17 @@ class CommitteeSpecial extends Model
     public function product_group_to()
     {
         return $this->belongsTo(ProductGroup::class,'product_group_id');
+    }
+
+    // ความสัมพันธ์ one-to-many กับ CommitteeLists
+    public function committeeLists()
+    {
+        return $this->hasMany(CommitteeLists::class, 'committee_special_id', 'id');
+    }
+
+    // ความสัมพันธ์กับ MeetingInvitation (many-to-many)
+    public function meetingInvitations()
+    {
+        return $this->belongsToMany(MeetingInvitation::class, 'meeting_invitation_committee_specials', 'committee_special_id', 'meeting_invitation_id');
     }
 }

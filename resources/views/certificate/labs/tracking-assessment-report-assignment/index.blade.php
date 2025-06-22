@@ -123,7 +123,7 @@
             <div class="modal-body">
                 <!-- Textboxes สำหรับข้อมูล -->
                 <input type="hidden" id="signerId">
-                <input  id="messageRecordTransactionId">
+                <input type="hidden"  id="messageRecordTransactionId">
                 <div class="form-group">
                     <label>ชื่อ</label>
                     <input type="text" class="form-control" id="signerName" readonly>

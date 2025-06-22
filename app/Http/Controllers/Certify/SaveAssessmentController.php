@@ -3046,6 +3046,8 @@ class SaveAssessmentController extends Controller
                 ->where('file_status',1)
                 ->get();
             $labInformation = $app_certi_lab->information;
+            // dd("ok");
+            // dd($boardAuditor->board_auditors_date->start_date);
             return view('certificate.labs.assessment-labs.view-report', [
                 'labReportInfo' => $labReportInfo,
                 'data' => $data,

@@ -164,6 +164,7 @@ class StandardDraftsController extends Controller
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('add-'.$model)) {
             $estandard_draft_plans = collect([new TisiEstandardDraftPlan]);
+            
             return view('certify.standard-drafts.create', compact('estandard_draft_plans'));
         }
         abort(403);

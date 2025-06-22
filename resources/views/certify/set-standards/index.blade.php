@@ -16,7 +16,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">กำหนดมาตรฐานการตรวจสอบและรับรอง #</h3>
+                    <h3 class="box-title pull-left">กำหนดมาตรฐานการตรวจสอบและรับรอง #STD</h3>
 
                     <div class="pull-right">
 

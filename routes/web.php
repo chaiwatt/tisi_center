@@ -104,6 +104,12 @@ Route::get('/create-tracking-cb-message-record-pdf','MyTestController@createTrac
 Route::get('/check-tax-number','MyTestController@checkTaxNumber');
 
 
+Route::get('/create-meeting-appointment-committee-pdf','MyTestController@createMeetingAppointmentCommitteePdf');
+
+
+
+
+
 Route::get('/proxy', function (\Illuminate\Http\Request $request) {
     $url = $request->query('url'); // รับ URL ของ PDF ที่ต้องการ
 

@@ -300,12 +300,32 @@
                                                       'placeholder'=>'- เลือกประเภทคณะกรรมการ -'])  !!}
                                                 </td>
                                                 <td>
+
+                                                    @php
+                                                        $committee_positions = [
+                                                                '1' => 'ประธานกรรมการ',
+                                                                '2' => 'กรรมการ',
+                                                                '3' => 'กรรมการและเลขานุการ',
+                                                                '4' => 'กรรมการและผู้ช่วยเลขานุการ',
+                                                                '5' => 'เลขานุการ',
+                                                                '6' => 'ผู้ช่วยเลขานุการ',
+                                                                '7' => 'ผู้ช่วยเลขานุการ'
+                                                            ];
+                                                    @endphp
+
+                                                    {!! Form::select('committee_position[]',
+                                                            $committee_positions,
+                                                            !empty($bcertify_committee_list->committee_position) ? $bcertify_committee_list->committee_position : null,
+                                                            ['class' => 'form-control committee_position', 'required' => 'required', 'id' => 'expert_id', 'placeholder' => '- เลือกประธาน/กรรมการ -']
+                                                        ) !!}
+{{-- 
                                                     {!! Form::select('committee_position[]',
                                                          $board_types,
                                                     !empty($bcertify_committee_list->committee_position )? $bcertify_committee_list->committee_position:null,
 
                                                     ['class' => 'form-control committee_position', 'required' => 'required','id'=>'expert_id', 'placeholder'=>'- เลือกประธาน/กรรมการ -'])  !!}
-                                                </td>
+                                                 --}}
+                                            </td>
                                                 
                                                 <td class="text-center">
                                                     <button type="button" class="btn btn-icon rounded-circle btn-danger mr-1 mb-1 btn-remove "><i class="fa fa-trash"></i></i></button>   

@@ -120,7 +120,7 @@
         <div style="text-indent: 100px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
 
         <div style="display:inline-block;padding-top:0%;padding-top:20px;padding-bottom:15px">
-            <table style="border-collapse: collapse;margin-left:90px;">
+            <table style="border-collapse: collapse;margin-left:70px;">
                 @php
                     $index = 0;
                 @endphp
@@ -139,7 +139,7 @@
                 
                         @endphp
                         <tr>
-                            <td style="width: 180px">{{HP::toThaiNumber($index)}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
+                            <td style="width: 220px">{{HP::toThaiNumber($index)}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
                             <td style="width: 100px">{{$info->auditorInformation->number_auditor}}</td>
                             <td style="padding-left:10px;word-spacing: -0.2em">{!!$textResult!!}</td>
                         </tr>

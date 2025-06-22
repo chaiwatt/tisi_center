@@ -76,6 +76,7 @@ use App\Models\Certify\Applicant\CostAssessment;
 use App\Models\Certify\MessageRecordTransaction;
 use App\Services\CreateCbAssessmentReportTwoPdf;
 use App\Services\CreateIbAssessmentReportTwoPdf;
+use App\Services\MeetingAppointmentCommitteePdf;
 use App\Models\Certify\Applicant\CertLabsFileAll;
 use App\Models\Certify\Applicant\CostCertificate;
 use App\Services\CreateLabAssessmentReportTwoPdf;
@@ -3183,5 +3184,12 @@ class MyTestController extends Controller
     //    $trackingLabReportTwo = $signAssessmentTrackingReportTransaction->trackingLabReportTwo;
     //                 $pdfService = new CreateTrackingLabAssessmentReportTwoPdf($trackingLabReportTwo->tracking_assessment_id);
     //                 $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+
+    public function createMeetingAppointmentCommitteePdf()
+    {
+        $pdfService = new MeetingAppointmentCommitteePdf(1);
+        $pdfContent = $pdfService->generateMeetingAppointmentCommitteePdf();
+    }
+    
 }
 

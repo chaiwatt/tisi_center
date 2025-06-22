@@ -167,7 +167,6 @@
 
 
                             <div class="form-group">
-                                {{-- {{$report}} --}}
                                 <div class="col-md-12">
                                     <label class="col-md-3 text-right"><span class="text-danger">*</span> ขอบข่ายที่ขอรับการรับรอง: </label>
                                     <div class="col-md-6">
@@ -201,7 +200,26 @@
                                 </div>
                             </div>
 
+
+
+                            @if(isset($find_notice)) 
+                                @if($find_notice->date_car != null)
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <label class="col-md-3 text-right"><span class="text-danger">*</span> รายงานที่ 2 (ปิด Car): </label>
+                                            <div class="col-md-6">
+                                                <a href="{{url('certify/check/file_client/'.$find_notice->file_car.'/'.( !empty($find_notice->file_car_client_name) ? $find_notice->file_car_client_name : 'null' ))}}"
+                                                        title="{{ !empty($find_notice->file_car_client_name) ? $find_notice->file_car_client_name :  basename($find_notice->file_car) }}" target="_blank">
+                                                        {!! HP::FileExtension($find_notice->file_car)  ?? '' !!} {{basename($find_notice->file_car)}}
+                                            </div>
+                                        </div>
+                                    </div>                                                       
+                                @endif
+                            @endif
+
+
                             @if ($find_notice->report_status == 1)
+                            
                             <div class="form-group">
                                 <div class="col-md-12">
                                     <label class="col-md-3 text-right"><span class="text-danger">*</span> รายงานการตรวจประเมิน (ปิดcar): </label>

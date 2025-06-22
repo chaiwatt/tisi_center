@@ -2,39 +2,27 @@
 
 namespace App\Models\Certify;
 
-use Illuminate\Database\Eloquent\Model;
-use Kyslik\ColumnSortable\Sortable;
 use App\User;
-use App\Models\Basic\Method;
-use App\Models\Tis\TisiEstandardDraftPlan;
 use App\AttachFile;
+use App\Models\Basic\Method;
+use Kyslik\ColumnSortable\Sortable;
+use App\Certificate\MeetingInvitation;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Tis\TisiEstandardDraftPlan;
+use App\Certificate\MeetingInvitationSetstandard;
+
 class SetStandards extends Model
 {
     use Sortable;
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
+
     protected $table = 'certify_setstandards';
 
-    /**
-    * The database primary key value.
-    *
-    * @var string
-    */
     protected $primaryKey = 'id';
 
-    /**
-     * Attributes that should be mass-assignable.
-     *
-     * @var array
-     */
+
     protected $fillable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'created_by', 'updated_by'];
 
-    /*
-      Sorting
-    */
+
     public $sortable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'created_by', 'updated_by'];
 
 
@@ -137,5 +125,17 @@ class SetStandards extends Model
     public function AttachFileSetStandardsAttachTo()
     {
         return $this->hasMany(AttachFile::class,'ref_id','id')->where('ref_table',$this->table)->where('section','file_set_standards');
+    }
+
+    // public function meetingInvitations()
+    // {
+    //     return $this->belongsToMany(MeetingInvitation::class, 'meeting_invitation_setstandards', 'setstandard_id', 'meeting_invitation_id')
+    //                 ->using(MeetingInvitationSetstandard::class);
+    // }
+
+    // ความสัมพันธ์กับ MeetingInvitation (many-to-many)
+    public function meetingInvitations()
+    {
+        return $this->belongsToMany(MeetingInvitation::class, 'meeting_invitation_setstandards', 'setstandard_id', 'meeting_invitation_id');
     }
 }

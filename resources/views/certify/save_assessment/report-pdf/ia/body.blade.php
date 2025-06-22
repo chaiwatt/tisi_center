@@ -98,7 +98,43 @@
 
         <div style="margin-left: 15px">
             {{-- <div><span>2.3 วันที่ตรวจประเมิน : {{HP::formatDateThaiFullPoint($notice->assessment_date)}}</span> </div> --}}
-            <div><span>2.3 วันที่ตรวจประเมิน : {{HP::formatDateThaiFullPoint($boardAuditor->board_auditors_date->start_date)}}</span> </div>
+            <div><span>2.3 วันที่ตรวจประเมิน :
+                
+                {{-- {{HP::formatDateThaiFullPoint($boardAuditor->board_auditors_date->start_date)}} --}}
+                @php
+                    // ฟังก์ชันจัดการวันที่ใน Blade
+                    $start = new \DateTime($boardAuditor->board_auditors_date->start_date);
+                    $end = new \DateTime($boardAuditor->board_auditors_date->end_date);
+
+                    // ชื่อเดือนภาษาไทย
+                    $thaiMonths = [
+                        1 => 'มกราคม', 2 => 'กุมภาพันธ์', 3 => 'มีนาคม', 4 => 'เมษายน',
+                        5 => 'พฤษภาคม', 6 => 'มิถุนายน', 7 => 'กรกฎาคม', 8 => 'สิงหาคม',
+                        9 => 'กันยายน', 10 => 'ตุลาคม', 11 => 'พฤศจิกายน', 12 => 'ธันวาคม'
+                    ];
+
+                    // ปี พ.ศ.
+                    $startYearBE = $start->format('Y') + 543;
+                    $endYearBE = $end->format('Y') + 543;
+
+                    // วันและเดือน
+                    $startDay = (int)$start->format('j');
+                    $endDay = (int)$end->format('j');
+                    $startMonth = (int)$start->format('n');
+                    $endMonth = (int)$end->format('n');
+
+                    // ตรวจสอบเงื่อนไข
+                    if ($startMonth === $endMonth && $startYearBE === $endYearBE) {
+                        $formattedDate = "$startDay - $endDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE";
+                    } else {
+                        $formattedDate = "$startDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE - $endDay {$thaiMonths[$endMonth]} พ.ศ. $endYearBE";
+                    }
+                @endphp
+
+                {{ $formattedDate }}
+            
+            
+            </span> </div>
             
         </div>
 

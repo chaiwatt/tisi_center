@@ -101,13 +101,13 @@
                         },
                                                 {
                             "title": "appointed-academic-sub-committee",
-                            "display": "แต่งตั้งคณะอนุกรรมการวิชาการ",
+                            "display": "หนังสือเชิญประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-academic-sub-committee"
                         },
                         {
                             "title": "appointed-committee",
-                            "display": "แต่งตั้งคณะกำหนด",
+                            "display": "ลงนามหนังสือเชิญประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-committee"
                         }

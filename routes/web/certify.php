@@ -883,4 +883,21 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('certify/gazette/get_json_by_standard/{std_type_id?}', 'Certify\\GazetteController@get_json_by_standard');
     Route::resource('certify/gazette', 'Certify\\GazetteController');
 
+    // http://127.0.0.1:8081/certify/appointed-academic-sub-committee
+
+    Route::get('certify/appointed-academic-sub-committee', 'Certify\\AppointedAcademicSubCommitteeController@index')->name('certify.appointed-academic-sub-committee');
+    Route::get('certify/appointed-academic-sub-committee/create', 'Certify\\AppointedAcademicSubCommitteeController@create')->name('certify.appointed-academic-sub-committee.create');
+    Route::post('certify/appointed-academic-sub-committee/store', 'Certify\\AppointedAcademicSubCommitteeController@store')->name('certify.appointed-academic-sub-committee.store');
+    Route::get('certify/appointed-academic-sub-committee/{id?}/edit', 'Certify\\AppointedAcademicSubCommitteeController@edit')->name('certify.appointed-academic-sub-committee.edit');
+    Route::put('certify/appointed-academic-sub-committee/update/{id?}', 'Certify\\AppointedAcademicSubCommitteeController@update')->name('certify.appointed-academic-sub-committee.update');
+    Route::get('certify/appointed-academic-sub-committee/{id}/view', 'Certify\\AppointedAcademicSubCommitteeController@view')->name('certify.appointed-academic-sub-committee.view');
+    
+    // http://127.0.0.1:8081/certify/appointed-committee
+
+    Route::get('certify/appointed-committee', 'Certify\\AppointedCommitteeController@index')->name('certify.appointed-committee');
+    Route::post('certify/appointed-committee/sign-document', 'Certify\\AppointedCommitteeController@signDocument')->name('certify.appointed-committee.sign-document');
+
+    
+
+
    });

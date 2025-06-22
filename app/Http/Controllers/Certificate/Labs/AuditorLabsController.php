@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Certificate\Labs;
 
 use DB;
 use HP;
+use App\User;
 use stdClass;
 use App\CertificateExport;
 use Illuminate\Http\Request;
@@ -147,8 +148,22 @@ class AuditorLabsController extends Controller
    
           $auditors_status = [new TrackingAuditorsStatus];
           $signers = Signer::all();
-        //   dd('okff');
-          return view('certificate.labs.auditor-labs.create', compact('tracking','auditors_status','signers'));
+
+                      // ดึง reg_13ID จาก User ที่ reg_subdepart เป็น 1804, 1805, 1806
+            $reg_13_ids = User::whereIn('reg_subdepart', [1804, 1805, 1806])
+                ->pluck('reg_13ID')
+                ->map(function ($reg_13_id) {
+                    return str_replace('-', '', $reg_13_id); // ลบขีด เช่น 3-5406-00200-10-8 -> 3540600200108
+                })
+                ->toArray();
+
+        $select_users = $signers->filter(function ($signer) use ($reg_13_ids) {
+                return in_array($signer->tax_number, $reg_13_ids);
+            })->values();
+
+                
+        //   dd($select_users);
+          return view('certificate.labs.auditor-labs.create', compact('tracking','auditors_status','signers','select_users'));
         }
         abort(403);
 

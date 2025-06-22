@@ -404,7 +404,7 @@
             <div class="right-box">รายงานที่ 1</div>
         </div>
         <div class="header">
-            รายงานการตรวจประเมินความสามารถของห้องปฏิบัติการทดสอบ/สอบเทียบ check<br>
+            รายงานการตรวจประเมินความสามารถของห้องปฏิบัติการทดสอบ/สอบเทียบ<br>
             ตามมาตรฐานเลขที่ มอก. 17025-2561
         </div>
 
@@ -567,8 +567,41 @@
             </div>
             <div style="margin-top:10px;">
                     <span style="font-weight: 600">2.3 วันที่ตรวจประเมิน :</span>  
-                    <span >{{HP::formatDateThaiFullPoint($boardAuditor->board_auditors_date->start_date)}}</span>  
-                    {{-- {{$boardAuditor->board_auditors_date->start_date}} --}}
+                    {{-- <span >{{HP::formatDateThaiFullPoint($boardAuditor->board_auditors_date->start_date)}}</span>   --}}
+                    <span>
+                        @php
+                            // ฟังก์ชันจัดการวันที่ใน Blade
+                            $start = new \DateTime($boardAuditor->board_auditors_date->start_date);
+                            $end = new \DateTime($boardAuditor->board_auditors_date->end_date);
+
+                            // ชื่อเดือนภาษาไทย
+                            $thaiMonths = [
+                                1 => 'มกราคม', 2 => 'กุมภาพันธ์', 3 => 'มีนาคม', 4 => 'เมษายน',
+                                5 => 'พฤษภาคม', 6 => 'มิถุนายน', 7 => 'กรกฎาคม', 8 => 'สิงหาคม',
+                                9 => 'กันยายน', 10 => 'ตุลาคม', 11 => 'พฤศจิกายน', 12 => 'ธันวาคม'
+                            ];
+
+                            // ปี พ.ศ.
+                            $startYearBE = $start->format('Y') + 543;
+                            $endYearBE = $end->format('Y') + 543;
+
+                            // วันและเดือน
+                            $startDay = (int)$start->format('j');
+                            $endDay = (int)$end->format('j');
+                            $startMonth = (int)$start->format('n');
+                            $endMonth = (int)$end->format('n');
+
+                            // ตรวจสอบเงื่อนไข
+                            if ($startMonth === $endMonth && $startYearBE === $endYearBE) {
+                                $formattedDate = "$startDay - $endDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE";
+                            } else {
+                                $formattedDate = "$startDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE - $endDay {$thaiMonths[$endMonth]} พ.ศ. $endYearBE";
+                            }
+                        @endphp
+
+                        {{ $formattedDate }}
+                    </span>
+
             </div>
             <div style="margin-top:10px;">
                 <span style="font-weight: 600">2.4 บุคคลที่พบ :</span>

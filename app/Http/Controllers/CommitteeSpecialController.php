@@ -231,6 +231,7 @@ class CommitteeSpecialController extends Controller
      */
     public function edit($token)
     {
+        // dd("ok");
         $model = str_slug('committee','-');
         if(auth()->user()->can('edit-'.$model)) {
             $committeeSpecial = CommitteeSpecial::whereToken($token)->first();
