@@ -32,7 +32,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (cb) checkpoint {{ $assessment->id }}</h3>
+                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (cb) {{ $assessment->id }}</h3>
                     @can('view-'.str_slug('saveassessmentcb'))
                         <a class="btn btn-success pull-right" href="{{ url('/certify/save_assessment-cb') }}">
                             <i class="icon-arrow-left-circle" aria-hidden="true"></i> กลับ
@@ -225,6 +225,22 @@
                                     </div>
                                 </div>
                             </div>
+
+                            @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment5To)) 
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                        <div class="col-md-6">
+                                            <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน (ปิดcar) : </label>
+                                            <div class="col-md-8">
+                                                <a href="{{url('certify/check/file_cb_client/'.$assessment->FileAttachAssessment5To->file.'/'.( !empty($assessment->FileAttachAssessment5To->file_client_name) ? $assessment->FileAttachAssessment5To->file_client_name : 'null' ))}}" 
+                                                    title="{{ !empty($assessment->FileAttachAssessment5To->file_client_name) ? $assessment->FileAttachAssessment5To->file_client_name :  basename($assessment->FileAttachAssessment5To->file) }}" target="_blank">
+                                                    {!! HP::FileExtension($assessment->FileAttachAssessment5To->file)  ?? '' !!} {{$assessment->FileAttachAssessment5To->file_client_name}}
+                                                </a> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                        
+                            @endif
 
                             @if ($assessment->bug_report == 1)
                                 <div class="form-group">

@@ -106,7 +106,7 @@
                         @endif
                     </div>
                    @if ($assessment !== null)
-                   <input type="text" id="assessmentId" value="{{$assessment->id}}">
+                   <input type="hidden" id="assessmentId" value="{{$assessment->id}}">
                    <div class="col-md-12 mt-2">
                         <hr>
                     <span style="font-weight:600">หมายเหตุ:</span> ท่านสามารถใช้ลิงก์เพื่อจัดส่งให้ผู้เชี่ยวชาญในช่องทางอื่น
@@ -779,8 +779,10 @@
                                                             
                                                             if (result.record_count == 0) {
                                                                 alert('ยังไม่ได้สร้างรายงานการตรวจประเมิน(รายงานที่1)');
+
+
                                                             
-                                                                if (!assessment_id) {
+                                                                if (assessment_id == "") {
                                                                     // window.location.href = window.location.origin + '/certify/save_assessment-ib/create/' + id;
 
                                                                       const baseUrl1 = "{{ url('/certify/save_assessment-ib/create') }}";
@@ -788,9 +790,10 @@
                                                                         window.location.href = redirectUrl1;
                                                                 }else{
                                                                     // window.location.href = window.location.origin + '/certify/save_assessment-ib/view-ib-info/' + assessment_id;
-                                                                    const baseUrl = "{{ url('/certify/save_assessment-ib/view-ib-info') }}";
+                                                                    const baseUrl = "{{ url('/certify/save_assessment-ib/ib-report-create') }}";
                                                                         const redirectUrl = `${baseUrl}/${assessment_id}`;
                                                                         window.location.href = redirectUrl;
+                                                                    //    http://127.0.0.1:8081/certify/save_assessment-ib/ib-report-create/209
                                                                 }
                                                             }else{
                                                                 alert('อยู่ระหว่างการลงนามรายงานการตรวจประเมิน(รายงานที่1)');

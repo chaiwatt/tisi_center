@@ -78,11 +78,16 @@
                 </div>
             </div>
             </div>
-            <div class="checkbox checkbox-success  label-height">
+            {{-- <div class="checkbox checkbox-success  label-height">
                 <input id="review" class="review" type="checkbox" name="review" 
                        value="1"  {{ (isset($review) && $review->review == 2) ? 'checked': '' }}>
                 <label for="review  label-height"> &nbsp;  ยืนยันแต่งตั้งคณะทบทวนฯ
                </label>
+            </div> --}}
+            <div class="checkbox checkbox-success label-height">
+                <input id="review" class="review" type="checkbox" name="review" 
+                    value="1" {{ (!isset($review) || $review->review != 2) ? 'checked' : '' }}>
+                <label for="review" class="label-height"> &nbsp; ยืนยันแต่งตั้งคณะทบทวนฯ </label>
             </div>
         </div>
    
