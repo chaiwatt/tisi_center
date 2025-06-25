@@ -130,6 +130,7 @@ class CertificateExportIBController extends Controller
      */
     public function create(Request $request)
     {
+        // dd('ok');
         $model = str_slug('certificateexportib','-');
         if(auth()->user()->can('add-'.$model)) {
 
@@ -168,7 +169,13 @@ class CertificateExportIBController extends Controller
  
             }
             // dd('ok');
-            return view('certify/ib.certificate_export_ib.create',[ 'certiIb'=>$certiIb, 'app_no' => $app_no,'app_token' => $app_token,'attach_path'=> $this->attach_path]);
+                   $fisCal = $this->getCurrentFiscalYearData();
+                $num = $fisCal['count'] + 1;
+                $year = $fisCal['fiscal_year'];
+
+                $cerNo = $this->generateCode($num,$year);
+                // $requestData['certificate'] = $cerNo;
+            return view('certify.ib.certificate_export_ib.create',[ 'certiIb'=>$certiIb, 'app_no' => $app_no,'app_token' => $app_token,'attach_path'=> $this->attach_path,'cerNo' => $cerNo]);
         }
         abort(403);
 
@@ -250,6 +257,16 @@ class CertificateExportIBController extends Controller
                     $requestData['attachs']     =  $this->storeFile($request->attachs, $certi_ib->app_no) ;
                 }
         
+
+
+                $fisCal = $this->getCurrentFiscalYearData();
+                $num = $fisCal['count'] + 1;
+                $year = $fisCal['fiscal_year'];
+
+                $cerNo = $this->generateCode($num,$year);
+                $requestData['certificate'] = $cerNo;
+                      
+
                 $export_ib = CertiIBExport::where('app_certi_ib_id', $certi_ib->id )->first();
                 if( !is_null( $export_ib) ){
                     $requestData['sign_instead'] = isset($request->sign_instead)? 1:0;
@@ -341,6 +358,36 @@ class CertificateExportIBController extends Controller
         abort(403);
     }
 
+
+    function generateCode($num,$year) {
+
+        $yearSuffix =  (int) substr($year, -2); // ตัดเลขท้าย 2 หลักของปี
+        $yearSuffixPlusOne  = $yearSuffix + 1; 
+        $formattedNum = str_pad($num, 4, '0', STR_PAD_LEFT); // เติม 0 ข้างหน้า $num ให้ครบ 4 ตัว
+        return "{$yearSuffixPlusOne }-IB{$formattedNum}"; // รวมรหัสที่ต้องการ
+    }
+
+    function getCurrentFiscalYearData()
+    {
+        // คำนวณช่วงปีงบประมาณปัจจุบัน
+        $currentDate = now();
+        $currentYear = $currentDate->month >= 10 ? $currentDate->year : $currentDate->year - 1;
+    
+        $startOfFiscalYear = Carbon::createFromDate($currentYear, 10, 1)->startOfDay();
+        $endOfFiscalYear = Carbon::createFromDate($currentYear + 1, 9, 30)->endOfDay();
+    
+        // นับจำนวนรายการในปีงบประมาณปัจจุบัน
+        $count = CertiIBExport::whereBetween('created_at', [$startOfFiscalYear, $endOfFiscalYear])->count();
+
+    
+        // คืนค่าข้อมูลปีงบประมาณปัจจุบัน
+        return [
+            'fiscal_year' => $currentYear,
+            'count' => $count
+        ];
+    }
+    
+
     public function copyScopeIbFromAttachement($certiIbId)
     {
         $copiedScoped = null;
@@ -427,6 +474,7 @@ class CertificateExportIBController extends Controller
      */
     public function edit($id)
     {
+        // dd("ok");
         $model = str_slug('certificateexportib','-');
         if(auth()->user()->can('edit-'.$model)) {
 
@@ -1089,9 +1137,28 @@ class CertificateExportIBController extends Controller
     }
 
 
-    //เลือกเผยแพร่สถานะได้ทีละครั้ง
     public function update_status(Request $request)
     {
+        $model = str_slug('certificateexportib', '-');
+        if (auth()->user()->can('edit-' . $model)) {
+            $files = $request->switches;
+            // dd($files);
+            foreach($files as $file)
+            {
+                CertiIBFileAll::find($file['certiib_file_id'])->update([
+                    'state' => $file['state']
+                ]);
+            }
+            return 'success';
+        }else{
+            return response(view('403'), 403);
+        }
+    }
+
+    //เลือกเผยแพร่สถานะได้ทีละครั้ง
+    public function update_status_old(Request $request)
+    {
+        // dd($request->input('certiib_file_id'));
         $model = str_slug('certificateexportib', '-');
         if (auth()->user()->can('edit-' . $model)) {
 
@@ -1099,7 +1166,7 @@ class CertificateExportIBController extends Controller
             $state = $request->input('state');
  
             $result = CertiIBFileAll::findOrFail($id);
-                        CertiIBFileAll::where('app_certi_ib_id', $result->app_certi_ib_id)->update(['state' => 0]);
+            CertiIBFileAll::where('app_certi_ib_id', $result->app_certi_ib_id)->update(['state' => 0]);
             $result->state = 1;          
             $result->save();
             if ($result) {

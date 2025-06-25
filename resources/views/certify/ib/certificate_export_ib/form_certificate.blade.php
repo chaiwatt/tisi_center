@@ -40,13 +40,33 @@
             {{-- dfgdgf --}}
             {{-- {{$export_ib}} --}}
 
-            <div class="form-group {{ $errors->has('certificate') ? 'has-error' : ''}}">
+            {{-- <div class="form-group {{ $errors->has('certificate') ? 'has-error' : ''}}">
                 {!! HTML::decode(Form::label('certificate', '<span class="text-danger">*</span> ใบรับรองเลขที่'.' :', ['class' => 'col-md-3 control-label'])) !!}
                 <div class="col-md-7">
                     {!! Form::text('certificate', !empty( $export_ib->certificate)? $export_ib->certificate:null, ['class' => 'form-control','id'=>'certificate','required' => true]) !!}
                     {!! $errors->first('certificate', '<p class="help-block">:message</p>') !!}
                 </div>
+            </div> --}}
+{{-- {{$export_ib->certificate}} --}}
+            <div class="form-group {{ $errors->has('certificate') ? 'has-error' : '' }}">
+                <label for="certificate" class="col-md-3 control-label">
+                    <span class="text-danger">*</span> ใบรับรองเลขที่ :
+                </label>
+                <div class="col-md-7">
+                    <input 
+                        type="text" 
+                        name="certificate" 
+                        id="certificate" 
+                        class="form-control" 
+                        value="{{ !empty($export_ib->certificate) ? $export_ib->certificate : 'กกกก' }}" 
+                        required
+                    >
+                    @if ($errors->has('certificate'))
+                        <p class="help-block">{{ $errors->first('certificate') }}</p>
+                    @endif
+                </div>
             </div>
+
 
 
             {{-- {{$export_ib}} --}}

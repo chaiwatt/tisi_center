@@ -36,7 +36,8 @@
             $export_cb->app_no = !empty($appData->app_no)?$appData->app_no:null;
             $export_cb->name_standard = !empty($appData->name_standard)?$appData->name_standard:null;
             $export_cb->name_en = !empty($appData->name_en_standard)?$appData->name_en_standard:null;
-            $export_cb->certificate = !empty($appData->certificate)?$appData->certificate:null;
+            // $export_cb->certificate = !empty($appData->certificate)?$appData->certificate:null;
+            $export_cb->certificate = $cerNo;
 
             //ที่อยู่
             $export_cb->address = !empty($appData->address)?$appData->address:null;

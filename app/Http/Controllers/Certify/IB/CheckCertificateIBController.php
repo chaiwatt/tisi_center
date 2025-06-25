@@ -969,8 +969,9 @@ try {
                                       ]);
         }
 
-    public function UpdateReport(Request $request, $id){
-        
+    public function UpdateReport(Request $request, $id)
+    {
+        // dd($request->all());
    try {
             $report = CertiIBReport::findOrFail($id);
             $certi_ib = CertiIb::findOrFail($report->app_certi_ib_id);
@@ -991,7 +992,16 @@ try {
            
              // รายงาน file_loa
             // if($request->file_loa && $request->hasFile('file_loa')){
-                $certiIBAttachAll = CertiIBAttachAll::where('app_certi_ib_id',$report->app_certi_ib_id)->where('table_name','app_certi_ib_assessment')->where('file_section',2)->first(); 
+                // $certiIBAttachAll = CertiIBAttachAll::where('app_certi_ib_id',$report->app_certi_ib_id)
+                //         ->where('table_name','app_certi_ib_assessment')
+                //         ->where('file_section',2)->first(); 
+
+                        $certiIBAttachAll = CertiIBAttachAll::where('app_certi_ib_id', $report->app_certi_ib_id)
+                            ->where('table_name', 'app_certi_ib_assessment')
+                            ->where('file_section', 2)
+                            ->orderBy('id', 'desc') // เรียง id จากมากไปน้อย = ล่าสุดมาก่อน
+                            ->first(); // ดึงแถวแรก = ล่าสุด
+
                 
                         $certi_ib_attach_more = new CertiIBAttachAll();
                         $certi_ib_attach_more->app_certi_ib_id  = $report->app_certi_ib_id ?? null;
@@ -1642,14 +1652,21 @@ public function storeFilePayinDemo($setting_payment, $app_no = 'files_ib', $audi
    
    public function certificate_detail($token = null)
    {
+
        $certi_ib_primary = CertiIb::where('token', $token)->firstOrfail();
-    //    dd($certi_ib_primary);
+       
        if(!empty($certi_ib_primary->certi_ib_export_mapreq_to)){
+        
             $certi_ib_mapreq = CertiIbExportMapreq::where('certificate_exports_id', $certi_ib_primary->certi_ib_export_mapreq_to->certificate_exports_id)->orderBy('id')->firstOrfail();
+            // dd( $certi_ib_primary->id,$certi_ib_primary->certi_ib_export_mapreq_to, $certi_ib_mapreq);
             if(!empty($certi_ib_mapreq->app_certi_ib_to)){
                 $certi_ib = $certi_ib_mapreq->app_certi_ib_to;
             }
        }
+
+    //    dd($certi_ib_primary,$certi_ib);
+
+       
        if(!empty($certi_ib->certi_ib_export_mapreq_to)){
            $export               =  $certi_ib->app_certi_ib_export;  
            $certiib_file_all    =  !empty($export->CertiIBCostTo->cert_ibs_file_all_order_desc) ?  $export->CertiIBCostTo->cert_ibs_file_all_order_desc : []; 
@@ -1657,8 +1674,12 @@ public function storeFilePayinDemo($setting_payment, $app_no = 'files_ib', $audi
          // ใบรับรอง และ ขอบข่าย    
          if(!is_null($certi_ib->certi_ib_export_mapreq_to)){
             $certificate =  !empty($certi_ib->certi_ib_export_mapreq_to->app_certi_ib_export_to->certificate) ? $certi_ib->certi_ib_export_mapreq_to->app_certi_ib_export_to->certificate : null;
+
+
+
             if(!is_null($certificate)){
                      $export_no         =  CertiIBExport::where('certificate',$certificate);
+                     
                     if(count($export_no->get()) > 0){
 
                       $ib_ids = [];
@@ -1669,6 +1690,8 @@ public function storeFilePayinDemo($setting_payment, $app_no = 'files_ib', $audi
                               }
                           }
                       }
+
+                    //   dd($certi_ib->certi_ib_export_mapreq_to, $export,$certificate,$export_no->get()->count(),$ib_ids);
 
                       if($certi_ib->certi_ib_export_mapreq_to->certiib_export_mapreq_group_many->count() > 0){
                           foreach ($certi_ib->certi_ib_export_mapreq_to->certiib_export_mapreq_group_many->pluck('app_certi_ib_id') as $item) {

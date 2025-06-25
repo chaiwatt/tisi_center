@@ -196,7 +196,7 @@
                                             @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
                                                     <a href="{{url('certify/check/file_cb_client/'.$assessment->FileAttachAssessment1To->file.'/'.( !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name : 'null' ))}}" 
                                                         title="{{ !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name :  basename($assessment->FileAttachAssessment1To->file) }}" target="_blank">
-                                                        {!! HP::FileExtension($assessment->FileAttachAssessment1To->file)  ?? '' !!} {{$assessment->FileAttachAssessment1To->file_client_name}}
+                                                        {!! HP::FileExtension($assessment->FileAttachAssessment1To->file)  ?? '' !!} {{basename($assessment->FileAttachAssessment1To->file)}}
                                                     </a> 
                                                 </p>
                                             @endif
@@ -226,7 +226,7 @@
                                 </div>
                             </div>
 
-                            @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment5To)) 
+                            {{-- @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment5To)) 
                                 <div class="form-group">
                                     <div class="col-md-12">
                                         <div class="col-md-6">
@@ -240,7 +240,7 @@
                                         </div>
                                     </div>
                                 </div>                        
-                            @endif
+                            @endif --}}
 
                             @if ($assessment->bug_report == 1)
                                 <div class="form-group">

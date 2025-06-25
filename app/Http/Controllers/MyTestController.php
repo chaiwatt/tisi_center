@@ -79,6 +79,7 @@ use App\Services\CreateIbAssessmentReportTwoPdf;
 use App\Services\MeetingAppointmentCommitteePdf;
 use App\Models\Certify\Applicant\CertLabsFileAll;
 use App\Models\Certify\Applicant\CostCertificate;
+use App\Models\Certify\ApplicantCB\CertiCBExport;
 use App\Services\CreateLabAssessmentReportTwoPdf;
 use App\Http\Controllers\API\Checkbill2Controller;
 use App\Models\Bcertify\BoardAuditoExpertTracking;
@@ -3189,6 +3190,46 @@ class MyTestController extends Controller
     {
         $pdfService = new MeetingAppointmentCommitteePdf(1);
         $pdfContent = $pdfService->generateMeetingAppointmentCommitteePdf();
+    }
+
+   function generateCode($num,$year) {
+
+        $yearSuffix =  (int) substr($year, -2); // ตัดเลขท้าย 2 หลักของปี
+        $yearSuffixPlusOne  = $yearSuffix + 1; 
+        $formattedNum = str_pad($num, 4, '0', STR_PAD_LEFT); // เติม 0 ข้างหน้า $num ให้ครบ 4 ตัว
+        return "{$yearSuffixPlusOne }-CB{$formattedNum}"; // รวมรหัสที่ต้องการ
+    }
+
+
+    function getCurrentFiscalYearData()
+    {
+        // คำนวณช่วงปีงบประมาณปัจจุบัน
+        $currentDate = now();
+        $currentYear = $currentDate->month >= 10 ? $currentDate->year : $currentDate->year - 1;
+    
+        $startOfFiscalYear = Carbon::createFromDate($currentYear, 10, 1)->startOfDay();
+        $endOfFiscalYear = Carbon::createFromDate($currentYear + 1, 9, 30)->endOfDay();
+    
+        // นับจำนวนรายการในปีงบประมาณปัจจุบัน
+        $count = CertiCBExport::whereBetween('created_at', [$startOfFiscalYear, $endOfFiscalYear])->count();
+    
+    
+        // คืนค่าข้อมูลปีงบประมาณปัจจุบัน
+        return [
+            'fiscal_year' => $currentYear,
+            'count' => $count
+        ];
+    }
+    
+
+    public function genIbCerNo()
+    {
+        $fisCal = $this->getCurrentFiscalYearData();
+        $num = $fisCal['count'] + 1;
+        $year = $fisCal['fiscal_year'];
+
+        $cerNo = $this->generateCode($num,$year);
+        dd($cerNo);
     }
     
 }

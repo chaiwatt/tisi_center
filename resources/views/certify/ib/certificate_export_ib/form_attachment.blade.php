@@ -8,14 +8,11 @@
         </div>
     </div> --}}
 
-
     <div class="row">
         <div class="col-sm-12">
 
             <div class="form-group {{ $errors->has('certi_no') ? 'has-error' : ''}}">
-
                 <div class="table-responsive repeater-file">
-
                     <table class="table color-bordered-table info-bordered-table" id="myTable">
                         <thead>
                             <tr>
@@ -35,13 +32,28 @@
                                 <tr id="deleteFlie{{$certiib_file->id}}">
                                         <td>{{$loop->iteration}}</td>
                                         <td class="text-center">
-                                            {{$certiib_file->app_no ?? '-'}}
+                                            @php
+                                                    if($certiib_file->ref_table == "app_certi_tracking")
+                                                    {
+                                                        $purpose = '<p class="text-muted"><i>ตรวจติดตาม</i></p>';
+                                                    }else{
+                                                        $purpose = '<p class="text-muted"><i>'.$certiib_file->certi_ib_to->StandardChangeTitle.'</i></p>';
+                                                    }
+
+                                            @endphp
+                                            {{-- {{$certiib_file->certi_ib_to->StandardChangeTitle}}
+                                            {{$certiib_file->ref_table}} --}}
+                                            {{$certiib_file->app_no ?? '-'}} 
+                                            {!!$purpose!!}
+
+                                            
                                             <input type="hidden" value="{{$certiib_file->id}}" class="certificate_edit_row" name="id"/>
                                             <input type="hidden" value="{{ HP::revertDate($certiib_file->start_date) ?? '-' }}" class="start_date"/>
                                             <input type="hidden" value="{{ HP::revertDate($certiib_file->end_date) ?? '-' }}" class="end_date"/>
                                         </td>
                                         <td class="text-center">
                                             <p class="text-center">
+                                                
                                                 @if(!is_null($certiib_file->attach))
                                                     <a href="{!! HP::getFileStorage($attach_path.$certiib_file->attach) !!}" class="attach"  target="_blank">
                                                         {!! HP::FileExtension($certiib_file->attach) ?? '' !!}
@@ -112,6 +124,26 @@
 
                 var certiib_file_id =  $(this).data('certiib_file_id');
                 var state = $("input[name=state]:checked").val()==1?1:0;
+
+               
+
+              var switches = [];
+
+            // วนลูปอ่านค่าจาก .js-switch ทุกตัวใน #myTable tbody
+            $('#myTable tbody .js-switch').each(function() {
+                var certiib_file_id = $(this).data('certiib_file_id'); // ดึงค่า certiib_file_id
+                var state = $(this).is(':checked') ? 1 : 0; // ดึงสถานะ (checked หรือไม่)
+
+                // เก็บค่าที่อ่านได้ในรูปของ object
+                switches.push({
+                    certiib_file_id: certiib_file_id,
+                    state: state
+                   
+                });
+            });
+
+            //  console.log(switches)
+
                 
                 $.ajax({
                     method: "POST",
@@ -119,7 +151,8 @@
                         data: {
                             "_token": "{{ csrf_token() }}",
                             "certiib_file_id": certiib_file_id,
-                            "state": state
+                            "state": state,
+                            "switches" : switches
                     },
                     success : function (msg){
                         if (msg == "success") {
@@ -132,7 +165,7 @@
                                 hideAfter: 3000,
                                 stack: 6
                             });
-                            location.reload(); 
+                            // location.reload(); 
                         } 
                     }
                 });

@@ -6,12 +6,13 @@ use HP;
 
 use Storage;
 use App\User;
+use stdClass;
 use Carbon\Carbon;
 use App\AttachFile;
+
 use Illuminate\Http\Request;
 
 use App\Models\Basic\Feewaiver;
-
 use Yajra\Datatables\Datatables;
 use App\Mail\Tracking\ReportMail;
 use Illuminate\Support\Facades\DB;
@@ -26,11 +27,11 @@ use App\Mail\Tracking\InformPayInOne;
 use App\Mail\Tracking\AssignStaffMail;
 use App\Mail\Tracking\InspectiontMail;
 use App\Models\Bcertify\SettingConfig;
+
 use App\Models\Certify\SetStandardUser;
-
 use App\Models\Certificate\TrackingReport;
-use App\Models\Certificate\TrackingReview;
 
+use App\Models\Certificate\TrackingReview;
 use App\Models\Certificate\TrackingStatus;
 use App\Models\Certify\SetStandardUserSub;
 use App\Models\Certificate\TrackingAssigns;
@@ -43,11 +44,11 @@ use App\Models\Certificate\TrackingPayInTwo;
 use App\Models\Certificate\TrackingAssessment;
 use App\Models\Certificate\TrackingInspection;
 use App\Models\Certify\ApplicantIB\CertiIBCheck;
+
 use App\Models\Certify\ApplicantIB\CertiIBExport;
-
 use App\Models\Certify\ApplicantIB\CertiIBFileAll;
-use App\Models\Certify\ApplicantIB\CertiIbHistory;
 
+use App\Models\Certify\ApplicantIB\CertiIbHistory;
 use App\Mail\Tracking\RequestEditScopeFromTracking;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
@@ -2066,7 +2067,6 @@ public function append($id)
     
             
             $attach_path = "files/trackingib";
-            // dd($attach_path.'/'.$inspection->reference_refno);
             // ใช้ไฟล์ที่จำลองในการอัปโหลด
             HP::singleFileUploadRefno(
                 $uploadedFile,
@@ -2083,9 +2083,22 @@ public function append($id)
 
 
 
+//    $json = $this->copyScopeIbFromAttachement($certiIb->id);
+//                 $copiedScopes = json_decode($json, true);
 
+//                 // CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
+//                 //     ->whereNotNull('attach_pdf')
+//                 //     ->update(['state' => 0]);
+//                 CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
+//                             ->orderBy('id','desc')
+//                             ->first()
+//                             ->update([
+//                                 'attach_pdf'            =>   $copiedScopes[0]['attachs'],
+//                                 'attach_pdf_client_name'=>   $copiedScopes[0]['file_client_name'],
+//                                 'state'                 =>   1
 
-
+//                 ]);
+                
 
 
                 //    HP::singleFileUploadRefno(
@@ -2145,31 +2158,55 @@ public function append($id)
                                 ]);
 
         if(!empty($tracking->certificate_export_to->app_certi_ib_id)){
-        $certi_ib = CertiIb::where('id', $tracking->certificate_export_to->app_certi_ib_id)->first();
-        if(!empty($certi_ib) &&  !is_null($tracking->FileAttachPDFTo)){
-                $attach_pdf =  $tracking->FileAttachPDFTo;
-                $attach     =  $tracking->FileAttachFilesTo;
-                if(!empty($attach_pdf->url)){
-                        CertiIBFileAll::where('app_certi_ib_id', $certi_ib->id)->update(['state' => 0]);
-                    $certib = CertiIBFileAll::create([
-                                                        'app_certi_ib_id'        =>  $certi_ib->id,
-                                                        'attach_pdf'             =>  !empty($attach_pdf->url)?$attach_pdf->url:null,
-                                                        'attach_pdf_client_name' =>  !empty($attach_pdf->filename)?$attach_pdf->filename:null,
-                                                        'attach'                 =>  !empty($attach->url)?$attach->url:null,
-                                                        'attach_client_name'     =>  !empty($attach->filename)?$attach->filename:null,
-                                                        // 'start_date'             =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
-                                                        // 'end_date'               =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
-                                                         'start_date'             =>  Carbon::now()->format('Y-m-d'),
-                                                        'end_date'               =>  Carbon::now()->addYears(2)->format('Y-m-d'),
-                                                        'state' => 1
-                                                    ]);
-                    // แนบท้าย ที่ใช้งาน
-                    $certi_ib->update([
-                                        'attach_pdf'             => $certib->attach_pdf ?? @$certi_ib->attach_pdf,
-                                        'attach_pdf_client_name' => $certib->attach_pdf_client_name ?? @$certi_ib->attach_pdf_client_name
-                                        ]);
-                }
+        $certi_ib = CertiIb::find($tracking->certificate_export_to->app_certi_ib_id);
+        if(!empty($certi_ib)){
+                // $attach_pdf =  $tracking->FileAttachPDFTo;
+                // $attach     =  $tracking->FileAttachFilesTo;
+                // if(!empty($attach_pdf->url)){
+                //         CertiIBFileAll::where('app_certi_ib_id', $certi_ib->id)->update(['state' => 0]);
+                //     $certib = CertiIBFileAll::create([
+                //                                         'app_certi_ib_id'        =>  $certi_ib->id,
+                //                                         'app_no'        =>  $tracking->reference_refno,
+                //                                         'attach_pdf'             =>  !empty($attach_pdf->url)?$attach_pdf->url:null,
+                //                                         'attach_pdf_client_name' =>  !empty($attach_pdf->filename)?$attach_pdf->filename:null,
+                //                                         'attach'                 =>  !empty($attach->url)?$attach->url:null,
+                //                                         'attach_client_name'     =>  !empty($attach->filename)?$attach->filename:null,
+                //                                         // 'start_date'             =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
+                //                                         // 'end_date'               =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                //                                          'start_date'             =>  Carbon::now()->format('Y-m-d'),
+                //                                         'end_date'               =>  Carbon::now()->addYears(2)->format('Y-m-d'),
+                //                                         'state' => 1
+                //                                     ]);
+                //     // แนบท้าย ที่ใช้งาน
+                //     $certi_ib->update([
+                //                         'attach_pdf'             => $certib->attach_pdf ?? @$certi_ib->attach_pdf,
+                //                         'attach_pdf_client_name' => $certib->attach_pdf_client_name ?? @$certi_ib->attach_pdf_client_name
+                //                         ]);
+                // }
 
+                $json = $this->copyScopeIbFromAttachement($certi_ib->id);
+                $copiedScopes = json_decode($json, true);
+                CertiIBFileAll::where('app_certi_ib_id', $certi_ib->id)->update(['state' => 0]);
+                $certib = CertiIBFileAll::create([
+                                                    'app_certi_ib_id'        =>  $certi_ib->id,
+                                                    'app_no'        =>  $tracking->reference_refno,
+                                                    'attach_pdf'             =>  $copiedScopes[0]['attachs'],
+                                                    'attach_pdf_client_name' =>   $copiedScopes[0]['file_client_name'],
+                                                    'attach'                 =>  null,
+                                                    'attach_client_name'     =>   null,
+                                                    'ref_table'     =>   (new Tracking)->getTable(),
+                                                    'ref_id'     =>    $tracking->id,
+                                                    // 'start_date'             =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
+                                                    // 'end_date'               =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                                                    'start_date'             =>  Carbon::now()->format('Y-m-d'),
+                                                    'end_date'               =>  Carbon::now()->addYears(2)->format('Y-m-d'),
+                                                    'state' => 1
+                                                ]);
+                // แนบท้าย ที่ใช้งาน
+                $certi_ib->update([
+                                    'attach_pdf'             => $certib->attach_pdf ?? @$certi_ib->attach_pdf,
+                                    'attach_pdf_client_name' => $certib->attach_pdf_client_name ?? @$certi_ib->attach_pdf_client_name
+                                    ]);
         }
         }
     }
@@ -2180,10 +2217,50 @@ public function append($id)
 }
 
 
+public function copyScopeIbFromAttachement($certiIbId)
+    {
+        $copiedScoped = null;
+        $fileSection = null;
+    
+        $app = CertiIb::find($certiIbId);
+    
+        $latestRecord = CertiIBAttachAll::where('app_certi_ib_id', $certiIbId)
+        ->where('file_section', 3)
+        ->where('table_name', 'app_certi_ib')
+        ->orderBy('created_at', 'desc') // เรียงลำดับจากใหม่ไปเก่า
+        ->first();
+    
+        $existingFilePath = 'files/applicants/check_files_ib/' . $latestRecord->file ;
+    
+        // ตรวจสอบว่าไฟล์มีอยู่ใน FTP และดาวน์โหลดลงมา
+        if (HP::checkFileStorage($existingFilePath)) {
+            $localFilePath = HP::getFileStoragePath($existingFilePath); // ดึงไฟล์ลงมาที่เซิร์ฟเวอร์
+            $no  = str_replace("RQ-","",$app->app_no);
+            $no  = str_replace("-","_",$no);
+            $dlName = 'scope_'.basename($existingFilePath);
+            $attach_path  =  'files/applicants/check_files_ib/'.$no.'/';
+    
+            if (file_exists($localFilePath)) {
+                $storagePath = Storage::putFileAs($attach_path, new \Illuminate\Http\File($localFilePath),  $dlName );
+                $filePath = $attach_path . $dlName;
+                if (Storage::disk('ftp')->exists($filePath)) {
+                    $list  = new  stdClass;
+                    $list->attachs =  $no.'/'.$dlName;
+                    $list->file_client_name =  $dlName;
+                    $scope[] = $list;
+                    $copiedScoped = json_encode($scope);
+                } 
+                unlink($localFilePath);
+            }
+        }
+    
+        return $copiedScoped;
+    }
+
 
 public function update_append(Request $request ,$id)
 {
-    dd($request->all());
+    // dd($request->all());
   // try {
 
         $tracking                   = Tracking::find($id);

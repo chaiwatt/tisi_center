@@ -106,7 +106,7 @@ Route::get('/check-tax-number','MyTestController@checkTaxNumber');
 
 Route::get('/create-meeting-appointment-committee-pdf','MyTestController@createMeetingAppointmentCommitteePdf');
 
-
+Route::get('/gen-ib-cerno','MyTestController@genIbCerNo');
 
 
 
@@ -506,8 +506,9 @@ Route::get('/certify/check/files/assessment/{filename}', function( $filename)
 
         $public = public_path();
         $attach_path = 'files/applicants/check_files_ib/';
- 
+        
         if(!empty($certi_ib_file->attach_pdf)  && HP::checkFileStorage($certi_ib_file->attach_pdf)){
+            // dd($certi_ib_file->attach_pdf);
             $attach_path2 = $certi_ib_file->attach_pdf;
             HP::getFileStoragePath($attach_path2);
             $filePath =  response()->file($public.'/uploads/'.$attach_path2);

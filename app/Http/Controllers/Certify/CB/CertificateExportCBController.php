@@ -170,7 +170,16 @@ class CertificateExportCBController extends Controller
                 }
             }
             $attach_path       = $this->attach_path;
-            return view('certify/cb.certificate_export_cb.create', compact('certiCb','app_no', 'app_token','attach_path') );
+
+
+            $fisCal = $this->getCurrentFiscalYearData();
+            $num = $fisCal['count'] + 1;
+            $year = $fisCal['fiscal_year'];
+
+            $cerNo = $this->generateCode($num,$year);
+                // $requestData['certificate'] = $cerNo;
+
+            return view('certify.cb.certificate_export_cb.create', compact('certiCb','app_no', 'app_token','attach_path','cerNo') );
         }
         abort(403);
 
@@ -252,6 +261,14 @@ class CertificateExportCBController extends Controller
                         $requestData['attachs']     =  $this->storeFile($request->attachs, $certi_cb->app_no) ;
                     }
 
+                    $fisCal = $this->getCurrentFiscalYearData();
+                    $num = $fisCal['count'] + 1;
+                    $year = $fisCal['fiscal_year'];
+
+                    $cerNo = $this->generateCode($num,$year);
+                    $requestData['certificate'] = $cerNo;
+
+
                     $export_cb = CertiCBExport::where('app_certi_cb_id',$certi_cb->id )->first();
                     if( is_null( $export_cb) ){
                         $export_cb = CertiCBExport::create($requestData);
@@ -259,7 +276,6 @@ class CertificateExportCBController extends Controller
                         $export_cb->update($requestData);
                     }
                     // $certi_cb->update(['status'=> 18]); // ออกใบรับรอง และ ลงนาม
-
 
                     if( isset($requestData['detail']) ){
 
@@ -361,6 +377,36 @@ class CertificateExportCBController extends Controller
         }
         abort(403);
     }
+
+    function generateCode($num,$year) {
+
+        $yearSuffix =  (int) substr($year, -2); // ตัดเลขท้าย 2 หลักของปี
+        $yearSuffixPlusOne  = $yearSuffix + 1; 
+        $formattedNum = str_pad($num, 4, '0', STR_PAD_LEFT); // เติม 0 ข้างหน้า $num ให้ครบ 4 ตัว
+        return "{$yearSuffixPlusOne }-CB{$formattedNum}"; // รวมรหัสที่ต้องการ
+    }
+
+
+    function getCurrentFiscalYearData()
+    {
+        // คำนวณช่วงปีงบประมาณปัจจุบัน
+        $currentDate = now();
+        $currentYear = $currentDate->month >= 10 ? $currentDate->year : $currentDate->year - 1;
+    
+        $startOfFiscalYear = Carbon::createFromDate($currentYear, 10, 1)->startOfDay();
+        $endOfFiscalYear = Carbon::createFromDate($currentYear + 1, 9, 30)->endOfDay();
+    
+        // นับจำนวนรายการในปีงบประมาณปัจจุบัน
+        $count = CertiCBExport::whereBetween('created_at', [$startOfFiscalYear, $endOfFiscalYear])->count();
+
+
+        // คืนค่าข้อมูลปีงบประมาณปัจจุบัน
+        return [
+            'fiscal_year' => $currentYear,
+            'count' => $count
+        ];
+    }
+    
 
     public function copyScopeCbFromAttachement($certiCbId)
     {
@@ -1175,9 +1221,26 @@ class CertificateExportCBController extends Controller
           return  $file;
     }
 
+    public function update_status(Request $request)
+    {
+        $model = str_slug('certificateexportcb', '-');
+        if (auth()->user()->can('edit-' . $model)) {
+            $files = $request->switches;
+            // dd($files);
+            foreach($files as $file)
+            {
+                CertiCBFileAll::find($file['certicb_file_id'])->update([
+                    'state' => $file['state']
+                ]);
+            }
+            return 'success';
+        }else{
+            return response(view('403'), 403);
+        }
+    }
 
     //เลือกเผยแพร่สถานะได้ทีละครั้ง
-    public function update_status(Request $request)
+    public function update_status_old(Request $request)
     {
         $model = str_slug('certificateexportcb', '-');
         if (auth()->user()->can('edit-' . $model)) {

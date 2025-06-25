@@ -277,14 +277,6 @@
                                     รายงานที่1
                                 </a>
                         @endif 
-                    {{-- @else      --}}
-                        {{-- <a href="{{route('save_assessment.view_ib_info',['id' => $assessment->id])}}"
-                            title="จัดทำรายงาน" class="btn btn-warning">
-                            รายงานที่1
-                        </a> --}}
-                        {{-- <a href="{{route('save_assessment.ib_report_create',['id' => $assessment->id ])}}" class="btn btn-warning">
-                            รายงานที่1
-                        </a> --}}
                     @endif
 
                     @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
@@ -293,11 +285,6 @@
                                 title="{{ !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name :  basename($assessment->FileAttachAssessment1To->file) }}" target="_blank">
                                 {!! HP::FileExtension($assessment->FileAttachAssessment1To->file)  ?? '' !!}
                             </a> 
-                            {{-- <button class="btn btn-danger btn-xs div_hide" type="button"
-                             onclick="RemoveFlie({{$assessment->FileAttachAssessment1To->id}})">
-                               <i class="icon-close"></i>
-                           </button>    --}}
-                        {{-- </p> --}}
                         <div id="AddFile"></div>      
                     @else 
                         {{-- <div class="fileinput fileinput-new input-group" data-provides="fileinput" >

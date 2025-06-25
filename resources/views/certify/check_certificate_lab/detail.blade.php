@@ -23,7 +23,7 @@
             @endcan
         </div>
 
-        <h3 class="box-title" style="display: inline-block;">คำขอรับใบรับรองห้องปฏิบัติการ {{ $cc->applicant->app_no ?? '-' }}
+        <h3 class="box-title" style="display: inline-block;">คำขอรับใบรับรองห้องปฏิบัติการ check {{ $cc->applicant->app_no ?? '-' }}
     @php
         $exported = $cc->applicant->certificate_export;
     @endphp

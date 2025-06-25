@@ -110,7 +110,7 @@
                             </p> 
                             <div id="AddOtherAttach"></div>           
                         @else
-                            <div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                            {{-- <div class="fileinput fileinput-new input-group" data-provides="fileinput">
                                 <div class="form-control" data-trigger="fileinput">
                                     <i class="glyphicon glyphicon-file fileinput-exists"></i>
                                     <span class="fileinput-filename"></span>
@@ -121,7 +121,7 @@
                                     <input type="file" name="other_attach" required class="check_max_size_file">
                                 </span>
                                 <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">ลบ</a>
-                            </div>
+                            </div> --}}
                         @endif
                     </div>
                 </div>

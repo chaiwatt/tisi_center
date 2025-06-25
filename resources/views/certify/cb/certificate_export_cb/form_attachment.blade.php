@@ -36,7 +36,19 @@
                                 <tr id="deleteFlie{{$certicb_file->id}}">
                                         <td class="no-attach">{{$loop->iteration}}</td>
                                         <td class="text-center">
+                                            @php
+                                            if($certicb_file->ref_table == "app_certi_tracking")
+                                                    {
+                                                        $purpose = '<p class="text-muted"><i>ตรวจติดตาม</i></p>';
+                                                    }else{
+                                                        $purpose = '<p class="text-muted"><i>'.$certicb_file->certi_cb_to->StandardChangeTitle.'</i></p>';
+                                                    }
+
+                                            @endphp
+
                                             {{$certicb_file->app_no ?? '-'}}
+                                             {!!$purpose!!}
+                                             
                                             <input type="hidden" value="{{$certicb_file->id}}" class="certificate_edit_row" name="id"/>
                                             <input type="hidden" value="{{ HP::revertDate($certicb_file->start_date) ?? '-' }}" class="start_date"/>
                                             <input type="hidden" value="{{ HP::revertDate($certicb_file->end_date) ?? '-' }}" class="end_date"/>
@@ -113,6 +125,22 @@
 
             var certicb_file_id =  $(this).data('certicb_file_id');
             var state = $("input[name=state]:checked").val()==1?1:0;
+
+            
+              var switches = [];
+
+            // วนลูปอ่านค่าจาก .js-switch ทุกตัวใน #myTable tbody
+            $('#myTable tbody .js-switch').each(function() {
+                var certicb_file_id = $(this).data('certicb_file_id'); // ดึงค่า certicb_file_id
+                var state = $(this).is(':checked') ? 1 : 0; // ดึงสถานะ (checked หรือไม่)
+
+                // เก็บค่าที่อ่านได้ในรูปของ object
+                switches.push({
+                    certicb_file_id: certicb_file_id,
+                    state: state
+                   
+                });
+            });
             
             $.ajax({
                 method: "POST",
@@ -120,7 +148,8 @@
                     data: {
                         "_token": "{{ csrf_token() }}",
                         "certicb_file_id": certicb_file_id,
-                        "state": state
+                        "state": state,
+                        "switches": switches
                 },
                 success : function (msg){
                     if (msg == "success") {
@@ -133,7 +162,7 @@
                             hideAfter: 3000,
                             stack: 6
                         });
-                        location.reload();
+                        // location.reload();
                     } 
                 }
             });

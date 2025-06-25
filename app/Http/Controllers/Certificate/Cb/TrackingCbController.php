@@ -6,19 +6,20 @@ use HP;
 
 use Storage;
 use App\User;
+use stdClass;
 use Carbon\Carbon;
 use App\AttachFile; 
+
 use Illuminate\Http\Request;
-
-use App\Helpers\EpaymentDemo;
  
-use App\Models\Basic\Feewaiver; 
+use App\Helpers\EpaymentDemo;
 
+use App\Models\Basic\Feewaiver; 
 use Yajra\Datatables\Datatables;
 use App\Mail\Tracking\ReportMail; 
 use Illuminate\Support\Facades\DB;
-use App\Mail\Tracking\PayInOneMail;
 
+use App\Mail\Tracking\PayInOneMail;
 use App\Mail\Tracking\ReceiverMail;
 use App\Http\Controllers\Controller;
 use App\Mail\Tracking\PayInTwoMail; 
@@ -28,11 +29,11 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\Tracking\AssignStaffMail;
 use App\Mail\Tracking\InformPayInOne; 
 use App\Mail\Tracking\InspectiontMail;
+
 use App\Models\Bcertify\SettingConfig;
-
 use App\Models\Certify\SetStandardUser;
-use App\Models\Certify\EpaymentBillTest;
 
+use App\Models\Certify\EpaymentBillTest;
 use App\Models\Certificate\TrackingReview;
 use App\Models\Certificate\TrackingStatus;
 use App\Models\Certify\SetStandardUserSub;
@@ -46,8 +47,8 @@ use App\Models\Certificate\TrackingPayInTwo;
 use App\Models\Certify\ApplicantCB\CertiCb; 
 use App\Models\Certificate\TrackingAssessment;
 use App\Models\Certificate\TrackingInspection;
-use App\Models\Certify\ApplicantCB\CertiCBCheck;
 
+use App\Models\Certify\ApplicantCB\CertiCBCheck;
 use App\Models\Certify\ApplicantCB\CertiCBExport; 
 use App\Models\Certify\ApplicantCB\CertiCBFileAll;
 use App\Models\Certify\ApplicantCB\CertiCbHistory;
@@ -2138,30 +2139,53 @@ public function append($id)
 
  
       if(!empty($tracking->certificate_export_to->app_certi_cb_id)){
-                $certi_cb = CertiCb::where('id', $tracking->certificate_export_to->app_certi_cb_id)->first();
-        if(!empty($certi_cb) &&  !is_null($tracking->FileAttachPDFTo)){
-                $attach_pdf =  $tracking->FileAttachPDFTo;
-                $attach     =  $tracking->FileAttachFilesTo;
-                if(!empty($attach_pdf->url)){
-                     CertiCBFileAll::where('app_certi_cb_id', $certi_cb->id)->update(['state' => 0]);
+                $certi_cb = CertiCb::find($tracking->certificate_export_to->app_certi_cb_id);
+        if(!empty($certi_cb) ){
+                // $attach_pdf =  $tracking->FileAttachPDFTo;
+                // $attach     =  $tracking->FileAttachFilesTo;
+                // if(!empty($attach_pdf->url)){
+                //      CertiCBFileAll::where('app_certi_cb_id', $certi_cb->id)->update(['state' => 0]);
+                //     $certcb = CertiCBFileAll::create([
+                //                                         'app_certi_cb_id'        =>  $certi_cb->id,
+                //                                         'attach_pdf'             =>  !empty($attach_pdf->url)?$attach_pdf->url:null,
+                //                                         'attach_pdf_client_name' =>  !empty($attach_pdf->filename)?$attach_pdf->filename:null,  
+                //                                         'attach'                 =>  !empty($attach->url)?$attach->url:null,
+                //                                         'attach_client_name'     =>  !empty($attach->filename)?$attach->filename:null,  
+                //                                         // 'start_date'             =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
+                //                                         // 'end_date'               =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                //                                          'start_date'             =>  Carbon::now()->format('Y-m-d'),
+                //                                         'end_date'               =>  Carbon::now()->addYears(2)->format('Y-m-d'),
+                //                                         'state' => 1
+                //                                     ]);
+                //     // แนบท้าย ที่ใช้งาน 
+                //     //   $certi_cb->update([
+                //     //                     'attach_pdf'             => $certcb->attach_pdf ?? @$certcb->attach_pdf,
+                //     //                     'attach_pdf_client_name' => $certcb->attach_pdf_client_name ?? @$certcb->attach_pdf_client_name
+                //     //                     ]);
+                // }
+
+                
+                    $json = $this->copyScopeCbFromAttachement($certi_cb->id);
+                    $copiedScopes = json_decode($json, true);
+
+                    CertiCBFileAll::where('app_certi_cb_id',$certi_cb->id)
+                        // ->whereNotNull('attach_pdf')
+                        ->update(['state' => 0]);
                     $certcb = CertiCBFileAll::create([
-                                                        'app_certi_cb_id'        =>  $certi_cb->id,
-                                                        'attach_pdf'             =>  !empty($attach_pdf->url)?$attach_pdf->url:null,
-                                                        'attach_pdf_client_name' =>  !empty($attach_pdf->filename)?$attach_pdf->filename:null,  
-                                                        'attach'                 =>  !empty($attach->url)?$attach->url:null,
-                                                        'attach_client_name'     =>  !empty($attach->filename)?$attach->filename:null,  
-                                                        // 'start_date'             =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
-                                                        // 'end_date'               =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
-                                                         'start_date'             =>  Carbon::now()->format('Y-m-d'),
-                                                        'end_date'               =>  Carbon::now()->addYears(2)->format('Y-m-d'),
-                                                        'state' => 1
-                                                    ]);
-                    // แนบท้าย ที่ใช้งาน 
-                    //   $certi_cb->update([
-                    //                     'attach_pdf'             => $certcb->attach_pdf ?? @$certcb->attach_pdf,
-                    //                     'attach_pdf_client_name' => $certcb->attach_pdf_client_name ?? @$certcb->attach_pdf_client_name
-                    //                     ]);
-                }
+                                    'app_certi_cb_id'        =>  $certi_cb->id,
+                                     'app_no'        =>  $tracking->reference_refno,
+                                     'attach_pdf'             =>  $copiedScopes[0]['attachs'],
+                                    'attach_pdf_client_name' =>   $copiedScopes[0]['file_client_name'],
+                                    'attach'                 =>  null,
+                                    'attach_client_name'     =>   null,
+                                     'ref_table'     =>   (new Tracking)->getTable(),
+                                    'ref_id'     =>    $tracking->id,
+                                    // 'start_date'             =>  !empty($request->start_date)?HP::convertDate($request->start_date,true):null,
+                                    // 'end_date'               =>  !empty($request->end_date)?HP::convertDate($request->end_date,true):null,
+                                    'start_date'             =>  Carbon::now()->format('Y-m-d'),
+                                    'end_date'               =>  Carbon::now()->addYears(2)->format('Y-m-d'),
+                                    'state' => 1
+                                ]);
 
         }
     }
@@ -2171,6 +2195,46 @@ public function append($id)
       $certicb_file_all = CertiCBFileAll::where('app_certi_cb_id', $certi_cb->id)->orderby('id','desc')->get();
     return view('certificate.cb.tracking-cb.append', compact('tracking', 'certi_cb','certicb_file_all'));  
 } 
+
+  public function copyScopeCbFromAttachement($certiCbId)
+    {
+        $copiedScoped = null;
+        $fileSection = null;
+    
+        $app = CertiCb::find($certiCbId);
+    
+        $latestRecord = CertiCBAttachAll::where('app_certi_cb_id', $certiCbId)
+        ->where('file_section', 3)
+        ->where('table_name', 'app_certi_cb')
+        ->orderBy('created_at', 'desc') // เรียงลำดับจากใหม่ไปเก่า
+        ->first();
+    
+        $existingFilePath = 'files/applicants/check_files_cb/' . $latestRecord->file ;
+    
+        // ตรวจสอบว่าไฟล์มีอยู่ใน FTP และดาวน์โหลดลงมา
+        if (HP::checkFileStorage($existingFilePath)) {
+            $localFilePath = HP::getFileStoragePath($existingFilePath); // ดึงไฟล์ลงมาที่เซิร์ฟเวอร์
+            $no  = str_replace("RQ-","",$app->app_no);
+            $no  = str_replace("-","_",$no);
+            $dlName = 'scope_'.basename($existingFilePath);
+            $attach_path  =  'files/applicants/check_files_cb/'.$no.'/';
+    
+            if (file_exists($localFilePath)) {
+                $storagePath = Storage::putFileAs($attach_path, new \Illuminate\Http\File($localFilePath),  $dlName );
+                $filePath = $attach_path . $dlName;
+                if (Storage::disk('ftp')->exists($filePath)) {
+                    $list  = new  stdClass;
+                    $list->attachs =  $no.'/'.$dlName;
+                    $list->file_client_name =  $dlName;
+                    $scope[] = $list;
+                    $copiedScoped = json_encode($scope);
+                } 
+                unlink($localFilePath);
+            }
+        }
+    
+        return $copiedScoped;
+    }
 
 
 public function update_append(Request $request ,$id)

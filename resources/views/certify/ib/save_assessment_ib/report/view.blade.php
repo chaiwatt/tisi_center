@@ -999,7 +999,7 @@
                     @endphp
                 
                 <div class="content">
-                    {{ $formattedDate }}
+                    {{ $formattedDate }} 
                 </div>
                 
                 </div>

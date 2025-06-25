@@ -87,7 +87,7 @@
    </div>
 </div>
 <br>
-<h3 class="box-title">เอกสารแนบท้าย (ขอบข่าย)   <button type="button" class=" pull-right btn btn-primary " data-toggle="modal" data-target="#exampleModalExport">เพิ่มไฟล์แนบท้าย</button></h3>
+{{-- <h3 class="box-title">เอกสารแนบท้าย (ขอบข่าย)   <button type="button" class=" pull-right btn btn-primary " data-toggle="modal" data-target="#exampleModalExport">เพิ่มไฟล์แนบท้าย</button></h3> --}}
 <hr>
 <div class="row">
     <div class="col-sm-12">
@@ -247,8 +247,28 @@
 
         //เลือกสถานะ เปิด-ปิด
         $('#myTable tbody').on('change', '.js-switch', function(){
+            // alert("ooo");
             var item_id =  $(this).data('item_id');
             var state = $("input[name=state]:checked").val()==1?1:0;
+
+
+            var switches = [];
+
+            // วนลูปอ่านค่าจาก .js-switch ทุกตัวใน #myTable tbody
+            $('#myTable tbody .js-switch').each(function() {
+                var certiib_file_id = $(this).data('item_id'); // ดึงค่า certiib_file_id
+                var state = $(this).is(':checked') ? 1 : 0; // ดึงสถานะ (checked หรือไม่)
+
+                // เก็บค่าที่อ่านได้ในรูปของ object
+                switches.push({
+                    certiib_file_id: certiib_file_id,
+                    state: state,
+                   
+                });
+            });
+
+// console.log(switches);
+
             if(checkNone(item_id)){
                 $.ajax({
                     method: "POST",
@@ -256,7 +276,8 @@
                         data: {
                             "_token": "{{ csrf_token() }}",
                             "certiib_file_id": item_id,
-                            "state": state
+                            "state": state,
+                            "switches": switches
                     },
                     success : function (msg){
                         if (msg == "success") {

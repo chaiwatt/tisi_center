@@ -397,13 +397,13 @@
                             }
                         @endphp
 
-                        @if ($certi_cb->fullyApproveReport())
+                        {{-- @if ($certi_cb->fullyApproveReport()) --}}
                             <button type="button" class="form_group btn {{$review_btn}}"  data-toggle="modal" data-target="#ReviewModal">
                                 {!! $review_icon !!} ทบทวนฯ
                             </button>
-                        @else
+                        {{-- @else
                         อนุมัติรายงานยังไม่ครบ
-                        @endif
+                        @endif --}}
 
 
 

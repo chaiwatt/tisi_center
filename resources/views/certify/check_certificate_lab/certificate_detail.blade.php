@@ -278,7 +278,7 @@
                 });
             });
 
-            console.log(switches);
+            // console.log(switches);
 
             if(checkNone(certilab_file_id)){
                 $.ajax({

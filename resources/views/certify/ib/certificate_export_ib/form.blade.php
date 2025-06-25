@@ -35,7 +35,9 @@
 
             $export_ib->name_unit = !empty($appData->name_unit)?$appData->name_unit:null;
             $export_ib->name_en_unit = !empty($appData->name_en_unit)?$appData->name_en_unit:null;
-            $export_ib->certificate = !empty($appData->certificate)?$appData->certificate:null;
+            // $export_ib->certificate = !empty($appData->certificate)?$appData->certificate:null;
+            $export_ib->certificate = $cerNo;
+            // $cerNo
 
             //ที่อยู่
             $export_ib->address = !empty($appData->address)?$appData->address:null;

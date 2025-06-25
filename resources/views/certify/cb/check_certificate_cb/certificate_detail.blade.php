@@ -249,6 +249,24 @@
         $('#myTable tbody').on('change', '.js-switch', function(){
             var item_id =  $(this).data('item_id');
             var state = $("input[name=state]:checked").val()==1?1:0;
+
+
+            var switches = [];
+
+            // วนลูปอ่านค่าจาก .js-switch ทุกตัวใน #myTable tbody
+            $('#myTable tbody .js-switch').each(function() {
+                var certicb_file_id = $(this).data('item_id'); // ดึงค่า certicb_file_id
+                var state = $(this).is(':checked') ? 1 : 0; // ดึงสถานะ (checked หรือไม่)
+
+                // เก็บค่าที่อ่านได้ในรูปของ object
+                switches.push({
+                    certicb_file_id: certicb_file_id,
+                    state: state,
+                   
+                });
+            });
+
+
             if(checkNone(item_id)){
                 $.ajax({
                     method: "POST",
@@ -256,7 +274,8 @@
                         data: {
                             "_token": "{{ csrf_token() }}",
                             "certicb_file_id": item_id,
-                            "state": state
+                            "state": state,
+                            "switches": switches
                     },
                     success : function (msg){
                         if (msg == "success") {
