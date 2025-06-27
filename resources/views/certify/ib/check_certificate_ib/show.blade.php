@@ -67,12 +67,15 @@
 
                         @php
                             $doneDocAuditorAssigment = $certi_ib->doc_auditor_assignment;
+                            // dd($certi_ib,$doneDocAuditorAssigment);
 
                         @endphp
 
                         @if ($certi_ib->status >= 9 && $doneDocAuditorAssigment != null)
+                       here
                         <div class="form_group btn-group">
                             <div class="btn-group">
+                                {{$certi_ib->ibDocReviewAuditor}}
                                 @if ($certi_ib->ibDocReviewAuditor == null)
                                         <button type="button" id="btn_doc_auditor" 
                                             class="btn {{ $doneDocAuditorAssigment == 1 ? 'btn-warning' : 'btn-info' }}">

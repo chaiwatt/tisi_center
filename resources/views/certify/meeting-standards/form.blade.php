@@ -155,11 +155,17 @@
             </thead>
             <tbody id="table_body">
                 @if(count($setstandard_meeting_types) > 0 )
+
                 @php
+                
                     if(!empty($meetingstandard) && $meetingstandard->status_id >= 4){
+                         
                         $standards =  App\Models\Certify\SetStandards::pluck('projectid', 'id');
                     }else{
-                        $standards =  App\Models\Certify\SetStandards::whereIn('status_id',[2,3])->pluck('projectid', 'id');
+                        $standards =  App\Models\Certify\SetStandards::whereIn('status_id',[2,3])
+                        ->orWhereIn('status_sub_appointment_id',[2,3])
+                        ->pluck('projectid', 'id');
+                    //    dd($standards);
                     }
                 @endphp
                 @foreach($setstandard_meeting_types as $item)

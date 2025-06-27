@@ -281,6 +281,10 @@
                                                     <a href="/certify/set-standards/{{$item->id}}" title="View setstandard" class="btn btn-info btn-xs" style="display: inline-block;">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
+                                                      <a href="/certify/set-standards/{{$item->id}}/edit_sub_appointment" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                        อนุ
+                                                    </a>
+                                                    {{-- certify/set-standards/{id?}/edit_sub_appointment --}}
                                                     <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
                                                         <i class="fa fa-pencil-square-o"></i>
                                                     </a>

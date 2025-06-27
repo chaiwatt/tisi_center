@@ -194,6 +194,7 @@ class StandardPlansController extends Controller
      */
     public function edit($id)
     {
+        // dd("ok");
         $model = str_slug('standardplans','-');
         if(auth()->user()->can('edit-'.$model)) {
             $standardplan                   = TisiEstandardDraftPlan::findOrFail($id);
@@ -238,13 +239,15 @@ class StandardPlansController extends Controller
              $set_standards  =  SetStandards::where('plan_id', $standardplan->id)->first();
 //  
             if($standardplan->status_id == 3 && is_null($set_standards)){  // นำส่งแผน
-                // dd($set_standards);
+                
                   $standards            = new  SetStandards;
                   $standards->plan_id   = $standardplan->id;
                 //   $standards->projectid =  self::get_projectid();
                 $standards->created_by  =  auth()->user()->getKey();
                   $standards->status_id = 0; // รอกำหนดมาตรฐาน
                   $standards->save();
+                  $meeting_group = $standards->estandard_plan_to->method_to->id;
+                //   dd($meeting_group);
             }   
             
             if($standardplan->status_id == 3 && (!empty($data_old['status_id']) && @$data_old['status_id'] == 6)){

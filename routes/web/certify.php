@@ -860,7 +860,16 @@ Route::group(['prefix' => 'certify'], function () {
     // Route::get('certify/set-standards/search_data_list', 'Certify\\SetStandardsController@search_data_list');
     Route::get('certify/set-standards/search_data_list', 'Certify\\SetStandardsController@search_data_list')->name('set-standards.search_data_list');
     Route::get('/certify/set-standards/get-estandard-plan/{plan_id?}', 'Certify\\SetStandardsController@GetEstandardPlan');
+
+    Route::get('certify/set-standards/{id?}/edit_sub_appointment', 'Certify\\SetStandardsController@editSubApointment');
+    // Route::put('certify/set-standards/{id?}/update_sub_appointment', 'Certify\\SetStandardsController@updateSubApointment');
+    Route::patch('certify/set-standards/{id?}/update_sub_appointment', 'Certify\\SetStandardsController@updateSubApointment');
+
+
     Route::resource('certify/set-standards', 'Certify\\SetStandardsController');
+
+
+
 
     // นัดหมายการประชุม
     Route::get('certify/meeting-standards/get_committee_lists', 'Certify\\MeetingStandardsController@get_committee_lists');

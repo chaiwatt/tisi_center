@@ -303,7 +303,6 @@ public function index(Request $request)
      */
     public function store(Request $request)
     {
-        // dd("create SetStandards");
         $model = str_slug('setstandard','-');
         if(auth()->user()->can('add-'.$model)) {
             $requestData = $request->all();
@@ -379,12 +378,8 @@ public function index(Request $request)
             $setstandard->condition =  'form_edit';
 
             $standardplan           =  $setstandard->estandard_plan_to;
-            $setstandard_commitees  = SetStandardCommitee::where('setstandard_id', $setstandard->id)
-                                    ->where('meeting_group',1)
-                                    ->select('commitee_id')->get();
-            $setstandard_summeeting = SetStandardSummeetings::where('setstandard_id', $setstandard->id)
-                                    ->where('meeting_group',1)
-                                    ->first();
+            $setstandard_commitees  = SetStandardCommitee::where('setstandard_id', $setstandard->id)->select('commitee_id')->get();
+            $setstandard_summeeting = SetStandardSummeetings::where('setstandard_id', $setstandard->id)->first();
 
             
             
@@ -393,9 +388,7 @@ public function index(Request $request)
             $certify_setstandard_meeting_type = $setstandard->certify_setstandard_meeting_type_many;
 
             if($certify_setstandard_meeting_type->count() > 0){
-                $meetingstandards = MeetingStandardRecordCost::whereIn('setstandard_id', $certify_setstandard_meeting_type->pluck('setstandard_id'))
-                                    ->where('meeting_group',1)
-                                    ->get();
+                $meetingstandards = MeetingStandardRecordCost::whereIn('setstandard_id', $certify_setstandard_meeting_type->pluck('setstandard_id'))->get();
             }
     //   dd($setstandard,$setstandard->estandard_plan_to->method_to,$setstandard->method_to,$standardplan,$setstandard_commitees,$setstandard_summeeting);
 
@@ -428,15 +421,6 @@ public function index(Request $request)
             $requestData = $request->all();
 
             $set_standards = SetStandards::findOrFail($id);
-            $meeting_group = 1;
-
-            SetStandardCommitee::where('setstandard_id',$id)->update([
-                'meeting_group' => $meeting_group
-            ]);
-
-            MeetingStandardRecordCost::where('setstandard_id',$id)->update([
-                'meeting_group' => $meeting_group
-            ]);
              
             if(is_null($set_standards->projectid)){
                 $requestData['projectid']   =  self::get_projectid();
@@ -465,7 +449,6 @@ public function index(Request $request)
                     $summeetings = new  SetStandardSummeetings;
                 }
                 $summeetings->setstandard_id    = $set_standards->id;
-                $summeetings->meeting_group = $meeting_group;
                 $summeetings->amount_sum        =  !empty($request->amount_sum)   ? str_replace(",","",$request->amount_sum)   : null ;
                 $summeetings->cost_sum          =  !empty($request->cost_sum)   ? str_replace(",","",$request->cost_sum) : null ;
                 $summeetings->detail            =  !empty($request->detail)   ? $request->detail : null ;
@@ -570,203 +553,6 @@ public function index(Request $request)
 
 
             return redirect('certify/set-standards/'.$id.'/edit')->with('flash_message', 'เรียบร้อยแล้ว!');
-        }
-        abort(403);
-
-    }
-
-    public function editSubApointment($id)
-    {
-        // dd($id);
-        $model = str_slug('setstandard','-');
-        if(auth()->user()->can('edit-'.$model)) {
-
-            $setstandard            = SetStandards::findOrFail($id);
-            $setstandard->condition =  'form_edit';
-
-            $standardplan           =  $setstandard->estandard_plan_to;
-            $setstandard_commitees  = SetStandardCommitee::where('setstandard_id', $setstandard->id)
-                                    ->where('meeting_group',2)
-                                    ->select('commitee_id')->get();
-            $setstandard_summeeting = SetStandardSummeetings::where('setstandard_id', $setstandard->id)
-                                    ->where('meeting_group',2)
-                                    ->first();
-
-            // dd($setstandard,$standardplan);
-            
-            $meetingstandards = collect();
-
-            $certify_setstandard_meeting_type = $setstandard->certify_setstandard_meeting_type_many;
-
-            if($certify_setstandard_meeting_type->count() > 0){
-                $meetingstandards = MeetingStandardRecordCost::whereIn('setstandard_id', $certify_setstandard_meeting_type->pluck('setstandard_id'))
-                                    ->where('meeting_group',2)
-                                    ->get();
-            }
-
-            return view('certify.set-standards.edit_sub_appointment', compact('setstandard',
-                                                              'setstandard_commitees',
-                                                              'setstandard_summeeting',
-                                                              'meetingstandards',
-                                                              'standardplan'
-                                                            ));
-        }
-
-        about('403');
-
-    }
-
-    public function updateSubApointment(Request $request, $id)
-    {
-        // dd($id,$request->all());
-        $model = str_slug('setstandard','-');
-        if(auth()->user()->can('edit-'.$model)) {
-
-        //  
-            $requestData = $request->all();
-
-            $set_standards = SetStandards::findOrFail($id);
-            $meeting_group = 2;
-
-            SetStandardCommitee::where('setstandard_id',$id)->update([
-                'meeting_group' => $meeting_group
-            ]);
-
-            MeetingStandardRecordCost::where('setstandard_id',$id)->update([
-                'meeting_group' => $meeting_group
-            ]);
-             
-            if(is_null($set_standards->projectid)){
-                $requestData['projectid']   =  self::get_projectid();
-                $requestData['created_by']  =  auth()->user()->getKey();
-            }
-
-            if($request->step_state == 1){
-                if($request->has('is_save')){
-                    $requestData['status_sub_appointment_id']   =  1;
-                }
-            }else  if($request->step_state == 2){
-                if($request->has('is_save')){
-                    $requestData['status_sub_appointment_id']   =  2;
-                }
-            }else  if($request->step_state == 3){
-                if($request->has('is_save')){
-                    $requestData['status_sub_appointment_id']   =  4;
-                }
-            }else  if($request->step_state == 4){
-                if($request->has('is_save')){
-                    $requestData['status_sub_appointment_id']   =  5;
-                }
-
-                $summeetings = SetStandardSummeetings::where('setstandard_id', $set_standards->id)->first();
-                if(is_null($summeetings)){
-                    $summeetings = new  SetStandardSummeetings;
-                }
-                $summeetings->setstandard_id    = $set_standards->id;
-                $summeetings->meeting_group = $meeting_group;
-                $summeetings->amount_sum        =  !empty($request->amount_sum)   ? str_replace(",","",$request->amount_sum)   : null ;
-                $summeetings->cost_sum          =  !empty($request->cost_sum)   ? str_replace(",","",$request->cost_sum) : null ;
-                $summeetings->detail            =  !empty($request->detail)   ? $request->detail : null ;
-                $summeetings->save();
-                $this->save_standard($set_standards);     
-            }
-
-            $draft_plan = TisiEstandardDraftPlan::findOrFail($set_standards->plan_id);
-            if(!is_null($draft_plan)){
-              $state          =  TisiEstandardDraftPlanHistorys::select(DB::raw('count(*) as state_count, state'))->where('draft_plan_id',$draft_plan->id)->groupBy('state')->get()->count();
-              $draft_plan_array = $draft_plan->toArray();
-              $draft_plan_list = [];
-              $draft_plan_list['std_type']          = !empty($request->std_type) ?  $request->std_type : @$draft_plan->std_type;
-              $draft_plan_list['start_std']         = !empty($request->start_std) ?  $request->start_std : @$draft_plan->start_std;
-              $draft_plan_list['tis_number']        = !empty($request->tis_number) ?  $request->tis_number : @$draft_plan->tis_number;
-              $draft_plan_list['tis_book']          = !empty($request->tis_book) ?  $request->tis_book : @$draft_plan->tis_book;
-              $draft_plan_list['tis_year']          = !empty($request->tis_year) ?  $request->tis_year : @$draft_plan->tis_year;
-              $draft_plan_list['tis_name']          = !empty($request->tis_name) ?  $request->tis_name : @$draft_plan->tis_name;
-              $draft_plan_list['tis_name_eng']      = !empty($request->tis_name_eng) ?  $request->tis_name_eng : @$draft_plan->tis_name_eng;
-              $draft_plan_list['ref_document']      = !empty($request->ref_document) ?  $request->ref_document : @$draft_plan->ref_document;
-              $draft_plan_list['reason']            = !empty($request->reason) ?  $request->reason : @$draft_plan->reason;
-              $draft_plan_list['confirm_time']      = !empty($request->confirm_time) ?  $request->confirm_time : @$draft_plan->confirm_time;
-              $draft_plan_list['industry_target']   = !empty($request->industry_target) ?  $request->industry_target : @$draft_plan->industry_target;
-              $draft_plan_list['plan_startdate']    = !empty($request->plan_startdate) ?  HP::convertDate($request->plan_startdate, true) : @$draft_plan->plan_startdate;
-              $draft_plan_list['plan_enddate']      = !empty($request->plan_enddate) ?  HP::convertDate($request->plan_enddate, true) : @$draft_plan->plan_enddate;
-              $draft_plan_list['period']            = !empty($request->period) ?  (int)$request->period : @$draft_plan->period;
-              $draft_plan_list['budget']            = !empty($request->budget) ?  str_replace(',', '', $request->budget) : @$draft_plan->budget;
-              $state = ($state+1);
-              //เก็บ Log
-              foreach ($draft_plan_list as $key => $value) {
-                  if(array_key_exists($key, $draft_plan_array) ){
-                      if($draft_plan_array[$key]!=$value){
-                          TisiEstandardDraftPlanHistorys::Add($draft_plan->id,
-                                                              $key,
-                                                              $draft_plan_array[$key],
-                                                              $value,
-                                                              $state
-                                                              );
-                      }
-                  }
-              }
-
-            //   $draft_plan_data   = [];
-            //   $draft_plan_data['tis_number']   = !empty($request->tis_number) ?  $request->tis_number : @$draft_plan->tis_number ;
-            //   $draft_plan_data['tis_book']     = !empty($request->tis_book) ?  $request->tis_book : @$draft_plan->tis_book ;
-            //   $draft_plan_data['tis_year']     = !empty($request->tis_year) ?  $request->tis_year : @$draft_plan->tis_year ;
-              $draft_plan->update($draft_plan_list);
-            }
-
-            $set_standards->update($requestData);
-  
-            $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
-            $projectid =  !empty($set_standards->projectid) ?  str_replace("-","",  $set_standards->projectid  ): '0000000000000';
-            
-              // เอกสารที่เกี่ยวข้อง step ที่ 1
-            if($set_standards->status_sub_appointment_id == 1  &&   isset( $requestData['repeater-attach_step1'] ) ){
-                $attach_step1 = $requestData['repeater-attach_step1'];
-
-                foreach( $attach_step1 as $file ){
-    
-                    if( isset($file['attach_step1']) && !empty($file['attach_step1']) ){
-                        HP::singleFileUpload(
-                            $file['attach_step1'],
-                            $this->attach_path.$projectid,
-                            ( $tax_number),
-                            (auth()->user()->FullName ?? null),
-                            'Center',
-                            (  (new SetStandards)->getTable() ),
-                            $set_standards->id,
-                            'file_set_standards_details',
-                            !empty($file['file_attach_step1_documents'])?$file['file_attach_step1_documents']:null
-                        );
-                    }
-                }
-            }
-    
-         // เอกสารที่เกี่ยวข้อง step ที่ 4
-            if($set_standards->status_sub_appointment_id == 5  &&   isset( $requestData['repeater-attach_step4'] ) ){
-                $attach_step4 = $requestData['repeater-attach_step4'];
-
-                foreach( $attach_step4 as $file ){
-
-                    if( isset($file['attach_step4']) && !empty($file['attach_step4']) ){
-                        HP::singleFileUpload(
-                            $file['attach_step4'],
-                            $this->attach_path.$projectid,
-                            ( $tax_number),
-                            (auth()->user()->FullName ?? null),
-                            'Center',
-                            (  (new SetStandards)->getTable() ),
-                            $set_standards->id,
-                            'file_set_standards',
-                            !empty($file['file_attach_step4_documents'])?$file['file_attach_step4_documents']:null
-                        );
-                    }
-                }
-            }
-            
-     
-         
-
-
-            return redirect('certify/set-standards/'.$id.'/edit_sub_appointment')->with('flash_message', 'เรียบร้อยแล้ว!');
         }
         abort(403);
 

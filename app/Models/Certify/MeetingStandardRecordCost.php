@@ -27,7 +27,7 @@ class MeetingStandardRecordCost extends Model
      *
      * @var array
      */
-    protected $fillable = ['meeting_record_id', 'setstandard_id', 'expense_other', 'cost', 'created_by', 'updated_by','status'];
+    protected $fillable = ['meeting_record_id', 'setstandard_id', 'expense_other', 'cost', 'created_by', 'updated_by','status','meeting_group'];
 
     /*
       Sorting

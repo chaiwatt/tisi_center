@@ -5,14 +5,12 @@
 </style>
 {{-- {{$setstandard->id}} --}}
 {{-- {{$setstandard->certify_setstandard_meeting_type_many}} --}}
-{{-- @php
-    dd($setstandard->certify_setstandard_meeting_type_many);
-@endphp --}}
+
 @if (count($setstandard->certify_setstandard_meeting_type_many) > 0)
-{{-- @if (count($setstandard->certify_setstandard_meeting_type_group_main_committees) > 0) --}}
+{{-- @if (count($setstandard->certify_setstandard_meeting_type_group_sub_committees) > 0) --}}
  
     @foreach ($setstandard->certify_setstandard_meeting_type_many as $key => $meetingstandard)
-    {{-- @foreach ($setstandard->certify_setstandard_meeting_type_group_main_committees as $meetingstandard) --}}
+    {{-- @foreach ($setstandard->certify_setstandard_meeting_type_group_sub_committees as $meetingstandard) --}}
     {{-- {{$meetingstandard->meeting_standard_to}} --}}
         {{-- @if ($meetingstandard->meeting_standard_to->meeting_group == 1) --}}
              @php

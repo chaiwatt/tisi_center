@@ -20,7 +20,7 @@ class SetStandards extends Model
     protected $primaryKey = 'id';
 
 
-    protected $fillable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'created_by', 'updated_by'];
+    protected $fillable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'status_sub_appointment_id', 'created_by', 'updated_by'];
 
 
     public $sortable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'created_by', 'updated_by'];
@@ -90,7 +90,7 @@ class SetStandards extends Model
     {
         return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_id')
                     ->whereHas('meeting_standard_to', function ($query) {
-                        $query->where('meeting_group', 0);
+                        $query->where('meeting_group', 2);
                     });
     }
 
