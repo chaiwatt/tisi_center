@@ -2393,8 +2393,8 @@ public function update_append(Request $request ,$id)
                $pay_in->end_date       =  isset($request->start_date) ?  HP::DatePlus($request->start_date,'30') : null;
                $pay_in->amount_bill    =  !empty(str_replace(",","",$request->amount))?str_replace(",","",$request->amount):  null;
                $pay_in->save();
-               $certify_step = 5;
-               $setting_payment = CertiSettingPayment::where('certify',$certify_step)->where('payin',1)->where('type',1)->first();
+               
+               $setting_payment = CertiSettingPayment::where('certify',5)->where('payin',1)->where('type',1)->first();
                
                $url    =  "$setting_payment->data?pid=$setting_payment->pid&out=json&Ref1=$pay_in->reference_refno-$pay_in->auditors_id";
 
