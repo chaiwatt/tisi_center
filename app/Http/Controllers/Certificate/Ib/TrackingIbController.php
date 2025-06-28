@@ -2408,7 +2408,7 @@ public function update_append(Request $request ,$id)
                $content =  file_get_contents($url, false, stream_context_create($arrContextOptions));
                $api = json_decode($content);
 
-               dd($api);
+            //    dd($api);
                if(!is_null($api) && $api->returnCode != '000'){
                    return response()->json([
                                             'message'      =>  false,
