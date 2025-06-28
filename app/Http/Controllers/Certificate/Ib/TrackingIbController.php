@@ -2404,7 +2404,7 @@ public function update_append(Request $request ,$id)
                                                    "verify_peer_name" => false,
                                                );
                }
-            //    dd($url);
+               dd($url);
                $content =  file_get_contents($url, false, stream_context_create($arrContextOptions));
                $api = json_decode($content);
 
