@@ -632,7 +632,7 @@ class AuditorIbController extends Controller
       }
 
 
-        public function auditor_ib_doc_review_store(Request $request)
+  public function auditor_ib_doc_review_store(Request $request)
   {
       // ตรวจสอบความถูกต้องของข้อมูลที่ได้รับ (Validation)
       // dd($request->all());
@@ -674,6 +674,7 @@ class AuditorIbController extends Controller
       $from_date = isset($request->start_date[0]) ? $this->convertThaiYearToAD($request->start_date[0]) : null;
       $to_date = isset($request->end_date[0]) ? $this->convertThaiYearToAD($request->end_date[0]) : null;
   
+      dd($request->auditor,json_encode($auditors, JSON_UNESCAPED_UNICODE));
       // บันทึกข้อมูลลงในฐานข้อมูล
       $trackingDocReviewAuditor = TrackingDocReviewAuditor::create([
           'tracking_id' => $request->tracking_id,
