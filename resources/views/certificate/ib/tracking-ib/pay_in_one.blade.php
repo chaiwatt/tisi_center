@@ -308,9 +308,9 @@ $SumCost = !empty($pay_in->auditors_to->SumCostConFirm) ? $pay_in->auditors_to->
 </div>
 @endif
 
-@php
+{{-- @php
     dd($pay_in);
-@endphp
+@endphp --}}
 
 @if($pay_in->state == null || $pay_in->state == 2)
 <input type="hidden" name="previousUrl" id="previousUrl" value="{{   app('url')->previous() }}">
