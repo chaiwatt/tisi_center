@@ -674,7 +674,7 @@ class AuditorIbController extends Controller
       $from_date = isset($request->start_date[0]) ? $this->convertThaiYearToAD($request->start_date[0]) : null;
       $to_date = isset($request->end_date[0]) ? $this->convertThaiYearToAD($request->end_date[0]) : null;
   
-      dd($request->auditor,json_encode($auditors, JSON_UNESCAPED_UNICODE));
+      // dd($request->auditor,json_encode($auditors, JSON_UNESCAPED_UNICODE));
       // บันทึกข้อมูลลงในฐานข้อมูล
       $trackingDocReviewAuditor = TrackingDocReviewAuditor::create([
           'tracking_id' => $request->tracking_id,
