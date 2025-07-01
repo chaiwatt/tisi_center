@@ -29,7 +29,7 @@ class CertifySetstandardMeetingType  extends Model
      *
      * @var array
      */
-    protected $fillable = ['setstandard_id', 'setstandard_meeting_id', 'meetingtype_id', 'created_by', 'updated_by'];
+    protected $fillable = ['setstandard_id', 'setstandard_meeting_id', 'meetingtype_id', 'created_by', 'updated_by','meeting_group'];
 
     /*
       Sorting

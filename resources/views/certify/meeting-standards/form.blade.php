@@ -105,8 +105,9 @@
     <div class="col-md-8">
         <select name="meeting_group" id="meeting_group" class="form-control" required>
             <option value="">- เลือกประเภท -</option>
-            <option value="0" {{ old('meeting_group') === '0' ? 'selected' : '' }}>คณะกรรมาธิการ</option>
+           
             <option value="1" {{ old('meeting_group') === '1' ? 'selected' : '' }}>คณะกำหนด</option>
+            <option value="2" {{ old('meeting_group') === '2' ? 'selected' : '' }}>คณะกรรมาธิการ</option>
         </select>
         @if ($errors->has('meeting_group'))
             <p class="help-block">{{ $errors->first('meeting_group') }}</p>

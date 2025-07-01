@@ -28,7 +28,7 @@ class SetStandardSummeetings extends Model
      *
      * @var array
      */
-    protected $fillable = ['setstandard_id', 'amount_sum', 'cost_sum', 'detail', 'attach', 'responsible_by',  'created_by', 'updated_by','meeting_group'];
+    protected $fillable = ['', 'amount_sum', 'cost_sum', 'detail', 'attach', 'responsible_by',  'created_by', 'updated_by','meeting_group'];
 
     /*
       Sorting

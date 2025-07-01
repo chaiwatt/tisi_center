@@ -2,29 +2,30 @@
 
 namespace App\Http\Controllers\Certify;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-
-use App\Models\Certify\Standard;
-use App\Models\Certify\SetStandards;
-use App\Models\Certify\SetStandardExperts;
-use App\Models\Certify\SetStandardCommitee;
-use App\Models\Certify\SetStandardSummeetings;
-
-use App\Models\Certify\MeetingStandard;
-use App\Models\Certify\MeetingStandardProject;
-use App\Models\Certify\MeetingStandardExperts;
-use App\Models\Certify\MeetingStandardRecord;
-use App\Models\Certify\MeetingStandardRecordCost;
-
-use App\Models\Tis\TisiEstandardDraftPlan;
-use App\Models\Tis\TisiEstandardDraft;
-use App\Models\Tis\TisiEstandardDraftPlanHistorys;
-use Yajra\Datatables\Datatables;
-use HP;
 use DB;
+use HP;
+use App\Http\Requests;
+
+
+use Illuminate\Http\Request;
+use App\Models\Tis\SetStandard;
+use App\Models\Certify\Standard;
+use Yajra\Datatables\Datatables;
+use App\Http\Controllers\Controller;
+
+use App\Models\Certify\SetStandards;
+use App\Models\Tis\TisiEstandardDraft;
+use App\Models\Certify\MeetingStandard;
+use App\Models\Certify\SetStandardExperts;
+use App\Models\Tis\TisiEstandardDraftPlan;
+use App\Models\Certify\SetStandardCommitee;
+use App\Models\Certify\MeetingStandardRecord;
+use App\Models\Certify\MeetingStandardExperts;
+use App\Models\Certify\MeetingStandardProject;
+use App\Models\Certify\SetStandardSummeetings;
+use App\Models\Certify\MeetingStandardRecordCost;
+use App\Models\Tis\TisiEstandardDraftPlanHistorys;
+use App\Models\Certify\CertifySetstandardMeetingType;
 
 class SetStandardsController extends Controller
 {
@@ -314,7 +315,7 @@ public function index(Request $request)
             $requestData['projectid']   =  $projectid;
             $requestData['status_id']   =  1;
             $requestData['estimate_cost']  = !empty(str_replace(",","", $requestData['estimate_cost']))?str_replace(",","",$requestData['estimate_cost']):null;
-
+            $requestData['agreement_detail']   =  null;
             $set_standards              =  SetStandards::create($requestData);
 
             $commitee_id = $requestData['commitee_id'];
@@ -390,13 +391,17 @@ public function index(Request $request)
             
             $meetingstandards = collect();
 
-            $certify_setstandard_meeting_type = $setstandard->certify_setstandard_meeting_type_many;
+            // $certify_setstandard_meeting_type = $setstandard->certify_setstandard_meeting_type_many;
+             $certify_setstandard_meeting_type = $setstandard->certify_setstandard_meeting_type_many_main_committees;
+           
 
             if($certify_setstandard_meeting_type->count() > 0){
                 $meetingstandards = MeetingStandardRecordCost::whereIn('setstandard_id', $certify_setstandard_meeting_type->pluck('setstandard_id'))
-                                    ->where('meeting_group',1)
+                                    // ->where('meeting_group',1)
                                     ->get();
             }
+            // dd($meetingstandards);
+            //   dd($setstandard,$meetingstandards ,$certify_setstandard_meeting_type);
     //   dd($setstandard,$setstandard->estandard_plan_to->method_to,$setstandard->method_to,$standardplan,$setstandard_commitees,$setstandard_summeeting);
 
             return view('certify.set-standards.edit', compact('setstandard',
@@ -460,7 +465,9 @@ public function index(Request $request)
                     $requestData['status_id']   =  5;
                 }
 
-                $summeetings = SetStandardSummeetings::where('setstandard_id', $set_standards->id)->first();
+                $summeetings = SetStandardSummeetings::where('setstandard_id', $set_standards->id)
+                            ->where('meeting_group',$meeting_group)
+                            ->first();
                 if(is_null($summeetings)){
                     $summeetings = new  SetStandardSummeetings;
                 }
@@ -596,11 +603,14 @@ public function index(Request $request)
             
             $meetingstandards = collect();
 
-            $certify_setstandard_meeting_type = $setstandard->certify_setstandard_meeting_type_many;
+            // $certify_setstandard_meeting_type = $setstandard->certify_setstandard_meeting_type_many;
+            $certify_setstandard_meeting_type = $setstandard->certify_setstandard_meeting_type_many_sub_committees;
+
+            // dd($certify_setstandard_meeting_type);
 
             if($certify_setstandard_meeting_type->count() > 0){
                 $meetingstandards = MeetingStandardRecordCost::whereIn('setstandard_id', $certify_setstandard_meeting_type->pluck('setstandard_id'))
-                                    ->where('meeting_group',2)
+                                    // ->where('meeting_group',2)
                                     ->get();
             }
 
@@ -640,7 +650,7 @@ public function index(Request $request)
                 $requestData['projectid']   =  self::get_projectid();
                 $requestData['created_by']  =  auth()->user()->getKey();
             }
-
+            // dd($request->step_state);
             if($request->step_state == 1){
                 if($request->has('is_save')){
                     $requestData['status_sub_appointment_id']   =  1;
@@ -658,7 +668,9 @@ public function index(Request $request)
                     $requestData['status_sub_appointment_id']   =  5;
                 }
 
-                $summeetings = SetStandardSummeetings::where('setstandard_id', $set_standards->id)->first();
+                $summeetings = SetStandardSummeetings::where('setstandard_id', $set_standards->id)
+                            ->where('meeting_group',$meeting_group)
+                            ->first();
                 if(is_null($summeetings)){
                     $summeetings = new  SetStandardSummeetings;
                 }
@@ -668,7 +680,7 @@ public function index(Request $request)
                 $summeetings->cost_sum          =  !empty($request->cost_sum)   ? str_replace(",","",$request->cost_sum) : null ;
                 $summeetings->detail            =  !empty($request->detail)   ? $request->detail : null ;
                 $summeetings->save();
-                $this->save_standard($set_standards);     
+                // $this->save_standard($set_standards);     
             }
 
             $draft_plan = TisiEstandardDraftPlan::findOrFail($set_standards->plan_id);
@@ -935,4 +947,63 @@ public function index(Request $request)
                 $standard->save(); 
     }
 
+
+    public function getAgreement(Request $request)
+    {
+        
+            $setStandard = SetStandards::findOrFail($request->id);
+// dd("ok");
+          return response()->json($setStandard);
+    }
+
+    public function endStandard(Request $request)
+    {
+        // dd($request->all());
+         SetStandards::findOrFail($request->id)->update([
+            'agreement_status' => 2,
+            'agreement_detail' => $request->details
+         ]);
+    }
+
+    public function reNewStandard(Request $request)
+    {
+          SetStandards::findOrFail($request->id)->update([
+            'status_sub_appointment_id' => null,
+            'agreement_status' => 3,
+            'agreement_detail' => $request->details
+         ]);
+
+         SetStandardSummeetings::where('setstandard_id',$request->id)->update([
+            'meeting_group' => null
+         ]);
+
+         $certifySetstandardMeetingType = CertifySetstandardMeetingType::where('setstandard_id')->where('meeting_group',2)->first();
+         if( $certifySetstandardMeetingType !== null)
+         {
+             MeetingStandard::find($certifySetstandardMeetingType->setstandard_meeting_id)->update([
+                'meeting_group' => null
+            ]);
+         }
+
+    }
+
+    public function acceptStandard(Request $request)
+    {
+          SetStandards::findOrFail($request->id)->update([
+            'agreement_status' => 1,
+            'agreement_detail' => $request->details
+         ]);
+    }
+
+    public function updateStandardCircularDoc(Request $request)
+    {
+        // dd($request->all());
+          SetStandards::findOrFail($request->id)->update([
+            'standard_circular_doc_status' => $request->circularDocValue,
+            'standard_circular_doc_details' => $request->details
+         ]);
+    }
+
+//     Route::POST('certify/standard-drafts/update-standard-circular-doc', 'Certify\\SetStandardsController@updateStandardCircularDoc');
+    
 }

@@ -34,8 +34,9 @@
                             <div class="col-md-8">
                                 <select name="doc_type" id="doc_type" class="select2 form-control" data-placeholder="- เลือกประเภท -">
                                     <option></option> <!-- placeholder -->
-                                    <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>เชิญประชุมอนุกรรมการวิชาการ</option>
-                                    <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด</option>
+                                    
+                                    <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด</option>
+                                    <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }}>เชิญประชุมอนุกรรมการวิชาการ</option>
                                 </select>
                                 @if ($errors->has('doc_type'))
                                     <p class="help-block">{{ $errors->first('doc_type') }}</p>
@@ -43,57 +44,7 @@
                             </div>
                         </div>
 
-                        {{-- <div class="form-group {{ $errors->has('header') ? 'has-error' : '' }}">
-                            <label for="header" class="col-md-3 control-label">ที่ :</label>
-                            <div class="col-md-8">
-                                <input type="text" name="header" value="อก ๐๐๐/ว ๑๒๓๔" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="form-group {{ $errors->has('order_date') ? 'has-error' : '' }}">
-                            <label for="order_date" class="col-md-3 control-label">วันที่:</label>
-                            <div class="col-md-8">
-                                <input type="text" name="order_date" value="๒๒ สิงหาคม ๒๕๖๗" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                            <label for="title" class="col-md-3 control-label">เรื่อง :</label>
-                            <div class="col-md-8">
-                                <input type="text" name="title" value="ขอเชิญประชุมคณะกรรมการกำหนดมาตรฐานด้านการตรวจสอบและรับรอง ครั้งที่ ๒๓ – ๓/๒๕๖๗" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="form-group {{ $errors->has('attachment_text') ? 'has-error' : '' }}">
-                            <label for="attachment_text" class="col-md-3 control-label">สิ่งที่ส่งมาด้วย:</label>
-                            <div class="col-md-8">
-                                <textarea name="attachment_text" class="form-control" rows="3">๑. ระเบียบวาระการประชุมคณะกรรมการกำหนดมาตรฐานด้านการตรวจสอบและรับรองครั้งที่ ๒๓ – ๓/๒๕๖๗
-๒. แบบตอบรับการเข้าร่วมประชุม</textarea>
-                                @if ($errors->has('attachment_text'))
-                                    <p class="help-block">{{ $errors->first('attachment_text') }}</p>
-                                @endif
-                            </div>
-                        </div> --}}
-
-                        {{-- <div class="form-group {{ $errors->has('detail') ? 'has-error' : '' }}">
-                            <label for="detail" class="col-md-3 control-label">รายละเอียด:</label>
-                            <div class="col-md-8">
-                                <textarea name="detail" class="form-control" rows="10">ด้วยคณะกรรมการกำหนดมาตรฐานด้านการตรวจสอบและรับรอง กำหนดให้มีการประชุม คณะกรรมการกำหนดมาตรฐานด้านการตรวจสอบและรับรอง ครั้งที่ ๒๓ – ๓/๒๕๖๗ในวันจันทร์ที่ ๑๖ กันยายน ๒๕๖๗ เวลา ๑๓.๓๐ – ๑๖.๐๐ น. ณ ห้องประชุม ๒๓๐ สำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม และระบบ Zoom Cloud Meeting (Meeting ID: 945 1428 2434 Passcode: 603552) ทั้งนี้ ระเบียบวาระการประชุม เอกสารประกอบการประชุม และแบบตอบรับการเข้าร่วมประชุม สามารถสแกนผ่าน QR Code ท้ายหนังสือนี้</textarea>
-                                @if ($errors->has('detail'))
-                                    <p class="help-block">{{ $errors->first('detail') }}</p>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group {{ $errors->has('ps_text') ? 'has-error' : '' }}">
-                            <label for="ps_text" class="col-md-3 control-label">ท้าย:</label>
-                            <div class="col-md-8">
-                                <textarea name="ps_text" class="form-control" rows="3">จึงเรียนมาเพื่อขอเรียนเชิญท่านเข้าร่วมประชุมตามวัน เวลา และสถานที่ดังกล่าวข้างต้นโดยขอความกรุณาส่งแบบตอบรับการเข้าร่วมประชุมให้ฝ่ายเลขานุการทราบ ภายในวันที่ ๑๐ กันยายน ๒๕๖๗</textarea>
-                                @if ($errors->has('ps_text'))
-                                    <p class="help-block">{{ $errors->first('ps_text') }}</p>
-                                @endif
-                            </div>
-                        </div> --}}
+                 
 
                         <div class="form-group {{ $errors->has('header') ? 'has-error' : '' }}">
                             <label for="header" class="col-md-3 control-label">ที่ :</label>

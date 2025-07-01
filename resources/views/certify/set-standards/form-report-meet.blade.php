@@ -4,9 +4,9 @@
         $quantity_status = 0;
         $sum_cost_status = 0;
     @endphp
-@if (count($setstandard->certify_setstandard_meeting_type_many) > 0)
+@if (count($setstandard->certify_setstandard_meeting_type_group_main_committees) > 0)
 
-@foreach ($setstandard->certify_setstandard_meeting_type_many as $key => $meetingstandard)
+@foreach ($setstandard->certify_setstandard_meeting_type_group_main_committees as $key => $meetingstandard)
 @php
      $record =   !empty($meetingstandard->meeting_standard_to->record) ? $meetingstandard->meeting_standard_to->record : null ;
      if(!is_null($record) && !empty($meetingstandard->setstandard_to->projectid)  &&  !empty($meetingstandard->meetingtype_to->title)){

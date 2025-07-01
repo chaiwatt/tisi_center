@@ -6,11 +6,130 @@
 <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
 <style>
 .pointer {cursor: pointer;}
+  .form-check-inline.mr-5 {
+        margin-right: 2rem; /* Increased spacing after the first radio button */
+    }
+    .form-check-inline.ml-3 {
+        margin-left: 1.5rem; /* Added spacing before the second radio button */
+    }
 </style>
 @endpush
 
 
 @section('content')
+
+<div class="modal fade text-left" tabindex="10" id="AddStdAgreement" role="dialog" aria-labelledby="AddStdAgreementLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="AddStdAgreementLabel">เห็นชอบ</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="bx bx-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="white-box">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <!-- ช่องค้นหา -->
+                                    <div class="row">
+                                        <label for="agrement_detail" class="col-md-2 control-label label-filter">รายละเอียด:</label>
+                                        <div class="col-md-10 form-group">
+                                            <textarea name="agrement_detail" id="agrement_detail" class="form-control" rows="4" ></textarea>
+                                        </div>
+                                    </div>
+                                <div class="form-group row align-items-center">
+                                    <label class="col-md-2 control-label mb-0"></label>
+                                    <div class="col-md-9">
+                                        <label class="form-check-inline mb-0 mr-4">
+                                            <input class="form-check-input " type="radio" name="agreement" id="agreement_1" value="1" data-id="#agreement" data-radio="iradio_square-green" checked>
+                                            เห็นชอบ  &nbsp;&nbsp;&nbsp;  
+                                        </label>
+                                        <label class="form-check-inline mb-0">
+                                            <input class="form-check-input " type="radio" name="agreement" id="agreement_2" value="2" data-id="#agreement" data-radio="iradio_square-green">
+                                            ไม่เห็นชอบ
+                                        </label>
+                                    </div>
+                                </div>
+
+                                </div> <!-- col-md-12 -->
+                            </div> <!-- row -->
+                        </div> <!-- white-box -->
+                    </div> <!-- col-md-12 -->
+                </div> <!-- row -->
+
+                <div class="modal-footer" id="button_wrapper">
+                    <button type="button" class="btn btn-light-secondary" data-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">ยกเลิก</span>
+                    </button>
+                    <button type="button" class="btn btn-primary ml-1" data-dismiss="modal" id="btn_add_std">
+                        <i class="bx bx-check d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">บันทึก</span>
+                    </button>
+                </div>
+            </div> <!-- modal-body -->
+        </div> <!-- modal-content -->
+    </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+
+
+<div class="modal fade text-left" tabindex="10" id="StandardCircularDoc" role="dialog" aria-labelledby="StandardCircularDocLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="StandardCircularDocLabel">เวียนมาตรฐาน</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="bx bx-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="white-box">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <!-- ช่องค้นหา -->
+
+                                    <div class="form-group row align-items-center">
+                                        <label class="col-md-3 control-label mb-0">เวียนมาตรฐาน</label>
+                                        <div class="col-md-9">
+                                            <label class="form-check-inline mb-0 mr-4">
+                                                <input class="form-check-input " type="radio" name="standard_circular_doc" id="standard_circular_doc_1" value="1" data-id="#standard_circular_doc" data-radio="iradio_square-green" checked>
+                                                ไม่เวียนมาตรฐาน  &nbsp;&nbsp;&nbsp;  
+                                            </label>
+                                            <label class="form-check-inline mb-0">
+                                                <input class="form-check-input " type="radio" name="standard_circular_doc" id="standard_circular_doc_2" value="2" data-id="#standard_circular_doc" data-radio="iradio_square-green">
+                                                เวียนมาตรฐาน
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="standard_circular_doc_detail_wrapper">
+                                        <label for="standard_circular_doc_detail" class="col-md-2 control-label label-filter">รายละเอียด:</label>
+                                        <div class="col-md-10 form-group">
+                                            <textarea name="standard_circular_doc_detail" id="standard_circular_doc_detail" class="form-control" rows="4" ></textarea>
+                                        </div>
+                                    </div>
+                                </div> <!-- col-md-12 -->
+                            </div> <!-- row -->
+                        </div> <!-- white-box -->
+                    </div> <!-- col-md-12 -->
+                </div> <!-- row -->
+
+                <div class="modal-footer" id="button_circular_doc_wrapper">
+                    <button type="button" class="btn btn-light-secondary" data-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">ยกเลิก</span>
+                    </button>
+                    <button type="button" class="btn btn-primary ml-1" data-dismiss="modal" id="btn_add_circular_doc">
+                        <i class="bx bx-check d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">บันทึก</span>
+                    </button>
+                </div>
+            </div> <!-- modal-body -->
+        </div> <!-- modal-content -->
+    </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+
+
     <div class="container-fluid">
         <!-- .row -->
         <div class="row">
@@ -25,96 +144,6 @@
 
                     <div class="clearfix"></div>
                     <hr>
-
-               
-                    {{-- <div class="row ">
-                        <div class="col-md-5 form-group">
-                          <div class=" {{ $errors->has('filter_search') ? 'has-error' : ''}}">
-                              {!! Form::label('filter_search', 'คำค้น'.' :', ['class' => 'col-md-3 control-label text-right ']) !!}
-                              <div class="col-md-9">
-                                  {!! Form::text('filter_search', null,  ['id' => 'filter_search','class' => 'form-control']) !!}
-                              </div>
-                           </div>
-                        </div>
-                        <div class="col-md-5">
-                          <div class=" {{ $errors->has('filter_year') ? 'has-error' : ''}}">
-                            {!! Form::label('filter_year', 'ร่างแผนปี'.' :', ['class' => 'col-md-3 control-label text-right ']) !!}
-                            <div class="col-md-9">
-                                {!! Form::select('filter_year',
-                                    HP::Years(), 
-                                  null, 
-                                  ['class' => 'form-control', 
-                                  'id'=>'filter_year',
-                                  'placeholder' => '-- เลือกร่างแผนปี --']); !!}
-                            </div>
-                         </div>
-                      </div> 
-                    </div> --}}
-  
-{{--     
-                    <div class="row ">
-                      <div class="col-md-5 form-group ">
-                        <div class=" {{ $errors->has('filter_standard_type') ? 'has-error' : ''}}">
-                            {!! Form::label('filter_standard_type', 'ประเภท'.' :', ['class' => 'col-md-3 control-label text-right ']) !!}
-                            <div class="col-md-9">
-                                    {!! Form::select('filter_standard_type',
-                                    App\Models\Bcertify\Standardtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id'), 
-                                    null,
-                                    ['class' => 'form-control',
-                                    'id'=>'filter_standard_type',
-                                    'placeholder'=>'-- เลือกประเภท --']) 
-                                !!}
-                            </div>
-                         </div>
-                      </div>
-                      <div class="col-md-5">
-                        <div class=" {{ $errors->has('filter_method_id') ? 'has-error' : ''}}">
-                          {!! Form::label('filter_method_id', 'วิธีการ'.' :', ['class' => 'col-md-3 control-label text-right ']) !!}
-                          <div class="col-md-9">
-                                {!! Form::select('filter_method_id',
-                                    App\Models\Basic\Method::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id'), 
-                                    null,
-                                    ['class' => 'form-control',
-                                    'id'=>'filter_method_id',
-                                     'placeholder'=>'-- เลือกวิธีการ --']) 
-                                !!}
-                          </div>
-                       </div> 
-                    </div>
-                  </div> --}}
-  
-    
-                  {{-- <div class="row  ">
-                    <div class="col-md-5 form-group ">
-                      <div class=" {{ $errors->has('filter_status') ? 'has-error' : ''}}">
-                          {!! Form::label('filter_status', 'สถานะ'.' :', ['class' => 'col-md-3 control-label text-right ']) !!}
-                          <div class="col-md-9">
-                              {!! Form::select('filter_status',
-                              ['-1'=>'รอกำหนดมาตรฐาน',
-                                '1'=>'อยู่ระหว่างดำเนินการ',
-                               '2'=>'อยู่ระหว่างการประชุม', 
-                               '3'=>'อยู่ระหว่างสรุปรายงานการประชุม', 
-                               '4'=>'อยู่ระหว่างจัดทำมาตรฐาน', 
-                               '5'=>'สรุปวาระการประชุมเรียบร้อย'], 
-                            null, 
-                            ['class' => 'form-control', 
-                            'id'=>'filter_status',
-                            'placeholder' => '-- เลือกสถานะ --']); !!}
-                          </div>
-                       </div>
-                    </div>
-                    <div class="col-md-5 ">  </div>
-                    <div class="col-md-2">
-                        <div class="  pull-left">
-                            <button type="button" class="btn btn-info waves-effect waves-light" id="button_search"  style="margin-bottom: -1px;">ค้นหา</button>
-                        </div>
-                        <div class="  pull-left m-l-15">
-                            <button type="button" class="btn btn-warning waves-effect waves-light" id="filter_clear">
-                                ล้าง
-                            </button>
-                        </div>
-                    </div>
-                </div> --}}
 
                 {!! Form::open(['route' => 'set-standards.search_data_list', 'method' => 'GET', 'id' => 'search_form']) !!}
                     <div class="row">
@@ -265,7 +294,7 @@
                                                 </a> --}}
 
                                                 <div style="display: inline-flex; align-items: center; gap: 5px;">
-                                                    <a href="" title="View setstandard" class="btn btn-danger btn-xs" style="display: inline-block;">
+                                                    {{-- <a href="" title="View setstandard" class="btn btn-danger btn-xs" style="display: inline-block;">
                                                         <i class="fa fa-cog"></i>
                                                     </a>
                                                     <div class="dropdown" style="display: inline-block;">
@@ -277,17 +306,76 @@
                                                             <li><a href="#">เวียนรมาตรฐาน</a></li>
                                                             <li><a href="#">คณะกรรมหนด</a></li>
                                                         </ul>
-                                                    </div>
+                                                    </div> --}}
                                                     <a href="/certify/set-standards/{{$item->id}}" title="View setstandard" class="btn btn-info btn-xs" style="display: inline-block;">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
-                                                      <a href="/certify/set-standards/{{$item->id}}/edit_sub_appointment" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
-                                                        อนุ
-                                                    </a>
-                                                    {{-- certify/set-standards/{id?}/edit_sub_appointment --}}
-                                                    <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
-                                                        <i class="fa fa-pencil-square-o"></i>
-                                                    </a>
+                                                    {{-- @php
+                                                        dd($item)
+                                                    @endphp --}}
+
+                                                   
+                                                    @if ($item->estandard_plan_to->method_to->id == 2)
+                                                            <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                            </a>
+                                                    @elseif($item->estandard_plan_to->method_to->id == 3)
+
+                                                   {{-- {{$item->subAppointmentMeetingApproved->count()}} --}}
+                                                                @if ($item->subAppointmentMeetingApproved->count() == 0)
+                                                                        <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                            <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                        </a>
+                                                                  @else  
+                                                                        <a href="/certify/set-standards/{{$item->id}}/edit_sub_appointment" title="Edit setstandard" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                                        </a>
+                                                                @endif
+                                                               
+
+                                                      
+
+                                                            @if ($item->status_sub_appointment_id == 5)
+                                                                <a href="javascript:void(0)" 
+                                                                        title="Edit setstandard" 
+                                                                        class="btn {{ $item->agreement_status != null ? 'btn-info' : 'btn-warning' }} btn-xs btn-agreement" 
+                                                                        style="display: inline-block;" 
+                                                                        
+                                                                        data-id="{{$item->id}}">
+                                                                      <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                                                </a>
+                                                                {{-- @php
+                                                                    dd($item->agreement_status);
+                                                                @endphp --}}
+                                                                @if ($item->agreement_status == 1)
+                                                                    <a href="javascript:void(0)" data-id="{{$item->id}}"  class="btn {{ $item->standard_circular_doc_status != null ? 'btn-info' : 'btn-warning' }} btn-xs  btn-standard-circular-doc" style="display: inline-block;">
+                                                                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                                    </a>
+                                                                    
+                                                                    @if ($item->standard_circular_doc_status != null)
+                                              {{-- {{$item->mainAppointmentMeetingApproved }} --}}
+                                                                         @if ($item->mainAppointmentMeetingApproved->count() == 0)
+                                                                                <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                                </a>
+                                                                        @else  
+                                                                            <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                            </a>
+
+                                                                        @endif
+                                                                    @endif
+
+                                                                    
+                                                                @endif
+                                                                
+                                                              @endif
+                                                          
+                                                      
+
+                                                    @endif
+                                               
+                                                    {{-- {{$item->estandard_plan_to->method_to->id}} --}}
                                                 </div>
                                             </td>
                                         </tr>
@@ -329,7 +417,244 @@
     <script>
         $(document).ready(function () {
 
+// 
 
+                         // Override the click event for the "เห็นชอบ" link to capture data-id
+    $('.btn-agreement').on('click', function(e) {
+        e.preventDefault(); // Prevent default Bootstrap modal trigger
+        var dataId = $(this).data('id'); // Get the data-id attribute
+
+            $.ajax({
+            type: "POST",
+            url: "{{ url('/certify/standard-drafts/get-agreement') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id: dataId
+            },
+            success: function(data) {
+                // console.log(data);
+                // Set the agreement_detail in the textarea
+                $('#agrement_detail').val(data.agreement_detail);
+                // Set radio button based on agreement_status
+                if (data.agreement_status === "1") {
+                    $('#agreement_1').prop('checked', true); // Check "เห็นชอบ"
+                    $('#agreement_2').prop('checked', false);
+                } else if (data.agreement_status === "2" || data.agreement_status === "3") {
+                    $('#agreement_2').prop('checked', true); // Check "ไม่เห็นชอบ"
+                    $('#agreement_1').prop('checked', false);
+                }
+
+                  // Show or hide button_wrapper based on agreement_status
+                if (data.agreement_status == null ) {
+                    $('#button_wrapper').show();
+                       $('#AddStdAgreement').find('input, textarea').prop('disabled', false);
+                } else {
+                    $('#button_wrapper').hide();
+                      $('#AddStdAgreement').find('input, textarea').prop('disabled', true);
+                }
+                // Store data-id in the modal
+                $('#AddStdAgreement').data('id', dataId);
+                // Show the modal
+                $('#AddStdAgreement').modal('show');
+            },
+            error: function(error) {
+                console.error("Error fetching agreement data", error);
+            }
+        });
+
+        $('#AddStdAgreement').data('id', dataId);
+    });                                                 
+
+
+    $('.btn-standard-circular-doc').on('click', function(e) {
+        e.preventDefault(); // Prevent default Bootstrap modal trigger
+        var dataId = $(this).data('id'); // Get the data-id attribute
+
+            $.ajax({
+                type: "POST",
+                url: "{{ url('/certify/standard-drafts/get-agreement') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: dataId
+                },
+                success: function(data) {
+                    console.log(data);
+                   
+                    $('#standard_circular_doc_detail').val(data.standard_circular_doc_details);
+                
+                    if (data.standard_circular_doc_status === "1") {
+                        $('#standard_circular_doc_1').prop('checked', true); 
+                        $('#standard_circular_doc_2').prop('checked', false);
+                    } else if (data.standard_circular_doc_status === "2") {
+                        $('#standard_circular_doc_2').prop('checked', true); 
+                        $('#standard_circular_doc_1').prop('checked', false);
+                    }
+
+                
+                    if (data.standard_circular_doc_status == null ) {
+                        $('#button_circular_doc_wrapper').show();
+                        $('#StandardCircularDoc').find('input, textarea').prop('disabled', false);
+                    } else {
+                        $('#button_circular_doc_wrapper').hide();
+                        $('#StandardCircularDoc').find('input, textarea').prop('disabled', true);
+                    }
+                 
+                    $('#StandardCircularDoc').data('id', dataId);
+                     toggleCircularDocDetail();
+              
+                    $('#StandardCircularDoc').modal('show');
+                },
+                error: function(error) {
+                    console.error("Error fetching agreement data", error);
+                }
+            });
+
+        $('#StandardCircularDoc').data('id', dataId);
+    });                                                 
+
+
+
+        function toggleCircularDocDetail() {
+            var selectedValue = $('input[name="standard_circular_doc"]:checked').val();
+            if (selectedValue === "2") {
+                $('#standard_circular_doc_detail_wrapper').show();
+            } else {
+                $('#standard_circular_doc_detail_wrapper').hide();
+            }
+        }
+
+        // Set initial state (hide by default)
+        $('#standard_circular_doc_detail_wrapper').hide();
+
+        // Run toggle on radio button change
+        $('input[name="standard_circular_doc"]').on('change', function() {
+            toggleCircularDocDetail();
+        });
+
+        // Run toggle on modal show to handle initial state
+        $('#AddStdAgreement').on('show.bs.modal', function() {
+            toggleCircularDocDetail();
+        });
+
+        // Route::POST('certify/standard-drafts/update-standard-circular-doc', 'Certify\\SetStandardsController@updateStandardCircularDoc');
+
+        $('#btn_add_circular_doc').on('click', function() {
+            // Get the selected radio button value
+            // var agreementValue = $('input[name="agreement"]:checked').val();
+            var details = $('#standard_circular_doc_detail').val();
+             var dataId = $('#StandardCircularDoc').data('id'); // Retrieve data-id
+              var circularDocValue = $('input[name="standard_circular_doc"]:checked').val();
+
+              console.log(circularDocValue,dataId,details)
+                $.ajax({
+                        type:"POST",
+                        url:  "{{ url('/certify/standard-drafts/update-standard-circular-doc') }}",
+                        data:{
+                            _token: "{{ csrf_token() }}",
+                            id: dataId,
+                            circularDocValue: circularDocValue,
+                            details: details,
+                        },
+                        success:function(data){
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000); 
+                        }
+                });
+        });
+
+        $('#btn_add_std').on('click', function() {
+            // Get the selected radio button value
+            var agreementValue = $('input[name="agreement"]:checked').val();
+            var details = $('#agrement_detail').val();
+             var dataId = $('#AddStdAgreement').data('id'); // Retrieve data-id
+// console.log(dataId);
+            //  return;
+
+            if (agreementValue === "1") {
+                // If "เห็นชอบ" is selected
+                // certify/standard-drafts/accept-standard
+                console.log("เห็นชอบ selected with details: " + details);
+                    $.ajax({
+                            type:"POST",
+                            url:  "{{ url('/certify/standard-drafts/accept-standard') }}",
+                            data:{
+                                _token: "{{ csrf_token() }}",
+                                id: dataId,
+                                details: details,
+                            },
+                            success:function(data){
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1000); // รีโหลดหลังจาก 1 วินาที
+                            }
+                    });
+                // Add your logic for "เห็นชอบ" here, e.g., submit form or AJAX call
+            } else if (agreementValue === "2") {
+                // If "ไม่เห็นชอบ" is selected, show Swal with three buttons
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ต้องการยกเลิกทำมาตรฐานหรือไม่ !',
+                    html: `
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <button id="swal-new-standard" class="swal2-confirm swal2-styled" style="background-color: #28a745; font-size: 1.5rem; padding: 12px 24px; width: 98%;">ทำมาตรฐานใหม่</button>
+                            <button id="swal-cancel-standard" class="swal2-confirm swal2-styled" style="background-color: #3085d6; font-size: 1.5rem; padding: 12px 24px; width: 98%;">ยกเลิกทำมาตรฐาน</button>
+                            <button id="swal-cancel" class="swal2-cancel swal2-styled" style="background-color: #ffc107; font-size: 1.5rem; padding: 12px 24px; width: 98%;">ยกเลิก</button>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCancelButton: false,
+                    didOpen: () => {
+                        // Attach event listeners to custom buttons
+                        document.getElementById('swal-new-standard').addEventListener('click', () => {
+                            Swal.close();
+                            console.log("ทำมาตรฐานใหม่ confirmed with details: " + details);
+
+                                $.ajax({
+                                        type:"POST",
+                                        url:  "{{ url('/certify/standard-drafts/renew-standard') }}",
+                                        data:{
+                                            _token: "{{ csrf_token() }}",
+                                            id: dataId,
+                                            details: details,
+                                        },
+                                        success:function(data){
+                                                setTimeout(function() {
+                                                    location.reload();
+                                                }, 1000); // รีโหลดหลังจาก 1 วินาที       
+                                        }
+                                });
+                            // Add your logic for "ทำมาตรฐานใหม่" here, e.g., reset form or redirect
+                        });
+                        document.getElementById('swal-cancel-standard').addEventListener('click', () => {
+                            Swal.close();
+                            console.log("ยกเลิกทำมาตรฐาน confirmed with details: " + details);
+
+                                $.ajax({
+                                        type:"POST",
+                                        url:  "{{ url('/certify/standard-drafts/end-standard') }}",
+                                        data:{
+                                            _token: "{{ csrf_token() }}",
+                                            id: dataId,
+                                            details: details,
+                                        },
+                                        success:function(data){
+                                            setTimeout(function() {
+                                                location.reload();
+                                            }, 1000); // รีโหลดหลังจาก 1 วินาที
+                                        }
+                                });
+                            // Add your logic for "ยกเลิกทำมาตรฐาน" here, e.g., AJAX call to delete
+                        });
+                        document.getElementById('swal-cancel').addEventListener('click', () => {
+                            Swal.close();
+                            console.log("Action cancelled");
+                            // Logic for when "ยกเลิก" is clicked
+                        });
+                    }
+                });
+            }
+        });
             //ช่วงวันที่
             $('.date-range').datepicker({
               toggleActive: true,

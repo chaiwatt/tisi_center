@@ -21,6 +21,23 @@
 </div>
 
 <div class="form-group {{ $errors->has('isbn_no') ? 'has-error' : ''}}">
+    <label for="isbn_no" class="col-md-3 control-label">สถานะการขอ ISBN:</label>
+    <div class="col-md-7">
+       
+            <p class="help-block {{ $request_status == 4 ? 'text-success' : ($request_status == 3 || $request_status == 5 ? 'text-danger' : 'text-info') }}">
+                {{ $status_text }}
+                @if ($isbn_number != null)
+                    <span>: {{ $isbn_number }}</span>
+                @endif
+                @if (!empty($admin_msg))
+                    <span> {{ $admin_msg }}</span>
+                @endif
+            </p>
+     
+    </div>
+</div>
+
+<div class="form-group {{ $errors->has('isbn_no') ? 'has-error' : ''}}">
     {!! Form::label('isbn_no', 'เลข ISBN:', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-7">
         {!! Form::text('isbn_no', null, ('' == 'required') ? ['class' => 'form-control', 'required' => 'required', 'readonly'=>  (!empty($standard->isbn_no)?true:false) ] : ['class' => 'form-control', 'readonly'=> (!empty($standard->isbn_no)?true:false)  ]) !!}

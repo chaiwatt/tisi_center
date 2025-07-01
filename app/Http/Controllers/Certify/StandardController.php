@@ -2,30 +2,33 @@
 
 namespace App\Http\Controllers\Certify;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use App\User;
-use App\AttachFile;
-
-use App\Models\Certify\Standard;
-use App\Models\Certify\StandardIcs;
-use App\Models\Certify\StandardSendmail;
-use App\Models\Certify\GazetteStandard;
-use App\Models\Certify\Gazette;
-use App\Models\Besurv\Signer;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use niklasravnsborg\LaravelPdf\Facades\Pdf;
-
-use App\Mail\CertifyStandardIsbn;
-use Illuminate\Support\Facades\Mail;
-
-use Yajra\Datatables\Datatables;
 use HP;
 use DB; 
+
+use App\User;
 use stdClass;
+
+use App\AttachFile;
+use App\Http\Requests;
+use GuzzleHttp\Client;
+use Illuminate\Http\Request;
+use App\Models\Besurv\Signer;
+use App\Models\Certify\Gazette;
+
+use App\Models\Certify\Standard;
+use Yajra\Datatables\Datatables;
+use App\Mail\CertifyStandardIsbn;
+
+use App\Models\Certify\IsbnRequest;
+use App\Models\Certify\StandardIcs;
+use App\Http\Controllers\Controller;
+
+use Illuminate\Support\Facades\Mail;
+use App\Models\Certify\GazetteStandard;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Certify\StandardSendmail;
+use GuzzleHttp\Exception\RequestException;
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 
 class StandardController extends Controller
 {
@@ -47,7 +50,7 @@ class StandardController extends Controller
 
     public function index(Request $request)
     {
-        
+     
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('view-'.$model)) {
             return view('certify.standards.index');
@@ -105,13 +108,25 @@ class StandardController extends Controller
                                         ->addColumn('isbn_no', function ($item) use($not_admin){
                                             $btn = '';
                                             $standard_sendmail = StandardSendmail::where('std_id',$item->id)->pluck('user_by')->toArray();
-
+                                            //    dd($item);
                                             if ((count($standard_sendmail) > 0 && in_array(auth()->user()->getKey(),$standard_sendmail )) || !$not_admin) {//เห็นเฉพาะคนที่เลือก
 
                                                 if ($item->status_id >= 5 && !empty($item->isbn_no)) {
                                                     $btn = '<a class="btn_edit_isbn" data-id="'.($item->id).'"title="'.'ผู้บันทึก:'. (!empty($item->CreatedName) ? $item->CreatedName : '').' เวลา:'.(!empty($item->updated_at) ? HP::DateTimeThaiAndTime($item->updated_at) : '').'"> '.$item->isbn_no.'</a> ';
                                                 }else if ($item->status_id == 5) {
-                                                    $btn = '<button type="button" class="btn btn-warning btn-xs waves-effect waves-light btn_edit_isbn" data-id="'.($item->id).'" title="'.'ผู้บันทึก:'.(!empty($item->CreatedName) ? $item->CreatedName : '').' เวลา:'.(!empty($item->updated_at) ? HP::DateTimeThaiAndTime($item->updated_at) : '').'"> <i class="fa fa-pencil-square-o"></i></button> ';
+                                                    // dd($item);
+                                                    $btn = '
+                                                    <button type="button" class="btn btn-warning btn-xs waves-effect waves-light btn_request_isbn" data-id="'.($item->id).'"> <i class="fa fa-tag" aria-hidden="true"></i></button>
+                                                    <button type="button" class="btn btn-warning btn-xs waves-effect waves-light btn_edit_isbn" data-id="'.($item->id).'" title="'.'ผู้บันทึก:'.(!empty($item->CreatedName) ? $item->CreatedName : '').' เวลา:'.(!empty($item->updated_at) ? HP::DateTimeThaiAndTime($item->updated_at) : '').'"> <i class="fa fa-pencil-square-o"></i></button> ';
+                                                    // ตรวจสอบจำนวน isbnRequests
+                                                    // $requestIsbnClass = $item->isbnRequests->count() > 0 ? 'btn-info' : 'btn-warning';
+                                                    // $btn = '
+                                                    //     <button type="button" class="btn ' . $requestIsbnClass . ' btn-xs waves-effect waves-light btn_request_isbn" data-id="' . ($item->id) . '"  data-isbn_req_count="' .  $item->isbnRequests->count() . '">
+                                                    //         <i class="fa fa-tag" aria-hidden="true"></i>
+                                                    //     </button>
+                                                    //     <button type="button" class="btn btn-warning btn-xs waves-effect waves-light btn_edit_isbn" data-id="' . ($item->id) . '" title="' . 'ผู้บันทึก:' . (!empty($item->CreatedName) ? $item->CreatedName : '') . ' เวลา:' . (!empty($item->updated_at) ? HP::DateTimeThaiAndTime($item->updated_at) : '') . '">
+                                                    //         <i class="fa fa-pencil-square-o"></i>
+                                                    //     </button>';
                                                 }else if ($item->status_id == 4) {
                                                     $btn = '<button type="button" class="btn btn-light btn-xs waves-effect waves-light" data-id="'.($item->id).'"> <i class="fa fa-pencil-square-o  text-white"></i></button> ';
                                                 }
@@ -252,11 +267,100 @@ class StandardController extends Controller
      *
      * @return \Illuminate\View\View
      */
+
+     public function checkIsbnRequestStatus($requestNo,$stdNo)
+    {
+        // $requestNo = '020029'; // $request->input('request_no')
+        // $stdNo = 'aaa-xxxx';   // $request->input('std_no')
+
+        $url = env('TISI_API_URL') . "/tisi-isbn/web/test-api/check-status?request_no={$requestNo}&std_no={$stdNo}";
+
+        // ใช้ Guzzle ในการส่งคำขอแบบ GET
+        $client = new Client();
+        try {
+            $response = $client->get($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer T708',
+                ],
+            ]);
+
+            // รับข้อมูลและแปลงข้อมูล JSON ที่ตอบกลับจาก API
+            $responseBody = json_decode($response->getBody(), true);
+
+            // 1 ร่าง
+            // 2 ส่งคำขอแล้ว
+            // 3 ถูกตีกลับให้แก้ไขคำขอ
+            // 4 อนุมัติเลข isbn
+            // 5 ยกเลิกคำขอ
+
+            return response()->json($responseBody);
+
+        } catch (RequestException $e) {
+            // ตรวจสอบและส่งข้อผิดพลาดกลับไปในรูปแบบ JSON
+            return response()->json(['error' => 'Error checking status'], 500);
+        }
+    }
+
     public function edit($id)
     {
+        // dd("od");
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('edit-'.$model)) {
             $standard = Standard::findOrFail($id);
+            $isbnRequest = IsbnRequest::where('standard_id', $id)
+                ->orderBy('id', 'desc')
+                ->first();
+            $isbn_number = "";
+            $status_text = "";
+            $admin_msg ="";
+            $request_status = null;
+            if ($isbnRequest !== null) {
+                # code...
+                $response = $this->checkIsbnRequestStatus($isbnRequest->request_no,$isbnRequest->tisno);
+                // dd($response);
+                // แปลง JsonResponse เป็น array
+                $responseData = $response->getData(true);
+
+                // ดึงค่า status, isbn_number, และ admin_msg
+                $status = $responseData['status']; // "success"
+                $request_status = $responseData['request_status']; 
+
+                $request_status = $responseData['request_status'];
+
+                // แปลง request_status เป็นข้อความ
+                switch ($request_status) {
+                    case 1:
+                        $status_text = 'ร่าง';
+                        break;
+                    case 2:
+                        $status_text = 'ส่งคำขอแล้ว';
+                        break;
+                    case 3:
+                        $status_text = 'ถูกตีกลับให้แก้ไขคำขอ';
+                        break;
+                    case 4:
+                        $status_text = 'อนุมัติเลข ISBN';
+                        break;
+                    case 5:
+                        $status_text = 'ยกเลิกคำขอ';
+                        break;
+                    default:
+                        $status_text = 'ไม่ทราบสถานะ';
+                        break;
+                }
+                            
+                $isbn_number = $responseData['isbn_number']; // null
+                $admin_msg = $responseData['admin_msg']; // null
+
+                // ตัวอย่างการใช้งานค่าที่ดึงมา
+                // เช่น แสดงผลหรือนำไปใช้ต่อ
+                // dd([
+                //     'status' => $status,
+                //     'status_text' => $status_text,
+                //     'isbn_number' => $isbn_number,
+                //     'admin_msg' => $admin_msg
+                // ]);
+            }
             
             $standard_ics       = StandardIcs::where('std_id',$standard->id)->pluck('ics_id');
             $standard_sendmail  = StandardSendmail::where('std_id',$standard->id)->pluck('user_by');
@@ -285,7 +389,11 @@ class StandardController extends Controller
             $standard->gazette_file             =  !empty($file_gazette->url) ? $file_gazette->url:null; 
 
 
-            return view('certify/standards.edit', compact('standard','standard_ics','standard_sendmail'));
+            // $isbn_number = "12345";
+            // $status_text = "อนุมัติเลข ISBN";
+            // $admin_msg = "ว้าว ๆ";
+            // $request_status = 4;
+            return view('certify/standards.edit', compact('standard','standard_ics','standard_sendmail','isbn_number','status_text','admin_msg','request_status'));
         }
           abort(403);
     }
@@ -371,6 +479,7 @@ class StandardController extends Controller
 
 
     public function save_standards(Request $request){
+        // dd($request->all());
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('edit-'.$model)) {
             
@@ -673,5 +782,54 @@ class StandardController extends Controller
                  ]);
         }
    
+    }
+
+    public function loadIsbnReqInfo($id)
+    {
+        
+        $isbnRequest = IsbnRequest::where('standard_id',$id)->first();
+        $status_text = "";
+        if ($isbnRequest !== null) {
+                # code...
+                $response = $this->checkIsbnRequestStatus($isbnRequest->request_no,$isbnRequest->tisno);
+                // แปลง JsonResponse เป็น array
+                $responseData = $response->getData(true);
+
+                // ดึงค่า status, isbn_number, และ admin_msg
+                $status = $responseData['status']; // "success"
+                $request_status = $responseData['request_status']; 
+
+                $request_status = $responseData['request_status'];
+
+                // แปลง request_status เป็นข้อความ
+                switch ($request_status) {
+                    case 1:
+                        $status_text = 'ร่าง';
+                        break;
+                    case 2:
+                        $status_text = 'ส่งคำขอแล้ว';
+                        break;
+                    case 3:
+                        $status_text = 'ถูกตีกลับให้แก้ไขคำขอ';
+                        break;
+                    case 4:
+                        $status_text = 'อนุมัติเลข ISBN';
+                        break;
+                    case 5:
+                        $status_text = 'ยกเลิกคำขอ';
+                        break;
+                    default:
+                        $status_text = 'ไม่ทราบสถานะ';
+                        break;
+                }
+                        
+
+            }
+            
+         return response()->json([
+                    'isbnRequest'=> $isbnRequest,
+                    'status_text' => $status_text
+                 ]);
+        
     }
 }

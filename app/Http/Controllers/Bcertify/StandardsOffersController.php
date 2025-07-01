@@ -39,7 +39,7 @@ class StandardsOffersController extends Controller
 
     public function index(Request $request)
     {
-
+ 
         $model = str_slug('standardsoffers','-');
         if(auth()->user()->can('view-'.$model)) {
             $select_users  = [];
@@ -219,6 +219,8 @@ public function data_list(Request $request)
 
     public function update(Request $request, $id)
     {
+
+        // dd($request->all());
        
         $model = str_slug('standardsoffers','-');
         if(auth()->user()->can('edit-'.$model)) {

@@ -28,7 +28,7 @@ class MeetingStandardCommitee extends Model
      *
      * @var array
      */
-    protected $fillable = ['setstandard_meeting_id', 'commitee_id', 'created_by', 'updated_by'];
+    protected $fillable = ['setstandard_meeting_id', 'commitee_id', 'created_by', 'updated_by','meeting_group'];
 
     /*
       Sorting

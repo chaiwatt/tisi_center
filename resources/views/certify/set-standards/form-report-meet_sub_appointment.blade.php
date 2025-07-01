@@ -3,28 +3,33 @@
         $sum_cost = 0;
         $quantity_status = 0;
         $sum_cost_status = 0;
+        // dd(count($setstandard->certify_setstandard_meeting_type_many_sub_committees));
     @endphp
-@if (count($setstandard->certify_setstandard_meeting_type_many) > 0)
 
-@foreach ($setstandard->certify_setstandard_meeting_type_many as $key => $meetingstandard)
-@php
-     $record =   !empty($meetingstandard->meeting_standard_to->record) ? $meetingstandard->meeting_standard_to->record : null ;
-     if(!is_null($record) && !empty($meetingstandard->setstandard_to->projectid)  &&  !empty($meetingstandard->meetingtype_to->title)){
-       $setstandard_title =  $meetingstandard->setstandard_to->projectid.' ('.$meetingstandard->meetingtype_to->title.')';
-      // $cost =    App\Models\Certify\MeetingStandardRecordCost::where('meeting_record_id',$record->id)->where('expense_other',$setstandard_title)->where('setstandard_id', $meetingstandard->setstandard_id )->value('cost');
-      // if(!is_null($cost)){
-      //      $sum_cost += $cost;
-      // }
 
-       $record_cost =    App\Models\Certify\MeetingStandardRecordCost::where('meeting_record_id',$record->id)->where('expense_other',$setstandard_title)->whereIn('status',[1, 2])->value('cost');
-       if(!is_null($record_cost)){
-            $sum_cost_status += $record_cost;
-            $quantity_status += 1;
-       }
-    }
-@endphp
+{{-- @if (count($setstandard->certify_setstandard_meeting_type_many) > 0) --}}
+@if (count($setstandard->certify_setstandard_meeting_type_many_sub_committees) > 0)
 
-@endforeach
+    {{-- @foreach ($setstandard->certify_setstandard_meeting_type_many as $key => $meetingstandard) --}}
+    @foreach ($setstandard->certify_setstandard_meeting_type_many_sub_committees as $key => $meetingstandard)
+        @php
+            $record =   !empty($meetingstandard->meeting_standard_to->record) ? $meetingstandard->meeting_standard_to->record : null ;
+            if(!is_null($record) && !empty($meetingstandard->setstandard_to->projectid)  &&  !empty($meetingstandard->meetingtype_to->title)){
+            $setstandard_title =  $meetingstandard->setstandard_to->projectid.' ('.$meetingstandard->meetingtype_to->title.')';
+            // $cost =    App\Models\Certify\MeetingStandardRecordCost::where('meeting_record_id',$record->id)->where('expense_other',$setstandard_title)->where('setstandard_id', $meetingstandard->setstandard_id )->value('cost');
+            // if(!is_null($cost)){
+            //      $sum_cost += $cost;
+            // }
+
+            $record_cost =    App\Models\Certify\MeetingStandardRecordCost::where('meeting_record_id',$record->id)->where('expense_other',$setstandard_title)->whereIn('status',[1, 2])->value('cost');
+            if(!is_null($record_cost)){
+                    $sum_cost_status += $record_cost;
+                    $quantity_status += 1;
+            }
+            }
+        @endphp
+
+    @endforeach
 @endif
  
 {!! Form::hidden('amount_sum', (!empty($quantity_status)?$quantity_status:0) , ['class' => 'form-control text-right amount', 'readonly'=>true]) !!}

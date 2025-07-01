@@ -19,12 +19,9 @@ class SetStandards extends Model
 
     protected $primaryKey = 'id';
 
-
-    protected $fillable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'status_sub_appointment_id', 'created_by', 'updated_by'];
-
+    protected $fillable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'status_sub_appointment_id','agreement_status','agreement_detail', 'created_by','standard_circular_doc_status', 'standard_circular_doc_details' , 'updated_by'];
 
     public $sortable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'created_by', 'updated_by'];
-
 
 
     /*
@@ -76,6 +73,20 @@ class SetStandards extends Model
 
     public function certify_setstandard_meeting_type_many(){
       return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_id');
+   }
+
+   public function certify_setstandard_meeting_type_many_main_committees(){
+      return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_id')
+      ->whereHas('meeting_standard_to', function ($query) {
+                        $query->where('meeting_group', 1);
+                    });
+   }
+
+  public function certify_setstandard_meeting_type_many_sub_committees(){
+      return $this->hasMany(CertifySetstandardMeetingType::class, 'setstandard_id')
+      ->whereHas('meeting_standard_to', function ($query) {
+                        $query->where('meeting_group',2);
+                    });
    }
 
     public function certify_setstandard_meeting_type_group_main_committees()
@@ -137,5 +148,20 @@ class SetStandards extends Model
     public function meetingInvitations()
     {
         return $this->belongsToMany(MeetingInvitation::class, 'meeting_invitation_setstandards', 'setstandard_id', 'meeting_invitation_id');
+    }
+
+     public function subAppointmentMeetingApproved()
+    {
+      // dd($this->id);
+        return $this->belongsToMany(MeetingInvitation::class, 'meeting_invitation_setstandards', 'setstandard_id', 'meeting_invitation_id')
+                    ->where('meeting_invitations.status', 3)
+                    ->where('meeting_invitations.type', 2);
+    }
+
+    public function mainAppointmentMeetingApproved()
+    {
+        return $this->belongsToMany(MeetingInvitation::class, 'meeting_invitation_setstandards', 'setstandard_id', 'meeting_invitation_id')
+                    ->where('meeting_invitations.status', 3)
+                    ->where('meeting_invitations.type', 1);
     }
 }

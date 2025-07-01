@@ -16,11 +16,14 @@ class AppointedCommitteeController extends Controller
 {
     public function index()
     {
-        
+
+
         $model = str_slug('appointed-committee','-');
         if(auth()->user()->can('view-'.$model)) {
             $meetingInvitations = MeetingInvitation::whereHas('setStandards', function ($query) {
-                    $query->where('projectid', null);
+                    // $query->where('projectid', null);
+                   $query->where('status_id', 0)
+                    ->orWhere('status_sub_appointment_id', 0);
                 })
                 ->whereHas('signer.user', function ($query) {
                     $query->where('runrecno', auth()->user()->runrecno);

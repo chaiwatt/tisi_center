@@ -150,6 +150,7 @@ class MeetingStandardsController extends Controller
      */
     public function create()
     {
+        // dd("create meeting");
         $model = str_slug('meetingstandards','-');
         if(auth()->user()->can('add-'.$model)) {
             $setstandard_meeting_types = [new CertifySetstandardMeetingType];
@@ -212,7 +213,27 @@ class MeetingStandardsController extends Controller
             // วาระการประชุม
                 $this->save_term($requestData['detail'],$meeting_standard);
 
-            
+
+
+                $latestMeetingStandardCommittee = MeetingStandardCommitee::where('setstandard_meeting_id', $meeting_standard->id)
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($latestMeetingStandardCommittee) {
+                    $latestMeetingStandardCommittee->update([
+                        'meeting_group' => $request->meeting_group
+                    ]);
+                }
+
+                $latestMeetingType = CertifySetstandardMeetingType::where('setstandard_meeting_id', $meeting_standard->id)
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($latestMeetingType) {
+                    $latestMeetingType->update([
+                        'meeting_group' => $request->meeting_group
+                    ]);
+                }
  
             return redirect('certify/meeting-standards')->with('flash_message', 'เรียบร้อยแล้ว');
         }

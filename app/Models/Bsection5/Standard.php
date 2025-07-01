@@ -2,6 +2,7 @@
 
 namespace App\Models\Bsection5;
 
+use App\Models\Certify\IsbnRequest;
 use Illuminate\Database\Eloquent\Model;
 use Kyslik\ColumnSortable\Sortable;
 use App\User;
@@ -70,5 +71,7 @@ class Standard extends Model
       }
   		return implode(', ', $result);
   	}
+
+
     
 }

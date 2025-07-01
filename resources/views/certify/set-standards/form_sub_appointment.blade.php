@@ -231,7 +231,7 @@
     
     </div>
 </div>
-{{-- {{$setstandard->status_sub_appointment_id}} --}}
+{{-- {{$meetingstandards}} --}}
 @if (!empty($setstandard->condition) && $setstandard->condition == 'form_edit')
         @if (in_array($setstandard->status_sub_appointment_id,[2,3]))
         <div class="form-group">
@@ -240,7 +240,7 @@
                     <i class="fa fa-paper-plane"></i> อัพเดทข้อมูล
                 </button>
                 <button class="btn btn-primary " type="submit"     @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_save" value="1">
-                    <i class="fa fa-paper-plane"></i> บันทึก
+                    <i class="fa fa-paper-plane"></i> บันทึก 
                 </button>
                 <a class="btn btn-default" href="{{ url('/certify/set-standards') }}">
                     <i class="fa fa-rotate-left"></i> ยกเลิก
@@ -263,7 +263,7 @@
                             <i class="fa fa-paper-plane"></i> อัพเดทข้อมูล
                         </button>
                         <button class="btn btn-primary" type="submit" name="is_save" value="1">
-                            <i class="fa fa-paper-plane"></i> บันทึก
+                            <i class="fa fa-paper-plane"></i> บันทึก 
                         </button>
                         <a class="btn btn-default" href="{{ url('/certify/set-standards') }}">
                             <i class="fa fa-rotate-left"></i> ยกเลิก

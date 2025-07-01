@@ -1252,5 +1252,5 @@ Route::get('/estandard', function () {
     return view('estandard.index'); // Display the upload form
 });
 
-Route::post('/isbn/upload', 'Estandard\isbn\EstandardIsbnController@uploadData')->name('isbn.upload-data');
-Route::get('/isbn/status', 'Estandard\isbn\EstandardIsbnController@checkStatus')->name('isbn.status');
+// Route::post('/isbn/upload', 'Estandard\isbn\EstandardIsbnController@uploadData')->name('isbn.upload-data');
+// Route::get('/isbn/status', 'Estandard\isbn\EstandardIsbnController@checkStatus')->name('isbn.status');

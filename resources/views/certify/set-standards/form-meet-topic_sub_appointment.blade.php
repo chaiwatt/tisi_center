@@ -6,10 +6,10 @@
 {{-- {{$setstandard->id}} --}}
 {{-- {{$setstandard->certify_setstandard_meeting_type_many}} --}}
 
-@if (count($setstandard->certify_setstandard_meeting_type_many) > 0)
+@if (count($setstandard->certify_setstandard_meeting_type_group_sub_committees) > 0)
 {{-- @if (count($setstandard->certify_setstandard_meeting_type_group_sub_committees) > 0) --}}
  
-    @foreach ($setstandard->certify_setstandard_meeting_type_many as $key => $meetingstandard)
+    @foreach ($setstandard->certify_setstandard_meeting_type_group_sub_committees as $key => $meetingstandard)
     {{-- @foreach ($setstandard->certify_setstandard_meeting_type_group_sub_committees as $meetingstandard) --}}
     {{-- {{$meetingstandard->meeting_standard_to}} --}}
         {{-- @if ($meetingstandard->meeting_standard_to->meeting_group == 1) --}}
@@ -204,6 +204,15 @@
 
 @else
 
+
+
+{{-- @if (!empty($setstandard))
+    {{$setstandard->meetingInvitations}}
+    {{$setstandard->subAppointmentMeetingApproved}}
+@endif
+    --}}
+
+    
     <div class="alert alert-warning">
         <h4 class="alert-heading inline-block">
             <i class="fa fa-exclamation-circle"></i> 

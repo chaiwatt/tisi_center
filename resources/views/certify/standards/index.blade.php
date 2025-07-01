@@ -172,6 +172,7 @@
     </div>
 
     @include ('certify/standards.modal-isbn')
+    @include ('certify/standards.modal-request-isbn')
 
 @endsection
 

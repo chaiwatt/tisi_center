@@ -21,8 +21,10 @@ class AppointedAcademicSubCommitteeController extends Controller
         if(auth()->user()->can('view-'.$model)) {
 
             $meetingInvitations = MeetingInvitation::whereHas('setStandards', function ($query) {
-                    $query->where('projectid', null);
+                    $query->where('status_id', 0)
+                          ->orWhere('status_sub_appointment_id',0);
                 })
+                ->whereIn('status',[1,2])
                 ->with('setStandards') // Eager load เพื่อลด query
                 ->get();
                 
@@ -38,9 +40,14 @@ class AppointedAcademicSubCommitteeController extends Controller
 
     public function create()
     {
+        // dd("ok");
         $model = str_slug('appointed-academic-sub-committee','-');
         $singers = Signer::all();
-        $setStandards = SetStandards::where('projectid',null)->get();
+        $setStandards = SetStandards::where('status_id', 0)
+                ->orWhere('status_sub_appointment_id', 0)
+                ->orderBy('id', 'desc')
+                ->get();
+
         if(auth()->user()->can('add-'.$model)) {
             return view('certify.appointed-academic-sub-committee.create',[
                 'signers' =>  $singers,
@@ -171,7 +178,11 @@ class AppointedAcademicSubCommitteeController extends Controller
                     ->with('error', 'ไม่สามารถแก้ไขได้: รายการนี้อยู่ในสถานะ ' . ($meetingInvitation->status == 2 ? 'ส่งลงนาม' : 'ไม่ทราบสถานะ'));
             }
 
-            $setStandards = SetStandards::where('projectid', null)->get();
+            // $setStandards = SetStandards::where('projectid', null)->get();
+              $setStandards = SetStandards::where('status_id', 0)
+                ->orWhere('status_sub_appointment_id', 0)
+                ->orderBy('id', 'desc')
+                ->get();
             $signers = Signer::all();
 
             return view('certify.appointed-academic-sub-committee.edit', compact('meetingInvitation', 'setStandards', 'signers'));

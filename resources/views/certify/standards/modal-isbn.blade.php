@@ -97,8 +97,8 @@
             </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success btn-sm waves-effect waves-light" id="btn_save_isbn">บันทึก</button>
-                <button type="button" class="btn btn-danger btn-sm waves-effect waves-light" id="btn_close_isbn" data-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-success btn waves-effect waves-light" id="btn_save_isbn">บันทึก</button>
+                <button type="button" class="btn btn-danger btn waves-effect waves-light" id="btn_close_isbn" data-dismiss="modal">ปิด</button>
             </div>
         </div>
     </div>

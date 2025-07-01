@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Estandard\isbn;
 
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use App\Models\Certify\IsbnRequest;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Exception\RequestException;
 
@@ -11,14 +12,26 @@ class EstandardIsbnController extends Controller
 {
     public function uploadData(Request $request)
     {
+        // dd($request->all());
         // Validate the request data
-        $request->validate([
+        // $request->validate([
+        //     'std_id' => 'required|string',
+        //     'tistype' => 'required|string',
+        //     'tisno' => 'required|string',
+        //     'tisname' => 'required|string',
+        //     'page' => 'required|string',
+        //     'cover_file' => 'required|file',
+        // ]);
+          $validated = $request->validate([
+            'standard_id' => 'required|string',
             'tistype' => 'required|string',
             'tisno' => 'required|string',
             'tisname' => 'required|string',
-            'page' => 'required|integer',
-            'cover_file' => 'required|file',
+            'page' => 'required|string',
+            'cover_file' => 'required|file|mimes:jpg,png|max:2048',
         ]);
+
+        $coverPath = $request->file('cover_file')->store('covers', 'public');
     
         // Prepare the form data
         $formData = [
@@ -47,17 +60,40 @@ class EstandardIsbnController extends Controller
                 'filename' => $request->file('cover_file')->getClientOriginalName(),
             ];
         }
-    
+        $user= auth()->user();
+        $regName = $user->reg_uname;
+    //    dd($formData, $user);
         $client = new Client();
         try {
             $response = $client->post(env('TISI_API_URL') . '/tisi-isbn/web/test-api/create', [
                 'headers' => [
-                    'Authorization' => 'Bearer T708',
+                    'Authorization' => 'Bearer ' . $regName,
                 ],
                 'multipart' => $formData,
             ]);
     
             $responseBody = json_decode($response->getBody(), true);
+
+            
+            if (isset($responseBody['status']) && $responseBody['status'] === 'success' && isset($responseBody['request_no'])) {
+                IsbnRequest::updateOrCreate(
+                    ['standard_id' => $validated['standard_id']],
+                    [
+                        'request_no' => $responseBody['request_no'],
+                        'tistype' => $validated['tistype'],
+                        'tisno' => $validated['tisno'],
+                        'tisname' => $validated['tisname'],
+                        'page' => $validated['page'],
+                        'cover_file' => $coverPath,
+                    ]
+                );
+
+                return response()->json([
+                    'status' => 'success',
+                    'request_no' => $responseBody['request_no'],
+                    'message' => $responseBody['message'] ?? 'The request created successfully',
+                ]);
+            }
             return response()->json($responseBody);
     
         } catch (RequestException $e) {

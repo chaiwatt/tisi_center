@@ -6,6 +6,7 @@ use HP;
 use App\User;
 use App\Models\Basic\Ics;
 use App\Models\Basic\Method;
+use App\Models\Certify\IsbnRequest;
 use Kyslik\ColumnSortable\Sortable;
 use App\Models\Basic\IndustryTarget;
 use App\Models\Certify\SetStandards;
@@ -144,6 +145,9 @@ class Standard extends Model
         return $datas;
     }
   
-
+    public function isbnRequests()
+    {
+        return $this->hasMany(IsbnRequest::class, 'standard_id', 'id');
+    }
 
 }

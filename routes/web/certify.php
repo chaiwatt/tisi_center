@@ -785,6 +785,9 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('auditor-assignment/get-signer', 'Certify\\AuditorAssignmentController@getSigner')->name('auditor_assignment.get_signer');
     Route::post('auditor-assignment/sign-document', 'Certify\\AuditorAssignmentController@signDocument')->name('auditor_assignment.signDocument');
 
+
+    
+
     // ระบบลงนามใบรับรองระบบงาน 
     Route::get('sign-certificates/save_new_cer', 'Certify\\SignCertificatesController@save_new_cer');
     Route::get('sign-certificates/save_cer/{cer?}/{id?}/{type?}', 'Certify\\SignCertificatesController@save_cer');
@@ -821,6 +824,7 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('standards/load_data_isbn/{id?}', 'Certify\StandardController@load_data_isbn');
     Route::post('standards/update_isbn', 'Certify\StandardController@update_isbn');
     Route::get('standards/sign_position/{id}', 'Certify\StandardController@signPosition'); 
+    Route::get('standards/load-isbn-req-info/{id}', 'Certify\StandardController@loadIsbnReqInfo'); 
     Route::resource('standards', 'Certify\\StandardController');
     
 });   
@@ -869,7 +873,11 @@ Route::group(['prefix' => 'certify'], function () {
     Route::resource('certify/set-standards', 'Certify\\SetStandardsController');
 
 
-
+    Route::POST('certify/standard-drafts/end-standard', 'Certify\\SetStandardsController@endStandard');
+    Route::POST('certify/standard-drafts/renew-standard', 'Certify\\SetStandardsController@reNewStandard');
+     Route::POST('certify/standard-drafts/accept-standard', 'Certify\\SetStandardsController@acceptStandard');
+     Route::POST('certify/standard-drafts/get-agreement', 'Certify\\SetStandardsController@getAgreement');
+     Route::POST('certify/standard-drafts/update-standard-circular-doc', 'Certify\\SetStandardsController@updateStandardCircularDoc');
 
     // นัดหมายการประชุม
     Route::get('certify/meeting-standards/get_committee_lists', 'Certify\\MeetingStandardsController@get_committee_lists');
@@ -880,6 +888,10 @@ Route::group(['prefix' => 'certify'], function () {
     
     Route::get('certify/report/standard-status/data_list', 'Certify\\ReportStandardStatusController@data_list');
     Route::resource('certify/report/standard-status', 'Certify\\ReportStandardStatusController');
+
+
+    Route::post('certify/isbn/upload', 'Estandard\isbn\EstandardIsbnController@uploadData')->name('isbn.upload-data');
+    Route::get('certify/isbn/status', 'Estandard\isbn\EstandardIsbnController@checkStatus')->name('isbn.status');
     
     // ประกาศราชกิจจานุเบกษา
     Route::get('certify/gazette/data_list', 'Certify\\GazetteController@data_list');

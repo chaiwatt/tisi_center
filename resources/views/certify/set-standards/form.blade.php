@@ -200,6 +200,7 @@
     <div role="tabpanel" class="tab-pane" id="plan_time">
         <div class="white-box">
             <div class="row">
+                
                 <div class="col-md-12">
                     @include ('certify.set-standards.form-plan-time')
               </div>
