@@ -24,12 +24,14 @@ class AppointedCommitteeController extends Controller
                     // $query->where('projectid', null);
                    $query->where('status_id', 0)
                     ->orWhere('status_sub_appointment_id', 0);
+                })
+
+            
+                ->whereHas('signer.user', function ($query) {
+                    $query->where('runrecno', auth()->user()->runrecno);
                 })->get();
 
-                dd($meetingInvitations);
-                // ->whereHas('signer.user', function ($query) {
-                //     $query->where('runrecno', auth()->user()->runrecno);
-                // })
+                    dd($meetingInvitations);
                 // ->where('status', 2) // เพิ่มเงื่อนไข status = 2
                 // ->with(['setStandards', 'signer.user'])->get();
 
