@@ -307,7 +307,7 @@
                                                             <li><a href="#">คณะกรรมหนด</a></li>
                                                         </ul>
                                                     </div> --}}
-                                                    <a href="/certify/set-standards/{{$item->id}}" title="View setstandard" class="btn btn-info btn-xs" style="display: inline-block;">
+                                                    <a href="{{ url('/certify/set-standards/' . $item->id) }}" title="View setstandard" class="btn btn-info btn-xs" style="display: inline-block;">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
                                                     {{-- @php
@@ -316,21 +316,21 @@
 
                                                    
                                                     @if ($item->estandard_plan_to->method_to->id == 2)
-                                                            <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                 <i class="fa fa-pencil-square-o"></i>
                                                             </a>
                                                     @elseif($item->estandard_plan_to->method_to->id == 3)
 
-                                                   {{-- {{$item->subAppointmentMeetingApproved->count()}} --}}
-                                                                @if ($item->subAppointmentMeetingApproved->count() == 0)
-                                                                        <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
-                                                                            <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                                                                        </a>
-                                                                  @else  
-                                                                        <a href="/certify/set-standards/{{$item->id}}/edit_sub_appointment" title="Edit setstandard" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                            <i class="fa fa-pencil" aria-hidden="true"></i>
-                                                                        </a>
-                                                                @endif
+                                               
+                                                    @if ($item->subAppointmentMeetingApproved->count() == 0)
+                                                            <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                            </a>
+                                                        @else  
+                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit_sub_appointment')}}" title="Edit setstandard" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                            </a>
+                                                    @endif
                                                                
 
                                                       
@@ -359,7 +359,7 @@
                                                                                     <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                                                                 </a>
                                                                         @else  
-                                                                            <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                                 <i class="fa fa-pencil-square-o"></i>
                                                                             </a>
 

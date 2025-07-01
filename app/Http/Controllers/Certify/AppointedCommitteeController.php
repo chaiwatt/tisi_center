@@ -25,8 +25,6 @@ class AppointedCommitteeController extends Controller
                    $query->where('status_id', 0)
                     ->orWhere('status_sub_appointment_id', 0);
                 })
-
-                // dd($meetingInvitations);
                 ->whereHas('signer.user', function ($query) {
                     $query->where('runrecno', auth()->user()->runrecno);
                 })
