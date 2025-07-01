@@ -25,15 +25,11 @@ class AppointedCommitteeController extends Controller
                    $query->where('status_id', 0)
                     ->orWhere('status_sub_appointment_id', 0);
                 })
-
-            
                 ->whereHas('signer.user', function ($query) {
                     $query->where('runrecno', auth()->user()->runrecno);
-                })->get();
-
-                    dd($meetingInvitations,auth()->user());
-                // ->where('status', 2) // เพิ่มเงื่อนไข status = 2
-                // ->with(['setStandards', 'signer.user'])->get();
+                })
+                ->where('status', 2) // เพิ่มเงื่อนไข status = 2
+                ->with(['setStandards', 'signer.user'])->get();
 
             return view('certify.appointed-committee.index',[
                 'meetingInvitations' => $meetingInvitations
