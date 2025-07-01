@@ -31,7 +31,7 @@ class AppointedCommitteeController extends Controller
                     $query->where('runrecno', auth()->user()->runrecno);
                 })->get();
 
-                    dd($meetingInvitations);
+                    dd($meetingInvitations,auth()->user()->runrecno);
                 // ->where('status', 2) // เพิ่มเงื่อนไข status = 2
                 // ->with(['setStandards', 'signer.user'])->get();
 
