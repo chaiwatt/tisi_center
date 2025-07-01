@@ -29,7 +29,9 @@ class AppointedCommitteeController extends Controller
                     $query->where('runrecno', auth()->user()->runrecno);
                 })
                 ->where('status', 2) // เพิ่มเงื่อนไข status = 2
-                ->with(['setStandards', 'signer.user'])->get();
+                ->with(['setStandards','signer', 'signer.user'])->get();
+
+                // dd($meetingInvitations);
 
             return view('certify.appointed-committee.index',[
                 'meetingInvitations' => $meetingInvitations

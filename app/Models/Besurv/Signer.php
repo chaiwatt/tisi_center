@@ -78,9 +78,18 @@ class Signer extends Model
         return $this->belongsTo(AttachFile::class,'id','ref_id')->where('ref_table','besurv_signers')->where('section','attach')->orderby('id','desc');
     }
 
-    public function user()
-  {
-      return $this->belongsTo(User::class, 'user_register_id', 'runrecno');
-  }
+  //   public function user()
+  // {
+  //     return $this->belongsTo(User::class, 'user_register_id', 'runrecno');
+  // }
+
+
+// Accessor สำหรับ getUserAttribute
+    public function getUserAttribute()
+    {
+        // ดึง User โดยเปรียบเทียบ tax_no กับ reg_13ID ที่ลบขีดออก
+        $user = User::whereRaw("REPLACE(reg_13ID, '-', '') = ?", [$this->tax_no])->first();
+        return $user ?: null; // คืนค่า User หรือ null ถ้าไม่พบ
+    }
 
 }
