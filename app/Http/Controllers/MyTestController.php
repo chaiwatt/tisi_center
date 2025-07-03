@@ -131,6 +131,12 @@ class MyTestController extends Controller
          dd($signer->tax_number,$user);
     }
 
+    public function checkpdftk()
+    {
+        exec('pdftk --version 2>&1', $output, $returnVar);
+        dd($output, $returnVar); // ตรวจสอบผลลัพธ์
+    }
+
 
 //     public function callCreateBill()
 //     {

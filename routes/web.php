@@ -108,6 +108,10 @@ Route::get('/create-meeting-appointment-committee-pdf','MyTestController@createM
 
 Route::get('/gen-ib-cerno','MyTestController@genIbCerNo');
 
+Route::get('/check-pdftk','MyTestController@checkpdftk');
+
+
+
 
 
 Route::get('/proxy', function (\Illuminate\Http\Request $request) {

@@ -33,7 +33,7 @@
 
 <div id="box_sendmail_isbn" style="display:none">
     <div class="form-group required{{ $errors->has('user_by') ? 'has-error' : ''}}">
-        {!! Form::label('user_by', 'แจ้งเจ้าหน้าที่กรอกเลข ISBN :', ['class' => 'col-md-3 control-label']) !!}
+        {!! Form::label('user_by', 'เจ้าหน้าที่ขอเลข ISBN :', ['class' => 'col-md-3 control-label']) !!}
         <div class="col-md-7">
             {!! Form::select('user_by[]', $UserRoleISBN , !empty($standard_sendmail)?$standard_sendmail:null, ['class' => 'select2-multiple', 'multiple'=>'multiple', 'id'=>'user_by', 'data-placeholder'=>'- เลือก เจ้าหน้าที่กรอกเลข ISBN -']) !!}
             {!! $errors->first('user_by', '<p class="help-block">:message</p>') !!}

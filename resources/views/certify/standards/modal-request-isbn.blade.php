@@ -109,8 +109,6 @@
 
         $(document).ready(function() {
             $('#btn_request_isbn').click(function (e) { 
-                 
-                //  console.log("aha");
                 SaveIsbn(); 
           
             });

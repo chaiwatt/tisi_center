@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Estandard\isbn;
 
+use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Models\Certify\IsbnRequest;
 use App\Http\Controllers\Controller;
+use App\Models\Certify\StandardSendmail;
 use GuzzleHttp\Exception\RequestException;
 
 class EstandardIsbnController extends Controller
@@ -62,6 +64,14 @@ class EstandardIsbnController extends Controller
         }
         $user= auth()->user();
         $regName = $user->reg_uname;
+        $standardId = $validated['standard_id'];
+        $standard_sendmail  = StandardSendmail::where('std_id',$standardId)->first();
+        if($standard_sendmail != null){
+            $user = User::find($standard_sendmail->user_by);
+            if($user != null){
+                $regName = $user->reg_uname;
+            }
+        }
     //    dd($formData, $user);
         $client = new Client();
         try {
