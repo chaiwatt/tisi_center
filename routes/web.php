@@ -109,6 +109,7 @@ Route::get('/create-meeting-appointment-committee-pdf','MyTestController@createM
 Route::get('/gen-ib-cerno','MyTestController@genIbCerNo');
 
 Route::get('/check-pdftk','MyTestController@checkpdftk');
+Route::get('/sign-pdf-with-pdftk','MyTestController@signPdfWithPdfTk');
 
 
 

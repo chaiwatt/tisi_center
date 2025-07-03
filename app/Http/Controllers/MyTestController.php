@@ -26,6 +26,7 @@ use App\Mail\Lab\OtpNofitication;
 use App\Services\CreateIbScopePdf;
 use Illuminate\Support\Facades\DB;
 use App\Services\CreateLabScopePdf;
+use Illuminate\Support\Facades\Log;
 use App\Models\Certificate\Tracking;
 use App\Models\Certify\BoardAuditor;
 use Illuminate\Support\Facades\Auth;
@@ -136,6 +137,290 @@ class MyTestController extends Controller
         exec('pdftk --version 2>&1', $output, $returnVar);
         dd($output, $returnVar); // ตรวจสอบผลลัพธ์
     }
+
+
+
+public function signPdfWithPdfTk()
+{
+    $signer = Signer::find(167);
+    $attach = $signer->AttachFileAttachTo;
+    $signature_url = $this->getSignature($attach); // e.g., uploads/bcertify_attach/signer/mPP5q7GClk-date_time20231114_051107.jpg
+
+    // Convert URL to filesystem path
+    $signaturePath = public_path($signature_url);
+    $tempFileName = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf'; // Temporary signature PDF
+    $outputFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf'; // Output file
+
+    // Check if signature file exists
+    if (!file_exists($signaturePath)) {
+        return response()->json(['error' => 'Signature file not found: ' . $signaturePath], 404);
+    }
+
+    // Create signature PDF with mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'mode' => 'utf-8',
+        'format' => 'A4'
+    ]);
+    $mpdf->AddPage();
+    $pageWidth = $mpdf->w;
+    $pageHeight = $mpdf->h;
+    $x = $pageWidth - 40;
+    $y = $pageHeight - 30;
+    $mpdf->Image($signaturePath,$x,$y,13,0,'jpg','',true,300);
+    $mpdf->Output($tempFileName, \Mpdf\Output\Destination::FILE);
+
+    // Get target file from FTP
+    $app = CertiCb::orderBy('id', 'desc')->first();
+
+    // dd($app);
+    $latestRecord = CertiCBAttachAll::where('app_certi_cb_id', $app->id)
+        ->where('file_section', 3)
+        ->where('table_name', 'app_certi_cb')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $existingFilePath = 'files/applicants/check_files_cb/' . $latestRecord->file;
+
+    // Check and download target file
+    if (HP::checkFileStorage($existingFilePath)) {
+        $localFilePath = HP::getFileStoragePath($existingFilePath);
+
+        // Check if target file exists
+        if (!file_exists($localFilePath)) {
+            unlink($tempFileName); // Clean up temp signature file
+            return response()->json(['error' => 'Target file not found: ' . $localFilePath], 404);
+        }
+
+        // Run pdftk multistamp
+        $command = sprintf(
+            'pdftk %s multistamp %s output %s',
+            escapeshellarg($localFilePath),
+            escapeshellarg($tempFileName),
+            escapeshellarg($outputFilePath)
+        );
+        exec($command . ' 2>&1', $output, $returnVar);
+
+        if ($returnVar === 0 && file_exists($outputFilePath)) {
+            // Prepare FTP upload
+            $no = str_replace("RQ-", "", $app->app_no);
+            $no = str_replace("-", "_", $no);
+            $dlName = 'scope_' . basename($existingFilePath);
+            $attach_path = 'files/applicants/check_files_cb/' . $no . '/';
+            $filePath = $attach_path . $dlName;
+
+            // Upload to FTP
+            $storagePath = Storage::disk('ftp')->putFileAs($attach_path, new \Illuminate\Http\File($outputFilePath), $dlName);
+
+            if (Storage::disk('ftp')->exists($filePath)) {
+
+                $tb = new CertiCb;
+                $certiCBAttachAll = new CertiCBAttachAll();
+                $certiCBAttachAll->app_certi_cb_id  = $app->id ?? null;
+                $certiCBAttachAll->ref_id           = null;
+                $certiCBAttachAll->table_name       = $tb->getTable();
+                $certiCBAttachAll->file_section     = '3';
+                $certiCBAttachAll->file             = $no . '/' . $dlName;;
+                $certiCBAttachAll->file_client_name = $dlName;
+                $certiCBAttachAll->token            = str_random(16);
+                $certiCBAttachAll->save();
+
+                // Clean up temporary files
+                if (file_exists($localFilePath)) {
+                    unlink($localFilePath);
+                }
+                if (file_exists($tempFileName)) {
+                    unlink($tempFileName);
+                }
+                if (file_exists($outputFilePath)) {
+                    unlink($outputFilePath);
+                }
+
+                return response()->json([
+                    'message' => 'PDF signed and uploaded successfully',
+                    'file' => $filePath,
+                ]);
+            } else {
+                Log::error('FTP upload failed for: ' . $filePath);
+                unlink($tempFileName);
+                unlink($outputFilePath);
+                return response()->json(['error' => 'Failed to upload signed PDF to FTP'], 500);
+            }
+        } else {
+            Log::error('pdftk failed: ' . implode("\n", $output));
+            unlink($tempFileName);
+            return response()->json(['error' => 'Failed to sign PDF', 'details' => implode("\n", $output)], 500);
+        }
+    } else {
+        unlink($tempFileName);
+        return response()->json(['error' => 'Target file not found on FTP: ' . $existingFilePath], 404);
+    }
+}
+
+
+
+public function signPdfWithPdfTkMetaData()
+{
+    $signer = Signer::find(167);
+    $attach = $signer->AttachFileAttachTo;
+    $signature_url = $this->getSignature($attach); // e.g., uploads/bcertify_attach/signer/mPP5q7GClk-date_time20231114_051107.jpg
+
+    // Convert URL to filesystem path
+    $signaturePath = public_path($signature_url);
+    $tempFileName = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf'; // Temporary signature PDF
+    $outputFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf'; // Output file
+
+    // Check if signature file exists
+    if (!file_exists($signaturePath)) {
+        return response()->json(['error' => 'Signature file not found: ' . $signaturePath], 404);
+    }
+
+    // Create signature PDF with mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'mode' => 'utf-8',
+        'format' => 'A4'
+    ]);
+    $mpdf->AddPage();
+    $pageWidth = $mpdf->w;
+    $pageHeight = $mpdf->h;
+    $x = $pageWidth - 40;
+    $y = $pageHeight - 30;
+    $mpdf->Image($signaturePath, $x, $y, 13, 0, 'jpg', '', true, 300);
+    $mpdf->Output($tempFileName, \Mpdf\Output\Destination::FILE);
+
+    // Get target file from FTP
+    $app = CertiCb::orderBy('id', 'desc')->first();
+    $latestRecord = CertiCBAttachAll::where('app_certi_cb_id', $app->id)
+        ->where('file_section', 3)
+        ->where('table_name', 'app_certi_cb')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $existingFilePath = 'files/applicants/check_files_cb/' . $latestRecord->file;
+
+    // Check and download target file
+    if (HP::checkFileStorage($existingFilePath)) {
+        $localFilePath = HP::getFileStoragePath($existingFilePath);
+
+        // Check if target file exists
+        if (!file_exists($localFilePath)) {
+            unlink($tempFileName); // Clean up temp signature file
+            return response()->json(['error' => 'Target file not found: ' . $localFilePath], 404);
+        }
+
+        // Check if the PDF is already stamped using pdftk
+        $metadataFile = tempnam(sys_get_temp_dir(), 'meta_') . '.txt';
+        $command = sprintf('pdftk %s dump_data output %s', escapeshellarg($localFilePath), escapeshellarg($metadataFile));
+        exec($command . ' 2>&1', $output, $returnVar);
+
+        if ($returnVar === 0 && file_exists($metadataFile)) {
+            $metadata = file_get_contents($metadataFile);
+            unlink($metadataFile); // Clean up metadata file
+
+            // Check for custom metadata field indicating the file is stamped
+            if (strpos($metadata, 'InfoKey: Stamped\nInfoValue: true') !== false) {
+                unlink($tempFileName); // Clean up temp signature file
+                return response()->json(['error' => 'PDF is already stamped'], 400);
+            }
+        } else {
+            Log::error('Failed to read PDF metadata: ' . implode("\n", $output));
+            unlink($tempFileName);
+            return response()->json(['error' => 'Failed to read PDF metadata', 'details' => implode("\n", $output)], 500);
+        }
+
+        // Run pdftk multistamp
+        $command = sprintf(
+            'pdftk %s multistamp %s output %s',
+            escapeshellarg($localFilePath),
+            escapeshellarg($tempFileName),
+            escapeshellarg($outputFilePath)
+        );
+        exec($command . ' 2>&1', $output, $returnVar);
+
+        if ($returnVar === 0 && file_exists($outputFilePath)) {
+            // Add custom metadata to mark the PDF as stamped
+            $metadataFile = tempnam(sys_get_temp_dir(), 'meta_') . '.txt';
+            file_put_contents($metadataFile, "InfoBegin\nInfoKey: Stamped\nInfoValue: true\n");
+            $finalOutputPath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+            $command = sprintf(
+                'pdftk %s update_info %s output %s',
+                escapeshellarg($outputFilePath),
+                escapeshellarg($metadataFile),
+                escapeshellarg($finalOutputPath)
+            );
+            exec($command . ' 2>&1', $output, $returnVar);
+
+            if ($returnVar === 0 && file_exists($finalOutputPath)) {
+                // Prepare FTP upload
+                $no = str_replace("RQ-", "", $app->app_no);
+                $no = str_replace("-", "_", $no);
+                $dlName = 'scope_' . basename($existingFilePath);
+                $attach_path = 'files/applicants/check_files_cb/' . $no . '/';
+                $filePath = $attach_path . $dlName;
+
+                // Upload to FTP
+                $storagePath = Storage::disk('ftp')->putFileAs($attach_path, new \Illuminate\Http\File($finalOutputPath), $dlName);
+
+                if (Storage::disk('ftp')->exists($filePath)) {
+                    $tb = new CertiCb;
+                    $certiCBAttachAll = new CertiCBAttachAll();
+                    $certiCBAttachAll->app_certi_cb_id = $app->id ?? null;
+                    $certiCBAttachAll->ref_id = null;
+                    $certiCBAttachAll->table_name = $tb->getTable();
+                    $certiCBAttachAll->file_section = '3';
+                    $certiCBAttachAll->file = $no . '/' . $dlName;
+                    $certiCBAttachAll->file_client_name = $dlName;
+                    $certiCBAttachAll->token = str_random(16);
+                    $certiCBAttachAll->save();
+
+                    // Clean up temporary files
+                    if (file_exists($localFilePath)) {
+                        unlink($localFilePath);
+                    }
+                    if (file_exists($tempFileName)) {
+                        unlink($tempFileName);
+                    }
+                    if (file_exists($outputFilePath)) {
+                        unlink($outputFilePath);
+                    }
+                    if (file_exists($finalOutputPath)) {
+                        unlink($finalOutputPath);
+                    }
+                    if (file_exists($metadataFile)) {
+                        unlink($metadataFile);
+                    }
+
+                    return response()->json([
+                        'message' => 'PDF signed and uploaded successfully',
+                        'file' => $filePath,
+                    ]);
+                } else {
+                    Log::error('FTP upload failed for: ' . $filePath);
+                    unlink($tempFileName);
+                    unlink($outputFilePath);
+                    unlink($finalOutputPath);
+                    unlink($metadataFile);
+                    return response()->json(['error' => 'Failed to upload signed PDF to FTP'], 500);
+                }
+            } else {
+                Log::error('Failed to add metadata: ' . implode("\n", $output));
+                unlink($tempFileName);
+                unlink($outputFilePath);
+                unlink($metadataFile);
+                return response()->json(['error' => 'Failed to add metadata to PDF', 'details' => implode("\n", $output)], 500);
+            }
+        } else {
+            Log::error('pdftk failed: ' . implode("\n", $output));
+            unlink($tempFileName);
+            return response()->json(['error' => 'Failed to sign PDF', 'details' => implode("\n", $output)], 500);
+        }
+    } else {
+        unlink($tempFileName);
+        return response()->json(['error' => 'Target file not found on FTP: ' . $existingFilePath], 404);
+    }
+}
+
+
+
 
 
 //     public function callCreateBill()
@@ -1307,48 +1592,48 @@ class MyTestController extends Controller
                                                     
 //     }
 
-//     public function getSignature($attach)
-//     {
+    public function getSignature($attach)
+    {
         
-//         $existingFilePath = $attach->url;//  'files/signers/3210100336046/tvE4QPMaEC-date_time20241211_011258.png'  ;
+        $existingFilePath = $attach->url;//  'files/signers/3210100336046/tvE4QPMaEC-date_time20241211_011258.png'  ;
 
-//         $attachPath = 'bcertify_attach/signer';
-//         $fileName = basename($existingFilePath) ;// 'tvE4QPMaEC-date_time20241211_011258.png';
-//         // dd($existingFilePath);
+        $attachPath = 'bcertify_attach/signer';
+        $fileName = basename($existingFilePath) ;// 'tvE4QPMaEC-date_time20241211_011258.png';
+        // dd($existingFilePath);
 
-//         // ตรวจสอบไฟล์ใน disk uploads ก่อน
-//         if (Storage::disk('uploads')->exists("{$attachPath}/{$fileName}")) {
-//             // หากพบไฟล์ใน disk
-//             $storagePath = Storage::disk('uploads')->path("{$attachPath}/{$fileName}");
-//             $filePath = 'uploads/'.$attachPath .'/'.$fileName;
-//             // dd('File already exists in uploads',  $filePath);
-//             return $filePath;
-//         } else {
-//             // หากไม่พบไฟล์ใน disk ให้ไปตรวจสอบในเซิร์ฟเวอร์
-//             if (HP::checkFileStorage($existingFilePath)) {
-//                 // ดึง path ของไฟล์ที่อยู่ในเซิร์ฟเวอร์
-//                 $localFilePath = HP::getFileStoragePath($existingFilePath);
+        // ตรวจสอบไฟล์ใน disk uploads ก่อน
+        if (Storage::disk('uploads')->exists("{$attachPath}/{$fileName}")) {
+            // หากพบไฟล์ใน disk
+            $storagePath = Storage::disk('uploads')->path("{$attachPath}/{$fileName}");
+            $filePath = 'uploads/'.$attachPath .'/'.$fileName;
+            // dd('File already exists in uploads',  $filePath);
+            return $filePath;
+        } else {
+            // หากไม่พบไฟล์ใน disk ให้ไปตรวจสอบในเซิร์ฟเวอร์
+            if (HP::checkFileStorage($existingFilePath)) {
+                // ดึง path ของไฟล์ที่อยู่ในเซิร์ฟเวอร์
+                $localFilePath = HP::getFileStoragePath($existingFilePath);
 
-//                 // ตรวจสอบว่าไฟล์มีอยู่หรือไม่
-//                 if (file_exists($localFilePath)) {
-//                     // บันทึกไฟล์ลง disk 'uploads' โดยใช้ subfolder ที่กำหนด
-//                     $storagePath = Storage::disk('uploads')->putFileAs($attachPath, new \Illuminate\Http\File($localFilePath), $fileName);
+                // ตรวจสอบว่าไฟล์มีอยู่หรือไม่
+                if (file_exists($localFilePath)) {
+                    // บันทึกไฟล์ลง disk 'uploads' โดยใช้ subfolder ที่กำหนด
+                    $storagePath = Storage::disk('uploads')->putFileAs($attachPath, new \Illuminate\Http\File($localFilePath), $fileName);
 
-//                     // ตอบกลับว่าพบไฟล์และบันทึกสำเร็จ
-//                     $filePath = 'uploads/'.$attachPath .'/'.$fileName;
-//                     return $filePath;
-//                     // dd('File exists in server and saved to uploads', $storagePath);
-//                 } else {
-//                     // กรณีไฟล์ไม่สามารถเข้าถึงได้ใน path เดิม
-//                     return null;
-//                 }
-//             } else {
-//                 // ตอบกลับกรณีไม่มีไฟล์ในเซิร์ฟเวอร์
-//                 return null;
-//             }
-//         }
+                    // ตอบกลับว่าพบไฟล์และบันทึกสำเร็จ
+                    $filePath = 'uploads/'.$attachPath .'/'.$fileName;
+                    return $filePath;
+                    // dd('File exists in server and saved to uploads', $storagePath);
+                } else {
+                    // กรณีไฟล์ไม่สามารถเข้าถึงได้ใน path เดิม
+                    return null;
+                }
+            } else {
+                // ตอบกลับกรณีไม่มีไฟล์ในเซิร์ฟเวอร์
+                return null;
+            }
+        }
         
-//     }
+    }
 //     public function CreateLabMessageRecordPdfDemo()
 //     {
 //         // http://127.0.0.1:8081/certify/auditor/create-lab-message-record-pdf/1754

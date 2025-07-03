@@ -38,7 +38,7 @@
 
                 <div class="clearfix"></div>
             
-                @if (isset($certi_cb) && $certi_cb->FileAttach3->count() > 0)
+                {{-- @if (isset($certi_cb) && $certi_cb->FileAttach3->count() > 0)
                 <div class="row">
                     @foreach($certi_cb->FileAttach3 as $data)
                       @if ($data->file)
@@ -62,8 +62,36 @@
                         @endif
                      @endforeach
                   </div>
+                @endif --}}
+
+                @if (isset($certi_cb) && $certi_cb->FileAttach3->count() > 0)
+                    @php
+                        // ดึงไฟล์ที่ id มากที่สุด (ล่าสุด)
+                        $latestFile = $certi_cb->FileAttach3->sortByDesc('id')->first();
+                    @endphp
+
+                    @if ($latestFile && $latestFile->file)
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="col-md-4 text-light"> </div>
+                                    <div class="col-md-6 text-light">
+                                        <a href="{{ url('certify/check/file_cb_client/'.$latestFile->file.'/'.(!empty($latestFile->file_client_name) ? $latestFile->file_client_name : basename($latestFile->file))) }}" target="_blank">
+                                            {!! HP::FileExtension($latestFile->file) ?? '' !!}
+                                            {{ !empty($latestFile->file_client_name) ? $latestFile->file_client_name : basename($latestFile->file) }}
+                                        </a>
+                                    </div>
+                                    <div class="col-md-2 text-left">
+                                        <a href="{{ url('certify/certi_cb/delete').'/'.basename($latestFile->id).'/'.$latestFile->token }}" class="hide_attach btn btn-danger btn-xs"
+                                        onclick="return confirm('ต้องการลบไฟล์นี้ใช่หรือไม่ ?')">
+                                            <i class="fa fa-remove"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @endif
-        
       </div>  
     </div>
 </div>
