@@ -17,6 +17,7 @@ use App\Models\Besurv\Signer;
 use App\Certify\CbAuditorTeam;
 use App\Mail\CB\CBAuditorsMail;
 use App\Http\Controllers\Controller;
+use App\Models\Certify\CertiEmailLt;
 use Illuminate\Support\Facades\Mail;   
 use  App\Models\Bcertify\StatusAuditor; 
 use App\Mail\CB\CbDocReviewAuditorsMail;
@@ -27,10 +28,10 @@ use App\Models\Certificate\CbDocReviewAuditor;
 use App\Models\Bcertify\HtmlCbMemorandumRequest;
 use App\Models\Certify\ApplicantCB\CertiCBCost; 
 use App\Models\Certify\MessageRecordTransaction;
+
 use App\Models\Bcertify\BoardAuditorMsRecordInfo;
 
 use App\Models\Bcertify\HtmlLabMemorandumRequest;
-
 use App\Models\Certify\ApplicantCB\CertiCBCheck; 
 use App\Models\Certify\ApplicantCB\CertiCBReview;
 use App\Models\Bcertify\CbBoardAuditorMsRecordInfo;
@@ -154,12 +155,26 @@ class AuditorCBController extends Controller
            ->toArray();
 
            $select_users = Signer::whereIn('user_register_id',$selectUserIds)->get();
-          //  dd($select_users);
-          //  public function user()
-          //  {
-          //      return $this->belongsTo(User::class, 'user_register_id', 'runrecno');
-          //  }
+          
+           
+            $appCertiMail = CertiEmailLt::where('certi',1803)->where('roles',1)->pluck('admin_group_email')->toArray();
+            // dd($appCertiMail );
+            //  
+              $groupAdminUsers = User::whereIn('reg_email',$appCertiMail)->get();
+             
+            $firstSignerGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+ 
+                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
 
+            }
+
+            // dd($groupAdminUsers);
             return view('certify.cb.auditor_cb.create',[
               'cbAuditorTeams'=>$cbAuditorTeams,
               'signers'=>$signers,
@@ -167,7 +182,8 @@ class AuditorCBController extends Controller
               'auditorcb' => $auditorcb,
               'auditors_status'=> $auditors_status,
               'previousUrl'=>$previousUrl,
-              'select_users' => $select_users
+              'select_users' => $select_users,
+              'firstSignerGroups' => $firstSignerGroups
             ]);
 
         }

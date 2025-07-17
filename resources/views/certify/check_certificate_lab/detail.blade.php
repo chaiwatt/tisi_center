@@ -440,6 +440,17 @@
                         $btn_report = 'btn-warning';
                     }
                 @endphp
+
+                {{-- {{count($applicant->haveNoticeItem)}}
+
+                @if (count($applicant->haveNoticeItem) == 0)
+                     <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
+                        title="จัดทำรายงาน" class="btn btn-info">
+                        รายงานที่1
+                    </a>
+                @endif --}}
+
+
                 @if ($applicant->pendingSignAssessmentReportTransaction()->count() == 0)
                         <button type="button" class="form_group btn {{ $btn_report }}" data-toggle="modal" data-target="#exampleModalReport">
                                 {!! $report_icon !!} สรุปรายงาน

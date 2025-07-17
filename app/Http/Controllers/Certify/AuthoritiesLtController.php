@@ -65,6 +65,7 @@ class AuthoritiesLtController extends Controller
                         $certi->cc =  isset($data['cc'][$key])?1:null;
                         $certi->reply_to =  isset($data['reply_to'][$key])?1:null;
                         $certi->emails =  !empty(str_replace(" ","", $data['emails'][$key]))?str_replace(" ","",$data['emails'][$key]):null;  
+                        $certi->admin_group_email = !empty(str_replace(" ","", $data['admin_group_email'][$key]))?str_replace(" ","",$data['admin_group_email'][$key]):null;
                         $certi->save();
                 }
             }

@@ -472,26 +472,13 @@
                 <span>
 
 
-                    {{-- @php
-                       dd($labScopeTransaction) ;
-                    @endphp --}}
-
-                    {{-- @if ($labRequest !== null)
-                            {{$labRequest->no}} หมู่ที่ {{$labRequest->moo}} 
-                            @if(\Illuminate\Support\Str::contains($labRequest->province_name, 'กรุงเทพ'))
-                                แขวง{{$labRequest->tambol_name}} เขต{{$labRequest->amphur_name}} {{$labScopeTransaction->address_city_text}} {{$labRequest->postal_code}} 
-                            @else
-                                ตำบล{{$labRequest->tambol_name}} อำเภอ{{$labRequest->amphur_name}} จังหวัด{{$labScopeTransaction->address_city_text}} {{$labRequest->postal_code}} 
-                            @endif
-
-                        @else --}}
                             {{$labScopeTransaction->address_number}} หมู่ที่ {{$labScopeTransaction->village_no}} 
                             @if(\Illuminate\Support\Str::contains($labScopeTransaction->address_city_text, 'กรุงเทพ'))
                                 แขวง{{$labScopeTransaction->sub_district}} เขต{{$labScopeTransaction->address_district}} {{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
                             @else
                                 ตำบล{{$labScopeTransaction->sub_district}} อำเภอ{{$labScopeTransaction->address_district}} จังหวัด{{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
                             @endif
-                    {{-- @endif --}}
+             
                  
       
 

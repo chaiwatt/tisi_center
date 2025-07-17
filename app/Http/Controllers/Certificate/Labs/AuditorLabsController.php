@@ -149,7 +149,7 @@ class AuditorLabsController extends Controller
           $auditors_status = [new TrackingAuditorsStatus];
           $signers = Signer::all();
 
-                      // ดึง reg_13ID จาก User ที่ reg_subdepart เป็น 1804, 1805, 1806
+            // ดึง reg_13ID จาก User ที่ reg_subdepart เป็น 1804, 1805, 1806
             $reg_13_ids = User::whereIn('reg_subdepart', [1804, 1805, 1806])
                 ->pluck('reg_13ID')
                 ->map(function ($reg_13_id) {

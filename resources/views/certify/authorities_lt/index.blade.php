@@ -87,7 +87,7 @@
                               <button type="button" class="btn btn-success btn-sm" id="addCostInput"><i class="icon-plus"></i> เพิ่ม</button>
                            </div>
                             <div class="col-sm-12">
-                                <div class="table-responsive">
+                                {{-- <div class="table-responsive">
                                     <table class="table color-bordered-table info-bordered-table table-bordered" id="myTable">
                                         <thead>
                                                 <tr>
@@ -166,7 +166,94 @@
                                         @endforeach
                                         </tbody>
                                     </table>
-                                </div>
+                                </div> --}}
+
+                                <div class="table-responsive">
+                                  <table class="table color-bordered-table info-bordered-table table-bordered" id="myTable">
+                                      <thead>
+                                          <tr>
+                                              <th class="text-center" width="2%">ลำดับ</th>
+                                              <th class="text-center" width="20%">ใบรับรอง</th>
+                                              <th class="text-center" width="20%">สิทธิ์</th>
+                                              <th class="text-center" width="15%">ส่งแบบ</th>
+                                              <th class="text-center" width="20%">Email</th>
+                                              <th class="text-center" width="20%">Admin Group Email</th> <!-- Added new column header -->
+                                              <th class="text-center" width="10%">
+                                                  <i class="fa fa-pencil-square-o"></i>
+                                              </th>
+                                          </tr>
+                                      </thead>
+                                      <tbody id="table-body">
+                                          @php
+                                          $data = ['1'=>'LAB','2'=>'CB','3'=>'IB'];
+                                          @endphp
+                                          @foreach($certi as $key => $item)
+                                          <tr>
+                                              <td class="text-center">{{ ($key +1) }}</td>
+                                              <td>
+                                                  <input type="hidden" name="data[id][]" value=" {{ $item->id ?? null }}">
+                                                  {!! Form::select('data[certi][]',
+                                                  ['1802'=>'กลุ่มรับรองหน่วยตรวจ',
+                                                  '1803'=>'กลุ่มรับรองหน่วยรับรอง',
+                                                  '1804'=>'กลุ่มรับรองห้องปฏิบัติการ 1',
+                                                  '1805'=>'กลุ่มรับรองห้องปฏิบัติการ 2',
+                                                  '1806'=>'กลุ่มรับรองห้องปฏิบัติการ 3'
+                                                  ],
+                                                  $item->certi ?? null,
+                                                  ['class' => 'form-control select2',
+                                                  'required' => true,
+                                                  'placeholder' =>'- เลือกใบรับรอง -']) !!}
+                                              </td>
+                                              <td>
+                                                  {!! Form::select('data[roles][]',
+                                                  ['1'=>'ผู้อำนวยการกลุ่ม สก.',
+                                                  '2'=>'เจ้าหน้าที่ ลท.',
+                                                  '3'=>'mail กลาง'
+                                                  ],
+                                                  $item->roles ?? null,
+                                                  ['class' => 'form-control select2',
+                                                  'required' => true,
+                                                  'placeholder' =>'- เลือกสิทธิ์ -']) !!}
+
+                                              </td>
+                                              <td>
+                                                  <label>
+                                                      {!! Form::checkbox('data[cc][]', '0',
+                                                      ($item->cc == 1) ? true : false,
+                                                      ['class'=>'check cc',
+                                                      'data-checkbox'=>"icheckbox_flat-green"]) !!}
+                                                      CC
+                                                  </label>
+                                                  <label>
+                                                      {!! Form::checkbox('data[reply_to][]', '0',
+                                                      ($item->reply_to == 1) ? true : false,
+                                                      ['class'=>'check reply_to',
+                                                      'data-checkbox'=>"icheckbox_flat-green"]) !!}
+                                                      replyTo
+                                                  </label>
+                                              </td>
+                                              <td>
+                                                  {!! Form::email('data[emails][]',
+                                                  $item->emails ?? null,
+                                                  ['class' => 'form-control ',
+                                                  'required'=>true])!!}
+                                              </td>
+                                              <td> <!-- New column for admin_group_email -->
+                                                  {!! Form::email('data[admin_group_email][]',
+                                                  $item->admin_group_email ?? null,
+                                                  ['class' => 'form-control '])!!}
+                                              </td>
+                                              <td class="text-center">
+                                                  <button class="btn btn-danger btn-sm remove-row" type="button">
+                                                      <i class="icon-close"></i>
+                                                  </button>
+                                              </td>
+                                          </tr>
+                                          @endforeach
+                                      </tbody>
+                                  </table>
+                              </div>
+
                             </div>
                   </div>
                   

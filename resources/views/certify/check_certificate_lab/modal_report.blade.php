@@ -78,11 +78,11 @@
                                 </a>
                                 @if ($applicant->require_scope_update != 1)
 
-                                @if ($report->status == null)
+                                {{-- @if ($report->status == null)
                                     <button type="button" class="btn btn-sm btn-info attach-add" id="button_show_request_edit_scope_modal">
                                         <i class="fa fa-pencil-square-o"></i>&nbsp;ขอให้แก้ไข
                                     </button>
-                                @endif
+                                @endif --}}
 
                                    
                                 @else

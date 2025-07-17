@@ -56,6 +56,11 @@ return [
             // 'ssl'      => true,
             // 'timeout'  => 30,
         ],
+        'temp' => [
+            'driver' => 'local',
+            'root' => storage_path('app/temp'),
+            'throw' => false,
+        ],
 
     ],
 

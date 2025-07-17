@@ -10,6 +10,7 @@ use stdClass;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use App\AttachFile;
+use Mpdf\HTMLParserMode;
 use App\CertificateExport;
 use App\Helpers\TextHelper;
 use Illuminate\Support\Str;
@@ -112,6 +113,180 @@ class MyTestController extends Controller
 
         $this->attach_path = 'files/applicants/check_files/';
     }
+
+
+    // เมธอดใหม่สำหรับแสดงรายละเอียด IB (Inspection Body)
+    // เมธอดใหม่สำหรับแสดงรายละเอียด IB (Inspection Body)
+    public function showIbDetails()
+    {
+        $templateType = "ib"; // กำหนด templateType เป็น "ib"
+
+        $ibDetails = [
+            'title' => "รายละเอียดแนบท้ายใบรับรองระบบงานหน่วยตรวจ",
+            'certificateNo' => "23-IB0005",
+            'inspectionBodyName' => "บริษัท เอ็นพีซีโซลูชั่นแอนด์เซอร์วิส จำกัด",
+            'headOfficeAddress' => "เลขที่ 1285/5 ถนนประชาราษฎร์ แขวงวงศ์สว่าง เขตบางซื่อ<br>กรุงเทพมหานคร",
+            'branchOfficeAddress' => "เลขที่ 3 ซอยสาธุฯ 29 ถนนสุขสวัสดิ์ 105 แขวงบางนา<br>เขตบางนา กรุงเทพมหานคร",
+            'accreditationNo' => "หน่วยตรวจ 0057",
+            'inspectionBodyType' => "ประเภท A",
+            'inspectionItems' => [
+                [
+                    'category' => "1. สินค้าเกษตร:<br>ข้าวหอมมะลิไทย",
+                    'procedure' => "การตรวจในขั้นตอนก่อนปล่อยและขั้น<br>ตรวจปล่อย ในรายการต่อไปนี้",
+                    'requirements' => "1. ประกาศกระทรวงพาณิชย์ เรื่อง<br>หลักเกณฑ์และวิธีการจัดให้มีการ<br>ตรวจสอบมาตรฐานสินค้า และการ<br>ออกใบรับรองมาตรฐานสินค้า<br>สำหรับสินค้าข้าวหอมมะลิไทย<br>พ.ศ. 2559"
+                ]
+            ]
+        ];
+
+        return view('abtest.ib', [
+            'templateType' => $templateType,
+            'ibDetails' => $ibDetails // ส่งข้อมูล IB Details เข้าไป
+        ]);
+    }
+
+        // เมธอดใหม่สำหรับแสดงรายละเอียด IB (Inspection Body)
+    public function showIbReportOneDetails()
+    {
+        $templateType = "ib-report-one-template"; // กำหนด templateType เป็น "ib"
+
+        $ibDetails = [
+            'title' => "รายละเอียดแนบท้ายใบรับรองระบบงานหน่วยตรวจ",
+            'certificateNo' => "23-IB0005",
+            'inspectionBodyName' => "บริษัท เอ็นพีซีโซลูชั่นแอนด์เซอร์วิส จำกัด",
+            'headOfficeAddress' => "เลขที่ 1285/5 ถนนประชาราษฎร์ แขวงวงศ์สว่าง เขตบางซื่อ<br>กรุงเทพมหานคร",
+            'branchOfficeAddress' => "เลขที่ 3 ซอยสาธุฯ 29 ถนนสุขสวัสดิ์ 105 แขวงบางนา<br>เขตบางนา กรุงเทพมหานคร",
+            'accreditationNo' => "หน่วยตรวจ 0057",
+            'inspectionBodyType' => "ประเภท A",
+            'inspectionItems' => [
+                [
+                    'category' => "1. สินค้าเกษตร:<br>ข้าวหอมมะลิไทย",
+                    'procedure' => "การตรวจในขั้นตอนก่อนปล่อยและขั้น<br>ตรวจปล่อย ในรายการต่อไปนี้",
+                    'requirements' => "1. ประกาศกระทรวงพาณิชย์ เรื่อง<br>หลักเกณฑ์และวิธีการจัดให้มีการ<br>ตรวจสอบมาตรฐานสินค้า และการ<br>ออกใบรับรองมาตรฐานสินค้า<br>สำหรับสินค้าข้าวหอมมะลิไทย<br>พ.ศ. 2559"
+                ]
+            ]
+        ];
+
+        $certi_ib = CertiIb::latest()->first();
+
+        return view('abtest.ib', [
+            'templateType' => $templateType,
+            'ibDetails' => $ibDetails, // ส่งข้อมูล IB Details เข้าไป
+            'certi_ib' => $certi_ib,
+        ]);
+    }
+
+
+    public function exportPdf(Request $request)
+    {
+        $htmlPages = $request->input('html_pages');
+
+       
+        if (!is_array($htmlPages) || empty($htmlPages)) {
+            return response()->json(['message' => 'Invalid or empty HTML content received.'], 400);
+        }
+
+        // กรองหน้าเปล่าออก (โค้ดเดิมที่เพิ่มไป)
+        $filteredHtmlPages = [];
+        foreach ($htmlPages as $pageHtml) {
+            $trimmedPageHtml = trim(strip_tags($pageHtml, '<img>'));
+            if (!empty($trimmedPageHtml)) {
+                $filteredHtmlPages[] = $pageHtml;
+            }
+        }
+
+        if (empty($filteredHtmlPages)) {
+            return response()->json(['message' => 'No valid HTML content to export after filtering empty pages.'], 400);
+        }
+        $htmlPages = $filteredHtmlPages;
+
+        $type = 'I';
+        $fontDirs = [public_path('pdf_fonts/')];
+
+        $fontData = [
+            'thsarabunnew' => [
+                'R' => "THSarabunNew.ttf",
+                'B' => "THSarabunNew-Bold.ttf",
+                'I' => "THSarabunNew-Italic.ttf",
+                'BI' => "THSarabunNew-BoldItalic.ttf",
+            ],
+            'dejavusans' => [
+                'R' => "DejaVuSans.ttf",
+                'B' => "DejaVuSans-Bold.ttf",
+                'I' => "DejaVuSerif-Italic.ttf",
+                'BI' => "DejaVuSerif-BoldItalic.ttf",
+            ],
+        ];
+
+        $mpdf = new Mpdf([
+            'PDFA'              => $type == 'F' ? true : false,
+            'PDFAauto'          => $type == 'F' ? true : false,
+            'format'            => 'A4',
+            'mode'              => 'utf-8',
+            'default_font_size' => 15,
+            'fontDir'           => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+            'fontdata'          => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+            'default_font'      => 'thsarabunnew',
+            'fontdata_fallback' => ['dejavusans', 'freesans', 'arial'],
+            'margin_left'       => 13,
+            'margin_right'      => 13,
+            'margin_top'        => 10,
+            'margin_bottom'     => 5,
+            // 'tempDir'           => sys_get_temp_dir(),
+        ]);
+
+    
+        // Log::info('MPDF Temp Dir: ' . $tempDirPath);
+
+        $stylesheet = file_get_contents(public_path('css/pdf-css/cb.css'));
+        $mpdf->WriteHTML($stylesheet, 1);
+
+        // $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, [23, 23], [170, 12]);
+        // $mpdf->showWatermarkImage = true;
+
+        // --- เพิ่ม Watermark Text "DRAFT" ตรงนี้ ---
+        $mpdf->SetWatermarkText('DRAFT');
+        $mpdf->showWatermarkText = true; // เปิดใช้งาน watermark text
+        $mpdf->watermark_font = 'thsarabunnew'; // กำหนด font (ควรใช้ font ที่โหลดไว้แล้ว)
+        $mpdf->watermarkTextAlpha = 0.1;
+$footerHtml = '
+<div width="100%" style="display:inline;line-height:12px">
+
+    <div style="display:inline-block;line-height:16px;float:left;width:70%;">
+      <span style="font-size:20px;">กระทรวงอุตสาหกรรม สํานักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม</span><br>
+      <span style="font-size: 16px">(Ministry of Industry, Thai Industrial Standards Institute)</span>
+    </div>
+
+    <div style="display: inline-block; width: 15%;float:right;width:25%">
+  
+    </div>
+
+    <div width="100%" style="display:inline;text-align:center">
+      <span>หน้าที่ {PAGENO}/{nbpg}</span>
+    </div>
+</div>';
+
+// แล้วนำไปกำหนดให้ mPDF เป็น Footer
+// $mpdf->SetHTMLFooter($footerHtml);
+
+        foreach ($htmlPages as $index => $pageHtml) {
+            if ($index > 0) {
+                $mpdf->AddPage();
+            }
+            $mpdf->WriteHTML($pageHtml,HTMLParserMode::HTML_BODY);
+        }
+
+                // แปลง PDF เป็น String
+        $pdfContent = $mpdf->Output('', 'S');
+
+
+        $title = "mypdf.pdf";
+        
+        $mpdf->Output($title, "I");  
+
+
+    }
+
+
     public function callCheckBill($ref1)
     {
          // สร้าง Request Object และเพิ่มข้อมูลที่ต้องการส่งไป
@@ -142,6 +317,7 @@ class MyTestController extends Controller
 
 public function signPdfWithPdfTk()
 {
+
     $signer = Signer::find(167);
     $attach = $signer->AttachFileAttachTo;
     $signature_url = $this->getSignature($attach); // e.g., uploads/bcertify_attach/signer/mPP5q7GClk-date_time20231114_051107.jpg
@@ -212,7 +388,6 @@ public function signPdfWithPdfTk()
             $storagePath = Storage::disk('ftp')->putFileAs($attach_path, new \Illuminate\Http\File($outputFilePath), $dlName);
 
             if (Storage::disk('ftp')->exists($filePath)) {
-
                 $tb = new CertiCb;
                 $certiCBAttachAll = new CertiCBAttachAll();
                 $certiCBAttachAll->app_certi_cb_id  = $app->id ?? null;

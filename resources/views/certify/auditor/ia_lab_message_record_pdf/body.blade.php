@@ -49,7 +49,7 @@
 
 <div style="position: absolute; top: 65mm; left: 75mm; width: 100mm">
     <div style=";text-align:center">
-        <img src="{{public_path($signer->signer_url1)}}" style="width: 70px" alt="">
+        <img src="{{public_path($signer->signer_url2)}}" style="width: 70px" alt="">
         <div style="margin-top: -5px;font-size:16px">{{HP::formatDateThaiFullNumThai($signer->signer_2->updated_at)}}</div>
     </div>
     
@@ -162,7 +162,7 @@
     <table style="width: 100%;text-align:center;">
         <tr>
             <td style="width:40%"></td>
-            <td>  <img src="{{public_path($signer->signer_url2)}}" style="width: 70px" alt=""></td>
+            <td>  <img src="{{public_path($signer->signer_url1)}}" style="width: 70px" alt=""></td>
         </tr>
         <tr>
             <td style="width:40%"></td>

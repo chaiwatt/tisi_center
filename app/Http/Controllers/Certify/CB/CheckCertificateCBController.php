@@ -28,14 +28,15 @@ use App\Mail\CB\CBAssignStaffMail;
 use App\Http\Controllers\Controller;
 use App\Models\Sso\User AS SSO_User;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\CB\CBScopeEditAlertMail;
 use App\Models\Bcertify\StatusAuditor;
 use App\Models\Certify\TransactionPayIn;
 use App\Models\Certify\ApplicantCB\CertiCb;
 use App\Models\Certify\CertiSettingPayment;
 use App\Models\Certify\ApplicantCB\CertiCBCost;
 use App\Models\Bcertify\CbRequestRejectTracking;
-use App\Models\Certify\ApplicantCB\CertiCBCheck;
 
+use App\Models\Certify\ApplicantCB\CertiCBCheck;
 use App\Models\Certify\ApplicantCB\CertiCBExport;
 use App\Models\Certify\ApplicantCB\CertiCBReport;
 use App\Models\Certify\ApplicantCB\CertiCBReview;
@@ -982,24 +983,56 @@ class CheckCertificateCBController extends Controller
 
     public function askToEditCbScope(Request $request)
     {
-
-        $report = CertiCBReport::findOrFail($request->reportId);
-        CertiCb::findOrFail($report->app_certi_cb_id)->update([
+        // dd($request->all());
+        // $report = CertiCBReport::findOrFail($request->appId);
+        CertiCb::findOrFail($request->appId)->update([
             'require_scope_update' => 1
         ]);
-        $certi_cb = CertiCb::findOrFail($report->app_certi_cb_id);
-        $tb = new CertiCb;
-            CertiCbHistory::create([
-                                    'app_certi_cb_id'   => $certi_cb->id ?? null,
-                                    'system'            => isset($system) ? $system : null,
-                                    'table_name'        => $tb->getTable(),
-                                    'status'            => $certi_cb->status ?? null,
-                                    'ref_id'            => $certi_cb->id,
-                                    'details_one'       => null,
-                                    'details_two'       => $request->details,
-                                    'attachs'           => null,
-                                    'created_by'        =>  auth()->user()->runrecno
-                                  ]);
+
+        $this->askToEditCbScopeEmail($request->appId,$request->details);
+    }
+
+    public function askToEditCbScopeEmail($id,$message)
+    {
+        $certi_cb = CertiCb::findOrFail($id);
+ //Mail
+                    $config = HP::getConfig();
+                   
+                    $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
+                    $data_app =[
+                                'certi_cb'             => $certi_cb ?? '-',
+                                'message'     => $message,
+                                'url'                  => $url.'certify/applicant-cb' ?? '-',
+                                'email'                =>  !empty($certi_cb->DataEmailCertifyCenter) ? $certi_cb->DataEmailCertifyCenter : 'cb@tisi.mail.go.th',
+                                'email_cc'             =>  !empty($certi_cb->DataEmailDirectorCBCC) ? $certi_cb->DataEmailDirectorCBCC : 'cb@tisi.mail.go.th',
+                                'email_reply'          => !empty($certi_cb->DataEmailDirectorCBReply) ? $certi_cb->DataEmailDirectorCBReply : 'cb@tisi.mail.go.th'
+                              ];
+            
+                    $log_email =  HP::getInsertCertifyLogEmail($certi_cb->app_no,
+                                                            $certi_cb->id,
+                                                            (new CertiCb)->getTable(),
+                                                            null,
+                                                            (new CertiCb)->getTable(),
+                                                            3,
+                                                            'สรุปรายงานเสนอคณะกรรมการ/คณะอนุกรรมการ',
+                                                            view('mail.CB.scope_edit', $data_app),
+                                                            $certi_cb->created_by,
+                                                            $certi_cb->agent_id,
+                                                            auth()->user()->getKey(),
+                                                            !empty($certi_cb->DataEmailCertifyCenter) ?  implode(',',(array)$certi_cb->DataEmailCertifyCenter)  :  'cb@tisi.mail.go.th',
+                                                            $certi_cb->email,
+                                                            !empty($certi_cb->DataEmailDirectorCBCC) ? implode(',',(array)$certi_cb->DataEmailDirectorCBCC)   :   'cb@tisi.mail.go.th',
+                                                            !empty($certi_cb->DataEmailDirectorCBReply) ?implode(',',(array)$certi_cb->DataEmailDirectorCBReply)   :   'cb@tisi.mail.go.th',
+                                                            null
+                                                            );
+
+                    $html = new CBScopeEditAlertMail($data_app);
+                    $mail =  Mail::to($certi_cb->email)->send($html);
+        
+                    if(is_null($mail) && !empty($log_email)){
+                        HP::getUpdateCertifyLogEmail($log_email->id);
+                    } 
+ 
     }
       // สรุปรายงานและเสนออนุกรรมการฯ
         public function UpdateReport(Request $request, $id){

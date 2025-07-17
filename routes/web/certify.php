@@ -239,6 +239,8 @@ Route::group(['prefix' => 'certify'], function () {
         Route::post('/update/status/receive_certificate/{id?}','Certify\CheckCertificateLabController@ReceiveCertificate');
         Route::post('/update_attach','Certify\CheckCertificateLabController@UpDateAttach');
 
+        Route::post('/ask-to-edit-lab-scope','Certify\CheckCertificateLabController@askToEditLabScope')->name('check_certificate-lab.ask-to-edit-lab-scope');
+
         Route::get('/export_word/{id?}','Certify\CheckCertificateLabController@export_word');
 
         Route::get('/generate-pdf-lab-cal-scope/{id?}','Certify\CheckCertificateLabController@generatePdfLabCalScope')->name('certify.generate_pdf_lab_cal_scope');
@@ -451,7 +453,8 @@ Route::group(['prefix' => 'certify'], function () {
     // สรุปรายงานและเสนออนุกรรมการฯ
 
     Route::post('/check_certificate-ib/save-review/{id?}', 'Certify\IB\\CheckCertificateIBController@SaveReview');
-    Route::post('/check_certificate-ib/ask-to-edit-ib-scope', 'Certify\IB\\CheckCertificateIBController@askToEditIbScope');
+    Route::post('/check_certificate-ib/ask-to-edit-ib-scope', 'Certify\IB\\CheckCertificateIBController@askToEditIbScope')->name('check_certificate-ib.ask-to-edit-ib-scope');
+    
 
     Route::post('/check_certificate-ib/report/{id?}', 'Certify\IB\\CheckCertificateIBController@UpdateReport');
     // แนบใบ Pay-in ครั้งที่ 2
@@ -692,7 +695,8 @@ Route::group(['prefix' => 'certify'], function () {
 
      // สรุปรายงานและเสนออนุกรรมการฯ
     Route::post('/check_certificate-cb/save-review/{id?}', 'Certify\CB\\CheckCertificateCBController@SaveReview');
-    Route::post('/check_certificate-cb/ask-to-edit-cb-scope', 'Certify\CB\\CheckCertificateCBController@askToEditCbScope');
+    Route::post('/check_certificate-cb/ask-to-edit-cb-scope', 'Certify\CB\\CheckCertificateCBController@askToEditCbScope')->name('check_certificate-cb.ask-to-edit-cb-scope');
+
     Route::post('/check_certificate-cb/report/{id?}', 'Certify\CB\\CheckCertificateCBController@UpdateReport');
     // แนบใบ Pay-in ครั้งที่ 2
     Route::get('/check_certificate-cb/Pay_In2/{id?}/{token?}', 'Certify\CB\\CheckCertificateCBController@GetCBPayInTwo');

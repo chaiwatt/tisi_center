@@ -29,15 +29,16 @@ use App\Mail\IB\IBAssignStaffMail;
 use App\Http\Controllers\Controller;
 use App\Models\Sso\User AS SSO_User;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\IB\IBScopeEditAlertMail;
 use App\Models\Certify\TransactionPayIn;
-use App\Models\Certify\ApplicantIB\CertiIb;
 
+use App\Models\Certify\ApplicantIB\CertiIb;
 use App\Models\Certify\CertiSettingPayment;
 use App\Models\Certificate\IbScopeTransaction;
 use App\Models\Certify\ApplicantIB\CertiIBCheck;
 use App\Models\Certify\ApplicantIB\CertiIBExport;
-use App\Models\Certify\ApplicantIB\CertiIBReport;
 
+use App\Models\Certify\ApplicantIB\CertiIBReport;
 use App\Models\Certify\ApplicantIB\CertiIBReview;
 use App\Models\Certify\ApplicantIB\CertiIBStatus;
 use App\Models\Certify\ApplicantIB\CertiIbHistory;
@@ -71,7 +72,7 @@ class CheckCertificateIBController extends Controller
 
     public function index(Request $request)
     {
-        
+      
         $model = str_slug('checkcertificateib','-');
         if(auth()->user()->can('view-'.$model)) {
 
@@ -272,7 +273,7 @@ class CheckCertificateIBController extends Controller
 
     public function show($token)
     {
-        // dd('ok');
+
         $model = str_slug('checkcertificateib','-');
         if(auth()->user()->can('view-'.$model)) {
             $certi_ib = CertiIb::where('token',$token)->first();
@@ -948,25 +949,57 @@ try {
         }
 
         public function askToEditIbScope(Request $request)
-        {
-    
-            $report = CertiIBReport::findOrFail($request->reportId);
-            CertiIb::findOrFail($report->app_certi_ib_id)->update([
+        {       
+            
+            CertiIb::findOrFail($request->appId)->update([
                 'require_scope_update' => 1
             ]);
-            $certi_ib = CertiIb::findOrFail($report->app_certi_ib_id);
-            $tb = new CertiIb;
-                CertiIbHistory::create([
-                                        'app_certi_ib_id'   => $certi_ib->id ?? null,
-                                        'system'            => isset($system) ? $system : null,
-                                        'table_name'        => $tb->getTable(),
-                                        'status'            => $certi_ib->status ?? null,
-                                        'ref_id'            => $certi_ib->id,
-                                        'details_one'       => null,
-                                        'details_two'       => $request->details,
-                                        'attachs'           => null,
-                                        'created_by'        =>  auth()->user()->runrecno
-                                      ]);
+        
+
+            $this->askToEditIbScopeEmail($request->appId,$request->details);
+        }
+
+
+        public function askToEditIbScopeEmail($id,$message)
+        {
+            
+            $certi_ib = CertiIb::findOrFail($id);
+             $config = HP::getConfig();
+                    $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
+
+                    $data_app = [
+                                'certi_ib'      => $certi_ib,
+                                'message'      => $message,
+                                'url'           => $url.'certify/applicant-ib' ?? '-',
+                                'email'         =>  !empty($certi_ib->DataEmailCertifyCenter) ? $certi_ib->DataEmailCertifyCenter : 'ib@tisi.mail.go.th',
+                                'email_cc'      =>  !empty($certi_ib->DataEmailDirectorAndLtIBCC) ? $certi_ib->DataEmailDirectorAndLtIBCC : 'ib@tisi.mail.go.th',
+                                'email_reply'   => !empty($certi_ib->DataEmailDirectorIBReply) ? $certi_ib->DataEmailDirectorIBReply : 'ib@tisi.mail.go.th'
+                                 ];
+            // dd($data_app)   ;
+                    $log_email =  HP::getInsertCertifyLogEmail($certi_ib->app_no,
+                                                            $certi_ib->id,
+                                                            (new CertiIb)->getTable(),
+                                                            null,
+                                                            (new CertiIb)->getTable(),
+                                                            2,
+                                                            'ขอให้แก้ไขขอบข่าย',
+                                                            view('mail.IB.scope_edit', $data_app),
+                                                            $certi_ib->created_by,
+                                                            $certi_ib->agent_id,
+                                                            auth()->user()->getKey(),
+                                                            !empty($certi_ib->DataEmailCertifyCenter) ?  implode(',',(array)$certi_ib->DataEmailCertifyCenter)  :  'ib@tisi.mail.go.th',
+                                                            $certi_ib->email,
+                                                            !empty($certi_ib->DataEmailDirectorAndLtIBCC) ? implode(',',(array)$certi_ib->DataEmailDirectorAndLtIBCC)   :   'ib@tisi.mail.go.th',
+                                                            !empty($certi_ib->DataEmailDirectorIBReply) ?implode(',',(array)$certi_ib->DataEmailDirectorIBReply)   :   'ib@tisi.mail.go.th',
+                                                            null
+                                                            );
+
+                    $html = new IBScopeEditAlertMail($data_app);
+                    $mail =  Mail::to($certi_ib->email)->send($html);
+        
+                    if(is_null($mail) && !empty($log_email)){
+                        HP::getUpdateCertifyLogEmail($log_email->id);
+                    }    
         }
 
     public function UpdateReport(Request $request, $id)

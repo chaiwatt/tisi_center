@@ -17,12 +17,13 @@ use App\Models\Besurv\Signer;
 use App\Certify\IbAuditorTeam;
 use App\Mail\IB\IBAuditorsMail;
 use App\Http\Controllers\Controller;
+use App\Models\Certify\CertiEmailLt;
 use Illuminate\Support\Facades\Mail;
 use  App\Models\Bcertify\StatusAuditor;
 use App\Models\Bcertify\AuditorExpertise;
 use App\Models\Bcertify\AuditorInformation;
-use App\Models\Certify\ApplicantIB\CertiIb;
 
+use App\Models\Certify\ApplicantIB\CertiIb;
 use App\Models\Certify\Applicant\CostDetails;
 use App\Models\Certificate\IbDocReviewAuditor;
 use App\Models\Bcertify\HtmlIbMemorandumRequest;
@@ -30,8 +31,8 @@ use App\Models\Certify\ApplicantIB\CertiIBCheck;
 use App\Models\Certify\MessageRecordTransaction;
 use App\Models\Certify\ApplicantIB\CertiIBReview;
 use App\Models\Certify\ApplicantIB\CertiIbHistory;
-use App\Models\Bcertify\IbBoardAuditorMsRecordInfo;
 
+use App\Models\Bcertify\IbBoardAuditorMsRecordInfo;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
 use App\Models\Certify\ApplicantIB\CertiIBPayInOne; 
@@ -136,12 +137,34 @@ class AuditorIBController extends Controller
 
            $signers = Signer::all();
            $ibAuditorTeams = IbAuditorTeam::where('state',1)->get();
-
-           $selectUserIds  = User::whereIn('reg_subdepart',[1803])
+           //1802 IB
+           $selectUserIds  = User::whereIn('reg_subdepart',[1802])
            ->pluck('runrecno')
            ->toArray();
 
+        //    dd(User::whereIn('reg_subdepart',[1802])->get());
+
            $select_users = Signer::whereIn('user_register_id',$selectUserIds)->get();
+
+            $appCertiMail = CertiEmailLt::where('certi',1802)->where('roles',1)->pluck('admin_group_email')->toArray();
+            // dd($appCertiMail );
+            //  
+              $groupAdminUsers = User::whereIn('reg_email',$appCertiMail)->get();
+             
+            $firstSignerGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+                // dd($groupAdminUsers);
+ 
+                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+
+            }
+
+            // dd($firstSignerGroups);
 
             $auditorib = new CertiIBAuditors;
             $auditors_status = [new CertiIBAuditorsStatus];
@@ -155,7 +178,8 @@ class AuditorIBController extends Controller
                                                          'auditorib' => $auditorib,
                                                         'auditors_status' => $auditors_status,
                                                         'previousUrl' => $previousUrl,
-                                                        'select_users' => $select_users
+                                                        'select_users' => $select_users,
+                                                        'firstSignerGroups' => $firstSignerGroups
                                                         ]);
         }
         abort(403);

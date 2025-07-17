@@ -151,6 +151,18 @@
 
 <div class="row">
     <div class="col-md-12">
+        
+
+<div class="row">
+    <div class="col-md-12">
+        @if (session('error'))
+            <script>
+                alert("{{ session('error') }}");
+            </script>
+        @endif
+    </div>
+</div>
+        
         <div class="form-group">
             {{-- <div class="col-md-6">
                 <label class="col-md-4 text-right"><span class="text-danger">*</span> เลขคำขอ : </label>
@@ -282,20 +294,25 @@
             {{-- @endif --}}
 
         </div>
+        
         <div class="form-group">
             <div class="col-md-6" >
                 <label class="col-md-5 text-right"><span class="text-danger">*</span> รายงานข้อบกพร่อง : </label>
                 <div class="col-md-7">
                     <div class="row">
+                        {{-- @php
+                            dd($find_notice->report_status)
+                        @endphp --}}
                         <label class="col-md-6">
-                            {!! Form::radio('report_status', '1', isset($notice)  && !empty($notice->report_status ==1) ? false:true , ['class'=>'check', 'data-radio'=>'iradio_square-green','required'=>'required']) !!}  มี
+                            {!! Form::radio('report_status', '1', isset($find_notice)  && !empty($find_notice->report_status ==1) ? true:false , ['class'=>'check', 'data-radio'=>'iradio_square-green','required'=>'required']) !!}  มี
                         </label>
                         <label class="col-md-6">
-                            {!! Form::radio('report_status', '2', isset($notice) && !empty($notice->report_status ==1) ? true: false, ['class'=>'check', 'data-radio'=>'iradio_square-red','required'=>'required']) !!} ไม่มี
+                            {!! Form::radio('report_status', '2', isset($find_notice) && !empty($find_notice->report_status ==2) ? true: false, ['class'=>'check', 'data-radio'=>'iradio_square-red','required'=>'required']) !!} ไม่มี
                         </label>
                     </div>
                 </div>
             </div>
+
 
             @if(isset($notice)) 
             <div class="col-md-6">
@@ -535,7 +552,6 @@
 
             // return;
                 $('#submit_type').val(submit_type);
-
 
                 var report_status = $("input[name=report_status]:checked").val(); 
        

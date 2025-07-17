@@ -47,7 +47,8 @@ class AuditorAssignmentController extends Controller
         // $signer = Signer::where('user_register_id', $userId)->first();
         $signer = Signer::where('tax_number', $cleanId)->first();
 
-
+        // dd( $signer,$cleanId);
+      
         // ตรวจสอบว่าพบข้อมูลหรือไม่
         if ($signer) {
 
@@ -57,7 +58,7 @@ class AuditorAssignmentController extends Controller
             $query = MessageRecordTransaction::query();
             $query->where('signer_id',$signer->id);
 
-        
+
             if ($filter_approval) {
                 $query->where('approval', $filter_approval);
             }else{
@@ -68,7 +69,7 @@ class AuditorAssignmentController extends Controller
                 
                 $query->where('certificate_type', $filter_certificate_type);
             }
-        
+         
             $data = $query->get();
             $data = $data->map(function($item, $index) {
                 $item->DT_Row_Index = $index + 1;

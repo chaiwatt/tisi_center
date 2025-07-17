@@ -111,7 +111,19 @@ Route::get('/gen-ib-cerno','MyTestController@genIbCerNo');
 Route::get('/check-pdftk','MyTestController@checkpdftk');
 Route::get('/sign-pdf-with-pdftk','MyTestController@signPdfWithPdfTk');
 
+Route::get('/show-ib-details','MyTestController@showIbReportOneDetails');
+Route::post('/export-pdf', 'MyTestController@exportPdf');
 
+
+Route::get('s', 'PdfGeneratorController@showEditor')->name('editor.show');
+Route::post('/export-nodejs-pdf', 'PdfGeneratorController@exportPdf')->name('pdf.export');
+Route::get('/template/load', 'PdfGeneratorController@loadTemplate')->name('template.load');
+
+
+// Route::get('/show-editor', [PdfGeneratorController::class, 'showEditor'])->name('editor.show');
+// Route::post('/export-nodejs-pdf', [PdfGeneratorController::class, 'exportPdf'])->name('pdf.export');
+
+// Route::get('/template/load', [PdfGeneratorController::class, 'loadTemplate'])->name('template.load');
 
 
 

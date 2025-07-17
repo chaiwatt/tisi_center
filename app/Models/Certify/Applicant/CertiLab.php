@@ -322,6 +322,20 @@ class CertiLab extends Model
         return $this->certificate_export->id ??null;
     }
 
+    public function getHaveNoticeItemAttribute() {
+        $noticeItemList = [];
+        $notice = Notice::where('app_certi_lab_id',$this->id)->first();
+        if($notice != null){
+            if($notice->items->count() !=0)
+            {
+                $noticeItemList = NoticeItem::where('app_certi_lab_notice_id',$notice->id)->pluck('id')->toArray();
+            }
+        }
+
+        return $noticeItemList ;
+        // return $this->certificate_export->id ??null;
+    }
+
     public function certificate_export_to() {
         return $this->belongsTo(CertificateExport::class, 'id','certificate_for')->orderby('id','desc');
     }

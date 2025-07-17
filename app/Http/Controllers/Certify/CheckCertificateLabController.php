@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Bcertify\LabCalRequest;
 use App\Models\Certify\Applicant\Cost;
 use App\Mail\CertifyNotCostCertificate;
+use App\Mail\Lab\LabScopeEditAlertMail;
 use App\Models\Bcertify\LabTestRequest;
 use App\Models\Certify\Applicant\Check;
 use App\Mail\Lab\CertifyConfirmedPayIn1;
@@ -81,7 +82,7 @@ class CheckCertificateLabController extends Controller
 
     public function index(Request $request)
     {
-       
+    //    dd("ok");
         $keyword = $request->get('search');
         $filter = [];
 
@@ -3559,5 +3560,62 @@ class CheckCertificateLabController extends Controller
           }, $range);
       }, $maxNumber);
   }
+
+    public function askToEditLabScope(Request $request)
+        {       
+            // dd($request->all());
+            CertiLab::findOrFail($request->appId)->update([
+                'require_scope_update' => 1
+            ]);
+        
+
+
+            $this->askToEditLabScopeEmail($request->appId,$request->details);
+        }
+    public function askToEditLabScopeEmail($id,$message)
+    {
+        $app = CertiLab::find($id);
+        $config = HP::getConfig();
+        $url  =   !empty($config->url_acc) ? $config->url_acc : url('');
+
+      
+        $dataMail = ['1804'=> 'lab1@tisi.mail.go.th','1805'=> 'lab2@tisi.mail.go.th','1806'=> 'lab3@tisi.mail.go.th'];
+        $EMail =  array_key_exists($app->subgroup,$dataMail)  ? $dataMail[$app->subgroup] :'admin@admin.com';
+
+       
+         $data_app =  ['certi_lab'  => $app,
+                                'desc'      =>  $request->desc ?? null,
+                                'message'       =>  $message ,
+                                'url'       =>  $url.'certify/applicant' ,
+                                'email'     =>  !empty($app->DataEmailCertifyCenter) ? $app->DataEmailCertifyCenter : $EMail,
+                                'email_cc'  =>  !empty($app->DataEmailDirectorLABCC) ? $app->DataEmailDirectorLABCC :  $EMail,
+                                'email_reply' => !empty($app->DataEmailDirectorLABReply) ? $app->DataEmailDirectorLABReply :  $EMail
+                            ];
+
+                $log_email =  HP::getInsertCertifyLogEmail( $app->app_no,
+                                                            $app->id,
+                                                            (new CertiLab)->getTable(),
+                                                            $app->id,
+                                                            (new CertiLab)->getTable(),
+                                                            1,
+                                                            $app->status,
+                                                            view('mail.Lab.scope_edit', $data_app),
+                                                            $app->created_by,
+                                                            $app->agent_id,
+                                                            auth()->user()->getKey(),
+                                                            !empty($app->DataEmailCertifyCenter) ?  implode(',',(array)$app->DataEmailCertifyCenter)  : $EMail,
+                                                            $app->email,
+                                                            !empty($app->DataEmailDirectorLABCC) ? implode(',',(array)$app->DataEmailDirectorLABCC)   :  $EMail,
+                                                            !empty($app->DataEmailDirectorLABReply) ?implode(',',(array)$app->DataEmailDirectorLABReply)   :  $EMail,
+                                                            null
+                                                        );
+
+                $html = new LabScopeEditAlertMail($data_app);
+                $mail =  Mail::to($app->email)->send($html);
+
+                if(is_null($mail) && !empty($log_email)){
+                    HP::getUpdateCertifyLogEmail($log_email->id);
+                }
+    }
 
 }

@@ -116,6 +116,38 @@
 @section('content')
 
     <div class="container-fluid" id="app_check_certificate_index">
+
+
+         <div class="modal fade bd-example-modal-lg" id="modal-edit-lab-scope" tabindex="-1" role="dialog" aria-labelledby="modal-edit-lab-scopeLabel" aria-hidden="true">
+            <div class="modal-dialog  modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h4 class="modal-title" id="modal-edit-lab-scopeLabel">ขอแก้ไขขอบข่าย <span id="modal_app_no"></span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </h4>
+                    </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="app_id" value="">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group {{ $errors->has('details') ? 'has-error' : '' }}">
+                                        <label for="message" class="col-md-3 control-label text-right">รายละเอียด:</label>
+                                        <div class="col-md-9 text-left">
+                                            <textarea id="message" class="form-control check_readonly" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer data_hide">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
+                            <button type="button" class="btn btn-primary" id="submit_ask_edit_lab_scope" >บันทึก</button>
+                        </div>
+                </div>
+            </div>
+        </div>
         <!-- .row -->
         <div class="row">
             <div class="col-sm-12">
@@ -406,7 +438,7 @@
                                                                                                                     ])
 
                                                 @else
-                                                    {{ $status }}
+                                                  ID:{{$app->status}}  {{ $status }}
                                                 @endif
 
 
@@ -439,9 +471,20 @@
                                                     <i class="fa fa-search"></i>
                                                 </a>
                                             @endif
+
+
+                                            
                                             @php
                                                 $model = str_slug('check-certificate','-');
                                             @endphp
+
+
+                                        @if (auth()->user()->can('edit-'.$model) && (@$app->status > 1 && @$app->status <= 22) && @$app->status != 4 && @$app->require_scope_update != 1 )
+                                            <button  title="View Applicantib" class="btn btn-xs btn-warning request-edit-lab-scope" data-app_no="{{$app->app_no}}" data-app_id="{{$app->id}}" >
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                        @endif
+
                                             @if(@auth()->user()->can('delete-'.$model) && (@$app->status >= 0 && @$app->status <= 22) && @$app->status != 4)
                                                 <button class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modalDelete{{$app->id}}" data-no="{{ $app->app_no }}" data-id="{{ $app->token }}">
                                                     <i class="fa fa-trash-o" aria-hidden="true"></i>
@@ -773,6 +816,68 @@
                 }
             });
         });
+
+    $('.request-edit-lab-scope').click(function(event) {
+            // console.log();
+            $('#modal_app_no').text($(this).data('app_no'));
+            $('#app_id').val($(this).data('app_id')); 
+            $('#modal-edit-lab-scope').modal('show');
+    });
+
+    
+    $(document).on('click', '#submit_ask_edit_lab_scope', function(e) {
+        const _token = $('input[name="_token"]').val();
+    
+        appId = $('#app_id').val();
+        message = $('#message').val().trim();
+        console.log(appId)
+        if (!message) {
+            alert("กรุณาระบุรายละเอียด");
+            return; // หยุดการทำงาน ถ้า message ว่าง
+        }
+
+            const $overlay = $('<div id="loading-overlay"></div>').css({
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 9999,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }).append('<div style="color: white; font-size: 24px;">กำลังบันทึก...</div>');
+
+            $('body').append($overlay);
+        $.ajax({
+            // url:"{{route('api.calibrate')}}",
+            url: "{{ route('check_certificate-lab.ask-to-edit-lab-scope') }}",
+            method:"POST",
+            data:{
+                _token:_token,
+                appId:appId,
+                details:message,
+            },
+            success:function (result){
+            // Refresh หน้าเว็บหลังจากสำเร็จ
+            $('#modal-edit-lab-scope').modal('hide');
+                $overlay.remove();
+
+                
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+                
+            },
+            error: function() {
+                // Remove overlay on error
+                $overlay.remove();
+            }
+        });
+        
+
+    });
 
     </script>
 

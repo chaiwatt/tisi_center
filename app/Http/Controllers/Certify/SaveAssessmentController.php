@@ -41,6 +41,7 @@ use App\Models\Certificate\LabReportTwoInfo;
 use App\Models\Certify\Applicant\Assessment;
 use App\Models\Certify\Applicant\NoticeItem;
 use App\Models\Certify\Applicant\Information;
+use App\Services\CreateLabAssessmentReportPdf;
 use App\Models\Certify\Applicant\CheckExaminer;
 use  App\Models\Certify\BoardAuditorInformation;
 use App\Models\Certify\Applicant\CostAssessment;
@@ -227,7 +228,7 @@ class SaveAssessmentController extends Controller
            }
        }
 
-    //    dd($statusAuditorMap);
+    //    dd($find_notice);
        
         return view('certify.save_assessment.create', compact('app','NoticeItem','app_no','board_auditor_id','find_notice','statusAuditorMap'));
     }
@@ -235,8 +236,6 @@ class SaveAssessmentController extends Controller
 
     public function store(Request $request)
     {
-
-        // dd($request->all());
        
         $auditor = BoardAuditor::findOrFail($request->auditor_id);
         $notice = Notice::where('app_certi_assessment_id',$auditor->assessment_to->id)->first();
@@ -264,12 +263,13 @@ class SaveAssessmentController extends Controller
         $auditor = BoardAuditor::findOrFail($request->auditor_id);
         $n = Notice::where('app_certi_assessment_id',$auditor->assessment_to->id)->first();
 
+        // dd($n);
+
         if(!is_null($auditor) && !empty($auditor->applicant)){
              $app =  $auditor->applicant;
 
             //  dd($app->check->id);
 
-           
              $notices = $request->input('notice');
              $report = $request->input('report');
              $noks = $request->input('nok');
@@ -323,7 +323,42 @@ class SaveAssessmentController extends Controller
              $n = Notice::where('app_certi_assessment_id',$auditor->assessment_to->id)->first();
 
              
-             if($n->report_status == 2){ // ไม่มีข้อบกพร่อง
+             if($n->report_status == 2){ 
+
+                
+                  $labReportInfo = LabReportInfo::where('app_certi_lab_notice_id',$n->id)->first();
+
+                  if($labReportInfo == null){
+                        $labReportInfo = new LabReportInfo();
+                        $labReportInfo->app_certi_lab_notice_id = $n->id;
+                        $labReportInfo->save();
+                  }
+
+                  $check =  SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
+                                ->whereNotNull('signer_id')
+                                ->where('certificate_type',2)
+                                ->where('report_type',1)
+                                ->get();
+                if($check->count() != 0 )
+                {
+                    $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
+                                ->whereNotNull('signer_id')
+                                ->where('certificate_type',2)
+                                ->where('report_type',1)
+                                ->where('approval',0)
+                                ->get();           
+
+                    if($signAssessmentReportTransactions->count() == 0){
+                        $pdfService = new CreateLabAssessmentReportPdf($labReportInfo->id,"ia");
+                        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+                    }else{
+                           return redirect()->back()->with('error', 'อยู่ระหว่างจัดทำรายงานและลงนาม');
+                    }   
+                }else{
+                    return redirect()->route('save_assessment.view_lab_info',['id' => $n->id]);
+                }
+
+                // ไม่มีข้อบกพร่อง
                 // if($request->file_scope  && $request->hasFile('file_scope')){    // รายงาน Scope
                 //     foreach ($request->file_scope as $key => $itme) {
                 //         if(!is_null($itme)){
@@ -2317,6 +2352,161 @@ class SaveAssessmentController extends Controller
                 'id' => $id
             ]);
         }
+
+        
+        public function localViewLabInfo($noticeId,$boardAuditor)
+        {
+            // dd('ok');
+            $notice = Notice::find($noticeId);
+            
+            $labReportInfo = LabReportInfo::where('app_certi_lab_notice_id',$noticeId)->first();
+            
+            // $notice = $labReportInfo->notice;
+            // $assessment = $notice->assessment;
+            $app_certi_lab = $notice->applicant;
+
+            
+            // $boardAuditor = $assessment->board_auditor_to;
+            $id = $boardAuditor->auditor_id;
+            
+            // dd($notice,$assessment,$boardAuditor,$app_certi_lab);
+    
+            $groups = $boardAuditor->groups;
+    
+            $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
+    
+            $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
+    
+            foreach ($groups as $group) {
+                $statusAuditorId = $group->status_auditor_id; // ดึง status_auditor_id มาเก็บในตัวแปร
+                $auditors = $group->auditors; // $auditors เป็น Collection
+    
+                // ตรวจสอบว่ามีค่าใน $statusAuditorMap อยู่หรือไม่ หากไม่มีให้กำหนดเป็น array ว่าง
+                if (!isset($statusAuditorMap[$statusAuditorId])) {
+                    $statusAuditorMap[$statusAuditorId] = [];
+                }
+    
+                // เพิ่ม auditor_id เข้าไปใน array ตาม status_auditor_id
+                foreach ($auditors as $auditor) {
+                    $statusAuditorMap[$statusAuditorId][] = $auditor->auditor_id;
+                }
+            }
+    
+            $uniqueAuditorIds = array_unique($auditorIds);
+    
+            $auditorInformations = AuditorInformation::whereIn('id',$uniqueAuditorIds)->get();
+    
+            $certi_lab = CertiLab::find($boardAuditor->app_certi_lab_id);
+    
+            $boardAuditorDate = BoardAuditorDate::where('board_auditors_id',$id)->first();
+            $dateRange = "";
+    
+            if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
+                if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
+                    // ถ้าเป็นวันเดียวกัน
+                    $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+                } else {
+                    // ถ้าเป็นคนละวัน
+                    $dateRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
+                                " ถึงวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+                }
+            }
+
+            
+    
+            $boardAuditorExpert = BoardAuditoExpert::where('board_auditor_id',$id)->first();
+            $experts = "หัวหน้าคณะผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้สังเกตการณ์";
+            // ตรวจสอบว่ามีข้อมูลในฟิลด์ expert หรือไม่
+            if ($boardAuditorExpert && $boardAuditorExpert->expert) {
+                // แปลงข้อมูล JSON ใน expert กลับเป็น array
+                $categories = json_decode($boardAuditorExpert->expert, true);
+            
+                // ถ้ามีหลายรายการ
+                if (count($categories) > 1) {
+                    // ใช้ implode กับ " และ" สำหรับรายการสุดท้าย
+                    $lastItem = array_pop($categories); // ดึงรายการสุดท้ายออก
+                    $experts = implode(' ', $categories) . ' และ' . $lastItem; // เชื่อมรายการที่เหลือแล้วใช้ "และ" กับรายการสุดท้าย
+                } elseif (count($categories) == 1) {
+                    // ถ้ามีแค่รายการเดียว
+                    $experts = $categories[0];
+                } else {
+                    $experts = ''; // ถ้าไม่มีข้อมูล
+                }
+            
+            }
+    
+            $scope_branch = "";
+            if ($certi_lab->lab_type == 3){
+                $scope_branch = $certi_lab->BranchTitle;
+            }else if($certi_lab->lab_type == 4)
+            {
+                $scope_branch = $certi_lab->ClibrateBranchTitle;
+            }
+    
+            $data = new stdClass();
+    
+            $data->header_text1 = '';
+            $data->header_text2 = '';
+            $data->header_text3 = '';
+            $data->header_text4 = $certi_lab->app_no;
+            $data->lab_type = $certi_lab->lab_type == 3 ? 'ทดสอบ' : ($certi_lab->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
+            $data->lab_name = $certi_lab->lab_name;
+            $data->scope_branch = $scope_branch;
+            $data->app_np = 'ทดสอบ ๑๖๗๑';
+            $data->certificate_no = '13-LB0037';
+            $data->register_date = HP::formatDateThaiFullNumThai($certi_lab->created_at);
+            $data->get_date = HP::formatDateThaiFullNumThai($certi_lab->get_date);
+            $data->experts = $experts;
+            $data->date_range = $dateRange;
+            $data->statusAuditorMap = $statusAuditorMap;
+    
+            // $notice = Notice::find($notice_id);
+            $assessment = $notice->assessment;
+            // dd($statusAuditorMap);
+            $app_certi_lab = $notice->applicant;
+            $boardAuditor = $assessment->board_auditor_to;
+            $id = $boardAuditor->auditor_id;
+            $labRequest = null;
+        
+            if($app_certi_lab->lab_type == 4){
+                $labRequest = LabCalRequest::where('app_certi_lab_id',$app_certi_lab->id)->where('type',1)->first();
+            }else if($app_certi_lab->lab_type == 3)
+            {
+                $labRequest = LabTestRequest::where('app_certi_lab_id',$app_certi_lab->id)->where('type',1)->first();
+            }
+
+        //   dd($notice,$labReportInfo);   
+            // $signAssessmentReportTransactions =  SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
+            //                                     ->where('certificate_type',2)
+            //                                     ->where('report_type',1)
+            //                                     ->get();
+            $signAssessmentReportTransactions = null;                                  
+            $approveNoticeItems = NoticeItem::where('app_certi_lab_notice_id', $notice->id)
+                ->whereNotNull('attachs')
+                ->where('status',1)
+                ->where('file_status',1)
+                ->get();
+                // dd('okdd');
+           
+            $labScopeTransaction = LabScopeTransaction::where('app_certi_lab_id',$app_certi_lab->id)->first();
+
+           
+            return view('certify.save_assessment.view-report', [
+                'labReportInfo' => $labReportInfo,
+                'data' => $data,
+                'notice' => $notice,
+                'assessment' => $assessment,
+                'boardAuditor' => $boardAuditor,
+                'certi_lab' => $app_certi_lab,
+                'labRequest' => $labRequest,
+                'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
+                'approveNoticeItems' => $approveNoticeItems,
+                'labScopeTransaction' => $labScopeTransaction,
+                'id' => $id
+            ]);
+        }
+        
+
 
         public function updateLabInfo(Request $request)
         {

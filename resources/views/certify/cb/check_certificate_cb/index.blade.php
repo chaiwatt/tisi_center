@@ -69,6 +69,37 @@
 
 @section('content')
     <div class="container-fluid">
+        <div class="modal fade bd-example-modal-lg" id="modal-edit-cb-scope" tabindex="-1" role="dialog" aria-labelledby="modal-edit-cb-scopeLabel" aria-hidden="true">
+            <div class="modal-dialog  modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h4 class="modal-title" id="modal-edit-cb-scopeLabel">ขอแก้ไขขอบข่าย <span id="modal_app_no"></span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </h4>
+                    </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="app_id" value="">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group {{ $errors->has('details') ? 'has-error' : '' }}">
+                                        <label for="message" class="col-md-3 control-label text-right">รายละเอียด:</label>
+                                        <div class="col-md-9 text-left">
+                                            <textarea id="message" class="form-control check_readonly" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer data_hide">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
+                            <button type="button" class="btn btn-primary" id="submit_ask_edit_cb_scope" >บันทึก</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+
         <!-- .row -->
         <div class="row">
             <div class="col-sm-12">
@@ -259,13 +290,13 @@
                                         @endcan
                                     </th>
                                     <th  class="text-center text-top" width="10%">เลขที่คำขอ</th>
-                                    <th  class="text-center text-top" width="15%">หน่วยรับรอง</th>
+                                    <th  class="text-center text-top" width="13%">หน่วยรับรอง</th>
                                     <th  class="text-center text-top" width="10%">เลขที่มาตรฐาน</th>
                                     <th  class="text-center text-top" width="10%">สาขา</th>
                                     <th  class="text-center text-top" width="10%">วันที่ยื่นคำขอ</th>
-                                    <th  class="text-center text-top" width="15%">สถานะ</th>
+                                    <th  class="text-center text-top" width="12%">สถานะ</th>
                                     <th  class="text-center text-top" width="10%">เจ้าหน้าที่ตรวจสอบคำขอ</th>
-                                    <th  class="text-center text-top" width="5%">รายละเอียด</th>
+                                    <th  class="text-center text-top" width="10%">รายละเอียด</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -374,8 +405,22 @@
                                                 </a> --}}
 
                                             @endcan
+
+                                        @php
+                                            $model = str_slug('checkcertificatecb','-');
+                                        @endphp
+
+                                        @if (auth()->user()->can('edit-'.$model) && (@$item->status > 1 && @$item->status <= 22) && @$item->status != 4 && @$item->require_scope_update != 1 )
+                                            <button  title="View Applicantib" class="btn btn-xs btn-warning request-edit-cb-scope" data-app_no="{{$item->app_no}}" data-app_id="{{$item->id}}" >
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                        @endif
+
+
+
+
                                             @php
-                                                $model = str_slug('check-checkcertificatecb','-');
+                                                $model = str_slug('checkcertificatecb','-');
                                             @endphp
                                             @if(@auth()->user()->can('delete-'.$model) && (@$item->status >= 0 && @$item->status <= 22) && @$item->status != 4)
                                                 <button class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modalDelete{{$item->id}}" data-no="{{ $item->app_no }}" data-id="{{ $item->token }}">
@@ -651,6 +696,69 @@
                      )
                 }
         }
+
+        $('.request-edit-cb-scope').click(function(event) {
+                // console.log();
+                $('#modal_app_no').text($(this).data('app_no'));
+                $('#app_id').val($(this).data('app_id')); 
+                $('#modal-edit-cb-scope').modal('show');
+        });
+
+        $(document).on('click', '#submit_ask_edit_cb_scope', function(e) {
+            const _token = $('input[name="_token"]').val();
+        
+            appId = $('#app_id').val();
+            message = $('#message').val().trim();
+            console.log(appId)
+            if (!message) {
+                alert("กรุณาระบุรายละเอียด");
+                return; // หยุดการทำงาน ถ้า message ว่าง
+            }
+
+                        // Create and show overlay
+            const $overlay = $('<div id="loading-overlay"></div>').css({
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 9999,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }).append('<div style="color: white; font-size: 24px;">กำลังบันทึก...</div>');
+
+            $('body').append($overlay);
+
+            $.ajax({
+                // url:"{{route('api.calibrate')}}",
+                url: "{{ route('check_certificate-cb.ask-to-edit-cb-scope') }}",
+                method:"POST",
+                data:{
+                    _token:_token,
+                    appId:appId,
+                    details:message,
+                },
+                success:function (result){
+                // Refresh หน้าเว็บหลังจากสำเร็จ
+                $('#modal-edit-cb-scope').modal('hide');
+                    $overlay.remove();
+                    
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                        
+                },
+                    error: function() {
+                        // Remove overlay on error
+                        $overlay.remove();
+                    }
+            });
+            
+
+        });
+
     </script>
 
 @endpush

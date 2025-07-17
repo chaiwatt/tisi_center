@@ -266,6 +266,7 @@ class SignAssessmentReportController extends Controller
 
     public function signDocument(Request $request)
     {
+        // dd();
         // certificate_type 0=CB, 1=IB, 2=LAB
         $signAssessmentReportTransaction = SignAssessmentReportTransaction::find($request->id);
 

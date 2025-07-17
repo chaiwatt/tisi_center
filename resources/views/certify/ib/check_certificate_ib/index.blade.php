@@ -69,6 +69,36 @@
 
 @section('content')
     <div class="container-fluid">
+        <div class="modal fade bd-example-modal-lg" id="modal-edit-ib-scope" tabindex="-1" role="dialog" aria-labelledby="modal-edit-ib-scopeLabel" aria-hidden="true">
+            <div class="modal-dialog  modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h4 class="modal-title" id="modal-edit-ib-scopeLabel">ขอแก้ไขขอบข่าย <span id="modal_app_no"></span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </h4>
+                    </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="app_id" value="">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group {{ $errors->has('details') ? 'has-error' : '' }}">
+                                        <label for="message" class="col-md-3 control-label text-right">รายละเอียด:</label>
+                                        <div class="col-md-9 text-left">
+                                            <textarea id="message" class="form-control check_readonly" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer data_hide">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
+                            <button type="button" class="btn btn-primary" id="submit_ask_edit_ib_scope" >บันทึก</button>
+                        </div>
+                </div>
+            </div>
+        </div>
         <!-- .row -->
         <div class="row">
             <div class="col-sm-12">
@@ -271,13 +301,13 @@
                                     <input type="checkbox" id="checkall">
                                   @endcan
                                 </th>
-                                <th  class="text-center text-top" width="15%">เลขที่คำขอ</th>
+                                <th  class="text-center text-top" width="12%">เลขที่คำขอ</th>
                                 <th  class="text-center text-top" width="15%">หน่วยตรวจ</th>
                                 <th  class="text-center text-top" width="10%">หน่วยตรวจประเภท</th>
                                 <th  class="text-center text-top"  width="10%">วันที่ยื่นคำขอ</th>
-                                <th  class="text-center text-top"  width="15%">สถานะ</th>
+                                <th  class="text-center text-top"  width="12%">สถานะ</th>
                                 <th  class="text-center text-top"  width="10%">เจ้าหน้าที่ตรวจสอบคำขอ</th>
-                                <th  class="text-center text-top"  width="5%">รายละเอียด</th>
+                                <th  class="text-center text-top"  width="10%">รายละเอียด</th>
                                </tr>
                             </thead>
                             <tbody>
@@ -359,7 +389,7 @@
                                                                                                                   'auditors' => $item->CertiIBAuditorsMany,
                                                                                                                  ])
                                          @else
-                                            {{ $TitleStatus }}
+                                           ID:{{$item->status}} {{ $TitleStatus }}
                                          @endif
                                            <!-- status  -->
 
@@ -368,8 +398,10 @@
 
                                        {!! $item->FullName ?? '-' !!}
                                  </td>
-                                  <td class="text-center text-top">
+                                  <td class=" text-top">
                                       @can('view-'.str_slug('checkcertificateib'))
+
+                                   
 
                                           {{-- @if($item->status == 1 &&
                                               HP_API_PID::check_api('check_api_certify_check_certificate_ib') &&
@@ -389,11 +421,19 @@
                                             <a href="{{ url('/certify/check_certificate-ib/' . $item->token) }}" title="View Applicantib" class="btn btn-xs btn-info ">
                                                 <i class="fa fa-search"></i>
                                             </a>
+                                         
                                       @endcan
                                         @php
-                                            $model = str_slug('check-checkcertificateib','-');
+                                            $model = str_slug('checkcertificateib','-');
                                         @endphp
-                                        @if(@auth()->user()->can('delete-'.$model) && (@$item->status >= 0 && @$item->status <= 22) && @$item->status != 4)
+
+                                        @if (auth()->user()->can('edit-'.$model) && (@$item->status > 1 && @$item->status <= 22) && @$item->status != 4 && @$item->require_scope_update != 1 )
+                                            <button  title="View Applicantib" class="btn btn-xs btn-warning request-edit-ib-scope" data-app_no="{{$item->app_no}}" data-app_id="{{$item->id}}" >
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
+                                        @endif
+
+                                        @if(@auth()->user()->can('delete-'.$model) && (@$item->status > 1 && @$item->status <= 22) && @$item->status != 4)
                                             <button class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modalDelete{{$item->id}}" data-no="{{ $item->app_no }}" data-id="{{ $item->token }}">
                                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                                             </button>
@@ -670,6 +710,71 @@
                      )
                 }
         }
+
+    
+    $('.request-edit-ib-scope').click(function(event) {
+            // console.log();
+            $('#modal_app_no').text($(this).data('app_no'));
+            $('#app_id').val($(this).data('app_id')); 
+            $('#modal-edit-ib-scope').modal('show');
+    });
+
+
+    $(document).on('click', '#submit_ask_edit_ib_scope', function(e) {
+        const _token = $('input[name="_token"]').val();
+    
+        appId = $('#app_id').val();
+        message = $('#message').val().trim();
+        console.log(appId)
+        if (!message) {
+            alert("กรุณาระบุรายละเอียด");
+            return; // หยุดการทำงาน ถ้า message ว่าง
+        }
+
+            // Create and show overlay
+            const $overlay = $('<div id="loading-overlay"></div>').css({
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 9999,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }).append('<div style="color: white; font-size: 24px;">กำลังบันทึก...</div>');
+
+            $('body').append($overlay);
+
+        $.ajax({
+            // url:"{{route('api.calibrate')}}",
+            url: "{{ route('check_certificate-ib.ask-to-edit-ib-scope') }}",
+            method:"POST",
+            data:{
+                _token:_token,
+                appId:appId,
+                details:message,
+            },
+            success:function (result){
+            // Refresh หน้าเว็บหลังจากสำเร็จ
+            $('#modal-edit-ib-scope').modal('hide');
+
+                 $overlay.remove();
+
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+
+            },
+            error: function() {
+                // Remove overlay on error
+                $overlay.remove();
+            }
+        });
+        
+
+    });
     </script>
 
 @endpush

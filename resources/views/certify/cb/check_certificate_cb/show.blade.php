@@ -434,7 +434,7 @@
                        
                             @if ($report->review_approve == null || $report->review_approve == "2")
                                 <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReport">
-                                    {!! $report_icon !!} สรุปรายงาน
+                                    {!! $report_icon !!} สรุปรายงาน 
                                 </button>
                                 @include ('certify/cb/check_certificate_cb/modal.modalstatus17',['report' => $report ])
                             @else

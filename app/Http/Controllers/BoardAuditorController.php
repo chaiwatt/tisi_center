@@ -18,15 +18,16 @@ use App\Mail\Lab\MailBoardAuditor;
 use Illuminate\Support\Facades\DB;
 use App\Models\Certify\BoardAuditor;
 
+use App\Models\Certify\CertiEmailLt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 use App\Models\Bcertify\StatusAuditor;
+
+
 use App\Models\Certify\Applicant\Cost;
-
-
 use Illuminate\Support\Facades\Storage;
 use App\Mail\Lab\MailBoardAuditorSigner;
 use App\Models\Certify\BoardAuditorDate;
@@ -41,8 +42,8 @@ use App\Models\Certify\BoardAuditorHistory;
 use App\Services\CreateLabMessageRecordPdf;
 use App\Models\Certify\Applicant\Assessment;
 use App\Models\Certify\Applicant\CostDetails;
-use App\Models\Certify\Applicant\CheckExaminer;
 
+use App\Models\Certify\Applicant\CheckExaminer;
 use App\Models\Certify\BoardAuditorInformation;
 use App\Models\Certify\Applicant\CostAssessment;
 use App\Models\Certify\MessageRecordTransaction;
@@ -136,7 +137,7 @@ class BoardAuditorController extends Controller
 
     public function create(Request $request)
     {
-
+        // dd("ok");
         $model = str_slug('board-auditor','-');
         if(auth()->user()->can('add-'.$model)) {
 
@@ -196,11 +197,33 @@ class BoardAuditorController extends Controller
 
 
             $selectedCertiLab = CertiLab::find($app_certi_lab_id);
+           $subGroup = $selectedCertiLab->subgroup;
+          
 
+            $appCertiMail = CertiEmailLt::where('certi',$subGroup)->where('roles',1)->pluck('admin_group_email')->toArray();
+            // dd($appCertiMail );
+            //  
+              $groupAdminUsers = User::whereIn('reg_email',$appCertiMail)->get();
+            $firstSignerGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }
+
+            // dd($firstSignerGroups);
+
+//  dd($selectedCertiLab,$appCertiMail,$groupAdminUser);
            $signers = Signer::all();
        
             // ดึง reg_13ID จาก User ที่ reg_subdepart เป็น 1804, 1805, 1806
-            $reg_13_ids = User::whereIn('reg_subdepart', [1804, 1805, 1806])
+            
+            // $reg_13_ids = User::whereIn('reg_subdepart', [1804, 1805, 1806])
+            $reg_13_ids = User::where('reg_subdepart', $subGroup)
                 ->pluck('reg_13ID')
                 ->map(function ($reg_13_id) {
                     return str_replace('-', '', $reg_13_id); // ลบขีด เช่น 3-5406-00200-10-8 -> 3540600200108
@@ -221,7 +244,8 @@ class BoardAuditorController extends Controller
                                                         'select_users'  => $select_users,
                                                         'signers'  => $signers,
                                                         'selectedCertiLab'  => $selectedCertiLab,
-                                                        'view_url'  => $request->current_url
+                                                        'view_url'  => $request->current_url,
+                                                        'firstSignerGroups' => $firstSignerGroups
                                                  ]);
         }   
         abort(403);
