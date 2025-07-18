@@ -21,8 +21,7 @@ class PdfGeneratorController extends Controller
 
 
 //**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
-     */
+
     public function exportPdf(Request $request)
     {
         // \Debugbar::disable();
