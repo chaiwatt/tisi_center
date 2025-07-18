@@ -19,8 +19,10 @@ class PdfGeneratorController extends Controller
     {
         return view('abtest.editor');
     }
- /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับทดสอบการสร้าง HTML)
+ 
+ 
+    /**
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขสมบูรณ์และถาวร)
      */
     public function exportPdf(Request $request)
     {
@@ -55,28 +57,51 @@ class PdfGeneratorController extends Controller
         $diskName = 'uploads';
         $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
         $tempHtmlFileName = "temp_{$timestamp}.html";
+        $outputPdfFileName = "document_{$timestamp}.pdf";
 
-        // --- ขั้นตอนการทดสอบ ---
+        $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
+        $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
+
+        // --- ส่วนที่แก้ไข: สร้างโฟลเดอร์สำหรับเป็น "บ้านชั่วคราว" ของ Puppeteer ---
+        $puppeteerHomeDir = 'puppeteer_home';
+        if (!Storage::disk($diskName)->exists($puppeteerHomeDir)) {
+            Storage::disk($diskName)->makeDirectory($puppeteerHomeDir);
+        }
+        $puppeteerHomePath = Storage::disk($diskName)->path($puppeteerHomeDir);
+        // --- จบส่วนที่แก้ไข ---
+
         try {
-            // 1. สร้างไฟล์ HTML ชั่วคราวใน public/uploads
             Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
+
+            $nodeScriptPath = base_path('generate-pdf.js');
+            // $nodeExecutable = 'node';
+            // if (!app()->isLocal()) {
+                $nodeExecutable = '/usr/bin/node';
+            // }
+
+            // --- ส่วนที่แก้ไข: กำหนด Environment Variable 'HOME' ให้กับคำสั่ง ---
+            $envVars = "HOME=" . escapeshellarg($puppeteerHomePath);
+            $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
+            $safeOutputPdfPath = escapeshellarg($outputPdfPath);
+            // นี่คือวิธีที่ถูกต้องและปลอดภัยที่สุดในการแก้ปัญหาสิทธิ์บนเซิร์ฟเวอร์
+            $command = "{$envVars} {$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
+            // --- จบส่วนที่แก้ไข ---
             
-            // 2. ส่งข้อความยืนยันกลับไป แล้วหยุดการทำงานทันที
-            // โค้ดส่วนที่เหลือ (shell_exec, finally) จะไม่ถูกรัน
-            return response()->json([
-                'status' => 'HTML file created successfully.',
-                'message' => 'ไฟล์ HTML ถูกสร้างขึ้นในโฟลเดอร์ uploads แล้ว โปรดตรวจสอบ',
-                'file_name' => $tempHtmlFileName,
-                'full_path' => Storage::disk($diskName)->path($tempHtmlFileName)
-            ]);
+            $commandOutput = shell_exec($command);
+
+            if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
+                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
+            }
+
+            $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
+            return response($pdfContent)->header('Content-Type', 'application/pdf');
 
         } catch (\Exception $e) {
-            // ในกรณีที่แม้แต่การสร้างไฟล์ HTML ก็ยังล้มเหลว
-            return response("เกิดข้อผิดพลาดในการสร้างไฟล์ HTML: " . $e->getMessage(), 500);
+            return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
+        } finally {
+            Storage::disk($diskName)->delete($tempHtmlFileName);
         }
-        // --- จบขั้นตอนการทดสอบ ---
     }
-
 
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
