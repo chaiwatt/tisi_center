@@ -93,7 +93,7 @@ class PdfGeneratorController extends Controller
 
             // // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไปให้ผู้ใช้
             // $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
-            return response($pdfContent)->header('Content-Type', 'application/pdf');
+            // return response($pdfContent)->header('Content-Type', 'application/pdf');
 
         } catch (\Exception $e) {
             return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
