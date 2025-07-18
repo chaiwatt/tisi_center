@@ -20,19 +20,21 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
-  /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับทดสอบการสร้าง HTML)
+    /**
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับสมบูรณ์)
      */
     public function exportPdf(Request $request)
     {
-        // ปิดการทำงานของ Debugbar (แก้ไขถูกต้องแล้ว)
+        // 1. ปิดการทำงานของ Debugbar ซึ่งเป็นต้นตอของปัญหา
         if (class_exists(\Barryvdh\Debugbar\Facade::class)) {
             \Barryvdh\Debugbar\Facade::disable();
         }
 
+        // 2. ตรวจสอบและรับข้อมูล HTML จาก Request
         $request->validate(['html_content' => 'required|string']);
         $htmlContent = $request->input('html_content');
 
+        // 3. เตรียม CSS และแปลง Path ของฟอนต์ให้ถูกต้องสำหรับ Puppeteer
         $pdfCssPath = public_path('css/pdf.css');
         $finalCss = '';
         if (File::exists($pdfCssPath)) {
@@ -47,37 +49,58 @@ class PdfGeneratorController extends Controller
             );
         }
 
+        // 4. สร้างเนื้อหา HTML ทั้งหมดสำหรับไฟล์ PDF
         $fullHtml = "<!DOCTYPE html>
 <html lang='th'>
 <head><meta charset='UTF-8'><title>Document</title><style>{$finalCss}</style></head>
 <body>{$htmlContent}</body>
 </html>";
 
+        // 5. กำหนดค่าและสร้างชื่อไฟล์
         $diskName = 'uploads';
         $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
         $tempHtmlFileName = "temp_{$timestamp}.html";
+        $outputPdfFileName = "document_{$timestamp}.pdf";
 
-        // --- ขั้นตอนการทดสอบ ---
+        // 6. สร้าง Path แบบเต็มสำหรับไฟล์
+        $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
+        $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
+
         try {
-            // 1. สร้างไฟล์ HTML ชั่วคราวใน public/uploads
+            // 7. บันทึกไฟล์ HTML ชั่วคราวลงใน disk
             Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
+
+            // 8. กำหนด Path ของ Node.js ตามสภาพแวดล้อม
+            $nodeScriptPath = base_path('generate-pdf.js');
+            // $nodeExecutable = 'node'; // สำหรับ Local
+            // if (!app()->isLocal()) {
+                $nodeExecutable = '/usr/bin/node'; // สำหรับ Production Server
+            // }
+
+            // 9. สร้างคำสั่งสำหรับรันใน shell อย่างปลอดภัย (มีแค่ 2 arguments ตามที่ generate-pdf.js ต้องการ)
+            $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
+            $safeOutputPdfPath = escapeshellarg($outputPdfPath);
+            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
             
-            // 2. ส่งข้อความยืนยันกลับไป แล้วหยุดการทำงานทันที
-            // โค้ดส่วนที่เหลือ (shell_exec, finally) จะไม่ถูกรัน
-            return response()->json([
-                'status' => 'HTML file created successfully.',
-                'message' => 'ไฟล์ HTML ถูกสร้างขึ้นในโฟลเดอร์ uploads แล้ว โปรดตรวจสอบ',
-                'file_name' => $tempHtmlFileName,
-                'full_path' => Storage::disk($diskName)->path($tempHtmlFileName)
-            ]);
+            // 10. รันคำสั่งเพื่อสร้าง PDF
+            $commandOutput = shell_exec($command);
+
+            // 11. ตรวจสอบผลลัพธ์
+            if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
+                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
+            }
+
+            // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไปให้ผู้ใช้
+            $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
+            return response($pdfContent)->header('Content-Type', 'application/pdf');
 
         } catch (\Exception $e) {
-            // ในกรณีที่แม้แต่การสร้างไฟล์ HTML ก็ยังล้มเหลว
-            return response("เกิดข้อผิดพลาดในการสร้างไฟล์ HTML: " . $e->getMessage(), 500);
+            return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
+        } finally {
+            // 13. ลบไฟล์ HTML ชั่วคราวทิ้งไป (เก็บไฟล์ PDF ไว้)
+            Storage::disk($diskName)->delete($tempHtmlFileName);
         }
-        // --- จบขั้นตอนการทดสอบ ---
     }
-
 
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
