@@ -74,7 +74,7 @@ class PdfGeneratorController extends Controller
                 $nodeExecutable = '/root/.nvm/versions/node/v18.20.8/bin/node'; // <--- **สำคัญ: แก้ไข Path นี้ให้ตรงกับเซิร์ฟเวอร์ของคุณ**
                 
             // }
-dd($nodeExecutable);
+// dd($nodeExecutable);
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
 
