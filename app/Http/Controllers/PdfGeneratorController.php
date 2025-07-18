@@ -21,8 +21,7 @@ class PdfGeneratorController extends Controller
 
 
 //**
-
-    public function exportPdf(Request $request)
+public function exportPdf(Request $request)
     {
         // \Debugbar::disable();
 
@@ -68,13 +67,11 @@ class PdfGeneratorController extends Controller
             // --- ส่วนที่แก้ไข: กำหนด Path ของ Node.js ตามสภาพแวดล้อม ---
             // $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
             // if (!app()->isLocal()) {
-                // สำหรับ Production บน CentOS 8, ให้ระบุ Path แบบเต็ม
-                // คุณต้องหา Path ที่ถูกต้องบนเซิร์ฟเวอร์ของคุณโดยใช้คำสั่ง 'which node'
-                // แล้วนำมาใส่ที่นี่ เช่น '/usr/bin/node' หรือ '/home/user/.nvm/versions/node/v16.14.2/bin/node'
-                $nodeExecutable = '/root/.nvm/versions/node/v18.20.8/bin/node'; // <--- **สำคัญ: แก้ไข Path นี้ให้ตรงกับเซิร์ฟเวอร์ของคุณ**
-                
+                // สำหรับ Production บน CentOS 8, ให้ใช้ Path จาก Symbolic Link ที่เราสร้างขึ้น
+                // ซึ่งเป็นตำแหน่งที่ user ของเว็บเซิร์ฟเวอร์สามารถเข้าถึงได้
+                $nodeExecutable = '/usr/local/bin/node'; // <--- **ใช้ Path ใหม่ที่เข้าถึงได้**
             // }
-// dd($nodeExecutable);
+
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
 
