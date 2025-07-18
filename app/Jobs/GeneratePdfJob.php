@@ -35,7 +35,7 @@ class GeneratePdfJob implements ShouldQueue
      * @return void
      */
     public function handle()
-  {
+    {
         // 1. เตรียม CSS และแปลง Path ของฟอนต์
         $pdfCssPath = public_path('css/pdf.css');
         $finalCss = '';

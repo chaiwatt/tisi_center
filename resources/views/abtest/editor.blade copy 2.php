@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +9,6 @@
 </head>
 <body>
 
-    <!-- Toolbar HTML (ไม่เปลี่ยนแปลง) -->
     <div id="toolbar">
         <div class="toolbar-group">
             <button id="bold-btn" class="toolbar-button" title="Bold"><i class="fa-solid fa-bold"></i></button>
@@ -48,6 +46,7 @@
         </div>
         <div class="toolbar-separator"></div>
         <div class="toolbar-group">
+            <!-- *** NEW: Load Template Button *** -->
             <button class="toolbar-button" id="load-template-btn" title="Load Template">
                 <i class="fa-solid fa-cloud-arrow-down"></i>
             </button>
@@ -66,7 +65,6 @@
         </div>
     </div>
 
-    <!-- Modals and Context Menu HTML (ไม่เปลี่ยนแปลง) -->
     <div id="table-modal" class="modal-backdrop" style="display: none;">
         <div class="modal">
             <div class="modal-header">
@@ -95,6 +93,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Context Menu for Tables -->
     <div id="table-context-menu" class="context-menu" style="display: none;">
         <div class="context-menu-item" id="insert-row-above">เพิ่มแถว (บน)</div>
         <div class="context-menu-item" id="insert-row-below">เพิ่มแถว (ล่าง)</div>
@@ -113,17 +113,16 @@
         <div class="context-menu-item" id="unmerge-cells">ยกเลิกการรวมเซลล์</div>
     </div>
 
-
     <script>
         const templateType = @json($templateType ?? null);
         document.addEventListener('DOMContentLoaded', function() {
-            // --- ส่วนของ Script ที่ไม่เปลี่ยนแปลง ---
             document.execCommand('defaultParagraphSeparator', false, 'p');
+
             const editor = document.getElementById('document-editor');
             const exportButton = document.getElementById('export-pdf-button');
             const loadingIndicator = document.getElementById('loading-indicator');
-            // ... (โค้ด formatting, image, table, page management ทั้งหมดเหมือนเดิม) ...
-            // --- จบส่วนของ Script ที่ไม่เปลี่ยนแปลง ---
+
+            // --- Formatting Functions ---
             const formatButtons = [
                 { id: 'bold-btn', command: 'bold' },
                 { id: 'italic-btn', command: 'italic' },
@@ -150,6 +149,8 @@
                     });
                 }
             });
+
+            // --- Font Size Function ---
             const fontSizeSelect = document.getElementById('font-size-select');
             fontSizeSelect.addEventListener('change', (e) => {
                 const size = e.target.value;
@@ -179,6 +180,8 @@
                 e.target.selectedIndex = 0;
                 editor.focus();
             });
+
+            // --- Image Functions ---
             const insertImageBtn = document.getElementById('insert-image-btn');
             const imageUpload = document.getElementById('image-upload');
             let savedRange = null;
@@ -275,6 +278,8 @@
                 document.documentElement.removeEventListener('mousemove', doDrag, false);
                 document.documentElement.removeEventListener('mouseup', stopDrag, false);
             }
+
+            // --- Table Functions ---
             const tableModal = document.getElementById('table-modal');
             const insertTableBtn = document.getElementById('insert-table-btn');
             const closeTableModalBtn = document.getElementById('close-table-modal');
@@ -323,6 +328,8 @@
                     editor.focus();
                 }
             });
+
+            // --- Page Management (Add/Remove) ---
             const isOverflowing = (el) => el.scrollHeight > el.clientHeight + 1;
             const createNewPage = () => {
                 const newPage = document.createElement('div');
@@ -360,6 +367,8 @@
                     setTimeout(managePages, 10);
                 }
             });
+
+            // --- Table Context Menu & Cell Selection Logic ---
             const tableContextMenu = document.getElementById('table-context-menu');
             let currentCell = null;
             let selectedCells = []; 
@@ -507,6 +516,8 @@
                 td.appendChild(document.createElement('br'));
                 return td;
             }
+
+            // --- Context Menu Actions ---
             document.getElementById('insert-row-above').addEventListener('click', function() {
                 if (!currentCell) return;
                 const row = currentCell.closest('tr');
@@ -640,6 +651,8 @@
                 }
                 hideContextMenu();
             });
+
+            // --- Table Column Resizing Logic ---
             function makeTableResizable(table) {
                 const colgroup = table.querySelector('colgroup') || document.createElement('colgroup');
                 const firstRow = table.querySelector('tr');
@@ -726,19 +739,20 @@
 
             document.querySelectorAll('.page table').forEach(makeTableResizable);
 
-            // --- *** UPDATED: Load Template Logic for Multi-Page *** ---
+            // --- *** NEW: Load Template Logic *** ---
             const loadTemplateBtn = document.getElementById('load-template-btn');
             loadTemplateBtn.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
-                
+                // console.log(templateType)
+                // เปลี่ยน fetch ให้เป็นแบบ POST และส่งข้อมูล
                 fetch("{{ route('template.load') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ templateType: templateType })
+                    body: JSON.stringify({ templateType: templateType }) // <-- ส่ง templateType ไปที่นี่
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -747,50 +761,26 @@
                     return response.json();
                 })
                 .then(data => {
-                    // ตรวจสอบว่ามี data.pages และเป็น Array หรือไม่
-                    if (data.pages && Array.isArray(data.pages)) {
-                        // ล้าง editor ทั้งหมด
-                        editor.innerHTML = '';
-
-                        // วนลูปสร้างหน้าใหม่จากข้อมูลที่ได้รับ
-                        data.pages.forEach(pageHtml => {
-                            const newPage = document.createElement('div');
-                            newPage.className = 'page';
-                            newPage.setAttribute('contenteditable', 'true');
-                            newPage.innerHTML = pageHtml;
-                            editor.appendChild(newPage);
-
-                            // ทำให้ตารางในหน้าที่สร้างใหม่สามารถปรับขนาดได้
-                            const tablesInNewPage = newPage.querySelectorAll('table');
-                            tablesInNewPage.forEach(makeTableResizable);
-                        });
-                        
-                        // Focus ไปที่หน้าแรกที่สร้างเสร็จ
-                        if(editor.firstChild) {
-                           editor.firstChild.focus();
-                        }
-
-                    } else {
-                        // กรณีที่ข้อมูลกลับมาในรูปแบบเดิม (data.html)
-                        const firstPage = editor.querySelector('.page') || createNewPage();
-                        firstPage.innerHTML = data.html || '';
+                    const firstPage = editor.querySelector('.page');
+                    if (firstPage) {
+                        firstPage.innerHTML = data.html;
                         const newTable = firstPage.querySelector('table');
                         if (newTable) {
                             makeTableResizable(newTable);
                         }
                     }
+                    loadingIndicator.style.display = 'none';
+                    loadTemplateBtn.disabled = false;
                 })
                 .catch(error => {
                     console.error('Load Template Error:', error);
                     showCustomAlert(error.message);
-                })
-                .finally(() => {
                     loadingIndicator.style.display = 'none';
                     loadTemplateBtn.disabled = false;
                 });
             });
 
-            // --- Export Logic (ไม่เปลี่ยนแปลง) ---
+            // --- Export Logic ---
             exportButton.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 exportButton.disabled = true;
@@ -839,7 +829,7 @@
                 });
             });
 
-            // Custom Alert Function (ไม่เปลี่ยนแปลง)
+            // Custom Alert Function
             function showCustomAlert(message) {
                 const alertModal = document.createElement('div');
                 alertModal.className = 'modal-backdrop';

@@ -117,7 +117,7 @@ Route::post('/export-pdf', 'MyTestController@exportPdf');
 
 Route::get('/show-editor', 'PdfGeneratorController@showEditor')->name('editor.show');
 Route::post('/export-nodejs-pdf', 'PdfGeneratorController@exportPdf')->name('pdf.export');
-Route::get('/template/load', 'PdfGeneratorController@loadTemplate')->name('template.load');
+Route::post('/template/load', 'PdfGeneratorController@loadTemplate')->name('template.load');
 
 
 Route::get('/test-node', 'PdfGeneratorController@testNodeJsCommunication');
