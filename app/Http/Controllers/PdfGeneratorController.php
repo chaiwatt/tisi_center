@@ -50,6 +50,9 @@ class PdfGeneratorController extends Controller
         }
     }
 
+/**
+     * สร้างและส่งออกไฟล์ PDF โดยการส่ง Job เข้า Queue และรอจนเสร็จ
+     */
     public function exportPdf(Request $request)
     {
         try {
@@ -68,28 +71,36 @@ class PdfGeneratorController extends Controller
             $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
 
             // 4. สร้าง Job และ "ส่ง" (Dispatch) เข้าไปในคิว
-            // ส่งแค่เนื้อหา HTML และ Path ปลายทางไปให้ Job
             GeneratePdfJob::dispatch($htmlContent, $outputPdfPath);
 
-            // 5. ตอบกลับทันที (สำคัญ: ประสบการณ์ผู้ใช้จะเปลี่ยนไป)
-            // เราจะไม่ได้ส่งไฟล์ PDF กลับไปโดยตรง แต่จะส่งข้อความยืนยัน
-            // และชื่อไฟล์เพื่อให้ front-end นำไปใช้ต่อ (เช่น แสดงลิงก์ดาวน์โหลด)
-            return response()->json([
-                'success' => true,
-                'message' => 'คำสั่งสร้าง PDF ของคุณถูกส่งเข้าสู่ระบบแล้ว กำลังดำเนินการ...',
-                'file_name' => $outputPdfFileName,
-                'download_url' => Storage::disk($diskName)->url($outputPdfFileName) // สร้าง URL สำหรับดาวน์โหลด
-            ]);
+            // 5. รอให้ไฟล์ถูกสร้างขึ้นโดย Worker (Polling)
+            $timeout = 60; // รอสูงสุด 60 วินาที
+            $startTime = time();
+
+            while (time() - $startTime < $timeout) {
+                if (Storage::disk($diskName)->exists($outputPdfFileName)) {
+                    // เมื่อพบไฟล์แล้ว ให้อ่านเนื้อหา
+                    $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
+                    
+                    // ลบไฟล์ทิ้งหลังจากอ่านแล้ว
+                    Storage::disk($diskName)->delete($outputPdfFileName);
+
+                    // ส่งไฟล์ PDF กลับไปให้เบราว์เซอร์แสดงผลโดยตรง
+                    return response($pdfContent)
+                        ->header('Content-Type', 'application/pdf')
+                        ->header('Content-Disposition', 'inline; filename="' . $outputPdfFileName . '"');
+                }
+                sleep(1); // หน่วงเวลา 1 วินาทีก่อนตรวจสอบอีกครั้ง
+            }
+
+            // หากหมดเวลาแล้วยังไม่พบไฟล์ ให้โยน Exception
+            throw new \Exception('การสร้างไฟล์ PDF ใช้เวลานานเกินไป (หมดเวลาหลังจาก ' . $timeout . ' วินาที)');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'เกิดข้อผิดพลาดในการส่งคำสั่งสร้าง PDF',
-                'error' => $e->getMessage()
-            ], 500);
+            // หากเกิดข้อผิดพลาด ให้ส่งกลับเป็นหน้า Error
+            return response("เกิดข้อผิดพลาด: " . $e->getMessage(), 500);
         }
     }
-
 
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
