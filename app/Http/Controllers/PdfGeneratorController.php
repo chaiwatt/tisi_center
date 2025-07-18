@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Jobs\GeneratePdfJob;
 use Illuminate\Http\Request;
 use App\Jobs\CreateTextFileJob;
 use Illuminate\Support\Facades\File;
@@ -49,100 +50,45 @@ class PdfGeneratorController extends Controller
         }
     }
 
- /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
-     */
     public function exportPdf(Request $request)
     {
-        // 1. ปิดการทำงานของ Debugbar
-        if (class_exists(\Barryvdh\Debugbar\Facade::class)) {
-            \Barryvdh\Debugbar\Facade::disable();
-        }
-
-        // 2. รับข้อมูล HTML
-        $request->validate(['html_content' => 'required|string']);
-        $htmlContent = $request->input('html_content');
-
-        // 3. เตรียม CSS และแปลง Path ของฟอนต์
-        $pdfCssPath = public_path('css/pdf.css');
-        $finalCss = '';
-        if (File::exists($pdfCssPath)) {
-            $cssContent = File::get($pdfCssPath);
-            $fontPath = public_path('fonts/THSarabunNew.ttf');
-            $fontUrlPath = 'file:///' . str_replace('\\', '/', $fontPath);
-
-            $finalCss = preg_replace(
-                "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
-                "url('{$fontUrlPath}')",
-                $cssContent
-            );
-        }
-
-        // 4. สร้างเนื้อหา HTML ทั้งหมด
-        $fullHtml = "<!DOCTYPE html>
-<html lang='th'>
-<head><meta charset='UTF-8'><title>Document</title><style>{$finalCss}</style></head>
-<body>{$htmlContent}</body>
-</html>";
-
-        // 5. กำหนดค่าและสร้างชื่อไฟล์
-        $diskName = 'uploads';
-        $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
-        $tempHtmlFileName = "temp_{$timestamp}.html";
-        $outputPdfFileName = "document_{$timestamp}.pdf";
-
-        // 6. สร้าง Path แบบเต็มสำหรับไฟล์
-        $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
-        $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
-
         try {
-            // 7. บันทึกไฟล์ HTML ชั่วคราว
-            Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
-
-            // 8. กำหนด Path ต่างๆ
-            $nodeExecutable = '/usr/bin/node';
-            $nodeScriptPath = base_path('generate-pdf.js');
-
-            // --- 9. สร้างและรันโปรเซสโดยใช้ Symfony Process (ส่วนที่แก้ไข) ---
-            // สร้าง Command String ขึ้นมาทั้งหมดก่อน
-            $command = escapeshellarg($nodeExecutable) .
-                       ' --max-old-space-size=4096 ' .
-                       escapeshellarg($nodeScriptPath) . ' ' .
-                       escapeshellarg($tempHtmlPath) . ' ' .
-                       escapeshellarg($outputPdfPath);
-
-            // ใช้ fromShellCommandline() เพื่อให้ Process ทำงานในสภาพแวดล้อมที่สมบูรณ์เหมือนรันเอง
-            $process = Process::fromShellCommandline($command);
-
-            // กำหนด timeout (วินาที) เพื่อป้องกันโปรเซสค้าง
-            $process->setTimeout(120);
-            $process->run();
-            
-            // 10. ตรวจสอบผลลัพธ์
-            if (!$process->isSuccessful()) {
-                // หากล้มเหลว ให้โยน Exception พร้อมกับ Error Output ที่ได้จาก Node.js
-                // ซึ่งจะช่วยให้เราดีบักได้ง่ายขึ้นมาก
-                throw new \Exception('Node.js script failed. Error: ' . $process->getErrorOutput());
+            // 1. ปิดการทำงานของ Debugbar (ถ้ามี)
+            if (class_exists(\Barryvdh\Debugbar\Facade::class)) {
+                \Barryvdh\Debugbar\Facade::disable();
             }
 
-            // 11. ตรวจสอบว่าไฟล์ถูกสร้างขึ้นจริงหรือไม่
-            if (!Storage::disk($diskName)->exists($outputPdfFileName)) {
-                throw new \Exception('Node.js script ran successfully, but the PDF file was not created. Output: ' . $process->getOutput());
-            }
+            // 2. รับข้อมูล HTML
+            $request->validate(['html_content' => 'required|string']);
+            $htmlContent = $request->input('html_content');
 
-            // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไป
-            $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
-            return response($pdfContent)->header('Content-Type', 'application/pdf');
+            // 3. สร้างชื่อและ Path สำหรับไฟล์ PDF ที่จะสร้าง
+            $diskName = 'uploads';
+            $outputPdfFileName = 'document_' . time() . '_' . uniqid() . '.pdf';
+            $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
+
+            // 4. สร้าง Job และ "ส่ง" (Dispatch) เข้าไปในคิว
+            // ส่งแค่เนื้อหา HTML และ Path ปลายทางไปให้ Job
+            GeneratePdfJob::dispatch($htmlContent, $outputPdfPath);
+
+            // 5. ตอบกลับทันที (สำคัญ: ประสบการณ์ผู้ใช้จะเปลี่ยนไป)
+            // เราจะไม่ได้ส่งไฟล์ PDF กลับไปโดยตรง แต่จะส่งข้อความยืนยัน
+            // และชื่อไฟล์เพื่อให้ front-end นำไปใช้ต่อ (เช่น แสดงลิงก์ดาวน์โหลด)
+            return response()->json([
+                'success' => true,
+                'message' => 'คำสั่งสร้าง PDF ของคุณถูกส่งเข้าสู่ระบบแล้ว กำลังดำเนินการ...',
+                'file_name' => $outputPdfFileName,
+                'download_url' => Storage::disk($diskName)->url($outputPdfFileName) // สร้าง URL สำหรับดาวน์โหลด
+            ]);
 
         } catch (\Exception $e) {
-            return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
-        } finally {
-            // 13. ลบไฟล์ HTML และ PDF ชั่วคราวทิ้งไป
-            Storage::disk($diskName)->delete($tempHtmlFileName);
-            Storage::disk($diskName)->delete($outputPdfFileName); // เพิ่มการลบ PDF ด้วย
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการส่งคำสั่งสร้าง PDF',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
-
 
 
     /**
