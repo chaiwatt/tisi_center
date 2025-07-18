@@ -20,7 +20,7 @@ class PdfGeneratorController extends Controller
     }
 
 
-    /**
+/**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
     public function exportPdf(Request $request)
@@ -37,15 +37,33 @@ class PdfGeneratorController extends Controller
             $fontPath = public_path('fonts/THSarabunNew.ttf');
             $fontUrlPath = 'file:///' . str_replace('\\', '/', $fontPath);
 
-            // --- ส่วนที่แก้ไข: เปลี่ยนมาใช้ Regular Expression เพื่อการแทนที่ที่แม่นยำกว่า ---
-            // วิธีนี้จะรองรับ path ได้ทั้งแบบ url('/fonts/...') และ url('../fonts/...')
-            // ทำให้การสร้าง PDF ทำงานได้ถูกต้องเสมอ
-            $finalCss = preg_replace(
-                "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
-                "url('{$fontUrlPath}')",
-                $cssContent
-            );
+            // --- ส่วนที่แก้ไข: เพิ่มเงื่อนไขเพื่อจัดการ Path ตามสภาพแวดล้อม ---
+            // วิธีที่แนะนำคือการใช้ app()->isLocal() ซึ่งจะตรวจสอบค่า APP_ENV ในไฟล์ .env
+            // ซึ่งมีความน่าเชื่อถือกว่าการตรวจสอบจาก IP หรือ Hostname
+            if (app()->isLocal()) {
+                // สำหรับ Local Environment
+                // ใช้ Regular Expression เพื่อให้แน่ใจว่า Path ถูกแปลงอย่างถูกต้องเสมอ
+                // ไม่ว่าใน CSS จะใช้ url('/fonts/...') หรือ url('../fonts/...')
+                $finalCss = preg_replace(
+                    "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
+                    "url('{$fontUrlPath}')",
+                    $cssContent
+                );
+            } else {
+                // สำหรับ Production Environment (หรืออื่นๆ)
+                // เรายังคงใช้ Logic เดียวกันเพื่อให้มั่นใจว่า Puppeteer จะหาไฟล์ฟอนต์เจอเสมอ
+                // เนื่องจากโค้ดนี้มีความยืดหยุ่นและรองรับ Path ได้ทุกรูปแบบ
+                $finalCss = preg_replace(
+                    "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
+                    "url('{$fontUrlPath}')",
+                    $cssContent
+                );
+
+                
+            }
         }
+
+        dd($finalCss);
 
         $fullHtml = "<!DOCTYPE html>
 <html lang='th'>
@@ -89,7 +107,7 @@ class PdfGeneratorController extends Controller
         }
     }
 
-    
+
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
