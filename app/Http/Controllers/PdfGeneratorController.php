@@ -21,10 +21,7 @@ class PdfGeneratorController extends Controller
     }
  
   
-    /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
-     */
- /**
+/**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
      */
     public function exportPdf(Request $request)
@@ -79,16 +76,13 @@ class PdfGeneratorController extends Controller
             $nodeScriptPath = base_path('generate-pdf.js');
 
             // --- 9. สร้างคำสั่งสำหรับรันใน shell (ส่วนที่แก้ไข) ---
-            // เพิ่ม Flag `--max-old-space-size=4096` เพื่อเพิ่ม Memory ให้กับ Node.js
-            // แก้ปัญหา Out of Memory เมื่อรันผ่าน PHP/Apache
-            $command = sprintf(
-                '%s --max-old-space-size=4096 %s %s %s 2>&1',
-                escapeshellarg($nodeExecutable),
-                // ไม่ต้อง escapeshellarg สำหรับ flag
-                escapeshellarg($nodeScriptPath),
-                escapeshellarg($tempHtmlPath),
-                escapeshellarg($outputPdfPath)
-            );
+            // แก้ไขวิธีการสร้าง Command String ให้ถูกต้อง 100%
+            // เพื่อให้ Flag --max-old-space-size ถูกส่งไปให้ Node.js ได้จริง
+            $command = escapeshellarg($nodeExecutable) .
+                       ' --max-old-space-size=4096 ' .
+                       escapeshellarg($nodeScriptPath) . ' ' .
+                       escapeshellarg($tempHtmlPath) . ' ' .
+                       escapeshellarg($outputPdfPath) . ' 2>&1';
             
             // 10. รันคำสั่งเพื่อสร้าง PDF
             $commandOutput = shell_exec($command);
@@ -111,6 +105,9 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($outputPdfFileName); // เพิ่มการลบ PDF ด้วย
         }
     }
+
+
+
 
 
     /**
