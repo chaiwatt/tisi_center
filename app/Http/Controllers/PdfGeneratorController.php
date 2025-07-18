@@ -20,17 +20,7 @@ class PdfGeneratorController extends Controller
     }
 
 
-class PdfGeneratorController extends Controller
-{
-    /**
-     * แสดงหน้า Editor หลัก
-     */
-    public function showEditor()
-    {
-        return view('editor');
-    }
-
-    /**
+ /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
     public function exportPdf(Request $request)
@@ -77,12 +67,12 @@ class PdfGeneratorController extends Controller
             $nodeScriptPath = base_path('generate-pdf.js');
             
             // --- ส่วนที่แก้ไข: กำหนด Path ของ Node.js ตามสภาพแวดล้อม ---
-            // $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
-            // if (!app()->isLocal()) {
+            $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
+            if (!app()->isLocal()) {
                 // สำหรับ Production บน CentOS 8, ให้ใช้ Path มาตรฐานที่ได้จากการติดตั้งผ่าน dnf
                 // ซึ่งเป็นตำแหน่งที่ user ของเว็บเซิร์ฟเวอร์สามารถเข้าถึงและรันได้
                 $nodeExecutable = '/usr/bin/node'; // <--- **ใช้ Path มาตรฐานที่ถูกต้อง**
-            // }
+            }
 
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
@@ -104,7 +94,6 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($tempHtmlFileName);
         }
     }
-
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
