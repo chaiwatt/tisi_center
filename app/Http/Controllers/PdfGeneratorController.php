@@ -66,14 +66,14 @@ class PdfGeneratorController extends Controller
             $nodeScriptPath = base_path('generate-pdf.js');
             
             // --- ส่วนที่แก้ไข: กำหนด Path ของ Node.js ตามสภาพแวดล้อม ---
-            $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
-            if (!app()->isLocal()) {
+            // $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
+            // if (!app()->isLocal()) {
                 // สำหรับ Production บน CentOS 8, ให้ระบุ Path แบบเต็ม
                 // คุณต้องหา Path ที่ถูกต้องบนเซิร์ฟเวอร์ของคุณโดยใช้คำสั่ง 'which node'
                 // แล้วนำมาใส่ที่นี่ เช่น '/usr/bin/node' หรือ '/home/user/.nvm/versions/node/v16.14.2/bin/node'
-                $nodeExecutable = '/usr/bin/node'; // <--- **สำคัญ: แก้ไข Path นี้ให้ตรงกับเซิร์ฟเวอร์ของคุณ**
+                $nodeExecutable = '/root/.nvm/versions/node/v18.20.8/bin/node'; // <--- **สำคัญ: แก้ไข Path นี้ให้ตรงกับเซิร์ฟเวอร์ของคุณ**
                 
-            }
+            // }
 dd($nodeExecutable);
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
