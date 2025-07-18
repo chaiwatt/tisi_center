@@ -25,7 +25,11 @@ class PdfGeneratorController extends Controller
      */
     public function exportPdf(Request $request)
     {
-        // \Debugbar::disable();
+        // --- ส่วนที่แก้ไข: ปิดการทำงานของ Debugbar ---
+        // นี่คือการแก้ปัญหาที่ต้นตอ เพื่อป้องกันไม่ให้ Debugbar แทรกโค้ดเข้ามาใน Response
+        if (app()->environment('local', 'production')) { // ตรวจสอบให้แน่ใจว่ามี Debugbar class ก่อนเรียกใช้
+             \Debugbar::disable();
+        }
 
         $request->validate(['html_content' => 'required|string']);
         $htmlContent = $request->input('html_content');
@@ -37,8 +41,6 @@ class PdfGeneratorController extends Controller
             $fontPath = public_path('fonts/THSarabunNew.ttf');
             $fontUrlPath = 'file:///' . str_replace('\\', '/', $fontPath);
 
-            // ใช้ Regular Expression เพื่อให้แน่ใจว่า Path ถูกแปลงอย่างถูกต้องเสมอ
-            // ไม่ว่าใน CSS จะใช้ url('/fonts/...') หรือ url('../fonts/...')
             $finalCss = preg_replace(
                 "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
                 "url('{$fontUrlPath}')",
@@ -66,22 +68,15 @@ class PdfGeneratorController extends Controller
 
             $nodeScriptPath = base_path('generate-pdf.js');
             
-            // --- ส่วนที่แก้ไข: กำหนด Path ของ Node.js และเพิ่ม Memory Limit ---
-            // $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
+            // $nodeExecutable = 'node';
             // if (!app()->isLocal()) {
-                // สำหรับ Production บน CentOS 8, ให้ใช้ Path มาตรฐานที่ได้จากการติดตั้งผ่าน dnf
                 $nodeExecutable = '/usr/bin/node';
             // }
-
-            // เพิ่ม Memory limit ให้กับ Node.js เพื่อแก้ปัญหา Out of Memory (OOM)
-            // 4096 MB (4GB) เป็นค่าเริ่มต้นที่ดี อาจต้องปรับเพิ่มตามขนาดเอกสาร
-            $nodeOptions = '--max-old-space-size=4096';
 
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
 
-            // เพิ่ม $nodeOptions เข้าไปใน command
-            $command = "{$nodeExecutable} {$nodeOptions} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
+            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
             
             $commandOutput = shell_exec($command);
 
