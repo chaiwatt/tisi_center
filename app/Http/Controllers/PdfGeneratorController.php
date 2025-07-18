@@ -20,9 +20,7 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
-
-
-/**
+ /**
      * ฟังก์ชันสำหรับทดสอบการสื่อสารระหว่าง Laravel และ Node.js โดยการสร้างไฟล์ Text
      */
     public function testNodeJsCommunication(Request $request)
@@ -32,32 +30,31 @@ class PdfGeneratorController extends Controller
         $outputFilePath = Storage::disk($diskName)->path($outputFileName);
 
         try {
-            // --- สร้างและรันโปรเซสเพื่อเรียก Node.js ---
-            // เราจะสร้างโปรเซสพร้อมกับกำหนด Environment Variable ให้มันโดยตรง
-            // ซึ่งเป็นวิธีที่เสถียรและถูกต้องที่สุด
-            $process = new Process(
-                [
-                    '/usr/bin/node', // Path ของ Node.js
-                    base_path('nodejs_create_textfile.js'), // Path ไปยังสคริปต์ทดสอบ
-                    $outputFilePath, // Path ของไฟล์ที่จะสร้าง
-                ],
-                null, // Current working directory (null = default)
-                ['HOME' => '/tmp'] // Environment variables to pass to the process
-            );
+            // --- ทดสอบด้วย shell_exec ซึ่งเป็นวิธีที่พื้นฐานที่สุด ---
+            $nodeExecutable = '/usr/bin/node';
+            $nodeScriptPath = base_path('nodejs_create_textfile.js');
 
-            // กำหนด timeout (วินาที) และรันโปรเซส
-            $process->setTimeout(60);
-            $process->run();
+            // สร้างคำสั่งให้เหมือนกับที่รันใน command line มากที่สุด
+            $command = escapeshellarg($nodeExecutable) . ' ' .
+                       escapeshellarg($nodeScriptPath) . ' ' .
+                       escapeshellarg($outputFilePath) . ' 2>&1';
+
+            // ตั้งค่า HOME environment variable สำหรับโปรเซสที่จะรันโดย shell_exec
+            // ซึ่งเป็นอีกวิธีในการพยายามแก้ปัญหาสภาพแวดล้อม
+            putenv('HOME=/tmp');
+            $commandOutput = shell_exec($command);
+            // คืนค่า HOME (ถ้าจำเป็น)
+            putenv('HOME');
 
             // ตรวจสอบผลลัพธ์
-            if (!$process->isSuccessful()) {
-                // หากล้มเหลว ให้โยน Exception พร้อมกับ Error Output ที่ได้จาก Node.js
-                throw new \Exception('Node.js test script failed. Error: ' . $process->getErrorOutput());
+            // shell_exec จะคืนค่า NULL ถ้าเกิด error และไม่มี output หรือคืนค่า output ถ้ามี
+            if ($commandOutput !== '' && $commandOutput !== null) {
+                 throw new \Exception('Node.js test script failed. Output: ' . $commandOutput);
             }
 
             // ตรวจสอบว่าไฟล์ถูกสร้างขึ้นจริงหรือไม่
             if (!Storage::disk($diskName)->exists($outputFileName)) {
-                throw new \Exception('Node.js script ran successfully, but the text file was not created.');
+                throw new \Exception('Node.js script ran, but the text file was not created. Command output was empty.');
             }
 
             // อ่านเนื้อหาไฟล์ที่สร้างขึ้นแล้วส่งกลับไปเป็น JSON
@@ -66,7 +63,7 @@ class PdfGeneratorController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Successfully created text file via Node.js!',
+                'message' => 'Successfully created text file via Node.js using shell_exec!',
                 'file_content' => $fileContent
             ]);
 
@@ -78,7 +75,6 @@ class PdfGeneratorController extends Controller
             ], 500);
         }
     }
-
 
 
  /**
