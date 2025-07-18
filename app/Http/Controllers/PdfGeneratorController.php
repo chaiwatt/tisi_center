@@ -72,9 +72,9 @@ class PdfGeneratorController extends Controller
                 // คุณต้องหา Path ที่ถูกต้องบนเซิร์ฟเวอร์ของคุณโดยใช้คำสั่ง 'which node'
                 // แล้วนำมาใส่ที่นี่ เช่น '/usr/bin/node' หรือ '/home/user/.nvm/versions/node/v16.14.2/bin/node'
                 $nodeExecutable = '/usr/bin/node'; // <--- **สำคัญ: แก้ไข Path นี้ให้ตรงกับเซิร์ฟเวอร์ของคุณ**
-                dd($nodeExecutable);
+                
             }
-
+dd($nodeExecutable);
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
 
