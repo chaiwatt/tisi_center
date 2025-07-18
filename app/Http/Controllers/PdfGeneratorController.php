@@ -70,10 +70,10 @@ class PdfGeneratorController extends Controller
 
             // 8. กำหนด Path ของ Node.js ตามสภาพแวดล้อม
             $nodeScriptPath = base_path('generate-pdf.js');
-            $nodeExecutable = 'node'; // สำหรับ Local
-            if (!app()->isLocal()) {
+            // $nodeExecutable = 'node'; // สำหรับ Local
+            // if (!app()->isLocal()) {
                 $nodeExecutable = '/usr/bin/node'; // สำหรับ Production Server
-            }
+            // }
 
             // 9. สร้างคำสั่งสำหรับรันใน shell อย่างปลอดภัย
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
