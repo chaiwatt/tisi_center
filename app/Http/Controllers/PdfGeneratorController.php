@@ -20,7 +20,7 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
- /**
+  /**
      * ฟังก์ชันสำหรับทดสอบการสื่อสารระหว่าง Laravel และ Node.js โดยการสร้างไฟล์ Text
      */
     public function testNodeJsCommunication(Request $request)
@@ -34,20 +34,20 @@ class PdfGeneratorController extends Controller
             $nodeExecutable = '/usr/bin/node';
             $nodeScriptPath = base_path('nodejs_create_textfile.js');
 
-            // สร้างคำสั่งให้เหมือนกับที่รันใน command line มากที่สุด
-            $command = escapeshellarg($nodeExecutable) . ' ' .
+            // --- การแก้ไข: เพิ่ม Flag --max-old-space-size เข้าไปในคำสั่งทดสอบด้วย ---
+            // เพื่อทดสอบว่า Flag นี้สามารถแก้ปัญหา OOM ได้จริงหรือไม่
+            $command = escapeshellarg($nodeExecutable) .
+                       ' --max-old-space-size=2048 ' . // ใช้ค่าที่น้อยลงสำหรับทดสอบ
                        escapeshellarg($nodeScriptPath) . ' ' .
                        escapeshellarg($outputFilePath) . ' 2>&1';
 
             // ตั้งค่า HOME environment variable สำหรับโปรเซสที่จะรันโดย shell_exec
-            // ซึ่งเป็นอีกวิธีในการพยายามแก้ปัญหาสภาพแวดล้อม
             putenv('HOME=/tmp');
             $commandOutput = shell_exec($command);
             // คืนค่า HOME (ถ้าจำเป็น)
             putenv('HOME');
 
             // ตรวจสอบผลลัพธ์
-            // shell_exec จะคืนค่า NULL ถ้าเกิด error และไม่มี output หรือคืนค่า output ถ้ามี
             if ($commandOutput !== '' && $commandOutput !== null) {
                  throw new \Exception('Node.js test script failed. Output: ' . $commandOutput);
             }
@@ -75,7 +75,6 @@ class PdfGeneratorController extends Controller
             ], 500);
         }
     }
-
 
  /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
