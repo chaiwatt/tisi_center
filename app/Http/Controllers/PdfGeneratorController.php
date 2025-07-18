@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+\Barryvdh\Debugbar\Facade::disable();
 
 
 class PdfGeneratorController extends Controller
@@ -20,20 +21,17 @@ class PdfGeneratorController extends Controller
     }
 
 
-    /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
-     */
     public function exportPdf(Request $request)
     {
-        // --- ส่วนที่แก้ไข: ปิดการทำงานของ Debugbar ---
-        // นี่คือการแก้ปัญหาที่ต้นตอ เพื่อป้องกันไม่ให้ Debugbar แทรกโค้ดเข้ามาใน Response
-        if (app()->environment('local', 'production')) { // ตรวจสอบให้แน่ใจว่ามี Debugbar class ก่อนเรียกใช้
-             \Debugbar::disable();
-        }
+        // 1. ปิดการทำงานของ Debugbar ซึ่งเป็นต้นตอของปัญหา
+        // ใช้ชื่อคลาสแบบเต็ม (Fully Qualified Name) เพื่อให้ทำงานได้ใน Laravel 5.6
+        \Barryvdh\Debugbar\Facade::disable();
 
+        // 2. ตรวจสอบและรับข้อมูล HTML จาก Request
         $request->validate(['html_content' => 'required|string']);
         $htmlContent = $request->input('html_content');
 
+        // 3. เตรียม CSS และแปลง Path ของฟอนต์ให้ถูกต้องสำหรับ Puppeteer
         $pdfCssPath = public_path('css/pdf.css');
         $finalCss = '';
         if (File::exists($pdfCssPath)) {
@@ -41,6 +39,7 @@ class PdfGeneratorController extends Controller
             $fontPath = public_path('fonts/THSarabunNew.ttf');
             $fontUrlPath = 'file:///' . str_replace('\\', '/', $fontPath);
 
+            // ใช้ Regular Expression เพื่อให้การแทนที่ Path ของฟอนต์ทำงานได้ในทุกกรณี
             $finalCss = preg_replace(
                 "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
                 "url('{$fontUrlPath}')",
@@ -48,48 +47,55 @@ class PdfGeneratorController extends Controller
             );
         }
 
+        // 4. สร้างเนื้อหา HTML ทั้งหมดสำหรับไฟล์ PDF
         $fullHtml = "<!DOCTYPE html>
 <html lang='th'>
 <head><meta charset='UTF-8'><title>Document</title><style>{$finalCss}</style></head>
 <body>{$htmlContent}</body>
 </html>";
 
+        // 5. กำหนดค่าและสร้างชื่อไฟล์
         $diskName = 'uploads';
-        
         $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
         $tempHtmlFileName = "temp_{$timestamp}.html";
         $outputPdfFileName = "document_{$timestamp}.pdf";
 
+        // 6. สร้าง Path แบบเต็มสำหรับไฟล์ชั่วคราว
         $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
         $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
 
         try {
+            // 7. บันทึกไฟล์ HTML ชั่วคราวลงใน disk
             Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
 
+            // 8. กำหนด Path ของ Node.js ตามสภาพแวดล้อม
             $nodeScriptPath = base_path('generate-pdf.js');
-            
-            // $nodeExecutable = 'node';
-            // if (!app()->isLocal()) {
-                $nodeExecutable = '/usr/bin/node';
-            // }
+            $nodeExecutable = 'node'; // สำหรับ Local
+            if (!app()->isLocal()) {
+                $nodeExecutable = '/usr/bin/node'; // สำหรับ Production Server
+            }
 
+            // 9. สร้างคำสั่งสำหรับรันใน shell อย่างปลอดภัย
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
-
             $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
             
+            // 10. รันคำสั่งเพื่อสร้าง PDF
             $commandOutput = shell_exec($command);
 
+            // 11. ตรวจสอบผลลัพธ์
             if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
                 throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
             }
 
+            // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไปให้ผู้ใช้
             $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
             return response($pdfContent)->header('Content-Type', 'application/pdf');
 
         } catch (\Exception $e) {
             return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
         } finally {
+            // 13. ลบไฟล์ HTML ชั่วคราวทิ้งไป (เก็บไฟล์ PDF ไว้)
             Storage::disk($diskName)->delete($tempHtmlFileName);
         }
     }
