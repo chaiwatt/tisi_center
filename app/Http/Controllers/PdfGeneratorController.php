@@ -20,7 +20,7 @@ class PdfGeneratorController extends Controller
     }
 
 
- /**
+    /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
     public function exportPdf(Request $request)
@@ -66,18 +66,22 @@ class PdfGeneratorController extends Controller
 
             $nodeScriptPath = base_path('generate-pdf.js');
             
-            // --- ส่วนที่แก้ไข: กำหนด Path ของ Node.js ตามสภาพแวดล้อม ---
-            $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
-            if (!app()->isLocal()) {
+            // --- ส่วนที่แก้ไข: กำหนด Path ของ Node.js และเพิ่ม Memory Limit ---
+            // $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
+            // if (!app()->isLocal()) {
                 // สำหรับ Production บน CentOS 8, ให้ใช้ Path มาตรฐานที่ได้จากการติดตั้งผ่าน dnf
-                // ซึ่งเป็นตำแหน่งที่ user ของเว็บเซิร์ฟเวอร์สามารถเข้าถึงและรันได้
-                $nodeExecutable = '/usr/bin/node'; // <--- **ใช้ Path มาตรฐานที่ถูกต้อง**
-            }
+                $nodeExecutable = '/usr/bin/node';
+            // }
+
+            // เพิ่ม Memory limit ให้กับ Node.js เพื่อแก้ปัญหา Out of Memory (OOM)
+            // 4096 MB (4GB) เป็นค่าเริ่มต้นที่ดี อาจต้องปรับเพิ่มตามขนาดเอกสาร
+            $nodeOptions = '--max-old-space-size=4096';
 
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
 
-            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
+            // เพิ่ม $nodeOptions เข้าไปใน command
+            $command = "{$nodeExecutable} {$nodeOptions} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
             
             $commandOutput = shell_exec($command);
 
@@ -94,6 +98,8 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($tempHtmlFileName);
         }
     }
+
+
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
