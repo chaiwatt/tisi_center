@@ -24,6 +24,9 @@ class PdfGeneratorController extends Controller
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
      */
+ /**
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
+     */
     public function exportPdf(Request $request)
     {
         // 1. ปิดการทำงานของ Debugbar
@@ -76,12 +79,12 @@ class PdfGeneratorController extends Controller
             $nodeScriptPath = base_path('generate-pdf.js');
 
             // --- 9. สร้างคำสั่งสำหรับรันใน shell (ส่วนที่แก้ไข) ---
-            // เราไม่จำเป็นต้องใช้ `sudo` อีกต่อไป เพราะ Node.js script ของเรา
-            // ถูกแก้ไขให้ทำงานในสภาพแวดล้อมของ apache ได้โดยตรงแล้ว
-            // การรันโดยตรงจึงง่ายและปลอดภัยกว่า
+            // เพิ่ม Flag `--max-old-space-size=4096` เพื่อเพิ่ม Memory ให้กับ Node.js
+            // แก้ปัญหา Out of Memory เมื่อรันผ่าน PHP/Apache
             $command = sprintf(
-                '%s %s %s %s 2>&1',
+                '%s --max-old-space-size=4096 %s %s %s 2>&1',
                 escapeshellarg($nodeExecutable),
+                // ไม่ต้อง escapeshellarg สำหรับ flag
                 escapeshellarg($nodeScriptPath),
                 escapeshellarg($tempHtmlPath),
                 escapeshellarg($outputPdfPath)
@@ -108,7 +111,6 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($outputPdfFileName); // เพิ่มการลบ PDF ด้วย
         }
     }
-
 
 
     /**
