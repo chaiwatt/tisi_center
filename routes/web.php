@@ -115,7 +115,7 @@ Route::get('/show-ib-details','MyTestController@showIbReportOneDetails');
 Route::post('/export-pdf', 'MyTestController@exportPdf');
 
 
-Route::get('s', 'PdfGeneratorController@showEditor')->name('editor.show');
+Route::get('/show-editor', 'PdfGeneratorController@showEditor')->name('editor.show');
 Route::post('/export-nodejs-pdf', 'PdfGeneratorController@exportPdf')->name('pdf.export');
 Route::get('/template/load', 'PdfGeneratorController@loadTemplate')->name('template.load');
 
