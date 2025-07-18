@@ -20,8 +20,9 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
-   /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไข)
+  
+    /**
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
      */
     public function exportPdf(Request $request)
     {
@@ -75,10 +76,11 @@ class PdfGeneratorController extends Controller
             $nodeScriptPath = base_path('generate-pdf.js');
 
             // --- 9. สร้างคำสั่งสำหรับรันใน shell (ส่วนที่แก้ไข) ---
-            // เราต้องสร้างคำสั่งให้เหมือนกับที่ทดสอบสำเร็จใน command line ทุกประการ
-            // โดยการเพิ่ม "sudo -u apache" เข้าไปข้างหน้า
+            // เราไม่จำเป็นต้องใช้ `sudo` อีกต่อไป เพราะ Node.js script ของเรา
+            // ถูกแก้ไขให้ทำงานในสภาพแวดล้อมของ apache ได้โดยตรงแล้ว
+            // การรันโดยตรงจึงง่ายและปลอดภัยกว่า
             $command = sprintf(
-                'sudo -u apache %s %s %s %s 2>&1',
+                '%s %s %s %s 2>&1',
                 escapeshellarg($nodeExecutable),
                 escapeshellarg($nodeScriptPath),
                 escapeshellarg($tempHtmlPath),
@@ -106,6 +108,9 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($outputPdfFileName); // เพิ่มการลบ PDF ด้วย
         }
     }
+
+
+
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
