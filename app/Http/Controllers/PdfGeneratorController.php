@@ -63,7 +63,7 @@ class PdfGeneratorController extends Controller
             }
         }
 
-        dd($finalCss);
+        // dd($finalCss);
 
         $fullHtml = "<!DOCTYPE html>
 <html lang='th'>
