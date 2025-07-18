@@ -20,21 +20,21 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
-    /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับสมบูรณ์)
+   /**
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไข)
      */
     public function exportPdf(Request $request)
     {
-        // 1. ปิดการทำงานของ Debugbar ซึ่งเป็นต้นตอของปัญหา
+        // 1. ปิดการทำงานของ Debugbar
         if (class_exists(\Barryvdh\Debugbar\Facade::class)) {
             \Barryvdh\Debugbar\Facade::disable();
         }
 
-        // 2. ตรวจสอบและรับข้อมูล HTML จาก Request
+        // 2. รับข้อมูล HTML
         $request->validate(['html_content' => 'required|string']);
         $htmlContent = $request->input('html_content');
 
-        // 3. เตรียม CSS และแปลง Path ของฟอนต์ให้ถูกต้องสำหรับ Puppeteer
+        // 3. เตรียม CSS และแปลง Path ของฟอนต์
         $pdfCssPath = public_path('css/pdf.css');
         $finalCss = '';
         if (File::exists($pdfCssPath)) {
@@ -49,7 +49,7 @@ class PdfGeneratorController extends Controller
             );
         }
 
-        // 4. สร้างเนื้อหา HTML ทั้งหมดสำหรับไฟล์ PDF
+        // 4. สร้างเนื้อหา HTML ทั้งหมด
         $fullHtml = "<!DOCTYPE html>
 <html lang='th'>
 <head><meta charset='UTF-8'><title>Document</title><style>{$finalCss}</style></head>
@@ -67,41 +67,45 @@ class PdfGeneratorController extends Controller
         $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
 
         try {
-            // 7. บันทึกไฟล์ HTML ชั่วคราวลงใน disk
+            // 7. บันทึกไฟล์ HTML ชั่วคราว
             Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
 
-            // 8. กำหนด Path ของ Node.js ตามสภาพแวดล้อม
+            // 8. กำหนด Path ต่างๆ
+            $nodeExecutable = '/usr/bin/node';
             $nodeScriptPath = base_path('generate-pdf.js');
-            // $nodeExecutable = 'node'; // สำหรับ Local
-            // if (!app()->isLocal()) {
-                $nodeExecutable = '/usr/bin/node'; // สำหรับ Production Server
-            // }
 
-            // 9. สร้างคำสั่งสำหรับรันใน shell อย่างปลอดภัย (มีแค่ 2 arguments ตามที่ generate-pdf.js ต้องการ)
-            $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
-            $safeOutputPdfPath = escapeshellarg($outputPdfPath);
-            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
+            // --- 9. สร้างคำสั่งสำหรับรันใน shell (ส่วนที่แก้ไข) ---
+            // เราต้องสร้างคำสั่งให้เหมือนกับที่ทดสอบสำเร็จใน command line ทุกประการ
+            // โดยการเพิ่ม "sudo -u apache" เข้าไปข้างหน้า
+            $command = sprintf(
+                'sudo -u apache %s %s %s %s 2>&1',
+                escapeshellarg($nodeExecutable),
+                escapeshellarg($nodeScriptPath),
+                escapeshellarg($tempHtmlPath),
+                escapeshellarg($outputPdfPath)
+            );
             
             // 10. รันคำสั่งเพื่อสร้าง PDF
             $commandOutput = shell_exec($command);
 
             // 11. ตรวจสอบผลลัพธ์
             if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
-                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
+                // หากล้มเหลว ให้โยน Exception พร้อมกับ Output ที่ได้จาก Node.js เพื่อให้ดีบักได้ง่าย
+                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created. Check system logs.'));
             }
 
-            // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไปให้ผู้ใช้
+            // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไป
             $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
             return response($pdfContent)->header('Content-Type', 'application/pdf');
 
         } catch (\Exception $e) {
             return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
         } finally {
-            // 13. ลบไฟล์ HTML ชั่วคราวทิ้งไป (เก็บไฟล์ PDF ไว้)
+            // 13. ลบไฟล์ HTML และ PDF ชั่วคราวทิ้งไป
             Storage::disk($diskName)->delete($tempHtmlFileName);
+            Storage::disk($diskName)->delete($outputPdfFileName); // เพิ่มการลบ PDF ด้วย
         }
     }
-
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
