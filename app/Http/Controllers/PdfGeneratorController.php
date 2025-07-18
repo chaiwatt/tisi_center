@@ -27,9 +27,8 @@ class PdfGeneratorController extends Controller
     {
         // --- ส่วนที่แก้ไข: ปิดการทำงานของ Debugbar ---
         // นี่คือการแก้ปัญหาที่ต้นตอ เพื่อป้องกันไม่ให้ Debugbar แทรกโค้ดเข้ามาใน Response
-        // 2. ตรวจสอบว่าคลาส Debugbar มีอยู่จริงก่อนที่จะเรียกใช้
-        if (class_exists('Barryvdh\Debugbar\Facade')) {
-             Debugbar::disable();
+        if (app()->environment('local', 'production')) { // ตรวจสอบให้แน่ใจว่ามี Debugbar class ก่อนเรียกใช้
+             \Debugbar::disable();
         }
 
         $request->validate(['html_content' => 'required|string']);
