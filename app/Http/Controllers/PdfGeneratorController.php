@@ -69,7 +69,7 @@ class PdfGeneratorController extends Controller
             $diskName = 'uploads';
             $outputPdfFileName = 'document_' . time() . '_' . uniqid() . '.pdf';
             $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
-
+            // dd("ok");
             // 4. สร้าง Job และ "ส่ง" (Dispatch) เข้าไปในคิว
             GeneratePdfJob::dispatch($htmlContent, $outputPdfPath);
 
