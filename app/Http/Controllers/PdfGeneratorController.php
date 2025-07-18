@@ -19,14 +19,15 @@ class PdfGeneratorController extends Controller
     {
         return view('abtest.editor');
     }
-
  /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขสมบูรณ์)
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับทดสอบการสร้าง HTML)
      */
     public function exportPdf(Request $request)
     {
         // ปิดการทำงานของ Debugbar (แก้ไขถูกต้องแล้ว)
-        \Barryvdh\Debugbar\Facade::disable();
+        if (class_exists(\Barryvdh\Debugbar\Facade::class)) {
+            \Barryvdh\Debugbar\Facade::disable();
+        }
 
         $request->validate(['html_content' => 'required|string']);
         $htmlContent = $request->input('html_content');
@@ -54,49 +55,26 @@ class PdfGeneratorController extends Controller
         $diskName = 'uploads';
         $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
         $tempHtmlFileName = "temp_{$timestamp}.html";
-        $outputPdfFileName = "document_{$timestamp}.pdf";
 
-        $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
-        $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
-
-        // --- ส่วนที่แก้ไข: สร้างโฟลเดอร์สำหรับไฟล์ชั่วคราวของ Puppeteer ---
-        $puppeteerCacheDir = 'puppeteer_cache';
-        if (!Storage::disk($diskName)->exists($puppeteerCacheDir)) {
-            Storage::disk($diskName)->makeDirectory($puppeteerCacheDir);
-        }
-        $puppeteerCachePath = Storage::disk($diskName)->path($puppeteerCacheDir);
-        // --- จบส่วนที่แก้ไข ---
-
+        // --- ขั้นตอนการทดสอบ ---
         try {
+            // 1. สร้างไฟล์ HTML ชั่วคราวใน public/uploads
             Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
-
-            $nodeScriptPath = base_path('generate-pdf.js');
-            // $nodeExecutable = 'node';
-            // if (!app()->isLocal()) {
-                $nodeExecutable = '/usr/bin/node';
-            // }
-
-            // --- ส่วนที่แก้ไข: เพิ่ม Path ของ cache เข้าไปใน command ---
-            $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
-            $safeOutputPdfPath = escapeshellarg($outputPdfPath);
-            $safePuppeteerCachePath = escapeshellarg($puppeteerCachePath);
-            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} {$safePuppeteerCachePath} 2>&1";
-            // --- จบส่วนที่แก้ไข ---
             
-            $commandOutput = shell_exec($command);
-
-            if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
-                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
-            }
-
-            $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
-            return response($pdfContent)->header('Content-Type', 'application/pdf');
+            // 2. ส่งข้อความยืนยันกลับไป แล้วหยุดการทำงานทันที
+            // โค้ดส่วนที่เหลือ (shell_exec, finally) จะไม่ถูกรัน
+            return response()->json([
+                'status' => 'HTML file created successfully.',
+                'message' => 'ไฟล์ HTML ถูกสร้างขึ้นในโฟลเดอร์ uploads แล้ว โปรดตรวจสอบ',
+                'file_name' => $tempHtmlFileName,
+                'full_path' => Storage::disk($diskName)->path($tempHtmlFileName)
+            ]);
 
         } catch (\Exception $e) {
-            return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
-        } finally {
-            Storage::disk($diskName)->delete($tempHtmlFileName);
+            // ในกรณีที่แม้แต่การสร้างไฟล์ HTML ก็ยังล้มเหลว
+            return response("เกิดข้อผิดพลาดในการสร้างไฟล์ HTML: " . $e->getMessage(), 500);
         }
+        // --- จบขั้นตอนการทดสอบ ---
     }
 
 
