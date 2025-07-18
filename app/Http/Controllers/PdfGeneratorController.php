@@ -20,8 +20,20 @@ class PdfGeneratorController extends Controller
     }
 
 
-//**
-public function exportPdf(Request $request)
+class PdfGeneratorController extends Controller
+{
+    /**
+     * แสดงหน้า Editor หลัก
+     */
+    public function showEditor()
+    {
+        return view('editor');
+    }
+
+    /**
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
+     */
+    public function exportPdf(Request $request)
     {
         // \Debugbar::disable();
 
@@ -67,9 +79,9 @@ public function exportPdf(Request $request)
             // --- ส่วนที่แก้ไข: กำหนด Path ของ Node.js ตามสภาพแวดล้อม ---
             // $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
             // if (!app()->isLocal()) {
-                // สำหรับ Production บน CentOS 8, ให้ใช้ Path จาก Symbolic Link ที่เราสร้างขึ้น
-                // ซึ่งเป็นตำแหน่งที่ user ของเว็บเซิร์ฟเวอร์สามารถเข้าถึงได้
-                $nodeExecutable = '/usr/local/bin/node'; // <--- **ใช้ Path ใหม่ที่เข้าถึงได้**
+                // สำหรับ Production บน CentOS 8, ให้ใช้ Path มาตรฐานที่ได้จากการติดตั้งผ่าน dnf
+                // ซึ่งเป็นตำแหน่งที่ user ของเว็บเซิร์ฟเวอร์สามารถเข้าถึงและรันได้
+                $nodeExecutable = '/usr/bin/node'; // <--- **ใช้ Path มาตรฐานที่ถูกต้อง**
             // }
 
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
