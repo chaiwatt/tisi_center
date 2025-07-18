@@ -71,28 +71,28 @@ class PdfGeneratorController extends Controller
             // 7. บันทึกไฟล์ HTML ชั่วคราวลงใน disk
             Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
 
-            // 8. กำหนด Path ของ Node.js ตามสภาพแวดล้อม
-            $nodeScriptPath = base_path('generate-pdf.js');
-            // $nodeExecutable = 'node'; // สำหรับ Local
-            // if (!app()->isLocal()) {
-                $nodeExecutable = '/usr/bin/node'; // สำหรับ Production Server
+            // // 8. กำหนด Path ของ Node.js ตามสภาพแวดล้อม
+            // $nodeScriptPath = base_path('generate-pdf.js');
+            // // $nodeExecutable = 'node'; // สำหรับ Local
+            // // if (!app()->isLocal()) {
+            //     $nodeExecutable = '/usr/bin/node'; // สำหรับ Production Server
+            // // }
+
+            // // 9. สร้างคำสั่งสำหรับรันใน shell อย่างปลอดภัย (มีแค่ 2 arguments)
+            // $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
+            // $safeOutputPdfPath = escapeshellarg($outputPdfPath);
+            // $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
+            
+            // // 10. รันคำสั่งเพื่อสร้าง PDF
+            // $commandOutput = shell_exec($command);
+
+            // // 11. ตรวจสอบผลลัพธ์
+            // if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
+            //     throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
             // }
 
-            // 9. สร้างคำสั่งสำหรับรันใน shell อย่างปลอดภัย (มีแค่ 2 arguments)
-            $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
-            $safeOutputPdfPath = escapeshellarg($outputPdfPath);
-            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
-            
-            // 10. รันคำสั่งเพื่อสร้าง PDF
-            $commandOutput = shell_exec($command);
-
-            // 11. ตรวจสอบผลลัพธ์
-            if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
-                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
-            }
-
-            // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไปให้ผู้ใช้
-            $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
+            // // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไปให้ผู้ใช้
+            // $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
             return response($pdfContent)->header('Content-Type', 'application/pdf');
 
         } catch (\Exception $e) {
