@@ -20,6 +20,67 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
+
+
+/**
+     * ฟังก์ชันสำหรับทดสอบการสื่อสารระหว่าง Laravel และ Node.js โดยการสร้างไฟล์ Text
+     */
+    public function testNodeJsCommunication(Request $request)
+    {
+        $diskName = 'uploads';
+        $outputFileName = 'test_node_communication_' . time() . '.txt';
+        $outputFilePath = Storage::disk($diskName)->path($outputFileName);
+
+        try {
+            // --- สร้างและรันโปรเซสเพื่อเรียก Node.js ---
+            // เราจะสร้างโปรเซสพร้อมกับกำหนด Environment Variable ให้มันโดยตรง
+            // ซึ่งเป็นวิธีที่เสถียรและถูกต้องที่สุด
+            $process = new Process(
+                [
+                    '/usr/bin/node', // Path ของ Node.js
+                    base_path('nodejs_create_textfile.js'), // Path ไปยังสคริปต์ทดสอบ
+                    $outputFilePath, // Path ของไฟล์ที่จะสร้าง
+                ],
+                null, // Current working directory (null = default)
+                ['HOME' => '/tmp'] // Environment variables to pass to the process
+            );
+
+            // กำหนด timeout (วินาที) และรันโปรเซส
+            $process->setTimeout(60);
+            $process->run();
+
+            // ตรวจสอบผลลัพธ์
+            if (!$process->isSuccessful()) {
+                // หากล้มเหลว ให้โยน Exception พร้อมกับ Error Output ที่ได้จาก Node.js
+                throw new \Exception('Node.js test script failed. Error: ' . $process->getErrorOutput());
+            }
+
+            // ตรวจสอบว่าไฟล์ถูกสร้างขึ้นจริงหรือไม่
+            if (!Storage::disk($diskName)->exists($outputFileName)) {
+                throw new \Exception('Node.js script ran successfully, but the text file was not created.');
+            }
+
+            // อ่านเนื้อหาไฟล์ที่สร้างขึ้นแล้วส่งกลับไปเป็น JSON
+            $fileContent = Storage::disk($diskName)->get($outputFileName);
+            Storage::disk($diskName)->delete($outputFileName); // ลบไฟล์ทดสอบทิ้ง
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully created text file via Node.js!',
+                'file_content' => $fileContent
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during Node.js communication.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
  /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
      */

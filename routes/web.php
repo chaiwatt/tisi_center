@@ -120,10 +120,13 @@ Route::post('/export-nodejs-pdf', 'PdfGeneratorController@exportPdf')->name('pdf
 Route::get('/template/load', 'PdfGeneratorController@loadTemplate')->name('template.load');
 
 
+Route::get('/test-node', 'PdfGeneratorController@testNodeJsCommunication');
+
 // Route::get('/show-editor', [PdfGeneratorController::class, 'showEditor'])->name('editor.show');
 // Route::post('/export-nodejs-pdf', [PdfGeneratorController::class, 'exportPdf'])->name('pdf.export');
 
 // Route::get('/template/load', [PdfGeneratorController::class, 'loadTemplate'])->name('template.load');
+
 
 
 
