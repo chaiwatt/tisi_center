@@ -20,7 +20,7 @@ class PdfGeneratorController extends Controller
     }
 
 
-/**
+//**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
      */
     public function exportPdf(Request $request)
@@ -37,33 +37,14 @@ class PdfGeneratorController extends Controller
             $fontPath = public_path('fonts/THSarabunNew.ttf');
             $fontUrlPath = 'file:///' . str_replace('\\', '/', $fontPath);
 
-            // --- ส่วนที่แก้ไข: เพิ่มเงื่อนไขเพื่อจัดการ Path ตามสภาพแวดล้อม ---
-            // วิธีที่แนะนำคือการใช้ app()->isLocal() ซึ่งจะตรวจสอบค่า APP_ENV ในไฟล์ .env
-            // ซึ่งมีความน่าเชื่อถือกว่าการตรวจสอบจาก IP หรือ Hostname
-            if (app()->isLocal()) {
-                // สำหรับ Local Environment
-                // ใช้ Regular Expression เพื่อให้แน่ใจว่า Path ถูกแปลงอย่างถูกต้องเสมอ
-                // ไม่ว่าใน CSS จะใช้ url('/fonts/...') หรือ url('../fonts/...')
-                $finalCss = preg_replace(
-                    "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
-                    "url('{$fontUrlPath}')",
-                    $cssContent
-                );
-            } else {
-                // สำหรับ Production Environment (หรืออื่นๆ)
-                // เรายังคงใช้ Logic เดียวกันเพื่อให้มั่นใจว่า Puppeteer จะหาไฟล์ฟอนต์เจอเสมอ
-                // เนื่องจากโค้ดนี้มีความยืดหยุ่นและรองรับ Path ได้ทุกรูปแบบ
-                $finalCss = preg_replace(
-                    "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
-                    "url('{$fontUrlPath}')",
-                    $cssContent
-                );
-
-                
-            }
+            // ใช้ Regular Expression เพื่อให้แน่ใจว่า Path ถูกแปลงอย่างถูกต้องเสมอ
+            // ไม่ว่าใน CSS จะใช้ url('/fonts/...') หรือ url('../fonts/...')
+            $finalCss = preg_replace(
+                "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
+                "url('{$fontUrlPath}')",
+                $cssContent
+            );
         }
-
-        // dd($finalCss);
 
         $fullHtml = "<!DOCTYPE html>
 <html lang='th'>
@@ -84,7 +65,16 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
 
             $nodeScriptPath = base_path('generate-pdf.js');
-            $nodeExecutable = 'node';
+            
+            // --- ส่วนที่แก้ไข: กำหนด Path ของ Node.js ตามสภาพแวดล้อม ---
+            $nodeExecutable = 'node'; // ค่าเริ่มต้นสำหรับ Local
+            if (!app()->isLocal()) {
+                // สำหรับ Production บน CentOS 8, ให้ระบุ Path แบบเต็ม
+                // คุณต้องหา Path ที่ถูกต้องบนเซิร์ฟเวอร์ของคุณโดยใช้คำสั่ง 'which node'
+                // แล้วนำมาใส่ที่นี่ เช่น '/usr/bin/node' หรือ '/home/user/.nvm/versions/node/v16.14.2/bin/node'
+                $nodeExecutable = '/usr/bin/node'; // <--- **สำคัญ: แก้ไข Path นี้ให้ตรงกับเซิร์ฟเวอร์ของคุณ**
+                dd($nodeExecutable);
+            }
 
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
@@ -106,7 +96,6 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($tempHtmlFileName);
         }
     }
-
 
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
