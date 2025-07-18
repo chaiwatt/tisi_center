@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Jobs\CreateTextFileJob;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process; // เพิ่มการ import Process
@@ -20,49 +21,29 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
-   public function testNodeJsCommunication(Request $request)
+   /**
+     * ฟังก์ชันสำหรับทดสอบการสื่อสารโดยการส่ง Job เข้า Queue
+     */
+    public function testNodeJsCommunication(Request $request)
     {
-        $diskName = 'uploads';
-        $outputFileName = 'test_node_communication_' . time() . '.txt';
-        $outputFilePath = Storage::disk($diskName)->path($outputFileName);
-
         try {
-            // --- การแก้ไข: กำหนด Environment Variable และ Flag โดยตรงใน Command String ---
-            // แล้วรันผ่าน fromShellCommandline() ซึ่งเป็นวิธีที่เสถียรที่สุด
-            $command = 'HOME=/tmp ' . // 1. กำหนด HOME Environment
-                       escapeshellarg('/usr/bin/node') . // 2. Path ไปยัง Node
-                       ' --max-old-space-size=2048 ' .   // 3. เพิ่ม Memory
-                       escapeshellarg(base_path('nodejs_create_textfile.js')) . ' ' . // 4. Script
-                       escapeshellarg($outputFilePath); // 5. Argument
+            $diskName = 'uploads';
+            $outputFileName = 'test_from_queue_' . time() . '.txt';
+            $outputFilePath = Storage::disk($diskName)->path($outputFileName);
 
-            $process = Process::fromShellCommandline($command);
-            $process->setTimeout(60);
-            $process->run();
-
-            // ตรวจสอบผลลัพธ์
-            if (!$process->isSuccessful()) {
-                throw new \Exception('Node.js test script failed. Error: ' . $process->getErrorOutput());
-            }
-
-            // ตรวจสอบว่าไฟล์ถูกสร้างขึ้นจริงหรือไม่
-            if (!Storage::disk($diskName)->exists($outputFileName)) {
-                throw new \Exception('Node.js script ran successfully, but the text file was not created.');
-            }
-
-            // อ่านเนื้อหาไฟล์ที่สร้างขึ้นแล้วส่งกลับไปเป็น JSON
-            $fileContent = Storage::disk($diskName)->get($outputFileName);
-            Storage::disk($diskName)->delete($outputFileName); // ลบไฟล์ทดสอบทิ้ง
+            // สร้าง Job และ "ส่ง" (Dispatch) เข้าไปในคิว
+            // Controller จะทำงานเสร็จทันที และ Worker จะรับงานนี้ไปทำเบื้องหลัง
+            CreateTextFileJob::dispatch($outputFilePath);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Successfully created text file via Node.js!',
-                'file_content' => $fileContent
+                'message' => 'Job to create a text file has been successfully dispatched! The queue worker will process it shortly.'
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred during Node.js communication.',
+                'message' => 'An error occurred while dispatching the job.',
                 'error' => $e->getMessage()
             ], 500);
         }
