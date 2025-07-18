@@ -20,9 +20,8 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
 
-
     /**
-     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับวินิจฉัย)
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขสมบูรณ์)
      */
     public function exportPdf(Request $request)
     {
@@ -60,31 +59,44 @@ class PdfGeneratorController extends Controller
         $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
         $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
 
-        // บันทึกไฟล์ HTML ชั่วคราวลงใน disk
-        Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
+        // --- ส่วนที่แก้ไข: สร้างโฟลเดอร์สำหรับไฟล์ชั่วคราวของ Puppeteer ---
+        $puppeteerCacheDir = 'puppeteer_cache';
+        if (!Storage::disk($diskName)->exists($puppeteerCacheDir)) {
+            Storage::disk($diskName)->makeDirectory($puppeteerCacheDir);
+        }
+        $puppeteerCachePath = Storage::disk($diskName)->path($puppeteerCacheDir);
+        // --- จบส่วนที่แก้ไข ---
 
-        // กำหนด Path ของ Node.js ตามสภาพแวดล้อม
-        $nodeScriptPath = base_path('generate-pdf.js');
-        // $nodeExecutable = 'node'; // สำหรับ Local
-        // if (!app()->isLocal()) {
-            $nodeExecutable = '/usr/bin/node'; // สำหรับ Production Server
-        // }
+        try {
+            Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
 
-        // สร้างคำสั่งสำหรับรันใน shell อย่างปลอดภัย
-        $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
-        $safeOutputPdfPath = escapeshellarg($outputPdfPath);
-        $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
-        
-        // --- ขั้นตอนการวินิจฉัย ---
-        // แสดงคำสั่งและ Path ทั้งหมด แล้วหยุดการทำงานของสคริปต์
-        // เพื่อให้เรานำคำสั่งนี้ไปทดสอบรันใน Terminal ของเซิร์ฟเวอร์โดยตรง
-        dd([
-            'message' => 'คัดลอกคำสั่งในช่อง \'command\' ด้านล่างนี้ ไปรันใน Terminal ของเซิร์ฟเวอร์เพื่อทดสอบ:',
-            'command' => $command,
-            'html_file_path' => $tempHtmlPath,
-            'pdf_output_path' => $outputPdfPath,
-        ]);
-        // --- จบขั้นตอนการวินิจฉัย ---
+            $nodeScriptPath = base_path('generate-pdf.js');
+            // $nodeExecutable = 'node';
+            // if (!app()->isLocal()) {
+                $nodeExecutable = '/usr/bin/node';
+            // }
+
+            // --- ส่วนที่แก้ไข: เพิ่ม Path ของ cache เข้าไปใน command ---
+            $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
+            $safeOutputPdfPath = escapeshellarg($outputPdfPath);
+            $safePuppeteerCachePath = escapeshellarg($puppeteerCachePath);
+            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} {$safePuppeteerCachePath} 2>&1";
+            // --- จบส่วนที่แก้ไข ---
+            
+            $commandOutput = shell_exec($command);
+
+            if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
+                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
+            }
+
+            $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
+            return response($pdfContent)->header('Content-Type', 'application/pdf');
+
+        } catch (\Exception $e) {
+            return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
+        } finally {
+            Storage::disk($diskName)->delete($tempHtmlFileName);
+        }
     }
 
     /**
