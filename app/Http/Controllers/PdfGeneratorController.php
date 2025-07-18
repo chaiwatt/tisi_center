@@ -21,13 +21,12 @@ class PdfGeneratorController extends Controller
     }
  
  
-     /**
+ /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับสมบูรณ์)
      */
     public function exportPdf(Request $request)
     {
         // 1. ปิดการทำงานของ Debugbar ซึ่งเป็นต้นตอของปัญหา
-        // ใช้ชื่อคลาสแบบเต็ม (Fully Qualified Name) เพื่อให้ทำงานได้ใน Laravel 5.6
         if (class_exists(\Barryvdh\Debugbar\Facade::class)) {
             \Barryvdh\Debugbar\Facade::disable();
         }
@@ -44,7 +43,6 @@ class PdfGeneratorController extends Controller
             $fontPath = public_path('fonts/THSarabunNew.ttf');
             $fontUrlPath = 'file:///' . str_replace('\\', '/', $fontPath);
 
-            // ใช้ Regular Expression เพื่อให้การแทนที่ Path ของฟอนต์ทำงานได้ในทุกกรณี
             $finalCss = preg_replace(
                 "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
                 "url('{$fontUrlPath}')",
@@ -104,6 +102,7 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($tempHtmlFileName);
         }
     }
+
 
     /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
