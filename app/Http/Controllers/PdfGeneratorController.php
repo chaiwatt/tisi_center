@@ -62,12 +62,11 @@ class PdfGeneratorController extends Controller
         $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
         $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
 
-        // --- ส่วนที่แก้ไข: สร้างโฟลเดอร์สำหรับเป็น "บ้านชั่วคราว" ของ Puppeteer ---
-        $puppeteerHomeDir = 'puppeteer_home';
-        if (!Storage::disk($diskName)->exists($puppeteerHomeDir)) {
-            Storage::disk($diskName)->makeDirectory($puppeteerHomeDir);
+        // --- ส่วนที่แก้ไข: สร้างโฟลเดอร์ชั่วคราวใน /tmp ซึ่งเป็นพื้นที่สาธารณะของระบบ ---
+        $puppeteerUserDataPath = '/tmp/puppeteer_instance_' . Str::random(10);
+        if (!is_dir($puppeteerUserDataPath)) {
+            mkdir($puppeteerUserDataPath, 0777, true);
         }
-        $puppeteerHomePath = Storage::disk($diskName)->path($puppeteerHomeDir);
         // --- จบส่วนที่แก้ไข ---
 
         try {
@@ -79,12 +78,11 @@ class PdfGeneratorController extends Controller
                 $nodeExecutable = '/usr/bin/node';
             // }
 
-            // --- ส่วนที่แก้ไข: กำหนด Environment Variable 'HOME' ให้กับคำสั่ง ---
-            $envVars = "HOME=" . escapeshellarg($puppeteerHomePath);
+            // --- ส่วนที่แก้ไข: เพิ่ม Path ของ cache เป็นอาร์กิวเมนต์ตัวที่สาม ---
             $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
             $safeOutputPdfPath = escapeshellarg($outputPdfPath);
-            // นี่คือวิธีที่ถูกต้องและปลอดภัยที่สุดในการแก้ปัญหาสิทธิ์บนเซิร์ฟเวอร์
-            $command = "{$envVars} {$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
+            $safePuppeteerCachePath = escapeshellarg($puppeteerUserDataPath);
+            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} {$safePuppeteerCachePath} 2>&1";
             // --- จบส่วนที่แก้ไข ---
             
             $commandOutput = shell_exec($command);
@@ -100,6 +98,10 @@ class PdfGeneratorController extends Controller
             return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
         } finally {
             Storage::disk($diskName)->delete($tempHtmlFileName);
+            // ลบโฟลเดอร์ชั่วคราวของ Puppeteer ทิ้งไป
+            if (is_dir($puppeteerUserDataPath)) {
+                system('rm -rf ' . escapeshellarg($puppeteerUserDataPath));
+            }
         }
     }
 
