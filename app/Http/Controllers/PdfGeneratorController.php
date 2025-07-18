@@ -20,7 +20,7 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
-  /**
+ /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
      */
     public function exportPdf(Request $request)
@@ -75,15 +75,15 @@ class PdfGeneratorController extends Controller
             $nodeScriptPath = base_path('generate-pdf.js');
 
             // --- 9. สร้างและรันโปรเซสโดยใช้ Symfony Process (ส่วนที่แก้ไข) ---
-            // วิธีนี้มีความเสถียรและจัดการ arguments ได้ดีกว่า shell_exec มาก
-            // ทำให้มั่นใจได้ว่า Flag --max-old-space-size จะถูกส่งไปให้ Node.js ได้จริง
-            $process = new Process([
-                $nodeExecutable,
-                '--max-old-space-size=4096', // เพิ่ม Memory ให้ Node.js
-                $nodeScriptPath,
-                $tempHtmlPath,
-                $outputPdfPath,
-            ]);
+            // สร้าง Command String ขึ้นมาทั้งหมดก่อน
+            $command = escapeshellarg($nodeExecutable) .
+                       ' --max-old-space-size=4096 ' .
+                       escapeshellarg($nodeScriptPath) . ' ' .
+                       escapeshellarg($tempHtmlPath) . ' ' .
+                       escapeshellarg($outputPdfPath);
+
+            // ใช้ fromShellCommandline() เพื่อให้ Process ทำงานในสภาพแวดล้อมที่สมบูรณ์เหมือนรันเอง
+            $process = Process::fromShellCommandline($command);
 
             // กำหนด timeout (วินาที) เพื่อป้องกันโปรเซสค้าง
             $process->setTimeout(120);
@@ -113,7 +113,6 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($outputPdfFileName); // เพิ่มการลบ PDF ด้วย
         }
     }
-
 
 
 
