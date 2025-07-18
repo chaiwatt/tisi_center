@@ -25,6 +25,76 @@ class PdfGeneratorController extends Controller
      */
     public function exportPdf(Request $request)
     {
+        // \Debugbar::disable();
+
+        $request->validate(['html_content' => 'required|string']);
+        $htmlContent = $request->input('html_content');
+
+        $pdfCssPath = public_path('css/pdf.css');
+        $finalCss = '';
+        if (File::exists($pdfCssPath)) {
+            $cssContent = File::get($pdfCssPath);
+            $fontPath = public_path('fonts/THSarabunNew.ttf');
+            $fontUrlPath = 'file:///' . str_replace('\\', '/', $fontPath);
+
+            // --- ส่วนที่แก้ไข: เปลี่ยนมาใช้ Regular Expression เพื่อการแทนที่ที่แม่นยำกว่า ---
+            // วิธีนี้จะรองรับ path ได้ทั้งแบบ url('/fonts/...') และ url('../fonts/...')
+            // ทำให้การสร้าง PDF ทำงานได้ถูกต้องเสมอ
+            $finalCss = preg_replace(
+                "/url\((['\"]?)(\.\.\/|\/)?fonts\/THSarabunNew\.ttf(['\"]?)\)/",
+                "url('{$fontUrlPath}')",
+                $cssContent
+            );
+        }
+
+        $fullHtml = "<!DOCTYPE html>
+<html lang='th'>
+<head><meta charset='UTF-8'><title>Document</title><style>{$finalCss}</style></head>
+<body>{$htmlContent}</body>
+</html>";
+
+        $diskName = 'uploads';
+        
+        $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
+        $tempHtmlFileName = "temp_{$timestamp}.html";
+        $outputPdfFileName = "document_{$timestamp}.pdf";
+
+        $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
+        $outputPdfPath = Storage::disk($diskName)->path($outputPdfFileName);
+
+        try {
+            Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
+
+            $nodeScriptPath = base_path('generate-pdf.js');
+            $nodeExecutable = 'node';
+
+            $safeTempHtmlPath = escapeshellarg($tempHtmlPath);
+            $safeOutputPdfPath = escapeshellarg($outputPdfPath);
+
+            $command = "{$nodeExecutable} " . escapeshellarg($nodeScriptPath) . " {$safeTempHtmlPath} {$safeOutputPdfPath} 2>&1";
+            
+            $commandOutput = shell_exec($command);
+
+            if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
+                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created.'));
+            }
+
+            $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
+            return response($pdfContent)->header('Content-Type', 'application/pdf');
+
+        } catch (\Exception $e) {
+            return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
+        } finally {
+            Storage::disk($diskName)->delete($tempHtmlFileName);
+        }
+    }
+
+    
+    /**
+     * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads'
+     */
+    public function exportPdf_org(Request $request)
+    {
         // หากเจอปัญหา Debugbar รบกวนการสร้าง PDF ในอนาคต สามารถเปิดใช้งานบรรทัดนี้ได้
         // \Debugbar::disable();
 
