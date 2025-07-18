@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-\Barryvdh\Debugbar\Facade::disable();
+use Symfony\Component\Process\Process; // เพิ่มการ import Process
 
 
 class PdfGeneratorController extends Controller
@@ -20,8 +20,7 @@ class PdfGeneratorController extends Controller
         return view('abtest.editor');
     }
  
-  
-/**
+  /**
      * สร้างและส่งออกไฟล์ PDF โดยใช้ disk 'uploads' (ฉบับแก้ไขล่าสุด)
      */
     public function exportPdf(Request $request)
@@ -75,22 +74,31 @@ class PdfGeneratorController extends Controller
             $nodeExecutable = '/usr/bin/node';
             $nodeScriptPath = base_path('generate-pdf.js');
 
-            // --- 9. สร้างคำสั่งสำหรับรันใน shell (ส่วนที่แก้ไข) ---
-            // แก้ไขวิธีการสร้าง Command String ให้ถูกต้อง 100%
-            // เพื่อให้ Flag --max-old-space-size ถูกส่งไปให้ Node.js ได้จริง
-            $command = escapeshellarg($nodeExecutable) .
-                       ' --max-old-space-size=4096 ' .
-                       escapeshellarg($nodeScriptPath) . ' ' .
-                       escapeshellarg($tempHtmlPath) . ' ' .
-                       escapeshellarg($outputPdfPath) . ' 2>&1';
-            
-            // 10. รันคำสั่งเพื่อสร้าง PDF
-            $commandOutput = shell_exec($command);
+            // --- 9. สร้างและรันโปรเซสโดยใช้ Symfony Process (ส่วนที่แก้ไข) ---
+            // วิธีนี้มีความเสถียรและจัดการ arguments ได้ดีกว่า shell_exec มาก
+            // ทำให้มั่นใจได้ว่า Flag --max-old-space-size จะถูกส่งไปให้ Node.js ได้จริง
+            $process = new Process([
+                $nodeExecutable,
+                '--max-old-space-size=4096', // เพิ่ม Memory ให้ Node.js
+                $nodeScriptPath,
+                $tempHtmlPath,
+                $outputPdfPath,
+            ]);
 
-            // 11. ตรวจสอบผลลัพธ์
-            if (!Storage::disk($diskName)->exists($outputPdfFileName) || !empty($commandOutput)) {
-                // หากล้มเหลว ให้โยน Exception พร้อมกับ Output ที่ได้จาก Node.js เพื่อให้ดีบักได้ง่าย
-                throw new \Exception('Node.js script failed. Output: ' . ($commandOutput ?: 'No output, but file was not created. Check system logs.'));
+            // กำหนด timeout (วินาที) เพื่อป้องกันโปรเซสค้าง
+            $process->setTimeout(120);
+            $process->run();
+            
+            // 10. ตรวจสอบผลลัพธ์
+            if (!$process->isSuccessful()) {
+                // หากล้มเหลว ให้โยน Exception พร้อมกับ Error Output ที่ได้จาก Node.js
+                // ซึ่งจะช่วยให้เราดีบักได้ง่ายขึ้นมาก
+                throw new \Exception('Node.js script failed. Error: ' . $process->getErrorOutput());
+            }
+
+            // 11. ตรวจสอบว่าไฟล์ถูกสร้างขึ้นจริงหรือไม่
+            if (!Storage::disk($diskName)->exists($outputPdfFileName)) {
+                throw new \Exception('Node.js script ran successfully, but the PDF file was not created. Output: ' . $process->getOutput());
             }
 
             // 12. อ่านไฟล์ PDF ที่สร้างเสร็จแล้วและส่งกลับไป
@@ -105,7 +113,6 @@ class PdfGeneratorController extends Controller
             Storage::disk($diskName)->delete($outputPdfFileName); // เพิ่มการลบ PDF ด้วย
         }
     }
-
 
 
 
