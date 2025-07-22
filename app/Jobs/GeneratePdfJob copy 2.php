@@ -16,23 +16,17 @@ use Carbon\Carbon;
 class GeneratePdfJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    
     protected $htmlContent;
     protected $outputPdfPath;
-    protected $footerTextLeft;
-    protected $footerTextRight;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(string $htmlContent, string $outputPdfPath, string $footerTextLeft, string $footerTextRight)
+    public function __construct(string $htmlContent, string $outputPdfPath)
     {
         $this->htmlContent = $htmlContent;
         $this->outputPdfPath = $outputPdfPath;
-        $this->footerTextLeft = $footerTextLeft;
-        $this->footerTextRight = $footerTextRight;
     }
 
     /**
@@ -42,7 +36,7 @@ class GeneratePdfJob implements ShouldQueue
      */
     public function handle()
     {
-        // 1. Prepare CSS and font paths
+        // 1. เตรียม CSS และแปลง Path ของฟอนต์
         $pdfCssPath = public_path('css/pdf.css');
         $finalCss = '';
         if (File::exists($pdfCssPath)) {
@@ -56,52 +50,45 @@ class GeneratePdfJob implements ShouldQueue
             );
         }
 
-        // 2. Create the full HTML content
+        // 2. สร้างเนื้อหา HTML ทั้งหมดสำหรับไฟล์ PDF
         $fullHtml = "<!DOCTYPE html><html lang='th'><head><meta charset='UTF-8'><title>Document</title><style>{$finalCss}</style></head><body>{$this->htmlContent}</body></html>";
 
-        // 3. Create a temporary HTML file
+        // 3. สร้างไฟล์ HTML ชั่วคราว
         $diskName = 'uploads';
         $tempHtmlFileName = 'temp_for_pdf_' . time() . '_' . uniqid() . '.html';
         $tempHtmlPath = Storage::disk($diskName)->path($tempHtmlFileName);
 
         try {
-            // 4. Save the temporary HTML file
+            // 4. บันทึกไฟล์ HTML ชั่วคราว
             Storage::disk($diskName)->put($tempHtmlFileName, $fullHtml);
 
-            // --- 5. MODIFIED: Manually build the command string with escapeshellarg for each argument ---
-            // This is the most robust method to prevent issues with spaces or special characters.
-            $nodePath = config('gen-pdf.node_path', 'node');
+            // --- 5. สร้าง Command String โดยดึงค่าจาก Config (ส่วนที่ปรับปรุง) ---
+            $nodePath = config('gen-pdf.node_path');
+            $prefix = config('gen-pdf.command_prefix');
 
-            $command = implode(' ', [
-                escapeshellarg($nodePath),
-                '--max-old-space-size=4096',
-                escapeshellarg(base_path('generate-pdf.js')),
-                escapeshellarg($tempHtmlPath),
-                escapeshellarg($this->outputPdfPath),
-                escapeshellarg($this->footerTextLeft),
-                escapeshellarg($this->footerTextRight)
-            ]);
+            // dd($nodePath,$prefix);
 
-            // Add prefix if it exists
-            $prefix = config('gen-pdf.command_prefix', '');
-            if ($prefix) {
-                $command = $prefix . ' ' . $command;
-            }
+            $command = ($prefix ? $prefix . ' ' : '') . // เพิ่ม Prefix ถ้ามีค่า
+                       escapeshellarg($nodePath) .
+                       ' --max-old-space-size=4096 ' .
+                       escapeshellarg(base_path('generate-pdf.js')) . ' ' .
+                       escapeshellarg($tempHtmlPath) . ' ' .
+                       escapeshellarg($this->outputPdfPath);
 
-            // 6. Run the process using fromShellCommandline with the carefully crafted command
+            // 6. รันโปรเซส
             $process = Process::fromShellCommandline($command);
             $process->setTimeout(120);
             $process->run();
 
-            // 7. If the process fails, log the error
+            // 7. หากเกิดข้อผิดพลาด ให้บันทึกลงใน log ของ Laravel
             if (!$process->isSuccessful()) {
-                Log::error('GeneratePdfJob failed. Output: ' . $process->getErrorOutput() . ' | Command: ' . $command);
+                Log::error('GeneratePdfJob failed: ' . $process->getErrorOutput());
             }
 
         } catch (\Exception $e) {
             Log::error('Exception in GeneratePdfJob: ' . $e->getMessage());
         } finally {
-            // 8. Always delete the temporary HTML file
+            // 8. ลบไฟล์ HTML ชั่วคราวทิ้งไปเสมอ
             if (Storage::disk($diskName)->exists($tempHtmlFileName)) {
                 Storage::disk($diskName)->delete($tempHtmlFileName);
             }

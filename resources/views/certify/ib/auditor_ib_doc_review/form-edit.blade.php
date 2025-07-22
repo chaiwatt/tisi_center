@@ -13,6 +13,10 @@
     </style>
 @endpush
 
+@php
+     $attach_path = 'files/applicants/check_files_ib/';
+@endphp
+
 <div class="row">
     <div class="col-md-12">
         <div class="col-md-9">
@@ -184,119 +188,203 @@
 
 @else
     <div>
+
+
         <div class="row" style="margin-top: 20px">
-            <div class="col-md-2">
-            </div>
+             <div class="col-md-2">
+             </div>
             <div class="col-md-8">
-                <legend><h4>  คู่มือคุณภาพและขั้นตอนการดำเนินงาน
-                </h4>
-                </legend>
+                <span><h4>  1. คู่มือคุณภาพและขั้นตอนการดำเนินงานของหน่วยงานตรวจสอบที่สอดคล้องตามข้อกำหนดมาตรฐานเลขที่ มอก.17020 (Inspection body implementations which are conformed with TIS 17020)</h4>
+                </span>
                 <div class="clearfix"></div>
-                @if ($certiIb->FileAttach1->count() > 0)
-                    <div class="row">
-                        @foreach($certiIb->FileAttach1 as $data)
-                            @if ($data->file)
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <div class="col-md-12 text-light">  
-                                            <a href="{{url('certify/check/file_ib_client/'.$data->file.'/'.( !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)  ))}}" target="_blank">
-                                                {!! HP::FileExtension($data->file)  ?? '' !!}
-                                                {{  !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)   }}
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
+                @if ( isset( $certiIb->id ) && count( App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '1')->get() ) > 0 )
+                    @php
+                        $file_sectionn1 = App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '1')->get();
+                    @endphp
+
+                    @foreach ( $file_sectionn1 as $section1 )
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                 <a href="{!! HP::getFileStorage($attach_path.$section1->file) !!}" target="_blank" > {!! HP::FileExtension($section1->file)  ?? '' !!} {!! $section1->file_client_name !!}</a>
+                            </div>
+                        </div>
+                    @endforeach
                 @endif
             </div>
         </div>
-        <div class="row" style="margin-top: 20px">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-8">
-                <legend><h4>  รายชื่อคุณวุฒิประสบการณ์และขอบข่ายความรับผิดชอบของเจ้าหน้าที่ (List of relevant personnel providing name, qualification, experience and responsibility)
-                </h4>
-                </legend>
-                <div class="clearfix"></div>
-                @if ($certiIb->FileAttach2->count() > 0)
-                    <div class="row">
-                        @foreach($certiIb->FileAttach2 as $data)
-                            @if ($data->file)
-                                <div class="col-md-12 form-group">
-                                    <div class="col-md-4 text-light"> </div>
-                                    <div class="col-md-6 text-light">
-                                            <a href="{{url('certify/check/file_ib_client/'.$data->file.'/'.( !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)  ))}}" target="_blank">
-                                                {!! HP::FileExtension($data->file)  ?? '' !!}
-                                                {{  !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)   }}
-                                            </a>
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
-        <div class="row" style="margin-top: 20px">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-8">
-                <legend><h4>  ขอบข่ายที่ยื่นขอรับการรับรอง (Scope of Accreditation Sought)
-                </h4>
-                </legend>
-                <div class="clearfix"></div>
-                    @if ($certiIb->FileAttach3->count() > 0)
-                    <div class="row">
-                        @foreach($certiIb->FileAttach3 as $data)
-                            @if ($data->file)
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <div class="col-md-12 text-light">
-                                            <a href="{{url('certify/check/file_ib_client/'.$data->file.'/'.( !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file) ))}}" target="_blank">
-                                                {!! HP::FileExtension($data->file)  ?? '' !!}
-                                                {{  !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)   }}
-                                            </a> 
-                                        </div> 
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
+
+
         
         <div class="row" style="margin-top: 20px">
-            <div class="col-md-2">
-            </div>
+              <div class="col-md-2">
+             </div>
             <div class="col-md-8">
-                <legend><h4>  เอกสารอื่นๆ (Others)
-                </h4>
-                </legend>
+                <span><h4>  2. รายชื่อคุณวุฒิประสบการณ์และขอบข่ายความรับผิดชอบของเจ้าหน้าที่ (List of relevant personnel providing name, qualification, experience and responsibility)</h4>
+                </span>
                 <div class="clearfix"></div>
-                    @if ($certiIb->FileAttach4->count() > 0)
-                    <div class="row">
-                        @foreach($certiIb->FileAttach4 as $data)
-                            @if ($data->file)
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <div class="col-md-12 text-light">
-                                            {{-- {{  @$data->file_desc }} --}}
-                                            <a href="{{url('certify/check/file_ib_client/'.$data->file.'/'.( !empty($data->file_client_name) ? $data->file_client_name :   basename($data->file)  ))}}" target="_blank">
-                                                {!! HP::FileExtension($data->file)  ?? '' !!}
-                                                {{  !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)   }}
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
+                 @if ( isset( $certiIb->id ) && count( App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '2')->get() ) > 0 )
+
+                    @php
+                        $file_sectionn2 = App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '2')->get();
+                    @endphp
+
+                    @foreach ( $file_sectionn2 as $section2 )
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                 <a href="{!! HP::getFileStorage($attach_path.$section2->file) !!}" target="_blank" > {!! HP::FileExtension($section2->file)  ?? '' !!} {!! $section2->file_client_name !!}</a>
+                            </div>
+                        </div>
                     @endforeach
-                    </div>
                 @endif
             </div>
         </div>
+
+
+        
+        <div class="row" style="margin-top: 20px">
+              <div class="col-md-2">
+             </div>
+            <div class="col-md-8">
+                <span><h4>  3. ขอบข่ายที่ยื่นขอรับการรับรอง (Scope of Accreditation Sought)</h4>
+                </span>
+                <div class="clearfix"></div>
+                  @php
+                    $lastFile = is_array($certiIb->FileAttach3) ? end($certiIb->FileAttach3) : $certiIb->FileAttach3->last();
+                 @endphp
+                <div class="form-group">
+                    <div class="col-md-12">
+                            <a href="{!! HP::getFileStorage($attach_path.$lastFile->file) !!}" target="_blank" > {!! HP::FileExtension($lastFile->file)  ?? '' !!} {!! $lastFile->file_client_name !!}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 20px">
+              <div class="col-md-2">
+             </div>
+            <div class="col-md-8">
+                <span><h4>  4. เครื่องมือ (Equipment)</h4>
+                </span>
+                <div class="clearfix"></div>
+                 @if ( isset( $certiIb->id ) && count( App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '4')->get() ) > 0 )
+
+                    @php
+                        $file_sectionn4 = App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '4')->get();
+                    @endphp
+            
+
+                    @foreach ( $file_sectionn4 as $section4 )
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                 <a href="{!! HP::getFileStorage($attach_path.$section4->file) !!}" target="_blank" > {!! HP::FileExtension($section4->file)  ?? '' !!} {!! $section4->file_client_name !!}</a>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 20px">
+              <div class="col-md-2">
+             </div>
+            <div class="col-md-8">
+                <span><h4>  5. วัสดุอ้างอิง/มาตรฐานอ้างอิง (Reference material / Reference TIS)</h4>
+                </span>
+                <div class="clearfix"></div>
+                   @if ( isset( $certiIb->id ) && count( App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '5')->get() ) > 0 )
+
+                @php
+                    $file_sectionn5 = App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '5')->get();
+                @endphp
+
+                    @foreach ( $file_sectionn5 as $section5 )
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                 <a href="{!! HP::getFileStorage($attach_path.$section5->file) !!}" target="_blank" > {!! HP::FileExtension($section5->file)  ?? '' !!} {!! $section5->file_client_name !!}</a>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
+
+
+        <div class="row" style="margin-top: 20px">
+              <div class="col-md-2">
+             </div>
+            <div class="col-md-8">
+                <span><h4>  6. การเข้าร่วมการทดสอบความชำนาญ / การเปรียบเทียบผลระหว่างห้องปฏิบัติการ (Participation in Proficiency testing program / Interlaboratory comparison)  </h4>
+                </span>
+                <div class="clearfix"></div>
+  @if ( isset( $certiIb->id ) && count( App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '6')->get() ) > 0 )
+
+                @php
+                    $file_sectionn6 = App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '6')->get();
+                @endphp
+
+                    @foreach ( $file_sectionn6 as $section6 )
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                 <a href="{!! HP::getFileStorage($attach_path.$section6->file) !!}" target="_blank" > {!! HP::FileExtension($section6->file)  ?? '' !!} {!! $section6->file_client_name !!}</a>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
+
+        
+        <div class="row" style="margin-top: 20px">
+              <div class="col-md-2">
+             </div>
+            <div class="col-md-8">
+                <span><h4>  7. เอกสารอ้างอิง ชื่อย่อ</h4>
+                </span>
+                <div class="clearfix"></div>
+  @if ( isset( $certiIb->id ) && count( App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '8')->get() ) > 0 )
+
+                @php
+                    $file_sectionn8 = App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '8')->get();
+                @endphp
+        
+                    @foreach ( $file_sectionn8 as $section8 )
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                 <a href="{!! HP::getFileStorage($attach_path.$section8->file) !!}" target="_blank" > {!! HP::FileExtension($section8->file)  ?? '' !!} {!! $section8->file_client_name !!}</a>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
+                <div class="row" style="margin-top: 20px">
+                      <div class="col-md-2">
+             </div>
+            <div class="col-md-8">
+                <span><h4>  8. เอกสารอื่นๆ (Others)  </h4>
+                </span>
+                <div class="clearfix"></div>
+  @if ( isset( $certiIb->id ) && count( App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '7')->get() ) > 0 )
+
+                @php
+                    $file_sectionn7 = App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '7')->get();
+                @endphp
+        
+                    @foreach ( $file_sectionn7 as $section7 )
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                 <a href="{!! HP::getFileStorage($attach_path.$section7->file) !!}" target="_blank" > {!! HP::FileExtension($section7->file)  ?? '' !!} {!! $section7->file_client_name !!}</a>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
+
     </div>
 {{-- {{$certiIb}} --}}
 

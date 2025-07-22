@@ -96,6 +96,9 @@ class CheckCertificateCBController extends Controller
                 $Query = $Query->where('status', '>=', '1');
             }
 
+
+
+
             if ($filter['filter_search'] != '') {
                 $Query = $Query->where(function ($query) use ($filter) {
                     $search = str_replace(' ', '', $filter['filter_search']);
@@ -106,6 +109,7 @@ class CheckCertificateCBController extends Controller
                 });
             }
 
+            
             if ($filter['filter_inspector']!='') { // เจ้าหน้าที่ตรวจสอบ
                 $Query = $Query->whereHas('certi_cb_checks', function ($query) use ($filter) {
                     $query->where('user_id', $filter['filter_inspector']);
@@ -128,10 +132,11 @@ class CheckCertificateCBController extends Controller
                 $start =  HP::convertDate($filter['filter_start_date'],true);
                 $Query = $Query->whereDate('created_at',$start);
             }
-             //เจ้าหน้าที่ CB และไม่มีสิทธิ์ admin , ผอ , ผก , ลท.
+
              if(in_array("29",auth()->user()->RoleListId) && auth()->user()->SetRolesAdminCertify() == "false" ){
                 $check = CertiCBCheck::where('user_id',auth()->user()->runrecno)->pluck('app_certi_cb_id'); // เช็คเจ้าหน้าที่ IB
                 if(isset($check) && count($check) > 0  ) {
+                    // dd($check->latest()->first());
                      $Query = $Query->LeftJoin('app_certi_cb_check','app_certi_cb_check.app_certi_cb_id','=','app_certi_cb.id')
                                     ->where('user_id',auth()->user()->runrecno);  //เจ้าหน้าที่  IB ที่ได้มอบหมาย
                 }else{
@@ -139,6 +144,7 @@ class CheckCertificateCBController extends Controller
                 }
             }
 
+            // dd($Query->latest()->first());
             $certi_cbs =  $Query->orderby('id','desc')
                                ->sortable()
                                 ->paginate($filter['perPage']);

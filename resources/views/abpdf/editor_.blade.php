@@ -120,7 +120,10 @@
 
 
     <script>
+        
         const templateType = @json($templateType ?? null);
+        const ibId = @json($ibId ?? null);
+        const assessmentId = @json($assessmentId ?? null);
         document.addEventListener('DOMContentLoaded', function() {
             document.execCommand('defaultParagraphSeparator', false, 'p');
             const editor = document.getElementById('document-editor');
@@ -887,7 +890,7 @@
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
                 
-                fetch("{{ route('template.load') }}", {
+                fetch("{{ route('download-ib-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -995,7 +998,7 @@
                 // The controller will be responsible for converting them back.
                 const htmlContent = getPrintableHtmlContent();
 
-                fetch("{{ route('pdf.save-html') }}", {
+                fetch("{{ route('ib.save-html-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

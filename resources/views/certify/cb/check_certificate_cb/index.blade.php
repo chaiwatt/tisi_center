@@ -421,11 +421,17 @@
 
                                             @php
                                                 $model = str_slug('checkcertificatecb','-');
+
+                                                
                                             @endphp
+
                                             @if(@auth()->user()->can('delete-'.$model) && (@$item->status >= 0 && @$item->status <= 22) && @$item->status != 4)
-                                                <button class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modalDelete{{$item->id}}" data-no="{{ $item->app_no }}" data-id="{{ $item->token }}">
-                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                                </button>
+                                                @if (auth()->user()->isAdmin())
+                                                    <button class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modalDelete{{$item->id}}" data-no="{{ $item->app_no }}" data-id="{{ $item->token }}">
+                                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                    </button>
+                                                @endif
+                                                
                                                 @include ('certify/cb/check_certificate_cb/modal.modaldelete',['id'=>$item->id,
                                                                                                             'token'=>$item->token,
                                                                                                             'app_no'=>$item->app_no])

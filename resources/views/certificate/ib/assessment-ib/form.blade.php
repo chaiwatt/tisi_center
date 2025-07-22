@@ -210,7 +210,7 @@
             @if ($assessment->submit_type == 'save')
             <input type="hidden" id="notice_id" value="{{ $assessment->id }}">
             <div class="form-group">
-                <label class="col-md-3 control-label"><span class="text-danger">*</span> แจ้งผู้เชี่ยวชาญ :</label>
+                <label class="col-md-3 control-label"><span class="text-danger">*</span> แจ้งผู้เชี่ยวชาญ:</label>
                 <div class="col-md-7">
                     <a type="button" class="btn btn-info" id="show-modal-email-to-expert"><i class="fa fa-envelope"></i> อีเมล</a>
                 </div>
@@ -551,7 +551,7 @@
 
           <button class="btn btn-primary " type="button" id="save"  onclick="submit_form('1','save');return false;">
          {{-- <button class="btn btn-primary" type="submit"    onclick="submit_form('1');return false;"> --}}
-             <i class="fa fa-paper-plane"></i> <span id="save_text" style="padding-left:5px">บันทึก</span> 
+             <i class="fa fa-paper-plane"></i> <span id="save_text" style="padding-left:5px">บันทึกกก</span> 
          </button>
  
          @can('view-'.str_slug('assessmentib'))

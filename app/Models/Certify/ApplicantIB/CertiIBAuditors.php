@@ -21,7 +21,7 @@ class CertiIBAuditors  extends Model
                             'state',
                             'created_by',
                             'updated_by',
-                            'status_cancel','reason_cancel','created_cancel','date_cancel','step_id','ib_auditor_team_id','message_record_status'
+                            'status_cancel','reason_cancel','created_cancel','date_cancel','step_id','ib_auditor_team_id','message_record_status','assessment_type'
                           ];
    
  public function CertiIBCostTo()

@@ -16,36 +16,7 @@
 <div class="row">
      <div class="col-md-12">
         <div class="col-md-9">
-          {{-- <div class="form-group {{ $errors->has('reference_refno') ? 'has-error' : ''}}">
-                    {!! HTML::decode(Form::label('reference_refno', 'เลขที่อ้างอิง'.' :', ['class' => 'col-md-5 control-label'])) !!}
-                    <div class="col-md-7">
-                        @if(!empty($tracking->reference_refno))
-                              {!! Form::text('reference_refno',$tracking->reference_refno ?? null, ['id' => 'reference_refno', 'class' => 'form-control', 'placeholder'=>'', 'disabled' => true]); !!}
-                              {!! Form::hidden('tracking_id', (!empty($tracking->tracking_id) ? $tracking->tracking_id  : null) , ['id' => 'tracking_id', 'class' => 'form-control', 'placeholder'=>'' ]); !!}
-                        @else 
-                              {!! Form::text('reference_refno',  null, ['id' => 'reference_refno', 'class' => 'form-control no-drop', 'placeholder'=>'', 'readonly' => true]); !!}
-                        @endif
-                    </div>
-           </div>
-           <div class="form-group {{ $errors->has('cb_name') ? 'has-error' : ''}}">
-                    {!! HTML::decode(Form::label('cb_name', 'ชื่อผู้ยื่นคำขอ'.' :', ['class' => 'col-md-5 control-label'])) !!}
-                    <div class="col-md-7">
-                     {!! Form::text('no', (!empty($tracking->name) ? $tracking->name  : null) , ['id' => 'cb_name', 'class' => 'form-control no-drop', 'placeholder'=>'', 'readonly' => true]); !!}
-                    </div>
-           </div>
-           <div class="form-group {{ $errors->has('name_standard') ? 'has-error' : ''}}">
-                    {!! HTML::decode(Form::label('name_standard', 'ชื่อหน่วยรับรอง'.' :', ['class' => 'col-md-5 control-label'])) !!}
-                    <div class="col-md-7">
-                     {!! Form::text('name_standard', (!empty($tracking->name_standard) ? $tracking->name_standard  : null) , ['id' => 'name_standard', 'class' => 'form-control', 'placeholder'=>'', 'disabled' => true]); !!}
-                    </div>
-           </div>
-           <div class="form-group {{ $errors->has('auditor') ? 'has-error' : ''}}">
-                    {!! HTML::decode(Form::label('auditor', '<span class="text-danger">*</span>  ชื่อคณะผู้ตรวจประเมิน'.' :', ['class' => 'col-md-5 control-label'])) !!}
-                    <div class="col-md-7">
-                           {!! Form::text('auditor',null, ['id' => 'auditor', 'class' => 'form-control' , 'maxlength' => '255', 'placeholder'=>'', 'required' => true]); !!}
-                    </div>
-           </div> --}}
-          
+  
            <div class="form-group {{ $errors->has('reference_refno') ? 'has-error' : '' }}">
             <label for="reference_refno" class="col-md-5 control-label">เลขที่อ้างอิง :</label>
             <div class="col-md-7">
@@ -58,7 +29,6 @@
             </div>
         </div>
         
-        
         <div class="form-group">
             <label for="auditor" class="col-md-5 control-label">
                 <span class="text-danger">*</span> ชื่อผู้ยื่นคำขอ : 
@@ -69,7 +39,6 @@
      
         </div>
 
-        
         <div class="form-group">
             <label for="auditor" class="col-md-5 control-label">
                 <span class="text-danger">*</span> ชื่อหน่วยรับรอง : 
@@ -97,9 +66,7 @@
             <label  class="col-md-7 control-label" style="text-align: left">
                 <span class="text-danger"> </span> {{ HP::DateThai($cbDocReviewAuditor->from_date) }} ถึง {{ HP::DateThai($cbDocReviewAuditor->to_date) }}
             </label>
-     
         </div>
-
 
 
         <div class="form-group">
@@ -116,9 +83,6 @@
      
         </div>
         
-        
-
-
 
             
             <div class="form-group {{ $errors->has('attach') ? 'has-error' : ''}}" id="attachement_wrapper" style="display: none;">
@@ -223,7 +187,7 @@
             <div class="col-md-2">
             </div>
             <div class="col-md-8">
-                <legend><h4>  คู่มือคุณภาพและขั้นตอนการดำเนินงาน
+                <legend><h4>  1. คู่มือคุณภาพและขั้นตอนการดำเนินงาน
                 </h4>
                 </legend>
                 <div class="clearfix"></div>
@@ -251,7 +215,7 @@
             <div class="col-md-2">
             </div>
             <div class="col-md-8">
-                <legend><h4>  รายชื่อคุณวุฒิประสบการณ์และขอบข่ายความรับผิดชอบของเจ้าหน้าที่ (List of relevant personnel providing name, qualification, experience and responsibility)
+                <legend><h4>  2. รายชื่อคุณวุฒิประสบการณ์และขอบข่ายความรับผิดชอบของเจ้าหน้าที่ (List of relevant personnel providing name, qualification, experience and responsibility)
                 </h4>
                 </legend>
                 <div class="clearfix"></div>
@@ -278,7 +242,7 @@
             <div class="col-md-2">
             </div>
             <div class="col-md-8">
-                <legend><h4>  ขอบข่ายที่ยื่นขอรับการรับรอง (Scope of Accreditation Sought)
+                <legend><h4>  3. ขอบข่ายที่ยื่นขอรับการรับรอง (Scope of Accreditation Sought)
                 </h4>
                 </legend>
                 <div class="clearfix"></div>
@@ -302,12 +266,41 @@
                 @endif
             </div>
         </div>
+
+                <div class="row" style="margin-top: 20px">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-8">
+                <legend><h4>  4. เอกสารอ้างอิง ชื่อย่อ
+                </h4>
+                </legend>
+                <div class="clearfix"></div>
+                    @if ($certiCb->FileAttach5->count() > 0)
+                    <div class="row">
+                        @foreach($certiCb->FileAttach5 as $data)
+                            @if ($data->file)
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="col-md-12 text-light">
+                                            <a href="{{url('certify/check/file_cb_client/'.$data->file.'/'.( !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file) ))}}" target="_blank">
+                                                {!! HP::FileExtension($data->file)  ?? '' !!}
+                                                {{  !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)   }}
+                                            </a> 
+                                        </div> 
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
         
         <div class="row" style="margin-top: 20px">
             <div class="col-md-2">
             </div>
             <div class="col-md-8">
-                <legend><h4>  เอกสารอื่นๆ (Others)
+                <legend><h4>  5. เอกสารอื่นๆ (Others)
                 </h4>
                 </legend>
                 <div class="clearfix"></div>

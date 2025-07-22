@@ -75,7 +75,7 @@ class CheckCertificateIBController extends Controller
       
         $model = str_slug('checkcertificateib','-');
         if(auth()->user()->can('view-'.$model)) {
-
+            // dd("ok");
             $filter = [];
             $filter['filter_status'] = $request->get('filter_status', '');
             $filter['filter_search'] = $request->get('filter_search', '');
@@ -165,6 +165,7 @@ class CheckCertificateIBController extends Controller
 
     public function assign(Request $request)
     {
+        
         $checker = $request->input('checker');
         $apps = $request->input('apps');
         $user =   User::where('runrecno',auth()->user()->runrecno)->first();
@@ -950,12 +951,11 @@ try {
 
         public function askToEditIbScope(Request $request)
         {       
-            
-            CertiIb::findOrFail($request->appId)->update([
+            // dd($request->all());
+            $certiIb = CertiIb::findOrFail($request->appId)->update([
                 'require_scope_update' => 1
             ]);
         
-
             $this->askToEditIbScopeEmail($request->appId,$request->details);
         }
 

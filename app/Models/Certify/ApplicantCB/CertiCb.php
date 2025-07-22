@@ -112,7 +112,8 @@ class CertiCb extends Model
                             'scope_view_status',
                              'scope_table',
                              'transferer_user_id',
-                            'transferer_export_id'
+                            'transferer_export_id',
+                            'assessment_type',
                             ];
 
 public function purposeType()

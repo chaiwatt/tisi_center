@@ -8,21 +8,26 @@ use DB;
 use HP_DGA;
 use QrCode;
 use App\User;
-use Storage; 
+// use Storage; 
 use App\Http\Requests;
 
 use App\CertificateExport;
+use Illuminate\Support\Str;
+use App\Jobs\GeneratePdfJob;
 use Illuminate\Http\Request;
 use  App\Models\Besurv\Signer;
 use Yajra\Datatables\Datatables;
-use App\Models\Basic\SubDepartment;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Mail;
+use App\Certify\IbReportTemplate;
 
+use App\Models\Basic\SubDepartment;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Certify\SendCertificates;
 use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Certify\SignCertificateOtp;
-
 use App\Models\Certify\ApplicantCB\CertiCb;
 use App\Models\Certify\ApplicantIB\CertiIb;
 use App\Models\Certify\SendCertificateLists;
@@ -37,7 +42,9 @@ use App\Services\CreateIbAssessmentReportTwoPdf;
 use App\Models\Certify\ApplicantCB\CertiCBExport;
 use App\Models\Certify\ApplicantIB\CertiIBExport;
 use App\Services\CreateLabAssessmentReportTwoPdf;
+use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
 use App\Models\Certify\SignAssessmentReportTransaction;
+use App\Models\Certify\ApplicantIB\CertiIBSaveAssessment;
 
 class SignAssessmentReportController extends Controller
 {
@@ -99,28 +106,28 @@ class SignAssessmentReportController extends Controller
             $query->where(function ($q) use ($signer) {
                 $q->where('certificate_type', 0)
                   ->where('signer_id', $signer->id)
-                  ->where('approval', 0)
-                  ->where(function ($subQ) {
-                      $subQ->whereHas('cbReportInfo', function ($query) {
-                          $query->where('status', 2);
-                      })
-                      ->orWhereHas('cbReportTwoInfo', function ($query) {
-                          $query->where('status', 2);
-                      });
-                  });
+                  ->where('approval', 0);
+                //   ->where(function ($subQ) {
+                //       $subQ->whereHas('cbReportInfo', function ($query) {
+                //           $query->where('status', 2);
+                //       })
+                //       ->orWhereHas('cbReportTwoInfo', function ($query) {
+                //           $query->where('status', 2);
+                //       });
+                //   });
             })
             ->orWhere(function ($q) use ($signer) {
                 $q->where('certificate_type', 1)
                   ->where('signer_id', $signer->id)
-                  ->where('approval', 0)
-                  ->where(function ($subQ) {
-                      $subQ->whereHas('ibReportInfo', function ($query) {
-                          $query->where('status', 2);
-                      })
-                      ->orWhereHas('ibReportTwoInfo', function ($query) {
-                          $query->where('status', 2);
-                      });
-                  });
+                  ->where('approval', 0);
+                //   ->where(function ($subQ) {
+                //       $subQ->whereHas('ibReportInfo', function ($query) {
+                //           $query->where('status', 2);
+                //       })
+                //       ->orWhereHas('ibReportTwoInfo', function ($query) {
+                //           $query->where('status', 2);
+                //       });
+                //   });
             })
             ->orWhere(function ($q) use ($signer) {
                 $q->where('certificate_type', 2)
@@ -266,7 +273,7 @@ class SignAssessmentReportController extends Controller
 
     public function signDocument(Request $request)
     {
-        // dd();
+        // dd("ok");
         // certificate_type 0=CB, 1=IB, 2=LAB
         $signAssessmentReportTransaction = SignAssessmentReportTransaction::find($request->id);
 
@@ -354,8 +361,10 @@ class SignAssessmentReportController extends Controller
                   ->get();           
       
                 if($signAssessmentReportTransactions->count() == 0){
-                    $pdfService = new CreateIbAssessmentReportPdf($signAssessmentReportTransaction->report_info_id,"ia");
-                    $pdfContent = $pdfService->generateIbAssessmentReportPdf();
+                    // dd("ok");
+                    // $pdfService = new CreateIbAssessmentReportPdf($signAssessmentReportTransaction->report_info_id,"ia");
+                    // $pdfContent = $pdfService->generateIbAssessmentReportPdf();
+                    $this->generatePdfFromDb($signAssessmentReportTransaction->report_info_id ,"ib_final_report_process_one");
                 } 
             }
             else if($signAssessmentReportTransaction->report_type == 2)
@@ -380,6 +389,119 @@ class SignAssessmentReportController extends Controller
         
     }
 
+
+  public function generatePdfFromDb($reportId ,$templateType)
+    {
+        try {
+             $ibReportTemplate = IbReportTemplate::find($reportId);
+            $assessment = $ibReportTemplate->certiIBSaveAssessment;
+            $certi_ib = CertiIb::findOrFail($assessment->app_certi_ib_id);
+
+
+            if (empty($savedReport->template)) {
+                throw new \Exception('ไม่พบเนื้อหาของรายงานที่บันทึกไว้');
+            }
+
+            $htmlContent = $ibReportTemplate->template;
+
+            // 3. เตรียม HTML สำหรับสร้าง PDF (แปลง Checkbox และลบปุ่มที่ไม่ต้องการ)
+            $dom = new \DOMDocument();
+            @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            
+            $xpath = new \DOMXPath($dom);
+
+            // ลบปุ่ม "เลือกผู้ลงนาม" ทั้งหมด
+            $buttons = $xpath->query("//button[contains(@class, 'select-signer-btn')]");
+            foreach ($buttons as $button) {
+                $button->parentNode->removeChild($button);
+            }
+
+            // แปลง Checkbox เป็นสัญลักษณ์
+            $checkboxes = $xpath->query('//input[@type="checkbox"]');
+            foreach ($checkboxes as $checkbox) {
+                $symbolText = $checkbox->hasAttribute('checked') ? '☑' : '☐';
+                $symbolNode = $dom->createTextNode($symbolText);
+                $checkbox->parentNode->replaceChild($symbolNode, $checkbox);
+            }
+
+            $processedHtml = $dom->saveHTML();
+
+            // 4. ใช้ตรรกะการสร้าง PDF และบันทึกไฟล์
+            if (class_exists(\Barryvdh\Debugbar\Facade::class)) {
+                \Barryvdh\Debugbar\Facade::disable();
+            }
+
+            $footerTextLeft = '';
+            $footerTextRight = 'FCI-AS06-01<br>01/10/2567';
+
+            // กำหนดชื่อและ Path สำหรับไฟล์ PDF ตามรูปแบบ mPDF
+            $no = str_replace("RQ-", "", $certi_ib->app_no);
+            $no = str_replace("-", "_", $no);
+            $attachPath = '/files/applicants/check_files_ib/' . $no . '/';
+            $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+            $outputPdfPath = Storage::disk('uploads')->path($fullFileName); // สร้างใน root ของ uploads ก่อน
+
+            // ส่ง Job ไปสร้างไฟล์ PDF
+            GeneratePdfJob::dispatch($processedHtml, $outputPdfPath, $footerTextLeft, $footerTextRight);
+
+            // 5. รอผลลัพธ์จาก Job
+            $timeout = 60;
+            $startTime = time();
+
+            while (time() - $startTime < $timeout) {
+                if (Storage::disk('uploads')->exists($fullFileName)) {
+                    $pdfContent = Storage::disk('uploads')->get($fullFileName);
+
+                    // ย้ายไฟล์ไปยัง Path ที่ถูกต้องบน 'uploads' disk
+                    // Storage::disk('uploads')->put($attachPath . $fullFileName, $pdfContent);
+                    
+                    // คัดลอกไฟล์ไปยัง 'ftp' disk
+                    Storage::disk('ftp')->put($attachPath . $fullFileName, $pdfContent);
+
+                    // ตรวจสอบว่าไฟล์ถูกบันทึกบน FTP สำเร็จ
+                    if (Storage::disk('ftp')->exists($attachPath . $fullFileName)) {
+                        $storePath = $no . '/' . $fullFileName;
+                        // บันทึกข้อมูลลงตาราง CertiIBAttachAll (Section 3)
+                        $attach3 = new CertiIBAttachAll();
+                        $attach3->app_certi_ib_id = $assessment->app_certi_ib_id ?? null;
+                        $attach3->ref_id = $assessment->id;
+                        $attach3->table_name = (new CertiIBSaveAssessment)->getTable();
+                        $attach3->file_section = '3';
+                        $attach3->file = $storePath;
+                        $attach3->file_client_name = 'report' . '_' . $no . '.pdf';
+                        $attach3->token = Str::random(16);
+                        $attach3->save();
+
+                        // บันทึกข้อมูลลงตาราง CertiIBAttachAll (Section 1)
+                        $attach1 = new CertiIBAttachAll();
+                        $attach1->app_certi_ib_id = $assessment->app_certi_ib_id ?? null;
+                        $attach1->ref_id = $assessment->id;
+                        $attach1->table_name = (new CertiIBSaveAssessment)->getTable();
+                        $attach1->file_section = '1';
+                        $attach1->file = $storePath;
+                        $attach1->file_client_name = 'report' . '_' . $no . '.pdf';
+                        $attach1->token = Str::random(16);
+                        $attach1->save();
+                    }
+
+                    // ลบไฟล์ชั่วคราวที่ root ของ uploads
+                    Storage::disk('uploads')->delete($fullFileName);
+
+                    // ส่งไฟล์ PDF กลับไปให้เบราว์เซอร์แสดงผล
+                    // return response($pdfContent)
+                    //     ->header('Content-Type', 'application/pdf')
+                    //     ->header('Content-Disposition', 'inline; filename="' . $fullFileName . '"');
+                }
+                sleep(1);
+            }
+
+            throw new \Exception('การสร้างไฟล์ PDF ใช้เวลานานเกินไป');
+
+        } catch (\Exception $e) {
+            Log::error('Generate PDF from DB failed: ' . $e->getMessage());
+            return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
+        }
+    }
 
 
 }

@@ -15,16 +15,18 @@ use Illuminate\Http\Request;
 use App\Certify\IbReportInfo;
 use App\Mail\Ib\MailToIbExpert;
 use App\Certify\IbReportTwoInfo;
+use App\Certify\IbReportTemplate;
 use App\Http\Controllers\Controller; 
 use App\Mail\IB\IBSaveAssessmentMail;
 use App\Mail\IB\IBCheckSaveAssessment;
 use Illuminate\Support\Facades\Mail;    
 use App\Mail\IB\IBSaveAssessmentPastMail;
+
 use App\Models\Certify\ApplicantIB\CertiIb;
+use App\Services\CreateIbAssessmentReportPdf;
 
 use App\Models\Certify\ApplicantIB\CertiIBCheck;
 use App\Models\Certify\ApplicantIB\CertiIBReport;
-
 use App\Models\Certify\ApplicantIB\CertiIBReview;
 use App\Models\Certify\ApplicantIB\CertiIbHistory; 
 use App\Models\Certify\ApplicantIB\CertiIBAuditors; 
@@ -104,6 +106,7 @@ class SaveAssessmentIbController extends Controller
      */
     public function create($id)
     {
+        // dd("ok");
         $model = str_slug('saveassessmentib','-');
         if(auth()->user()->can('add-'.$model)) {
             $previousUrl = app('url')->previous();
@@ -250,6 +253,56 @@ class SaveAssessmentIbController extends Controller
                         $certi_ib_attach_more->save();
             }
              if($assessment->bug_report == 2){
+
+
+                //   $ibReportInfo = IbReportInfo::where('ib_assessment_id',$assessment->id)->first();
+                $report = IbReportTemplate::where('ib_assessment_id',$assessment->id)
+                                        ->where('report_type',"ib_final_report_process_one")
+                                        ->first();
+
+                if($report == null){
+                        $report = new IbReportTemplate();
+                        $report->ib_assessment_id = $assessment->id;
+                        $report->report_type = "ib_final_report_process_one";
+                        $report->save();
+                }
+
+                $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                        ->whereNotNull('signer_id')
+                        ->where('certificate_type',1)
+                        ->where('report_type',1)
+                        ->get();
+
+                        // dd($check->count());
+
+                if($check->count() != 0 )
+                {
+                    $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                            ->whereNotNull('signer_id')
+                            ->where('certificate_type',1)
+                            ->where('report_type',1)
+                            ->where('approval',0)
+                            ->get();   
+                        if($signAssessmentReportTransactions->count() == 0){
+                            // $pdfService = new CreateIbAssessmentReportPdf($report->id,"ia");
+                            // $pdfContent = $pdfService->generateIbAssessmentReportPdf();
+                        }else{
+                            return redirect()->back()->with('error', 'อยู่ระหว่างจัดทำรายงานและลงนาม');
+                        }  
+                }
+                else
+                {
+
+                    $templateType = "ib_final_report_process_one";
+                    return view('abpdf.editor',[
+                        'templateType' => $templateType,
+                        'ibId' => $CertiIb->id,
+                        'assessmentId' => $assessment->id,
+                    ]);
+                    // return redirect()->route('save_assessment.ib_report_create',['id' => $assessment->id]);
+                }
+
+                // dd();
                 // รายงาน Scope
                 if($request->file_scope  && $request->hasFile('file_scope')){
                     foreach ($request->file_scope as $index => $item){
@@ -278,7 +331,7 @@ class SaveAssessmentIbController extends Controller
                             $certi_ib_attach_more->save();
                     }
                 }
-    }
+            }
             // ไฟล์แนบ
             if($request->attachs  && $request->hasFile('attachs')){
                 foreach ($request->attachs as $index => $item){
@@ -293,6 +346,8 @@ class SaveAssessmentIbController extends Controller
                         $certi_ib_attach_more->save();
                 }
              }
+
+             dd($assessment);
 
        //
        //
@@ -347,7 +402,7 @@ class SaveAssessmentIbController extends Controller
                 $committee->step_id = 7; // ผ่านการตรวจสอบประเมิน
                 $committee->save();
                    //  Log
-                 $this->set_history($assessment);
+                $this->set_history($assessment);
                 $this->set_mail_past($assessment,$CertiIb);  
             }
             if($request->previousUrl){
@@ -426,6 +481,7 @@ class SaveAssessmentIbController extends Controller
      */
     public function edit($id)
     {
+        // dd("ok");
         $model = str_slug('saveassessmentib','-');
         if(auth()->user()->can('edit-'.$model)) {
             $previousUrl = app('url')->previous();

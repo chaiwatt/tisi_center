@@ -425,6 +425,9 @@
                                       @endcan
                                         @php
                                             $model = str_slug('checkcertificateib','-');
+
+                                          // ตั้งชื่อโมเดลที่คุณสนใจ
+
                                         @endphp
 
                                         @if (auth()->user()->can('edit-'.$model) && (@$item->status > 1 && @$item->status <= 22) && @$item->status != 4 && @$item->require_scope_update != 1 )
@@ -434,9 +437,12 @@
                                         @endif
 
                                         @if(@auth()->user()->can('delete-'.$model) && (@$item->status > 1 && @$item->status <= 22) && @$item->status != 4)
-                                            <button class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modalDelete{{$item->id}}" data-no="{{ $item->app_no }}" data-id="{{ $item->token }}">
-                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                            </button>
+                                            @if (auth()->user()->isAdmin())
+                                                <button class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modalDelete{{$item->id}}" data-no="{{ $item->app_no }}" data-id="{{ $item->token }}">
+                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                </button>
+                                            @endif
+                                            
                                             @include ('certify/ib/check_certificate_ib/modal.modaldelete',['id'=>$item->id,
                                                                                                     'token'=>$item->token,
                                                                                                     'app_no'=>$item->app_no])

@@ -18,15 +18,16 @@ use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Bcertify\AuditorInformation;
 
 use App\Models\Certify\ApplicantIB\CertiIb;
+use App\Models\Certificate\IbDocReviewAuditor;
 use App\Models\Certify\MessageRecordTransaction;
-use App\Models\Certify\Applicant\CertiLabAttachAll;
 
+use App\Models\Certify\Applicant\CertiLabAttachAll;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Models\Bcertify\CalibrationBranchInstrument;
+
 use App\Models\Bcertify\HtmlLabMemorandumPdfRequest;
 
 use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
-
 use App\Models\Certify\ApplicantIB\CertiIBAuditorsDate;
 use App\Models\Bcertify\CalibrationBranchInstrumentGroup;
 
@@ -45,7 +46,7 @@ class CreateIbMessageRecordPdf
 
     public function generateBoardAuditorMessageRecordPdf()
     {
-        
+        // dd("ok");
         $fontDirs = [public_path('pdf_fonts/')];; // เพิ่มไดเรกทอรีฟอนต์ที่คุณต้องการ
         $fontData = [
             'thsarabunnew' => [
@@ -82,6 +83,7 @@ class CreateIbMessageRecordPdf
 
     public function ia($mpdf)
     {
+        // dd("ok");
         $boardAuditor = CertiIBAuditors::find($this->board_auditor_id);
         $boardAuditorMsRecordInfo = $boardAuditor->ibBoardAuditorMsRecordInfos->first();
         // dd($this->board_auditor_id);
@@ -115,7 +117,23 @@ class CreateIbMessageRecordPdf
         }
         
 
+            $docEditRange = "";
+      $ibDocReviewAuditor = IbDocReviewAuditor::where('app_certi_ib_id',$certi_ib->id)->first();
 
+      if($ibDocReviewAuditor != null)
+      {
+        if (!empty($ibDocReviewAuditor->from_date) && !empty($ibDocReviewAuditor->to_date)) {
+            if ($ibDocReviewAuditor->from_date == $ibDocReviewAuditor->to_date) {
+                // ถ้าเป็นวันเดียวกัน
+                $docEditRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($ibDocReviewAuditor->from_date);
+            } else {
+                // ถ้าเป็นคนละวัน
+                $docEditRange = "ตั้งแต่วันที่ " . HP::formatDateThaiFullNumThai($ibDocReviewAuditor->from_date) . 
+                            " ถึงวันที่ " . HP::formatDateThaiFullNumThai($ibDocReviewAuditor->to_date);
+            }
+        }
+      }
+      
       $data = new stdClass();
 
       $data->header_text1 = '';
@@ -123,7 +141,7 @@ class CreateIbMessageRecordPdf
       $data->header_text3 = '';
       $data->header_text4 = $certi_ib->app_no;
       $data->lab_type = $certi_ib->lab_type == 3 ? 'ทดสอบ' : ($certi_ib->lab_type == 4 ? 'สอบเทียบ' : 'ไม่ทราบประเภท');
-      $data->name_standard = $certi_ib->name_standard;
+      $data->name_standard = $certi_ib->name_unit;
       $data->app_no = $certi_ib->app_no;
       $data->certificate_no = '13-LB0037';
       $data->register_date = HP::formatDateThaiFullNumThai($certi_ib->created_at);
@@ -178,14 +196,14 @@ class CreateIbMessageRecordPdf
 
 $data->fix_text1 = <<<HTML
 <div class="section-title" style="text-indent:90px;font-weight:bold">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
-<div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ "การขอใบรับรอง การตรวจสอบและการออกใบรับรองให้ เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด"</div>
-<div style="text-indent:125px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข การรับรองหน่วยตรวจ พ.ศ. ๒๕๖๔ (ประกาศในราชกิจจานุเบกษา วันที่ ๑๗ พฤษภาคม ๒๕๖๔)" ข้อ ๖.๑.๒.๑ (๑) ระบุว่า "แต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินด้านวิชาการ และ ผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความเหมาะสม" ข้อ ๖.๑.๒.๑ (๒) ระบุว่า "คณะผู้ตรวจ ประเมินจะทบทวนและประเมินและประเมินเอกสารต่าง ๆ ของหน่วยตรวจ ตรวจประเมินความสามารถและ ประสิทธิผลของการดำเนินงานของหน่วยตรวจโดยพิจารณาหลักฐานและเอกสารที่เกี่ยวข้อง การสัมภาษณ์รวม ทั้ง สังเกตการปฏิบัติงาน ตามมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง ณ สถานประกอบการของผู้ยื่นคำ ขอ และสถานที่ทำการอื่นในสาขาที่ขอรับการรับรอง</div>
-<div style="text-indent:125px">๒.๓ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓๔๒/๒๕๖๖ เรื่อง มอบอำนาจ ให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม (สั่ง ณ วันที่ ๑๓ พฤศจิกายน ๒๕๖๖) ข้อ ๓ ระบุว่า "ให้ผู้อำนวยการสำนักงานคณะกรรมการการมาตรฐานแห่งชาติ เป็นผู้มี อำนาจพิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑"</div>
+<div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ 4 มีนาคม 2551) มาตรา 28 วรรค 2 บัญญัติว่า “การขอใบรับรอง การตรวจสอบและการออกใบรับรอง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด</div>
+<div style="text-indent:125px">๒.๒ ประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข การรับรองหน่วยตรวจ พ.ศ. 2564 ข้อ 6.1.2.1 (1) ระบุว่า “การแต่งตั้งคณะผู้ตรวจประเมิน ประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินด้านวิชาการ และผู้ตรวจประเมิน ซึ่งอาจมีผู้เชี่ยวชาญร่วมด้วยตามความ เหมาะสม” และข้อ 6.1.2.1 (2) ระบุว่า "คณะผู้ตรวจประเมินจะตรวจประเมินความสามารถและ ประสิทธิผล ของการดำเนินงานของหน่วยตรวจ โดยพิจารณาหลักฐานและเอกสารที่เกี่ยวข้อง การสัมภาษณ์ รวมทั้งสังเกต การปฏิบัติงานตามมาตรฐานการตรวจสอบและรับรองที่เกี่ยวข้อง  ณ สถานประกอบการของผู้ยื่นคำขอและ สถานที่ทำการอื่นในสาขาที่ขอการรับรอง"</div>
+<div style="text-indent:125px">๒.๓ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ 74/2568 เรื่อง มอบอำนาจให้ ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม (สั่ง ณ วันที่ 20 มีนาคม 2568) ข้อ ๓ ระบุว่า "ให้ผู้อำนวยการสำนักงานคณะกรรมการการมาตรฐานแห่งชาติ เป็นผู้มีอำนาจ พิจารณาแต่งตั้งคณะผู้ตรวจประเมินตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑"</div>
 HTML;
 
 $data->fix_text2 = <<<HTML
-<div class="section-title" style="text-indent:90px;font-weight:bold">๓. สาระสำคัญและข้อเท็จจริง</div>
-<div style="text-indent:125px">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไข การรับรองหน่วยตรวจ พ.ศ. ๒๕๖๔ สำนักงานจะตรวจติดตามผลการรับรองหน่วยตรวจอย่างน้อย ๑ ครั้ง ภายใน ๒ ปี โดยแต่ละครั้งอาจตรวจประเมินเพียงบางส่วนหรือทุกข้อกำหนดก็ได้ตามความเหมาะสมและก่อน ครบรอบการรับรอง ๕ ปี ต้องตรวจประเมินให้ครบทุกข้อกำหนด</div>
+<div class="section-title" style="text-indent:90px;font-weight:bold">๓. ข้อเท็จจริง</div>
+<div style="text-indent:125px">รต. ได้ประเมินเอกสารระบบคุณภาพของหน่วยตรวจ $docEditRange ซึ่งพบว่าเอกสารระบบคุณภาพของหน่วยตรวจ ยังมีประเด็นที่ต้องแก้ไข และจัดส่งข้อมูลเพิ่มเติมให้แล้วเสร็จ ก่อนนัดหมายการตรวจประเมิน ทั้งนี้หน่วยตรวจได้แจ้งความพร้อมขอให้ดำเนินการตรวจประเมินสถาน ประกอบการของหน่วยตรวจ $dateRange</div>
 HTML;
 
 
@@ -198,7 +216,8 @@ HTML;
             'id' => $this->board_auditor_id,
             'signer' => $signer,
             'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo,
-            'boardAuditor' => $boardAuditor
+            'boardAuditor' => $boardAuditor,
+            'certi_ib' => $certi_ib,
         ]);
         $footer = view('certify.ib.auditor_ib.ia_ib_message_record_pdf.footer', []);
 

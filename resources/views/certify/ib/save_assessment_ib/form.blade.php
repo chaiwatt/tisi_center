@@ -223,16 +223,17 @@
             </div> --}}
             {{-- {{$assessment}} --}}
 
-            @if ($assessment != null)
-            <input type="hidden" id="assessment_id" value="{{$assessment->id}}">
-            <div class="col-md-6">
-                <label class="col-md-4 text-right">แจ้งผู้เชี่ยวชาญ : </label>
-                
-                <div class="col-md-8">
-                    <button type="button" class="btn btn-info" id="show-modal-email-to-expert"><i class="fa fa-envelope"></i> อีเมล</button>
+            @if ($assessment != null && $assessment->bug_report == 1)
+                {{-- {{$assessment->bug_report}} --}}
+                <input type="hidden" id="assessment_id" value="{{$assessment->id}}">
+                <div class="col-md-6">
+                    <label class="col-md-4 text-right">แจ้งผู้เชี่ยวชาญ : </label>
+                    
+                    <div class="col-md-8">
+                        <button type="button" class="btn btn-info" id="show-modal-email-to-expert"><i class="fa fa-envelope"></i> อีเมล</button>
+                    </div>
                 </div>
-            </div>
-        @endif
+            @endif
 
         </div>
         <div class="form-group">
@@ -248,16 +249,38 @@
                         </label>
                     </div>
                 </div> --}}
-                <div class="col-md-7">
+                {{-- <div class="col-md-7">
                     <div class="row">
                         <label class="col-md-6">
-                            <input type="radio" name="bug_report" value="1" class="check check-readonly" data-radio="iradio_square-green" required="required" checked> มี
+                            <input type="radio" name="bug_report" value="1" class="check check-readonly" data-radio="iradio_square-green" required="required" > มี
                         </label>
                         <label class="col-md-6">
                             <input type="radio" name="bug_report" value="2" class="check check-readonly" data-radio="iradio_square-red" required="required"> ไม่มี
                         </label>
                     </div>
+                </div> --}}
+
+                <div class="col-md-7">
+                    <div class="row">
+                        <label class="col-md-6">
+                            <input type="radio" name="bug_report" value="1"
+                                class="check check-readonly"
+                                data-radio="iradio_square-green"
+                                required
+                                {{ isset($assessment) && $assessment->bug_report == 1 ? 'checked' : '' }}>
+                            มี
+                        </label>
+                        <label class="col-md-6">
+                            <input type="radio" name="bug_report" value="2"
+                                class="check check-readonly"
+                                data-radio="iradio_square-red"
+                                required
+                                {{ isset($assessment) && $assessment->bug_report == 2 ? 'checked' : '' }}>
+                            ไม่มี
+                        </label>
+                    </div>
                 </div>
+
             </div>
 
             <div class="col-md-6">
@@ -267,12 +290,12 @@
                     @if ($assessment !== null)
                     
                         @if ($assessment->ibReportInfo->status === "1")
-                                <a href="{{route('save_assessment.ib_report_create',['id' => $assessment->id])}}"
+                                <a href="{{ url('/certify/show-ib-editor/ib_final_report_process_one/' . $assessment->id) }}"
                                     title="จัดทำรายงาน" class="btn btn-warning">
                                     รายงานที่1
                                 </a>
                             @else
-                                <a href="{{route('save_assessment.ib_report_create',['id' => $assessment->id])}}"
+                                <a href="{{ url('/certify/show-ib-editor/ib_final_report_process_one/' . $assessment->id) }}"
                                     title="จัดทำรายงาน" class="btn btn-info">
                                     รายงานที่1
                                 </a>
@@ -347,31 +370,49 @@
 
             @endphp
 
-                @if (isset($certiIb) && $certiIb->FileAttach3->count() > 0)
-                <div class="row">
-                    @foreach($certiIb->FileAttach3 as $data)
-                    @if ($data->file)
+            @if (isset($certiIb) && $certiIb->FileAttach3->count() > 0)
+                @php
+                    // ดึงไฟล์ล่าสุดโดยเรียงตาม created_at (หรือตาม id ถ้าไม่มี timestamp)
+                    $latestFile = $certiIb->FileAttach3->sortByDesc('created_at')->first();
+                @endphp
+
+                @if ($latestFile && $latestFile->file)
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <div class="col-md-4 text-light"> </div>
+                                <div class="col-md-4 text-light"></div>
                                 <div class="col-md-6 text-light">
-                                    <a href="{{url('certify/check/file_ib_client/'.$data->file.'/'.( !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file) ))}}" target="_blank">
-                                        {!! HP::FileExtension($data->file)  ?? '' !!}
-                                        {{  !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)   }}
-                                    </a> 
-                                </div>
-                                {{-- <div class="col-md-2 text-left">
-                                    <a href="{{url('certify/certi_ib/delete').'/'.basename($data->id).'/'.$data->token}}" class="hide_attach btn btn-danger btn-xs" 
-                                        onclick="return confirm('ต้องการลบไฟล์นี้ใช่หรือไม่ ?')" >
-                                        <i class="fa fa-remove"></i>
+                                    <a href="{{ url('certify/check/file_ib_client/' . $latestFile->file . '/' . (!empty($latestFile->file_client_name) ? $latestFile->file_client_name : basename($latestFile->file))) }}" target="_blank">
+                                        {!! HP::FileExtension($latestFile->file) ?? '' !!}
+                                        {{ !empty($latestFile->file_client_name) ? $latestFile->file_client_name : basename($latestFile->file) }}
                                     </a>
-                                </div>  --}}
+                                </div>
                             </div>
                         </div>
-                        @endif
-                    @endforeach
-                </div>
+                    </div>
                 @endif
+            @endif
+
+
+                {{-- @if (isset($certiIb) && $certiIb->FileAttach3->count() > 0)
+                    <div class="row">
+                        @foreach($certiIb->FileAttach3 as $data)
+                            @if ($data->file)
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="col-md-4 text-light"> </div>
+                                        <div class="col-md-6 text-light">
+                                            <a href="{{url('certify/check/file_ib_client/'.$data->file.'/'.( !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file) ))}}" target="_blank">
+                                                {!! HP::FileExtension($data->file)  ?? '' !!}
+                                                {{  !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)   }}
+                                            </a> 
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif --}}
             {{-- <div class="row">
                 <div class="col-md-12 ">
                     <div id="other_attach_report">

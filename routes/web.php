@@ -60,6 +60,8 @@ Route::get('/generate-tracking-lab-report-two-pdf','MyTestController@createTrack
 Route::get('/generate-tracking-ib-report-two-pdf','MyTestController@createTrackingIbAssessmentReportTwoPdf');
 Route::get('/generate-tracking-cb-report-two-pdf','MyTestController@createTrackingCbAssessmentReportTwoPdf');
 
+Route::get('/ib-ms-pdf','MyTestController@ibMessageRecordPdf');
+
 
 
 Route::get('/create-tracking-message-record','MyTestController@CreateTrackingLabMessageRecord');
@@ -118,6 +120,7 @@ Route::post('/export-pdf', 'MyTestController@exportPdf');
 Route::get('/show-editor', 'PdfGeneratorController@showEditor')->name('editor.show');
 Route::post('/export-nodejs-pdf', 'PdfGeneratorController@exportPdf')->name('pdf.export');
 Route::post('/template/load', 'PdfGeneratorController@loadTemplate')->name('template.load');
+Route::post('/save-html', 'PdfGeneratorController@saveHtml')->name('pdf.save-html');
 
 
 Route::get('/test-node', 'PdfGeneratorController@testNodeJsCommunication');

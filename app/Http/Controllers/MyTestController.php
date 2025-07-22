@@ -53,6 +53,7 @@ use App\Models\Certify\CertificateHistory;
 use App\Models\Certify\SetStandardUserSub;
 use App\Models\Certify\SignCertificateOtp;
 use App\Services\CreateCbMessageRecordPdf;
+use App\Services\CreateIbMessageRecordPdf;
 use App\Models\Bcertify\AuditorInformation;
 use App\Models\Certify\ApplicantCB\CertiCb;
 use App\Models\Certify\ApplicantIB\CertiIb;
@@ -90,6 +91,7 @@ use App\Services\CreateTrackingCbMessageRecordPdf;
 use App\Services\CreateTrackingIbMessageRecordPdf;
 use App\Models\Certify\ApplicantCB\CertiCBAuditors;
 use App\Models\Certify\ApplicantCB\CertiCBPayInTwo;
+use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Services\CreateTrackingLabMessageRecordPdf;
 use App\Models\Bcertify\CalibrationBranchInstrument;
 use App\Models\Certify\ApplicantCB\CertiCBAttachAll;
@@ -595,7 +597,13 @@ public function signPdfWithPdfTkMetaData()
 }
 
 
-
+public function ibMessageRecordPdf()
+{
+ $board = CertiIBAuditors::latest()->first();
+//  dd($board);
+                $pdfService = new CreateIbMessageRecordPdf($board,"ia");
+                  $pdfContent = $pdfService->generateBoardAuditorMessageRecordPdf();
+}
 
 
 //     public function callCreateBill()

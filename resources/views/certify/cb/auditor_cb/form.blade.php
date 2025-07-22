@@ -138,6 +138,19 @@
 
             @if (!isset($messageRecordTransactions))
 
+            <div class="form-group">
+                <label for="assessment_type" class="col-md-5 control-label">
+                    <span class="text-danger">*</span> ประเภทการตรวจประเมิน
+                </label>
+                <div class="col-md-7">
+                    <select name="assessment_type" id="assessment_type" class="form-control" required>
+                        <option value="" selected>- เลือกประเภทการตรวจประเมิน -</option>
+                        <option value="0">ขั้นตอนที่ 1</option>
+                        <option value="1">ขั้นตอนที่ 2</option>
+                    </select>
+                </div>
+            </div>
+
                 <div class="form-group">
                     {!! HTML::decode(Form::label('select_user_id', '<span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย', ['class' => 'col-md-5 control-label'])) !!}
                     <div class="col-md-7">

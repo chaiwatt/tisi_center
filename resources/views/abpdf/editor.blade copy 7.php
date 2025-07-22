@@ -6,12 +6,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Document Editor</title>
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
-    {{-- Using a more recent version of Font Awesome for the save icon --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 
-    {{-- Toolbar: Added Save Button --}}
+    <!-- Toolbar: เพิ่มปุ่ม Save Draft -->
     <div id="toolbar">
         <div class="toolbar-group">
             <button id="bold-btn" class="toolbar-button" title="Bold"><i class="fa-solid fa-bold"></i></button>
@@ -52,8 +52,12 @@
             <button class="toolbar-button" id="load-template-btn" title="Load Template">
                 <i class="fa-solid fa-cloud-arrow-down"></i>
             </button>
-            {{-- NEW: Save button added here --}}
-            <button class="toolbar-button" id="save-html-button" title="Save">
+            {{-- NEW: ปุ่ม Save Draft --}}
+            <button class="toolbar-button" id="save-draft-button" title="Save Draft">
+                <i class="fa-solid fa-file-pen"></i>
+            </button>
+            {{-- ปุ่ม Save เดิม (ตอนนี้คือ Save Final) --}}
+            <button class="toolbar-button" id="save-html-button" title="Save Final">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
             <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
@@ -71,7 +75,7 @@
         </div>
     </div>
 
-    {{-- Modals and Context Menu HTML (No changes here) --}}
+    <!-- Modals and Context Menu HTML (ไม่เปลี่ยนแปลง) -->
     <div id="table-modal" class="modal-backdrop" style="display: none;">
         <div class="modal">
             <div class="modal-header">
@@ -118,17 +122,47 @@
         <div class="context-menu-item" id="unmerge-cells">ยกเลิกการรวมเซลล์</div>
     </div>
 
+    <!-- NEW: Modal for selecting signer -->
+    <div id="signature-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>เลือกผู้ลงนาม</h3>
+                <button id="close-signature-modal" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="signature-select">รายชื่อ:</label>
+                    <select id="signature-select" class="modal-select"></select>
+                </div>
+                <div class="form-group">
+                    <label for="signer-position-input">ตำแหน่ง:</label>
+                    <input type="text" id="signer-position-input" class="modal-input">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-signature-btn" class="modal-button primary">ยืนยัน</button>
+                <button id="cancel-signature-btn" class="modal-button">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         const templateType = @json($templateType ?? null);
+        const ibId = @json($ibId ?? null);
+        const assessmentId = @json($assessmentId ?? null);
+        const initialStatus = @json($status ?? 'draft');
+
         document.addEventListener('DOMContentLoaded', function() {
             document.execCommand('defaultParagraphSeparator', false, 'p');
             const editor = document.getElementById('document-editor');
             const exportButton = document.getElementById('export-pdf-button');
             const saveButton = document.getElementById('save-html-button');
+            const saveDraftButton = document.getElementById('save-draft-button');
             const loadingIndicator = document.getElementById('loading-indicator');
+            let activeSignatureBlock = null; 
+            let signersData = []; 
             
-            // All existing button event listeners remain unchanged
             const formatButtons = [
                 { id: 'bold-btn', command: 'bold' },
                 { id: 'italic-btn', command: 'italic' },
@@ -402,18 +436,24 @@
                         const range = selection.getRangeAt(0);
                         const startNode = range.startContainer;
                         const page = (startNode.nodeType === Node.ELEMENT_NODE ? startNode : startNode.parentElement).closest('.page');
+
                         if (!page) return;
+
                         const previousPage = page.previousElementSibling;
+
                         if (previousPage && previousPage.classList.contains('page')) {
                             const preCaretRange = document.createRange();
                             preCaretRange.selectNodeContents(page);
                             preCaretRange.setEnd(range.startContainer, range.startOffset);
+
                             const contentBefore = preCaretRange.cloneContents();
                             const isAtStart = contentBefore.textContent.replace(/[\u00A0\u200B]/g, '').trim() === '' &&
                                               contentBefore.querySelector('img, table, .resizable-image-wrapper') === null;
+
                             if (isAtStart) {
                                 e.preventDefault();
                                 const currentPageNodes = Array.from(page.childNodes);
+                                
                                 if (currentPageNodes.length === 0 || (currentPageNodes.length === 1 && currentPageNodes[0].textContent.trim() === '' && !currentPageNodes[0].querySelector('img, table'))) {
                                     page.remove();
                                     const newRange = document.createRange();
@@ -424,24 +464,29 @@
                                     previousPage.focus();
                                     return;
                                 }
+
                                 let lastElInPrev = previousPage.lastElementChild;
                                 if (lastElInPrev && lastElInPrev.nodeName === 'P' && (lastElInPrev.innerHTML.trim().toLowerCase() === '<br>' || lastElInPrev.innerHTML.trim() === '')) {
                                     previousPage.removeChild(lastElInPrev);
                                 }
+
                                 const newRange = document.createRange();
                                 newRange.selectNodeContents(previousPage);
                                 newRange.collapse(false);
                                 selection.removeAllRanges();
                                 selection.addRange(newRange);
+                                
                                 currentPageNodes.forEach(node => {
                                     previousPage.appendChild(node);
                                 });
+
                                 page.remove();
                                 return;
                             }
                         }
                     }
                 }
+
                 if (e.key === 'Delete' || e.key === 'Backspace') {
                     setTimeout(managePages, 10);
                 }
@@ -882,18 +927,71 @@
 
             document.querySelectorAll('.page table').forEach(makeTableResizable);
 
+            /**
+             * **NEW**: ฟังก์ชันสำหรับล็อก Editor
+             */
+            function lockEditor() {
+                const editorContainer = document.getElementById('document-editor');
+                editorContainer.setAttribute('contenteditable', 'false'); 
+
+                editorContainer.querySelectorAll('.page').forEach(page => {
+                    page.setAttribute('contenteditable', 'false');
+                    page.style.backgroundColor = '#f2f2f2';
+                    page.style.cursor = 'not-allowed';
+                });
+
+                const toolbar = document.getElementById('toolbar');
+                toolbar.querySelectorAll('button, select').forEach(el => {
+                    if (el.id !== 'export-pdf-button' && el.id !== 'load-template-btn') {
+                        el.style.display = 'none';
+                    }
+                });
+                toolbar.querySelectorAll('.toolbar-separator').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
+
+            /**
+             * **NEW**: ฟังก์ชันสำหรับเพิ่มปุ่มเลือกลายเซ็น
+             */
+            function initializeSignatureBlocks() {
+                // ค้นหา td ที่มี div ที่มี border-top (โครงสร้างของบล็อกลายเซ็น)
+                const signatureBlocks = editor.querySelectorAll('td > div[style*="border-top"]');
+                signatureBlocks.forEach(block => {
+                    // สร้างปุ่ม
+                    const btn = document.createElement('button');
+                    btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> เลือก';
+                    btn.className = 'select-signer-btn'; // เพิ่ม class เพื่อซ่อนตอน export
+                    btn.style.cssText = 'font-size: 12px; padding: 2px 5px; margin-top: 5px; cursor: pointer;';
+                    
+                    // เพิ่ม event listener ให้ปุ่ม
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        activeSignatureBlock = block; // เก็บ TD หลักของบล็อกที่ถูกคลิก
+                        openSignatureModal();
+                    });
+
+                    // เพิ่มปุ่มเข้าไปในบล็อก
+                    block.appendChild(btn);
+                });
+            }
+
             const loadTemplateBtn = document.getElementById('load-template-btn');
             loadTemplateBtn.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
                 
-                fetch("{{ route('template.load') }}", {
+                fetch("{{ route('download-ib-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ templateType: templateType })
+                    body: JSON.stringify({ 
+                        templateType: templateType ,
+                        ibId: ibId,
+                        assessmentId:assessmentId,
+                    })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -902,29 +1000,29 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (data.pages && Array.isArray(data.pages)) {
-                        editor.innerHTML = '';
+                    editor.innerHTML = ''; 
+
+                    if (data.html) {
+                        editor.innerHTML = data.html;
+                    } else if (data.pages && Array.isArray(data.pages)) {
                         data.pages.forEach(pageHtml => {
                             const newPage = document.createElement('div');
                             newPage.className = 'page';
                             newPage.setAttribute('contenteditable', 'true');
                             newPage.innerHTML = pageHtml;
                             editor.appendChild(newPage);
-                            const tablesInNewPage = newPage.querySelectorAll('table');
-                            tablesInNewPage.forEach(makeTableResizable);
                         });
-                        
-                        if(editor.firstChild) {
-                           editor.firstChild.focus();
-                        }
+                    }
+                    
+                    editor.querySelectorAll('table').forEach(makeTableResizable);
+                    if(editor.firstChild) {
+                       editor.firstChild.focus();
+                    }
 
-                    } else {
-                        const firstPage = editor.querySelector('.page') || createNewPage();
-                        firstPage.innerHTML = data.html || '';
-                        const newTable = firstPage.querySelector('table');
-                        if (newTable) {
-                            makeTableResizable(newTable);
-                        }
+                    initializeSignatureBlocks(); // << เรียกใช้ฟังก์ชันเพิ่มปุ่มหลังโหลดเสร็จ
+
+                    if (data.status === 'final') {
+                        lockEditor();
                     }
                 })
                 .catch(error => {
@@ -936,14 +1034,71 @@
                     loadTemplateBtn.disabled = false;
                 });
             });
+            
+            if (initialStatus === 'final') {
+                lockEditor();
+            }
 
             /**
-             * Prepares HTML content for printing or PDF export.
-             * This function clones the editor content and cleans it up.
-             * @returns {string} The cleaned, printable HTML content.
+             * **NEW**: ฟังก์ชันเปิด Modal และดึงข้อมูลผู้ลงนาม
              */
-            function getPrintableHtmlContent() {
-                // Before cloning, ensure the live editor's checkbox states are in the attributes
+            function openSignatureModal() {
+                const modal = document.getElementById('signature-modal');
+                const select = document.getElementById('signature-select');
+                select.innerHTML = '<option value="">-- กรุณาเลือก --</option>'; // เคลียร์ค่าเก่า
+
+                $.ajax({
+                    url: "{{ route('assessment_report_assignment.get_signers') }}",
+                    method: 'GET',
+                    success: function(response) {
+                        signersData = response.signers; // เก็บข้อมูลไว้ใช้ภายหลัง
+                        response.signers.forEach(function(signer) {
+                            const option = `<option value="${signer.id}">${signer.name}</option>`;
+                            $('#signature-select').append(option);
+                        });
+                        modal.style.display = 'flex';
+                    },
+                    error: function() {
+                        showCustomAlert('ไม่สามารถดึงข้อมูลผู้ลงนามได้');
+                    }
+                });
+            }
+            
+            // Event listeners สำหรับ Modal
+            document.getElementById('close-signature-modal').addEventListener('click', () => {
+                document.getElementById('signature-modal').style.display = 'none';
+            });
+            document.getElementById('cancel-signature-btn').addEventListener('click', () => {
+                document.getElementById('signature-modal').style.display = 'none';
+            });
+            document.getElementById('confirm-signature-btn').addEventListener('click', () => {
+                const selectedId = $('#signature-select').val();
+                const newPosition = $('#signer-position-input').val();
+                
+                if (selectedId && activeSignatureBlock) {
+                    const selectedSigner = signersData.find(s => s.id == selectedId);
+                    if (selectedSigner) {
+                        // อัปเดตเนื้อหาในบล็อกที่เลือก
+                        const imgElement = activeSignatureBlock.parentElement.querySelector('img');
+                        const pElements = activeSignatureBlock.querySelectorAll('p');
+                        
+                        if (imgElement) {
+                            imgElement.src = selectedSigner.signature_img_path; // สมมติว่า path รูปอยู่ใน signature_img_path
+                            imgElement.alt = `ลายเซ็นต์ ${selectedSigner.name}`;
+                        }
+                        if (pElements.length > 0) pElements[0].textContent = `(${selectedSigner.name})`;
+                        if (pElements.length > 1 && newPosition) pElements[1].textContent = newPosition;
+                    }
+                }
+                document.getElementById('signature-modal').style.display = 'none';
+            });
+
+
+            function saveData(status) {
+                loadingIndicator.style.display = 'inline-block';
+                saveButton.disabled = true;
+                saveDraftButton.disabled = true;
+
                 editor.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     if (checkbox.checked) {
                         checkbox.setAttribute('checked', 'checked');
@@ -951,57 +1106,21 @@
                         checkbox.removeAttribute('checked');
                     }
                 });
-
-                const editorClone = editor.cloneNode(true);
-
-                // Clean up interactive elements that shouldn't be in the PDF
-                editorClone.querySelectorAll('.resizable-image-wrapper').forEach(wrapper => {
-                    const img = wrapper.querySelector('img');
-                    if (img) {
-                        img.style.width = wrapper.style.width;
-                        img.style.height = wrapper.style.height;
-                        wrapper.parentNode.replaceChild(img.cloneNode(true), wrapper);
-                    } else {
-                        wrapper.remove();
-                    }
-                });
-
-                editorClone.querySelectorAll('.selected-table-cell').forEach(cell => {
-                    cell.classList.remove('selected-table-cell');
-                });
-
-                editorClone.querySelectorAll('.col-resizer').forEach(resizer => resizer.remove());
                 
-                // Convert checkboxes to symbols specifically for the PDF
-                editorClone.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    const symbol = document.createTextNode(checkbox.hasAttribute('checked') ? '☑' : '☐');
-                    if (checkbox.parentNode) {
-                        checkbox.parentNode.replaceChild(symbol, checkbox);
-                    }
-                });
+                const htmlContentForSave = editor.innerHTML;
 
-                return editorClone.innerHTML;
-            }
-
-            /**
-             * **UPDATED**: Event listener for the Save button.
-             * Now sends the content with symbols to be processed by the controller.
-             */
-            saveButton.addEventListener('click', () => {
-                loadingIndicator.style.display = 'inline-block';
-                saveButton.disabled = true;
-
-                // Get the same content as the PDF export, with symbols.
-                // The controller will be responsible for converting them back.
-                const htmlContent = getPrintableHtmlContent();
-
-                fetch("{{ route('pdf.save-html') }}", {
+                fetch("{{ route('ib.save-html-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ html_content: htmlContent })
+                    body: JSON.stringify({ 
+                        html_content: htmlContentForSave,
+                        assessmentId: assessmentId,
+                        templateType: templateType,
+                        status: status
+                    })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -1010,7 +1129,10 @@
                     return response.json();
                 })
                 .then(data => {
-                    showCustomAlert(data.message || 'บันทึกสำเร็จ!', 'สำเร็จ'); 
+                    showCustomAlert(data.message || 'บันทึกสำเร็จ!', 'สำเร็จ');
+                    if (status === 'final') {
+                        lockEditor();
+                    }
                 })
                 .catch(error => {
                     console.error('Save Error:', error);
@@ -1018,21 +1140,46 @@
                 })
                 .finally(() => {
                     loadingIndicator.style.display = 'none';
-                    saveButton.disabled = false;
+                    if (status !== 'final') {
+                        saveButton.disabled = false;
+                        saveDraftButton.disabled = false;
+                    }
                 });
-            });
+            }
+
+            saveDraftButton.addEventListener('click', () => saveData('draft'));
+            saveButton.addEventListener('click', () => saveData('final'));
 
 
-            /**
-             * PDF Export button uses a helper function to get printable content.
-             * This logic remains separate from the save functionality.
-             */
             exportButton.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 exportButton.disabled = true;
                 
-                // Use the specific function for printable/PDF content
-                const htmlContent = getPrintableHtmlContent(); 
+                const editorClone = editor.cloneNode(true);
+
+                // **สำคัญ**: ลบปุ่มเลือกลายเซ็นออกจาก clone ก่อน export
+                editorClone.querySelectorAll('.select-signer-btn').forEach(btn => btn.remove());
+
+                editor.querySelectorAll('input[type="checkbox"]').forEach((originalCheckbox, index) => {
+                    if (originalCheckbox.checked) {
+                        editorClone.querySelectorAll('input[type="checkbox"]')[index].setAttribute('checked', 'checked');
+                    } else {
+                        editorClone.querySelectorAll('input[type="checkbox"]')[index].removeAttribute('checked');
+                    }
+                });
+
+                editorClone.querySelectorAll('.resizable-image-wrapper, .selected-table-cell, .col-resizer').forEach(el => {
+                    if(el) el.remove();
+                });
+
+                editorClone.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    const symbol = document.createTextNode(checkbox.hasAttribute('checked') ? '☑' : '☐');
+                    if (checkbox.parentNode) {
+                        checkbox.parentNode.replaceChild(symbol, checkbox);
+                    }
+                });
+                
+                const htmlContentForPdf = editorClone.innerHTML;
 
                 fetch("{{ route('pdf.export') }}", {
                     method: 'POST',
@@ -1040,7 +1187,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ html_content: htmlContent })
+                    body: JSON.stringify({ html_content: htmlContentForPdf })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -1062,7 +1209,6 @@
                 });
             });
 
-            // UPDATED: showCustomAlert can now handle different titles
             function showCustomAlert(message, title = 'ข้อผิดพลาด') {
                 const alertModal = document.createElement('div');
                 alertModal.className = 'modal-backdrop';

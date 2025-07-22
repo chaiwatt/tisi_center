@@ -439,6 +439,13 @@ Route::group(['prefix' => 'certify'], function () {
     // })->name('applicants.file');
 
 
+    Route::post('/download-ib-template','IbPdfGeneratorController@loadIbTemplate')->name('download-ib-template');
+    Route::post('/save-ib-template','IbPdfGeneratorController@saveHtml')->name('ib.save-html-template');
+
+    Route::get('/show-ib-editor/{templateType}/{assessmentId}','IbPdfGeneratorController@showEditor')->name('ib.editor.show');
+
+    Route::get('/ib-generate-pdf-from-db','IbPdfGeneratorController@generatePdfFromDb')->name('ib.generate-pdf-from-db');
+
 
     Route::put('/checkcertificateib/update-state', 'Certify\IB\CheckCertificateIBController@update_state');
     Route::resource('/check_certificate-ib', 'Certify\IB\\CheckCertificateIBController');
@@ -811,6 +818,7 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('assessment-report-assignment/get-signer', 'Certify\\SignAssessmentReportController@getSigner')->name('assessment_report_assignment.get_signer');
     Route::post('assessment-report-assignment/sign-document', 'Certify\\SignAssessmentReportController@signDocument')->name('assessment_report_assignment.signDocument');
     Route::post('assessment-report-assignment/api/get-signers', 'Certify\\SignAssessmentReportController@apiGetSigners')->name('assessment_report_assignment.api.get_signers');
+    Route::get('assessment-report-assignment/get-signers', 'Certify\\SignAssessmentReportController@apiGetSigners')->name('assessment_report_assignment.get_signers');
 
     Route::get('lab-scope-review/', 'Certify\\LabScopeReviewController@index');
     Route::get('lab-scope-review/data-list', 'Certify\\LabScopeReviewController@dataList')->name('lab_scope_review.dataList');

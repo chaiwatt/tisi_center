@@ -38,16 +38,33 @@
     </tr>
 </table>
 
+
+@php
+    $assessmentType = $boardAuditor->assessment_type;
+    $topicHeader = "";
+    $teamList = "";
+
+    if ($assessmentType == 0) {
+        $topicHeader = "แต่งตั้งคณะผู้ตรวจประเมินขั้นตอนที่ 1";
+        $teamList = "หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้เชี่ยวชาญ";
+    }elseif($assessmentType == 1)
+    {
+        $topicHeader = "แต่งตั้งคณะผู้ตรวจประเมินขั้นตอนที่ 2";
+        $teamList = "หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน";
+    }
+@endphp
+
+
 <table style="margin-top: 10px;margin-bottom: 5px">
     <tr style="display:block">
         <td style="line-height: 0.5;width: 30px; font-size: 28px; font-weight:bold">เรื่อง</td>
-        <td style="border-bottom: 1px dotted #000; padding-bottom: 1;line-height: 0.6;width: 600px;padding-left:20px">
-            การแต่งตั้งคณะผู้ตรวจประเมินหน่วยตรวจ {{$data->name_standard}} ( คำขอเลขที่ {{$data->app_no}} )
+        <td style="border-bottom: 1px dotted #000; padding-bottom: 1;line-height: 0.8;width: 600px;padding-left:20px">
+            {{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})
         </td>
     </tr>
 </table>
 
-<div style="position: absolute; top: 65mm; left: 75mm; width: 100mm">
+<div style="position: absolute; top: 70mm; left: 75mm; width: 100mm">
     <div style=";text-align:center">
         <img src="{{public_path($signer->signer_url2)}}" style="width: 70px" alt="">
         <div style="margin-top: -5px;font-size:16px">{{HP::formatDateThaiFullNumThai($signer->signer_2->updated_at)}}</div>
@@ -58,13 +75,23 @@
     <div Style="margin-bottom:5px;">เรียน &nbsp;&nbsp;&nbsp; ผอ.สก. ผ่าน ผก.รต.{{$boardAuditorMsRecordInfo->body_text1}}</div>
     <div style="font-weight: bold;margin-left:90px;margin-top:15px">๑. เรื่องเดิม</div>
     <div>
-        @php
+        {{-- @php
             $textResult = TextHelper::callLonganTokenizePost("วันที่!" . $data->register_date . "!".str_replace(' ', '!', $data->name_standard)." ได้ยื่นคำขอรับใบรับรองหน่วยตรวจ ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
             $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
 
+        @endphp --}}
+
+        @php
+            // $textResult = TextHelper::callLonganTokenizePost("วันที่!" . $data->register_date . "!".str_replace(' ', '!', $data->name_standard)." ได้ยื่นคำขอรับใบรับรองหน่วยตรวจ ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
+            $textResult = TextHelper::callLonganTokenizePost("๑.๑". str_replace(' ', '!', $certi_cb->name) . " ซึ่งต่อไปนี้จะเรียกว่า 'หน่วยตรวจ' ได้ยื่นคำขอการรับรองระบบงานหน่วยตรวจ ตามมาตรฐานเลขที่ มอก. 17020-2556 ต่อสก. ผ่านระบบ e-Accreditation ตามคำขอเลขที่ " . $certi_cb->app_no . " เมื่อวันที่!" . $data->register_date . "!");
+            $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
         @endphp
    
         <div style="text-indent: 100px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
+         <div class="indent" style="text-indent: 100px;" >
+                   
+                ๑.๒ หน่วยตรวจแจ้งความพร้อมให้ดำเนินการตรวจประเมินสถานประกอบการของหน่วยตรวจ {{$data->date_range}} ดังเอกสารแนบ 1 
+            </div> 
     </div>
     <div style="margin-top:15px">
         {!!$data->fix_text1!!}
@@ -128,11 +155,13 @@
         <p style="margin: top 0;margin-left:105px;">-</p>
 
         <div style="font-weight: bold;margin-left:90px;margin-top:10px;">๖. ข้อพิจารณา</div>
-        <p style="margin: top 0;margin-left:105px;">เพื่อโปรดนําเรียน สมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมิน</p>
+        {{-- <p style="margin: top 0;margin-left:105px;">เพื่อโปรดนําเรียน สมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมิน</p> --}}
+         <p style="margin: top 0;margin-left:105px;">เพื่อโปรดนำเรียน ลมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบ การหน่วยตรวจ เพื่อการรับรองระบบงานของ {{$data->name_standard}} {{$data->date_range}}</p>
 
         <div style="font-weight: bold;margin-left:90px;margin-top:10px;">๗. ข้อเสนอ</div>
         {{-- <p style="margin: top 0;margin-left:105px;letter-spacing: 0.85px;">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นเป็นการสมควร ขอได้โปรดนำเรียน ลมอ. เพื่ออนุมัติการแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบการ{{$data->name_standard}} ในวันที่ {{$data->date_range}} รายละเอียดดังข้างต้น</p> --}}
-        <div style="text-indent: 100px;display:block;font-size:22px;">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นเป็นการสมควร ขอได้โปรดนำเรียน ลมอ. เพื่ออนุมัติ การแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบการ{{$data->name_standard}} ในวันที่ {{$data->date_range}} รายละเอียด ดังข้างต้น</div>
+        {{-- <div style="text-indent: 100px;display:block;font-size:22px;">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นเป็นการสมควร ขอได้โปรดนำเรียน ลมอ. เพื่ออนุมัติ การแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบการ{{$data->name_standard}} ในวันที่ {{$data->date_range}} รายละเอียด ดังข้างต้น</div> --}}
+         <div style="text-indent: 100px;display:block;font-size:22px;">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นเป็นการสมควร ขอได้โปรดนำเรียน ลมอ. เพื่ออนุมัติ การแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบการ{{$data->name_standard}} ในวันที่ {{$data->date_range}} รายละเอียด ดังข้างต้น</div>
     </div>
 
 

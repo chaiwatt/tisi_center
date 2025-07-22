@@ -6,12 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Document Editor</title>
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
-    {{-- Using a more recent version of Font Awesome for the save icon --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
-    {{-- Toolbar: Added Save Button --}}
+    <!-- Toolbar HTML (ไม่เปลี่ยนแปลง) -->
     <div id="toolbar">
         <div class="toolbar-group">
             <button id="bold-btn" class="toolbar-button" title="Bold"><i class="fa-solid fa-bold"></i></button>
@@ -52,10 +51,6 @@
             <button class="toolbar-button" id="load-template-btn" title="Load Template">
                 <i class="fa-solid fa-cloud-arrow-down"></i>
             </button>
-            {{-- NEW: Save button added here --}}
-            <button class="toolbar-button" id="save-html-button" title="Save">
-                <i class="fa-solid fa-floppy-disk"></i>
-            </button>
             <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
                 <i class="fa-regular fa-file-pdf"></i>
             </button>
@@ -71,7 +66,7 @@
         </div>
     </div>
 
-    {{-- Modals and Context Menu HTML (No changes here) --}}
+    <!-- Modals and Context Menu HTML (ไม่เปลี่ยนแปลง) -->
     <div id="table-modal" class="modal-backdrop" style="display: none;">
         <div class="modal">
             <div class="modal-header">
@@ -125,10 +120,8 @@
             document.execCommand('defaultParagraphSeparator', false, 'p');
             const editor = document.getElementById('document-editor');
             const exportButton = document.getElementById('export-pdf-button');
-            const saveButton = document.getElementById('save-html-button');
             const loadingIndicator = document.getElementById('loading-indicator');
             
-            // All existing button event listeners remain unchanged
             const formatButtons = [
                 { id: 'bold-btn', command: 'bold' },
                 { id: 'italic-btn', command: 'italic' },
@@ -342,6 +335,7 @@
                 try {
                     range.insertNode(marker);
                 } catch (e) {
+                    // This can fail if the range is in a weird spot. Just ignore and continue.
                     console.warn("Could not insert marker:", e);
                     return;
                 }
@@ -387,65 +381,97 @@
 
             editor.addEventListener('input', () => setTimeout(managePages, 10));
             
+            // --- *** START: FINAL ROBUST KEYDOWN LOGIC FOR BACKSPACE *** ---
             editor.addEventListener('keydown', (e) => {
+                // Handle deletion of a selected image wrapper with Delete or Backspace
                 if (selectedImageWrapper && (e.key === 'Delete' || e.key === 'Backspace')) {
                     e.preventDefault();
                     selectedImageWrapper.remove();
                     selectedImageWrapper = null;
-                    setTimeout(managePages, 10);
+                    setTimeout(managePages, 10); // Check page layout after deleting
                     return;
                 }
 
+                // Special backspace handling to merge pages
                 if (e.key === 'Backspace') {
                     const selection = window.getSelection();
                     if (selection.rangeCount > 0 && selection.isCollapsed) {
                         const range = selection.getRangeAt(0);
+                        
+                        // FIX: Handle case where startContainer is a text node
                         const startNode = range.startContainer;
                         const page = (startNode.nodeType === Node.ELEMENT_NODE ? startNode : startNode.parentElement).closest('.page');
+
                         if (!page) return;
+
                         const previousPage = page.previousElementSibling;
+
+                        // Only apply special logic if we are not on the first page
                         if (previousPage && previousPage.classList.contains('page')) {
                             const preCaretRange = document.createRange();
                             preCaretRange.selectNodeContents(page);
                             preCaretRange.setEnd(range.startContainer, range.startOffset);
+
                             const contentBefore = preCaretRange.cloneContents();
+                            // Check if there is no visible content before the cursor.
+                            // We check for trimmed text (after removing non-breaking spaces, zero-width spaces, etc.) and for block elements.
                             const isAtStart = contentBefore.textContent.replace(/[\u00A0\u200B]/g, '').trim() === '' &&
                                               contentBefore.querySelector('img, table, .resizable-image-wrapper') === null;
+
                             if (isAtStart) {
                                 e.preventDefault();
+
+                                // Store the nodes of the current page to move them
                                 const currentPageNodes = Array.from(page.childNodes);
+                                
+                                // If current page is empty, just remove it and focus the end of the previous one.
                                 if (currentPageNodes.length === 0 || (currentPageNodes.length === 1 && currentPageNodes[0].textContent.trim() === '' && !currentPageNodes[0].querySelector('img, table'))) {
                                     page.remove();
                                     const newRange = document.createRange();
                                     newRange.selectNodeContents(previousPage);
-                                    newRange.collapse(false);
+                                    newRange.collapse(false); // false = collapse to end
                                     selection.removeAllRanges();
                                     selection.addRange(newRange);
-                                    previousPage.focus();
+                                    previousPage.focus(); // Ensure focus is set
                                     return;
                                 }
+
+                                // Clean up placeholder <p><br></p> or empty <p></p> from the end of the previous page before merging
                                 let lastElInPrev = previousPage.lastElementChild;
                                 if (lastElInPrev && lastElInPrev.nodeName === 'P' && (lastElInPrev.innerHTML.trim().toLowerCase() === '<br>' || lastElInPrev.innerHTML.trim() === '')) {
                                     previousPage.removeChild(lastElInPrev);
                                 }
+
+                                // Set cursor position BEFORE moving nodes. It should be at the end of the previous page's content.
                                 const newRange = document.createRange();
                                 newRange.selectNodeContents(previousPage);
-                                newRange.collapse(false);
+                                newRange.collapse(false); // To the end
                                 selection.removeAllRanges();
                                 selection.addRange(newRange);
+                                
+                                // Move all nodes from the current page to the previous page
                                 currentPageNodes.forEach(node => {
                                     previousPage.appendChild(node);
                                 });
+
+                                // Remove the now-empty current page
                                 page.remove();
-                                return;
+
+                                // DO NOT call managePages automatically. This was causing the content to reflow back.
+                                // The user can continue typing, and the normal 'input' event will handle reflowing.
+                                return; // Stop further execution for this keydown event
                             }
                         }
                     }
                 }
+
+                // Default behavior for Backspace or Delete: just manage pages
+                // This handles cleanup of empty pages resulting from standard deletion
                 if (e.key === 'Delete' || e.key === 'Backspace') {
                     setTimeout(managePages, 10);
                 }
             });
+            // --- *** END: FINAL ROBUST KEYDOWN LOGIC FOR BACKSPACE *** ---
 
             const tableContextMenu = document.getElementById('table-context-menu');
             let currentCell = null;
@@ -594,7 +620,13 @@
                 td.appendChild(document.createElement('br'));
                 return td;
             }
-            
+
+            /**
+             * Handles inserting a new row into the table. / จัดการการเพิ่มแถวใหม่ในตาราง
+             * @param {object} options - The options for inserting the row. / ออปชันสำหรับการเพิ่มแถว
+             * @param {'above' | 'below'} options.position - Where to insert the row. / ตำแหน่งที่จะเพิ่มแถว
+             * @param {boolean} options.bordered - If true, ensures the table has borders. / หากเป็น true, ตรวจสอบให้แน่ใจว่าตารางมีเส้นขอบ
+             */
             function insertRow({ position, bordered }) {
                 if (!currentCell) return;
                 const row = currentCell.closest('tr');
@@ -666,6 +698,14 @@
                 hideContextMenu();
             });
 
+            // --- START: NEW COLUMN INSERTION LOGIC ---
+            // --- เริ่ม: ฟังก์ชันการเพิ่มคอลัมน์ใหม่ ---
+            /**
+             * Handles inserting a new column into the table. / จัดการการเพิ่มคอลัมน์ใหม่ในตาราง
+             * @param {object} options - The options for inserting the column. / ออปชันสำหรับการเพิ่มคอลัมน์
+             * @param {'left' | 'right'} options.position - Where to insert the column. / ตำแหน่งที่จะเพิ่มคอลัมน์
+             * @param {boolean} options.bordered - If true, ensures the table has borders. / หากเป็น true, ตรวจสอบให้แน่ใจว่าตารางมีเส้นขอบ
+             */
             function insertCol({ position, bordered }) {
                 if (!currentCell) return;
                 const table = currentCell.closest('table');
@@ -681,6 +721,8 @@
                     let referenceCell = null;
                     
                     if (position === 'left') {
+                        // Find the first cell whose logical column index is >= our target.
+                        // This is the cell we will insert before.
                         for (const cell of row.cells) {
                             const { colIndex: currentLogicalColIndex } = getCellCoordinates(cell);
                             if (currentLogicalColIndex >= targetLogicalColIndex) {
@@ -689,6 +731,8 @@
                             }
                         }
                     } else { // 'right'
+                        // Find the cell that spans across our target column index.
+                        // We will insert after it (by getting its next sibling).
                         for (const cell of row.cells) {
                             const { colIndex: currentLogicalColIndex } = getCellCoordinates(cell);
                             const colspan = parseInt(cell.getAttribute('colspan') || 1);
@@ -700,7 +744,7 @@
                     }
 
                     const newCell = createNewCell();
-                    row.insertBefore(newCell, referenceCell);
+                    row.insertBefore(newCell, referenceCell); // insertBefore handles null referenceCell by appending.
                 }
 
                 makeTableResizable(table);
@@ -711,6 +755,9 @@
             document.getElementById('insert-col-right').addEventListener('click', () => insertCol({ position: 'right', bordered: false }));
             document.getElementById('insert-col-left-bordered').addEventListener('click', () => insertCol({ position: 'left', bordered: true }));
             document.getElementById('insert-col-right-bordered').addEventListener('click', () => insertCol({ position: 'right', bordered: true }));
+            // --- END: NEW COLUMN INSERTION LOGIC ---
+            // --- จบ: ฟังก์ชันการเพิ่มคอลัมน์ใหม่ ---
+
 
             document.getElementById('merge-cells').addEventListener('click', function() {
                 if (selectedCells.length <= 1) {
@@ -937,24 +984,11 @@
                 });
             });
 
-            /**
-             * Prepares HTML content for printing or PDF export.
-             * This function clones the editor content and cleans it up.
-             * @returns {string} The cleaned, printable HTML content.
-             */
-            function getPrintableHtmlContent() {
-                // Before cloning, ensure the live editor's checkbox states are in the attributes
-                editor.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    if (checkbox.checked) {
-                        checkbox.setAttribute('checked', 'checked');
-                    } else {
-                        checkbox.removeAttribute('checked');
-                    }
-                });
-
+            exportButton.addEventListener('click', () => {
+                loadingIndicator.style.display = 'inline-block';
+                exportButton.disabled = true;
                 const editorClone = editor.cloneNode(true);
 
-                // Clean up interactive elements that shouldn't be in the PDF
                 editorClone.querySelectorAll('.resizable-image-wrapper').forEach(wrapper => {
                     const img = wrapper.querySelector('img');
                     if (img) {
@@ -971,68 +1005,20 @@
                 });
 
                 editorClone.querySelectorAll('.col-resizer').forEach(resizer => resizer.remove());
-                
-                // Convert checkboxes to symbols specifically for the PDF
+
+                // --- ส่วนแก้ไขปัญหา Checkbox และแปลงเป็นสัญลักษณ์ ---
+                // แปลง checkbox เป็นสัญลักษณ์ตามสถานะที่ถูกติ๊ก
                 editorClone.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    const symbol = document.createTextNode(checkbox.hasAttribute('checked') ? '☑' : '☐');
+                    // สร้าง Text Node ใหม่ที่มีสัญลักษณ์ '☑' (ติ๊กถูก) หรือ '☐' (ว่าง)
+                    const symbol = document.createTextNode(checkbox.checked ? '☑' : '☐');
+                    
+                    // นำสัญลักษณ์ไปแทนที่ตัว checkbox เดิม
                     if (checkbox.parentNode) {
                         checkbox.parentNode.replaceChild(symbol, checkbox);
                     }
                 });
 
-                return editorClone.innerHTML;
-            }
-
-            /**
-             * **UPDATED**: Event listener for the Save button.
-             * Now sends the content with symbols to be processed by the controller.
-             */
-            saveButton.addEventListener('click', () => {
-                loadingIndicator.style.display = 'inline-block';
-                saveButton.disabled = true;
-
-                // Get the same content as the PDF export, with symbols.
-                // The controller will be responsible for converting them back.
-                const htmlContent = getPrintableHtmlContent();
-
-                fetch("{{ route('pdf.save-html') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ html_content: htmlContent })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => { throw new Error(err.message || 'เกิดข้อผิดพลาดในการบันทึก') });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    showCustomAlert(data.message || 'บันทึกสำเร็จ!', 'สำเร็จ'); 
-                })
-                .catch(error => {
-                    console.error('Save Error:', error);
-                    showCustomAlert(error.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ');
-                })
-                .finally(() => {
-                    loadingIndicator.style.display = 'none';
-                    saveButton.disabled = false;
-                });
-            });
-
-
-            /**
-             * PDF Export button uses a helper function to get printable content.
-             * This logic remains separate from the save functionality.
-             */
-            exportButton.addEventListener('click', () => {
-                loadingIndicator.style.display = 'inline-block';
-                exportButton.disabled = true;
-                
-                // Use the specific function for printable/PDF content
-                const htmlContent = getPrintableHtmlContent(); 
+                const htmlContent = editorClone.innerHTML;
 
                 fetch("{{ route('pdf.export') }}", {
                     method: 'POST',
@@ -1051,25 +1037,25 @@
                 .then(blob => {
                     const url = window.URL.createObjectURL(blob);
                     window.open(url, '_blank');
+                    loadingIndicator.style.display = 'none';
+                    exportButton.disabled = false;
                 })
                 .catch(error => {
                     console.error('Export Error:', error);
                     showCustomAlert(error.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ');
-                })
-                .finally(() => {
                     loadingIndicator.style.display = 'none';
                     exportButton.disabled = false;
                 });
             });
 
-            // UPDATED: showCustomAlert can now handle different titles
-            function showCustomAlert(message, title = 'ข้อผิดพลาด') {
+
+            function showCustomAlert(message) {
                 const alertModal = document.createElement('div');
                 alertModal.className = 'modal-backdrop';
                 alertModal.innerHTML = `
                     <div class="modal">
                         <div class="modal-header">
-                            <h3>${title}</h3>
+                            <h3>ข้อผิดพลาด</h3>
                             <button class="modal-close-btn">&times;</button>
                         </div>
                         <div class="modal-body">

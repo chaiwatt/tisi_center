@@ -146,6 +146,7 @@ class estimatedcostibController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $model = str_slug('estimatedcostib','-');
         if(auth()->user()->can('add-'.$model)) {
 
@@ -507,4 +508,17 @@ class estimatedcostibController extends Controller
           return  $file;
 
         }
+
+        public function askToEditIbScope(Request $request)
+        {       
+  
+            dd($request->all());
+            $certiIb = CertiIb::findOrFail($request->appId)->update([
+                'require_scope_update' => 1
+            ]);
+        
+            // dd( $certiIb);
+            // $this->askToEditIbScopeEmail($request->appId,$request->details);
+        }
+
 }

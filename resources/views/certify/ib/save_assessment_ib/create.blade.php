@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (IB)</h3>
+                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (IB) </h3>
                     @can('view-'.str_slug('saveassessmentib'))
                         <a class="btn btn-success pull-right" href="{{url('/certify/save_assessment-ib')}}">
                             <i class="icon-arrow-left-circle"></i> กลับ

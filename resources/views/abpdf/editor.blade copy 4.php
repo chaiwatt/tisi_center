@@ -6,12 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Document Editor</title>
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
-    {{-- Using a more recent version of Font Awesome for the save icon --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
-    {{-- Toolbar: Added Save Button --}}
+    <!-- Toolbar: เพิ่มปุ่ม Save Draft -->
     <div id="toolbar">
         <div class="toolbar-group">
             <button id="bold-btn" class="toolbar-button" title="Bold"><i class="fa-solid fa-bold"></i></button>
@@ -52,7 +51,11 @@
             <button class="toolbar-button" id="load-template-btn" title="Load Template">
                 <i class="fa-solid fa-cloud-arrow-down"></i>
             </button>
-            {{-- NEW: Save button added here --}}
+            {{-- NEW: ปุ่ม Save Draft --}}
+            <button class="toolbar-button" id="save-draft-button" title="Save Draft">
+                <i class="fa-solid fa-file-pen"></i>
+            </button>
+            {{-- ปุ่ม Save เดิม --}}
             <button class="toolbar-button" id="save-html-button" title="Save">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
@@ -71,7 +74,7 @@
         </div>
     </div>
 
-    {{-- Modals and Context Menu HTML (No changes here) --}}
+    <!-- Modals and Context Menu HTML (ไม่เปลี่ยนแปลง) -->
     <div id="table-modal" class="modal-backdrop" style="display: none;">
         <div class="modal">
             <div class="modal-header">
@@ -121,14 +124,17 @@
 
     <script>
         const templateType = @json($templateType ?? null);
+        const ibId = @json($ibId ?? null);
+        const assessmentId = @json($assessmentId ?? null);
+
         document.addEventListener('DOMContentLoaded', function() {
             document.execCommand('defaultParagraphSeparator', false, 'p');
             const editor = document.getElementById('document-editor');
             const exportButton = document.getElementById('export-pdf-button');
             const saveButton = document.getElementById('save-html-button');
+            const saveDraftButton = document.getElementById('save-draft-button'); // << ดึงปุ่ม Save Draft
             const loadingIndicator = document.getElementById('loading-indicator');
             
-            // All existing button event listeners remain unchanged
             const formatButtons = [
                 { id: 'bold-btn', command: 'bold' },
                 { id: 'italic-btn', command: 'italic' },
@@ -402,18 +408,24 @@
                         const range = selection.getRangeAt(0);
                         const startNode = range.startContainer;
                         const page = (startNode.nodeType === Node.ELEMENT_NODE ? startNode : startNode.parentElement).closest('.page');
+
                         if (!page) return;
+
                         const previousPage = page.previousElementSibling;
+
                         if (previousPage && previousPage.classList.contains('page')) {
                             const preCaretRange = document.createRange();
                             preCaretRange.selectNodeContents(page);
                             preCaretRange.setEnd(range.startContainer, range.startOffset);
+
                             const contentBefore = preCaretRange.cloneContents();
                             const isAtStart = contentBefore.textContent.replace(/[\u00A0\u200B]/g, '').trim() === '' &&
                                               contentBefore.querySelector('img, table, .resizable-image-wrapper') === null;
+
                             if (isAtStart) {
                                 e.preventDefault();
                                 const currentPageNodes = Array.from(page.childNodes);
+                                
                                 if (currentPageNodes.length === 0 || (currentPageNodes.length === 1 && currentPageNodes[0].textContent.trim() === '' && !currentPageNodes[0].querySelector('img, table'))) {
                                     page.remove();
                                     const newRange = document.createRange();
@@ -424,24 +436,29 @@
                                     previousPage.focus();
                                     return;
                                 }
+
                                 let lastElInPrev = previousPage.lastElementChild;
                                 if (lastElInPrev && lastElInPrev.nodeName === 'P' && (lastElInPrev.innerHTML.trim().toLowerCase() === '<br>' || lastElInPrev.innerHTML.trim() === '')) {
                                     previousPage.removeChild(lastElInPrev);
                                 }
+
                                 const newRange = document.createRange();
                                 newRange.selectNodeContents(previousPage);
                                 newRange.collapse(false);
                                 selection.removeAllRanges();
                                 selection.addRange(newRange);
+                                
                                 currentPageNodes.forEach(node => {
                                     previousPage.appendChild(node);
                                 });
+
                                 page.remove();
                                 return;
                             }
                         }
                     }
                 }
+
                 if (e.key === 'Delete' || e.key === 'Backspace') {
                     setTimeout(managePages, 10);
                 }
@@ -887,13 +904,17 @@
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
                 
-                fetch("{{ route('template.load') }}", {
+                fetch("{{ route('download-ib-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ templateType: templateType })
+                    body: JSON.stringify({ 
+                        templateType: templateType ,
+                        ibId: ibId,
+                        assessmentId:assessmentId,
+                    })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -902,29 +923,23 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (data.pages && Array.isArray(data.pages)) {
-                        editor.innerHTML = '';
+                    editor.innerHTML = ''; 
+
+                    if (data.html) {
+                        editor.innerHTML = data.html;
+                    } else if (data.pages && Array.isArray(data.pages)) {
                         data.pages.forEach(pageHtml => {
                             const newPage = document.createElement('div');
                             newPage.className = 'page';
                             newPage.setAttribute('contenteditable', 'true');
                             newPage.innerHTML = pageHtml;
                             editor.appendChild(newPage);
-                            const tablesInNewPage = newPage.querySelectorAll('table');
-                            tablesInNewPage.forEach(makeTableResizable);
                         });
-                        
-                        if(editor.firstChild) {
-                           editor.firstChild.focus();
-                        }
-
-                    } else {
-                        const firstPage = editor.querySelector('.page') || createNewPage();
-                        firstPage.innerHTML = data.html || '';
-                        const newTable = firstPage.querySelector('table');
-                        if (newTable) {
-                            makeTableResizable(newTable);
-                        }
+                    }
+                    
+                    editor.querySelectorAll('table').forEach(makeTableResizable);
+                    if(editor.firstChild) {
+                       editor.firstChild.focus();
                     }
                 })
                 .catch(error => {
@@ -938,12 +953,16 @@
             });
 
             /**
-             * Prepares HTML content for printing or PDF export.
-             * This function clones the editor content and cleans it up.
-             * @returns {string} The cleaned, printable HTML content.
+             * **NEW**: ฟังก์ชันกลางสำหรับบันทึกข้อมูล
+             * @param {string} status - สถานะที่จะส่งไป ('draft' หรือ 'final')
              */
-            function getPrintableHtmlContent() {
-                // Before cloning, ensure the live editor's checkbox states are in the attributes
+            function saveData(status) {
+                loadingIndicator.style.display = 'inline-block';
+                saveButton.disabled = true;
+                saveDraftButton.disabled = true;
+
+                // **แก้ไขแล้ว**: ส่งเป็น html_content (string) เพื่อให้ตรงกับ Controller
+                // โดยอัปเดตแค่ attribute 'checked' เพื่อให้สถานะถูกต้อง
                 editor.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     if (checkbox.checked) {
                         checkbox.setAttribute('checked', 'checked');
@@ -951,57 +970,21 @@
                         checkbox.removeAttribute('checked');
                     }
                 });
-
-                const editorClone = editor.cloneNode(true);
-
-                // Clean up interactive elements that shouldn't be in the PDF
-                editorClone.querySelectorAll('.resizable-image-wrapper').forEach(wrapper => {
-                    const img = wrapper.querySelector('img');
-                    if (img) {
-                        img.style.width = wrapper.style.width;
-                        img.style.height = wrapper.style.height;
-                        wrapper.parentNode.replaceChild(img.cloneNode(true), wrapper);
-                    } else {
-                        wrapper.remove();
-                    }
-                });
-
-                editorClone.querySelectorAll('.selected-table-cell').forEach(cell => {
-                    cell.classList.remove('selected-table-cell');
-                });
-
-                editorClone.querySelectorAll('.col-resizer').forEach(resizer => resizer.remove());
                 
-                // Convert checkboxes to symbols specifically for the PDF
-                editorClone.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    const symbol = document.createTextNode(checkbox.hasAttribute('checked') ? '☑' : '☐');
-                    if (checkbox.parentNode) {
-                        checkbox.parentNode.replaceChild(symbol, checkbox);
-                    }
-                });
+                const htmlContentForSave = editor.innerHTML;
 
-                return editorClone.innerHTML;
-            }
-
-            /**
-             * **UPDATED**: Event listener for the Save button.
-             * Now sends the content with symbols to be processed by the controller.
-             */
-            saveButton.addEventListener('click', () => {
-                loadingIndicator.style.display = 'inline-block';
-                saveButton.disabled = true;
-
-                // Get the same content as the PDF export, with symbols.
-                // The controller will be responsible for converting them back.
-                const htmlContent = getPrintableHtmlContent();
-
-                fetch("{{ route('pdf.save-html') }}", {
+                fetch("{{ route('ib.save-html-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ html_content: htmlContent })
+                    body: JSON.stringify({ 
+                        html_content: htmlContentForSave, // << ส่งเป็น HTML ก้อนเดียว
+                        assessmentId: assessmentId,
+                        templateType: templateType,
+                        status: status // << ส่ง status ไปด้วย
+                    })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -1010,7 +993,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    showCustomAlert(data.message || 'บันทึกสำเร็จ!', 'สำเร็จ'); 
+                    showCustomAlert(data.message || 'บันทึกสำเร็จ!', 'สำเร็จ');
                 })
                 .catch(error => {
                     console.error('Save Error:', error);
@@ -1019,20 +1002,47 @@
                 .finally(() => {
                     loadingIndicator.style.display = 'none';
                     saveButton.disabled = false;
+                    saveDraftButton.disabled = false;
                 });
+            }
+
+            // Event listener สำหรับปุ่ม Save Draft
+            saveDraftButton.addEventListener('click', () => {
+                saveData('draft'); // ส่ง status 'draft'
+            });
+
+            // Event listener สำหรับปุ่ม Save (Final)
+            saveButton.addEventListener('click', () => {
+                saveData('final'); // ส่ง status 'final'
             });
 
 
-            /**
-             * PDF Export button uses a helper function to get printable content.
-             * This logic remains separate from the save functionality.
-             */
             exportButton.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 exportButton.disabled = true;
                 
-                // Use the specific function for printable/PDF content
-                const htmlContent = getPrintableHtmlContent(); 
+                const editorClone = editor.cloneNode(true);
+
+                editor.querySelectorAll('input[type="checkbox"]').forEach((originalCheckbox, index) => {
+                    if (originalCheckbox.checked) {
+                        editorClone.querySelectorAll('input[type="checkbox"]')[index].setAttribute('checked', 'checked');
+                    } else {
+                        editorClone.querySelectorAll('input[type="checkbox"]')[index].removeAttribute('checked');
+                    }
+                });
+
+                editorClone.querySelectorAll('.resizable-image-wrapper, .selected-table-cell, .col-resizer').forEach(el => {
+                    if(el) el.remove();
+                });
+
+                editorClone.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    const symbol = document.createTextNode(checkbox.hasAttribute('checked') ? '☑' : '☐');
+                    if (checkbox.parentNode) {
+                        checkbox.parentNode.replaceChild(symbol, checkbox);
+                    }
+                });
+                
+                const htmlContentForPdf = editorClone.innerHTML;
 
                 fetch("{{ route('pdf.export') }}", {
                     method: 'POST',
@@ -1040,7 +1050,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ html_content: htmlContent })
+                    body: JSON.stringify({ html_content: htmlContentForPdf })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -1062,7 +1072,6 @@
                 });
             });
 
-            // UPDATED: showCustomAlert can now handle different titles
             function showCustomAlert(message, title = 'ข้อผิดพลาด') {
                 const alertModal = document.createElement('div');
                 alertModal.className = 'modal-backdrop';
