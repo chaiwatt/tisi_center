@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use HP;
 
 use Storage;
-use App\User;
+
 use stdClass;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use App\AttachFile;
+use App\LabHtmlTemplate;
+use App\Models\Sso\User;
 use Mpdf\HTMLParserMode;
 use App\CertificateExport;
 use App\Helpers\TextHelper;
@@ -30,6 +32,7 @@ use App\Services\CreateLabScopePdf;
 use Illuminate\Support\Facades\Log;
 use App\Models\Certificate\Tracking;
 use App\Models\Certify\BoardAuditor;
+use App\Models\Certify\CertiEmailLt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Certify\LabReportInfo;
@@ -89,6 +92,7 @@ use App\Models\Bcertify\BoardAuditoExpertTracking;
 use App\Models\Certify\Applicant\CertifyTestScope;
 use App\Services\CreateTrackingCbMessageRecordPdf;
 use App\Services\CreateTrackingIbMessageRecordPdf;
+use App\Models\Certify\Applicant\CertiLabAttachAll;
 use App\Models\Certify\ApplicantCB\CertiCBAuditors;
 use App\Models\Certify\ApplicantCB\CertiCBPayInTwo;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
@@ -3705,6 +3709,201 @@ public function ibMessageRecordPdf()
         $cerNo = $this->generateCode($num,$year);
         dd($cerNo);
     }
+
+    public function getServerPdf()
+    {
+        $certi_lab = CertiLab::latest()->first();
+        $lab_ability = "test";
+        if($certi_lab->lab_type == "4")
+        {
+            $lab_ability = "calibrate";
+        }
+        // dd($lab_ability);
+        $ssoUser = User::where("username",$certi_lab->tax_id)->first();
+        // dd($ssoUser->id);
+
+        $labHtmlTemplate = LabHtmlTemplate::where('user_id', $ssoUser->id)
+            ->where('according_formula',$certi_lab->standard_id)
+            ->where('purpose',$certi_lab->purpose_type)
+            ->where('lab_ability',$lab_ability)
+            ->where('app_certi_lab_id',$certi_lab->id)
+            ->first();
+
+        // dd($certi_lab,$labHtmlTemplate,$certi_lab->standard_id,$certi_lab->purpose_type,$lab_ability,$ssoUser->username);
+        $this->exportScopePdf($certi_lab->id,$labHtmlTemplate);
+
+    }
+
+     public function exportScopePdf($id,$labHtmlTemplate)
+    {
+        $htmlPages = json_decode($labHtmlTemplate->html_pages);
+
+        if (!is_array($htmlPages)) {
+          
+            return response()->json(['message' => 'Invalid or empty HTML content received.'], 400);
+        }
+        // กรองหน้าเปล่าออก (โค้ดเดิมที่เพิ่มไป)
+        $filteredHtmlPages = [];
+        foreach ($htmlPages as $pageHtml) {
+            $trimmedPageHtml = trim(strip_tags($pageHtml, '<img>'));
+            if (!empty($trimmedPageHtml)) {
+                $filteredHtmlPages[] = $pageHtml;
+            }
+        }
+  
+        if (empty($filteredHtmlPages)) {
+            return response()->json(['message' => 'No valid HTML content to export after filtering empty pages.'], 400);
+        }
+        $htmlPages = $filteredHtmlPages;
+
+        $type = 'I';
+        $fontDirs = [public_path('pdf_fonts/')];
+
+        $fontData = [
+            'thsarabunnew' => [
+                'R' => "THSarabunNew.ttf",
+                'B' => "THSarabunNew-Bold.ttf",
+                'I' => "THSarabunNew-Italic.ttf",
+                'BI' => "THSarabunNew-BoldItalic.ttf",
+            ],
+            'dejavusans' => [
+                'R' => "DejaVuSans.ttf",
+                'B' => "DejaVuSans-Bold.ttf",
+                'I' => "DejaVuSerif-Italic.ttf",
+                'BI' => "DejaVuSerif-BoldItalic.ttf",
+            ],
+        ];
+
+        $mpdf = new Mpdf([
+            'PDFA'              => $type == 'F' ? true : false,
+            'PDFAauto'          => $type == 'F' ? true : false,
+            'format'            => 'A4',
+            'mode'              => 'utf-8',
+            'default_font_size' => 15,
+            'fontDir'           => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+            'fontdata'          => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+            'default_font'      => 'thsarabunnew',
+            'fontdata_fallback' => ['dejavusans', 'freesans', 'arial'],
+            'margin_left'       => 13,
+            'margin_right'      => 13,
+            'margin_top'        => 10,
+            'margin_bottom'     => 0,
+            // 'tempDir'           => sys_get_temp_dir(),
+        ]);
+
     
+        // Log::info('MPDF Temp Dir: ' . $tempDirPath);
+
+        $stylesheet = file_get_contents(public_path('css/pdf-css/cb.css'));
+        $mpdf->WriteHTML($stylesheet, 1);
+
+        $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, [23, 23], [170, 12]);
+        $mpdf->showWatermarkImage = true;
+
+        // --- เพิ่ม Watermark Text "DRAFT" ตรงนี้ ---
+        $mpdf->SetWatermarkText('DRAFT');
+        $mpdf->showWatermarkText = true; // เปิดใช้งาน watermark text
+        $mpdf->watermark_font = 'thsarabunnew'; // กำหนด font (ควรใช้ font ที่โหลดไว้แล้ว)
+        $mpdf->watermarkTextAlpha = 0.1;
+
+$selectedCertiLab = CertiLab::find($id);
+
+          
+           $subGroup = $selectedCertiLab->subgroup;
+          
+
+            $appCertiMail = CertiEmailLt::where('certi',$subGroup)->where('roles',1)->pluck('admin_group_email')->toArray();
+
+       
+
+       
+            //   $groupAdminUsers = User::whereIn('reg_email',$appCertiMail)->get();
+
+               $groupAdminUsers = DB::table('user_register')->where('reg_email', $appCertiMail)->get();    
+
+                //    dd($groupAdminUsers);
+            $firstSignerGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }
+
+$attach1 = !empty($firstSignerGroups->first()->AttachFileAttachTo) ? $firstSignerGroups->first()->AttachFileAttachTo : null;
+
+  $sign_url1 = $this->getSignature($attach1);
+
+
+$footerHtml = '
+<div width="100%" style="display:inline;line-height:12px">
+
+    <div style="display:inline-block;line-height:16px;float:left;width:70%;">
+      <span style="font-size:20px;">กระทรวงอุตสาหกรรม สํานักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม</span><br>
+      <span style="font-size: 16px">(Ministry of Industry, Thai Industrial Standards Institute)</span>
+    </div>
+
+    <div style="display: inline-block; width: 15%;float:right;width:25%">
+            <img src="' . $sign_url1 . '" style="height:40px;">
+    </div>
+
+    <div width="100%" style="display:inline;text-align:center">
+      <span>หน้าที่ {PAGENO}/{nbpg}</span>
+    </div>
+</div>';
+
+// แล้วนำไปกำหนดให้ mPDF เป็น Footer
+$mpdf->SetHTMLFooter($footerHtml);
+
+        foreach ($htmlPages as $index => $pageHtml) {
+            if ($index > 0) {
+                $mpdf->AddPage();
+            }
+            $mpdf->WriteHTML($pageHtml,HTMLParserMode::HTML_BODY);
+        }
+
+     $mpdf->Output('', 'S');
+     $title = "mypdf.pdf";
+     $mpdf->Output($title, "I");  
+
+      $app_certi_lab = CertiLab::find($id);
+      $no = str_replace("RQ-", "", $app_certi_lab->app_no);
+      $no = str_replace("-", "_", $no);
+  
+      $attachPath = '/files/applicants/check_files/' . $no . '/';
+      $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+  
+      // สร้างไฟล์ชั่วคราว
+      $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+  
+      // บันทึก PDF ไปยังไฟล์ชั่วคราว
+      $mpdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);
+  
+      // ใช้ Storage::putFileAs เพื่อย้ายไฟล์
+      Storage::putFileAs($attachPath, new \Illuminate\Http\File($tempFilePath), $fullFileName);
+  
+      $storePath = $no  . '/' . $fullFileName;
+        $fileSection = "61";
+        if($app_certi_lab->lab_type == 3){
+           $fileSection = "61";
+        }else if($app_certi_lab->lab_type == 4){
+           $fileSection = "62";
+        }
+    //   dd($fileSection);
+      $certi_lab_attach = new CertiLabAttachAll();
+      $certi_lab_attach->app_certi_lab_id = $id;
+      $certi_lab_attach->file_section     = $fileSection;
+      $certi_lab_attach->file             = $storePath;
+      $certi_lab_attach->file_client_name = $no . '_scope_'.now()->format('Ymd_His').'.pdf';
+      $certi_lab_attach->token            = str_random(16);
+      $certi_lab_attach->default_disk = config('filesystems.default');
+      $certi_lab_attach->save();
+
+    }
+
+
 }
 

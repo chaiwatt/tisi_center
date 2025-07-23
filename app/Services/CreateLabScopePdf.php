@@ -32,7 +32,10 @@ class CreateLabScopePdf
 
     public function generatePdf()
     {
+        
         $app_certi_lab = CertiLab::find($this->certi_lab_id);
+
+        //  dd($app_certi_lab->lab_type);
         // dd($app_certi_lab->lab_type);
         if($app_certi_lab->lab_type == 3 ){
             $this->genTestPdf($this->certi_lab_id);
@@ -42,6 +45,8 @@ class CreateLabScopePdf
             $this->genCalPdf($this->certi_lab_id);
             // $this->generatePdfLabCalScope($this->certi_lab_id);
         }
+
+       
         // ตัวอย่าง: สร้าง PDF หรือดึงข้อมูล
         // อาจใช้ library เช่น DomPDF หรือ mPDF
         $data = $this->fetchLabData();
@@ -84,6 +89,22 @@ class CreateLabScopePdf
         $pdfContents = [];
         $mpdfArray = [];
         $siteType = "single";
+        $type = 'I';
+        $fontDirs = [public_path('pdf_fonts/')];
+        $fontData = [
+            'thsarabunnew' => [
+                'R' => "THSarabunNew.ttf",
+                'B' => "THSarabunNew-Bold.ttf",
+                'I' => "THSarabunNew-Italic.ttf",
+                'BI' => "THSarabunNew-BoldItalic.ttf",
+            ],
+            'dejavusans' => [
+                'R' => "DejaVuSans.ttf",
+                'B' => "DejaVuSans-Bold.ttf",
+                'I' => "DejaVuSerif-Italic.ttf",
+                'BI' => "DejaVuSerif-BoldItalic.ttf",
+            ],
+        ];
         foreach ($labTypes as $key => $labType) {
             // ตรวจสอบว่า labType มีข้อมูลหรือไม่
             if (is_array($labType) && count($labType) > 0) {
@@ -94,23 +115,7 @@ class CreateLabScopePdf
                 $index = (int) str_replace(['pl_2_', '_info'], '', $key) - 1;
     
                 // สร้าง mPDF instance ใหม่สำหรับแต่ละ lab_type
-                $type = 'I';
-                $fontDirs = [public_path('pdf_fonts/')];
-                $fontData = [
-                    'thsarabunnew' => [
-                        'R' => "THSarabunNew.ttf",
-                        'B' => "THSarabunNew-Bold.ttf",
-                        'I' => "THSarabunNew-Italic.ttf",
-                        'BI' => "THSarabunNew-BoldItalic.ttf",
-                    ],
-                    'dejavusans' => [
-                        'R' => "DejaVuSans.ttf",
-                        'B' => "DejaVuSans-Bold.ttf",
-                        'I' => "DejaVuSerif-Italic.ttf",
-                        'BI' => "DejaVuSerif-BoldItalic.ttf",
-                    ],
-                ];
-    
+
                 $mpdf = new Mpdf([
                     'PDFA' => $type == 'F' ? true : false,
                     'PDFAauto' => $type == 'F' ? true : false,
