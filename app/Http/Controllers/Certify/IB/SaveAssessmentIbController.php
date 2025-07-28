@@ -266,7 +266,7 @@ class SaveAssessmentIbController extends Controller
                         $report->save();
                 }
 
-                dd($report);
+             
 
                 $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
                         ->whereNotNull('signer_id')
@@ -293,7 +293,7 @@ class SaveAssessmentIbController extends Controller
                 }
                 else
                 {
-
+                    dd($report);
                     $templateType = "ib_final_report_process_one";
                     return view('abpdf.editor',[
                         'templateType' => $templateType,
