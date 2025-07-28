@@ -293,7 +293,7 @@ class SaveAssessmentIbController extends Controller
                 }
                 else
                 {
-                    dd($report);
+                    // dd($report);
                     $templateType = "ib_final_report_process_one";
                     return view('abpdf.editor',[
                         'templateType' => $templateType,
