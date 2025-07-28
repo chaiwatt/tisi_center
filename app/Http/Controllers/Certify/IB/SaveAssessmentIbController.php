@@ -258,12 +258,15 @@ class SaveAssessmentIbController extends Controller
                                         ->where('report_type',"ib_final_report_process_one")
                                         ->first();
 
+
                 if($report == null){
                         $report = new IbReportTemplate();
                         $report->ib_assessment_id = $assessment->id;
                         $report->report_type = "ib_final_report_process_one";
                         $report->save();
                 }
+
+                dd($report);
 
                 $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
                         ->whereNotNull('signer_id')
