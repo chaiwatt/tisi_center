@@ -149,7 +149,7 @@
 
     <script>
         const templateType = @json($templateType ?? null);
-        const ibId = @json($ibId ?? null);
+        const cbId = @json($cbId ?? null);
         const assessmentId = @json($assessmentId ?? null);
         const initialStatus = @json($status ?? 'draft');
 
@@ -985,7 +985,7 @@
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
                 
-                fetch("{{ route('download-ib-template') }}", {
+                fetch("{{ route('download-cb-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -993,7 +993,7 @@
                     },
                     body: JSON.stringify({ 
                         templateType: templateType ,
-                        ibId: ibId,
+                        cbId: cbId,
                         assessmentId:assessmentId,
                     })
                 })
@@ -1151,7 +1151,7 @@
                 
                 const htmlContentForSave = editorCloneForSave.innerHTML;
 
-                fetch("{{ route('ib.save-html-template') }}", {
+                fetch("{{ route('cb.save-html-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

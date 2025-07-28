@@ -20,7 +20,7 @@
         </td>
         <td style="line-height: 0.5;width: 20px; font-size: 28px; font-weight:500">โทร</td>
         <td style="border-bottom: 1px dotted #000; padding-bottom: 1;line-height: 0.6;width: 200px;padding-left:40px">
-            {{$boardAuditorMsRecordInfo->header_text4}}
+            {{$boardAuditorMsRecordInfo->header_text2}}
         </td>
     </tr>
 </table>

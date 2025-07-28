@@ -121,7 +121,7 @@ Route::post('/export-pdf', 'MyTestController@exportPdf');
 Route::get('/pdf-server', 'MyTestController@getServerPdf');
 
 
-
+Route::get('/set-cb-mail', 'MyTestController@set_cb_mail');
 
 
 
@@ -134,6 +134,9 @@ Route::get('/show-editor', 'PdfGeneratorController@showEditor')->name('editor.sh
 Route::post('/export-nodejs-pdf', 'PdfGeneratorController@exportPdf')->name('pdf.export');
 Route::post('/template/load', 'PdfGeneratorController@loadTemplate')->name('template.load');
 Route::post('/save-html', 'PdfGeneratorController@saveHtml')->name('pdf.save-html');
+
+
+Route::get('/gen-pdf-from-id', 'MyTestController@genPdfFormId')->name('gen-pdf-from-id');
 
 
 Route::get('/test-node', 'PdfGeneratorController@testNodeJsCommunication');

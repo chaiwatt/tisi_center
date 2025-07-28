@@ -1561,7 +1561,8 @@ HTML;
         abort(404, 'ไม่พบข้อมูล BoardAuditor');
     }
 
-    $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
+    // $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
+    $boardAuditorMsRecordInfo = BoardAuditorMsRecordInfo::where('board_auditor_id',$boardAuditor->id)->first();
 
     $groups = $boardAuditor->groups ?? collect();
 

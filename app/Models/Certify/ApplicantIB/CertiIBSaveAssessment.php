@@ -85,6 +85,70 @@ class CertiIBSaveAssessment extends Model
                     ->where('file_section',1)
                     ->orderby('id','desc');
     }
+
+  public function FinalReportOneProcessOne()
+  {
+      // 1. ค้นหา Auditor ที่เกี่ยวข้อง
+      $auditor = CertiIBAuditors::where('id', $this->auditors_id)
+                                ->where('assessment_type', 0)
+                                ->first();
+
+      // ถ้าไม่พบ Auditor ให้หยุดการทำงานและคืนค่า null
+      if (!$auditor) {
+          return null;
+      }
+
+      // 2. ใช้ ID ของ Auditor เพื่อค้นหา Assessment
+      $certiIBSaveAssessment = CertiIBSaveAssessment::where('auditors_id', $auditor->id)->first();
+
+      // ถ้าไม่พบ Assessment ให้หยุดการทำงานและคืนค่า null
+      if (!$certiIBSaveAssessment) {
+          return null;
+      }
+      
+      // 3. ค้นหาไฟล์แนบ (Report One) โดยอ้างอิงจาก ID ของ Assessment
+      $tb = new CertiIBSaveAssessment; // ใช้สำหรับ getTable()
+      $reportOne = CertiIBAttachAll::where('ref_id', $certiIBSaveAssessment->id) // แก้ไข: ใช้ ref_id อ้างอิงจาก assessment
+                                  ->where('table_name', $tb->getTable())
+                                  ->where('file_section', 1)
+                                  ->orderby('id', 'desc')
+                                  ->first();
+                                  
+      return $reportOne;
+  }
+
+  
+  public function FinalReportOneProcessTwo()
+  {
+      // 1. ค้นหา Auditor ที่เกี่ยวข้อง
+      $auditor = CertiIBAuditors::where('id', $this->auditors_id)
+                                ->where('assessment_type', 1)
+                                ->first();
+
+      // ถ้าไม่พบ Auditor ให้หยุดการทำงานและคืนค่า null
+      if (!$auditor) {
+          return null;
+      }
+
+      // 2. ใช้ ID ของ Auditor เพื่อค้นหา Assessment
+      $certiIBSaveAssessment = CertiIBSaveAssessment::where('auditors_id', $auditor->id)->first();
+
+      // ถ้าไม่พบ Assessment ให้หยุดการทำงานและคืนค่า null
+      if (!$certiIBSaveAssessment) {
+          return null;
+      }
+      
+      // 3. ค้นหาไฟล์แนบ (Report One) โดยอ้างอิงจาก ID ของ Assessment
+      $tb = new CertiIBSaveAssessment; // ใช้สำหรับ getTable()
+      $reportOne = CertiIBAttachAll::where('ref_id', $certiIBSaveAssessment->id) // แก้ไข: ใช้ ref_id อ้างอิงจาก assessment
+                                  ->where('table_name', $tb->getTable())
+                                  ->where('file_section', 1)
+                                  ->orderby('id', 'desc')
+                                  ->first();
+                                  
+      return $reportOne;
+  }
+
     //รายงาน Scope
     public function FileAttachAssessment2Many()
     {

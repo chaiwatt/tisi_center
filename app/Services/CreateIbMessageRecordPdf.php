@@ -21,12 +21,13 @@ use App\Models\Certify\ApplicantIB\CertiIb;
 use App\Models\Certificate\IbDocReviewAuditor;
 use App\Models\Certify\MessageRecordTransaction;
 
+use App\Models\Bcertify\IbBoardAuditorMsRecordInfo;
 use App\Models\Certify\Applicant\CertiLabAttachAll;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
+
 use App\Models\Bcertify\CalibrationBranchInstrument;
 
 use App\Models\Bcertify\HtmlLabMemorandumPdfRequest;
-
 use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
 use App\Models\Certify\ApplicantIB\CertiIBAuditorsDate;
 use App\Models\Bcertify\CalibrationBranchInstrumentGroup;
@@ -85,7 +86,8 @@ class CreateIbMessageRecordPdf
     {
         // dd("ok");
         $boardAuditor = CertiIBAuditors::find($this->board_auditor_id);
-        $boardAuditorMsRecordInfo = $boardAuditor->ibBoardAuditorMsRecordInfos->first();
+        // $boardAuditorMsRecordInfo = $boardAuditor->ibBoardAuditorMsRecordInfos->first();
+        $boardAuditorMsRecordInfo = IbBoardAuditorMsRecordInfo::where('board_auditor_id',$this->board_auditor_id)->first(); 
         // dd($this->board_auditor_id);
         $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 

@@ -593,6 +593,11 @@ Route::group(['prefix' => 'certify'], function () {
 
 
     // Route::resource('/check_certificate-cb', 'Certify\CB\\CheckCertificateCBController');
+    Route::post('/download-cb-template','CbPdfGeneratorController@loadCbTemplate')->name('download-cb-template');
+    Route::post('/save-cb-template','CbPdfGeneratorController@saveHtml')->name('cb.save-html-template');
+
+    Route::get('/show-cb-editor/{templateType}/{assessmentId}','CbPdfGeneratorController@showEditor')->name('cb.editor.show');
+
 
 
     // แสดงรายการข้อมูลทั้งหมด (index)

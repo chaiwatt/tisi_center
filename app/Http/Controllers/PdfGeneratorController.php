@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
+use App\Models\Certify\ApplicantIB\CertiIBSaveAssessment;
 use Symfony\Component\Process\Process; // เพิ่มการ import Process
 
 
@@ -90,13 +92,60 @@ class PdfGeneratorController extends Controller
             $timeout = 60; // รอสูงสุด 60 วินาที
             $startTime = time();
 
+
+            $no = str_replace("RQ-", "", "RQ12345");
+            $no = str_replace("-", "_", $no);
+            $attachPath = '/files/applicants/check_files_ib/' . $no . '/';
+            $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+
             while (time() - $startTime < $timeout) {
                 if (Storage::disk($diskName)->exists($outputPdfFileName)) {
                     // เมื่อพบไฟล์แล้ว ให้อ่านเนื้อหา
                     $pdfContent = Storage::disk($diskName)->get($outputPdfFileName);
+
+                     // **NEW**: อัปโหลดไฟล์ขึ้น FTP
+                    $tt = Storage::disk('ftp')->put($attachPath . $fullFileName, $pdfContent);
+
+                    // **NEW**: ตรวจสอบว่าไฟล์ถูกบันทึกบน FTP สำเร็จ แล้วจึงบันทึกข้อมูลลง DB
+                    if (Storage::disk('ftp')->exists($attachPath . $fullFileName)) {
+                       
+                        $storePath = $no . '/' . $fullFileName;
+
+                        dd($storePath);
+                        // บันทึกข้อมูลลงตาราง CertiIBAttachAll (Section 3)
+                        $attach3 = new CertiIBAttachAll();
+                        $attach3->app_certi_ib_id = $assessment->app_certi_ib_id ?? null;
+                        $attach3->ref_id = 1;
+                        $attach3->table_name = (new CertiIBSaveAssessment)->getTable();
+                        $attach3->file_section = '3';
+                        $attach3->file = $storePath;
+                        $attach3->file_client_name = 'report' . '_' . $no . '.pdf';
+                        $attach3->token = Str::random(16);
+                        $attach3->save();
+
+                        // บันทึกข้อมูลลงตาราง CertiIBAttachAll (Section 1)
+                        $attach1 = new CertiIBAttachAll();
+                        $attach1->app_certi_ib_id = $assessment->app_certi_ib_id ?? null;
+                        $attach1->ref_id = 1;
+                        $attach1->table_name = (new CertiIBSaveAssessment)->getTable();
+                        $attach1->file_section = '1';
+                        $attach1->file = $storePath;
+                        $attach1->file_client_name = 'report' . '_' . $no . '.pdf';
+                        $attach1->token = Str::random(16);
+                        $attach1->save();
+                    }
+
+                     Storage::disk($diskName)->delete($outputPdfFileName);
+
+
+
+
+
+
+
                     
                     // ลบไฟล์ทิ้งหลังจากอ่านแล้ว
-                    Storage::disk($diskName)->delete($outputPdfFileName);
+                    // Storage::disk($diskName)->delete($outputPdfFileName);
 
                     // ส่งไฟล์ PDF กลับไปให้เบราว์เซอร์แสดงผลโดยตรง
                     return response($pdfContent)

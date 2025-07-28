@@ -931,6 +931,8 @@ public function cancel_doc_review_team(Request $request)
 
       $boardAuditor = CertiIBAuditors::find($id);
 
+    //   dd($boardAuditor);
+
       $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 
     //   $statusAuditorMap = []; // สร้าง array ว่างสำหรับเก็บข้อมูล
@@ -1050,7 +1052,7 @@ HTML;
 
       $boardAuditor = CertiIBAuditors::find($id);
     //   dd($boardAuditor);
-      $boardAuditorMsRecordInfo = $boardAuditor->ibBoardAuditorMsRecordInfos->first();
+      $boardAuditorMsRecordInfo = IbBoardAuditorMsRecordInfo::where('board_auditor_id',$id)->first(); // $boardAuditor->ibBoardAuditorMsRecordInfos->first();
 
       $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 

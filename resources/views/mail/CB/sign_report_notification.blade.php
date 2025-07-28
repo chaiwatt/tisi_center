@@ -51,8 +51,8 @@
     </p>
 
     <p class="indent50"> 
-        ตามที่    {{  !empty($certi_ib->name) ?  $certi_ib->name   :  ''  }}
-        คำขอเลขที่  {{  !empty($certi_ib->app_no) ?   $certi_ib->app_no  :  ''  }} ได้รับการตรวจประเมินไปแล้วนั้น
+        ตามที่    {{  !empty($certi_cb->name) ?  $certi_cb->name   :  ''  }}
+        คำขอเลขที่  {{  !empty($certi_cb->app_no) ?   $certi_cb->app_no  :  ''  }} ได้รับการตรวจประเมินไปแล้วนั้น
         เรียนท่านโปรดลงนามรายงาน{{$reportName}} ดังกล่าว ผ่านลิงก์ <a href="{{ $url ?? '/' }}"class="btn btn-link" target="_blank">คลิกที่นี่</a> หากท่านมีข้อขัดข้องในองค์ประกอบดังกล่าวประการใด โปรดแจ้งสำนักงานทราบพร้อมระบุเหตุผลโดยด่วนด้วย 
     </p>
       

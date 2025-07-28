@@ -1134,7 +1134,7 @@ HTML;
   {
 
       $boardAuditor = CertiCBAuditors::find($id);
-      $boardAuditorMsRecordInfo = $boardAuditor->cbBoardAuditorMsRecordInfos->first();
+      $boardAuditorMsRecordInfo = CbBoardAuditorMsRecordInfo::where('board_auditor_id',$id)->first(); // $boardAuditor->cbBoardAuditorMsRecordInfos->first();
 
       $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 
@@ -1198,6 +1198,7 @@ HTML;
 
       return view('certify.cb.auditor_cb.view-message-record', [
           'data' => $data,
+          'certi_cb' => $certi_cb,
           'id' => $id,
           'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo,
           'boardAuditor' =>  $boardAuditor

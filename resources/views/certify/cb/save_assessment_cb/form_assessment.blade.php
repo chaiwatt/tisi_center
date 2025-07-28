@@ -188,11 +188,38 @@
                             </div>
 
                             @if ($assessment->bug_report == 1)
+
+                             @if(isset($assessment)  && is_null($assessment->FileAttachAssessment1To)) 
                                 <div class="form-group">
                                     <div class="col-md-12">
                                     <div class="col-md-6">
                                         <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน : </label>
                                         <div class="col-md-8">
+
+                                              <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_two/' . $assessment->id) }}"
+                                                    title="จัดทำรายงาน" class="btn btn-warning">
+                                                    สร้างรายงาน
+                                                </a>
+                                            {{-- @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
+                                                    <a href="{{url('certify/check/file_cb_client/'.$assessment->FileAttachAssessment1To->file.'/'.( !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name : 'null' ))}}" 
+                                                        title="{{ !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name :  basename($assessment->FileAttachAssessment1To->file) }}" target="_blank">
+                                                        {!! HP::FileExtension($assessment->FileAttachAssessment1To->file)  ?? '' !!} {{basename($assessment->FileAttachAssessment1To->file)}}
+                                                    </a> 
+                                                </p>
+                                            @endif --}}
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                             @endif
+
+                            @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน : </label>
+                                        <div class="col-md-8">
+
                                             @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
                                                     <a href="{{url('certify/check/file_cb_client/'.$assessment->FileAttachAssessment1To->file.'/'.( !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name : 'null' ))}}" 
                                                         title="{{ !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name :  basename($assessment->FileAttachAssessment1To->file) }}" target="_blank">
@@ -204,6 +231,8 @@
                                     </div>
                                     </div>
                                 </div>
+                             @endif
+                       
                             @endif
 
                             <div class="form-group">
@@ -242,12 +271,33 @@
                                 </div>                        
                             @endif --}}
 
+                              
+                               @if(isset($assessment)  && !is_null($assessment->finalReportOneProcessOne())) 
+                                @php
+                                    $reportOne = $assessment->finalReportOneProcessOne()
+                                @endphp
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div class="col-md-6">
+                                                <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมินขั้นตอนที่1: </label>
+                                                <div class="col-md-8">
+                                                    <a href="{{url('certify/check/file_cb_client/'.$reportOne->file.'/'.( !empty($reportOne->file_client_name) ? $reportOne->file_client_name : 'null' ))}}" 
+                                                        title="{{ !empty($reportOne->file_client_name) ? $reportOne->file_client_name :  basename($reportOne->file) }}" target="_blank">
+                                                        {!! HP::FileExtension($reportOne->file)  ?? '' !!} {{$reportOne->file_client_name}}
+                                                    </a> 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>            
+                                @endif
+
+
                             @if ($assessment->bug_report == 1)
                                 <div class="form-group">
                                     <div class="col-md-12">
                                         <div class="col-md-6">
                                             {{-- {{$assessment->cbReportTwoInfo->status}} --}}
-                                            <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน (ปิดcar): </label>
+                                            <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน (ปิดcar):</label>
                                             <div class="col-md-8">
                                                 @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment5To)) 
                                                         <a href="{{url('certify/check/file_cb_client/'.$assessment->FileAttachAssessment5To->file.'/'.( !empty($assessment->FileAttachAssessment5To->file_client_name) ? $assessment->FileAttachAssessment5To->file_client_name : 'null' ))}}" 
@@ -256,15 +306,17 @@
                                                         </a> 
                                                  @else
                                                     @if ($assessment->cbReportTwoInfo->status === "1")
-                                                    <a href="{{route('save_assessment.cb_report_two_create',['id' => $assessment->id])}}"
+                                                    {{-- {{ url('/certify/show-cb-editor/cb_final_report_process_one/' . $assessment->id) }} --}}
+                                                    {{-- <a href="{{route('save_assessment.cb_report_two_create',['id' => $assessment->id])}}" --}}
+                                                    <a href="{{ url('/certify/show-cb-editor/cb_car_report_two_process_one/' . $assessment->id) }}"
                                                         title="จัดทำรายงาน2" class="btn btn-warning">
-                                                        รายงานที่2
+                                                        รายงานที่2 
                                                     </a>
-                                                     @else
+                                                     {{-- @else
                                                      <a href="{{route('save_assessment.cb_report_two_create',['id' => $assessment->id])}}"
                                                         title="จัดทำรายงาน2" class="btn btn-info">
-                                                        รายงานที่2
-                                                    </a>
+                                                        รายงานที่2 
+                                                    </a> --}}
                                                     @endif
 
                                                    
@@ -548,37 +600,40 @@
               cancelButtonText: 'ยกเลิก'
               }).then((result) => {
                 if($('#assessment_passed').val() == "1"){
-                    $.ajax({
-                        url: "{{route('save_assessment.check_complete_cb_report_two_sign')}}",
-                        method: "POST",
-                        data: {
-                            _token: _token,
-                            assessment_id: $('#assessment_id').val(),
-                        },
-                        success: function(result) {
-                            console.log(result);
-                            if (result.message == true) {
-                                $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
-                                $('#form_assessment').submit();
-                            }else{
+                    // $.ajax({
+                    //     url: "{{route('save_assessment.check_complete_cb_report_two_sign')}}",
+                    //     method: "POST",
+                    //     data: {
+                    //         _token: _token,
+                    //         assessment_id: $('#assessment_id').val(),
+                    //     },
+                    //     success: function(result) {
+                    //         console.log(result);
+                    //         if (result.message == true) {
+                    //             $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                    //             $('#form_assessment').submit();
+                    //         }else{
                                 
-                                if (result.record_count == 0) {
-                                    alert('ยังไม่ได้สร้างรายงานปิด Car(รายงานที่2)');
-                                    // window.location.href = window.location.origin + '/certify/save_assessment-cb/cb-report-two-create/' + assessment_id;
+                    //             if (result.record_count == 0) {
+                    //                 alert('ยังไม่ได้สร้างรายงานปิด Car(รายงานที่2)');
+                    //                 // window.location.href = window.location.origin + '/certify/save_assessment-cb/cb-report-two-create/' + assessment_id;
 
 
-       const baseUrl = "{{ url('/certify/save_assessment-cb/cb-report-two-create') }}";
-                    const redirectUrl = `${baseUrl}/${assessment_id}`;
-                    window.location.href = redirectUrl;
+                    //                 const baseUrl = "{{ url('/certify/save_assessment-cb/cb-report-two-create') }}";
+                    //                 const redirectUrl = `${baseUrl}/${assessment_id}`;
+                    //                 window.location.href = redirectUrl;
 
 
-                                }else{
-                                    alert('อยู่ระหว่างการลงนามรายงานปิด Car(รายงานที่2)');
-                                }
-                            }
+                    //             }else{
+                    //                 alert('อยู่ระหว่างการลงนามรายงานปิด Car(รายงานที่2)');
+                    //             }
+                    //         }
 
-                        }
-                    });
+                    //     }
+                    // });
+
+                    $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                    $('#form_assessment').submit();
                 }else{
                     if (result.value) {
                         $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');

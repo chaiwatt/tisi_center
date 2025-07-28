@@ -20,7 +20,7 @@
         </td>
         <td style="line-height: 0.5;width: 20px; font-size: 28px; font-weight:500">โทร</td>
         <td style="border-bottom: 1px dotted #000; padding-bottom: 1;line-height: 0.6;width: 200px;padding-left:40px">
-            {{$boardAuditorMsRecordInfo->header_text4}}
+            {{$boardAuditorMsRecordInfo->header_text2}}
         </td>
     </tr>
 </table>
@@ -59,7 +59,12 @@
     <tr style="display:block">
         <td style="line-height: 0.5;width: 30px; font-size: 28px; font-weight:bold">เรื่อง</td>
         <td style="border-bottom: 1px dotted #000; padding-bottom: 1;line-height: 0.8;width: 600px;padding-left:20px">
-            {{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})
+            @if ($assessmentType == 0)
+                    {{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})
+                @elseif($assessmentType == 1)
+                    {{$topicHeader}} ความสามารถผู้ตรวจ เพื่อการรับรองระบบงานของหน่วยตรวจของ {{$data->name_standard}} ({{$data->header_text4}})
+            @endif
+            
         </td>
     </tr>
 </table>
@@ -87,10 +92,10 @@
             $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
         @endphp
    
-        <div style="text-indent: 100px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
-         <div class="indent" style="text-indent: 100px;" >
+        <div style="text-indent: 125px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
+         <div class="indent" style="text-indent: 125px;" >
                    
-                ๑.๒ หน่วยตรวจแจ้งความพร้อมให้ดำเนินการตรวจประเมินสถานประกอบการของหน่วยตรวจ {{$data->date_range}} ดังเอกสารแนบ 1 
+                ๑.๒ หน่วยตรวจแจ้งความพร้อมให้ดำเนินการตรวจประเมินสถานประกอบการของ หน่วยตรวจ {{$data->date_range}} ดังเอกสารแนบ 1 
             </div> 
     </div>
     <div style="margin-top:15px">
@@ -120,7 +125,16 @@
 
         <div style="font-weight: bold;margin-left:90px;margin-top:5px;">๔. การดําเนินการ</div>
         @php
-            $textResult = TextHelper::callLonganTokenizePost("รต.".$boardAuditorMsRecordInfo->body_text2." รต. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินและผู้เชี่ยวชาญ เพื่อดำเนินการตรวจประเมินสถานประกอบการ".str_replace(' ', '!', $data->name_standard). " ". str_replace(' ', '!', $data->date_range). " ดังนี้");
+            $textResult = "";
+            if($assessmentType == 0)
+            {
+                $textResult = TextHelper::callLonganTokenizePost("รต.".$boardAuditorMsRecordInfo->body_text2." รต. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินและผู้เชี่ยวชาญ เพื่อดำเนินการตรวจประเมินสถานประกอบการ".str_replace(' ', '!', $data->name_standard). " ". str_replace(' ', '!', $data->date_range). " ดังนี้");
+            }elseif($assessmentType == 1)
+            {
+                $textResult = TextHelper::callLonganTokenizePost("รต.".$boardAuditorMsRecordInfo->body_text2." รต. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน เพื่อดำเนินการตรวจประเมินสถานประกอบการ".str_replace(' ', '!', $data->name_standard). " ". str_replace(' ', '!', $data->date_range). " ดังนี้");
+            }
+
+            
             // แทนที่ '!' ด้วย span ที่ซ่อนด้วย color:#fff
             $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
 

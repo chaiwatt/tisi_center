@@ -218,7 +218,7 @@
                     </div>
                 </div>
             </div> --}}
-            <div class="col-md-6">
+            {{-- <div class="col-md-6">
                 <label class="col-md-5 text-right"><span class="text-danger">*</span> รายงานข้อบกพร่อง : </label>
                 <div class="col-md-7">
                     <div class="row">
@@ -230,31 +230,56 @@
                         </label>
                     </div>
                 </div>
+            </div> --}}
+
+            <div class="col-md-6">
+                <label class="col-md-5 text-right"><span class="text-danger">*</span> รายงานข้อบกพร่อง : </label>
+
+
+                <div class="col-md-7">
+                    <div class="row">
+                        <label class="col-md-6">
+                            <input type="radio" name="bug_report" value="1"
+                                class="check check-readonly"
+                                data-radio="iradio_square-green"
+                                required
+                                {{ isset($assessment) && $assessment->bug_report == 1 ? 'checked' : '' }}>
+                            มี
+                        </label>
+                        <label class="col-md-6">
+                            <input type="radio" name="bug_report" value="2"
+                                class="check check-readonly"
+                                data-radio="iradio_square-red"
+                                required
+                                {{ isset($assessment) && $assessment->bug_report == 2 ? 'checked' : '' }}>
+                            ไม่มี
+                        </label>
+                    </div>
+                </div>
+
             </div>
+
+
+
             <div class="col-md-6">
                 <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน : </label>
                 <div class="col-md-8">
 
-                    @if ($assessment !== null)
+                    @if ($assessment !== null  && $assessment->bug_report == 2)
+                    
                         @if ($assessment->cbReportInfo->status === "1")
-                                <a href="{{route('save_assessment.cb_report_create',['id' => $assessment->id])}}"
+                                <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_one/' . $assessment->id) }}"
                                     title="จัดทำรายงาน" class="btn btn-warning">
                                     รายงานที่1
                                 </a>
                             @else
-                                <a href="{{route('save_assessment.cb_report_create',['id' => $assessment->id])}}"
+                                <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_one/' . $assessment->id) }}"
                                     title="จัดทำรายงาน" class="btn btn-info">
                                     รายงานที่1
                                 </a>
                         @endif 
-                    {{-- @else      --}}
-                        {{-- <a href="{{route('save_assessment.view_cb_info',['id' => $assessment->id])}}"
-                            title="จัดทำรายงาน" class="btn btn-warning">
-                            รายงานที่1
-                        </a> --}}
-                        {{-- <a href="{{route('save_assessment.cb_report_create',['id' => $assessment->id ])}}" class="btn btn-warning">
-                            รายงานที่1
-                        </a> --}}
+                
+
                     @endif
 
                     @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
@@ -525,12 +550,12 @@
         @if(!is_null($assessment) && (count($assessment->FileAttachAssessment4Many) > 0 ) )
             @foreach($assessment->FileAttachAssessment4Many as  $key => $item)
               <p id="remove_attach_all{{$item->id}}">
-                @if( $item->file  !='' && HP::checkFileStorage($attach_path. $item->file ))
+                {{-- @if( $item->file  !='' && HP::checkFileStorage($attach_path. $item->file )) --}}
                     <a href="{{url('certify/check/file_cb_client/'.$item->file.'/'.( !empty($item->file_client_name) ? $item->file_client_name : 'null' ))}}" 
                             title="{{ !empty($item->file_client_name) ? $item->file_client_name :  basename($item->file) }}" target="_blank">
                         {!! HP::FileExtension($item->file)  ?? '' !!}
                     </a>
-                @endif
+                {{-- @endif --}}
                 <button class="btn btn-danger btn-xs deleteFlie div_hide"
                      type="button" onclick="deleteFlieAttachAll({{$item->id}})">
                      <i class="icon-close"></i>
@@ -540,6 +565,7 @@
         @endif
      </div>
    </div>
+   
  </div>
  <br>
  <div class="clearfix"></div>
@@ -730,40 +756,43 @@
                             }).then((result) => {
                                 if (result.value) {
                                     if(submit_type == 'confirm'){
-                                        $.ajax({
-                                            url: "{{route('save_assessment.check_complete_cb_report_one_sign')}}",
-                                            method: "POST",
-                                            data: {
-                                                _token: _token,
-                                                assessment_id:assessment_id
-                                            },
-                                            success: function(result) {
-                                                console.log(result);
-                                                if (result.message == true) {
-                                                    $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
-                                                    $('#form_assessment').submit();
-                                                }else{
+                                        // $.ajax({
+                                        //     url: "{{route('save_assessment.check_complete_cb_report_one_sign')}}",
+                                        //     method: "POST",
+                                        //     data: {
+                                        //         _token: _token,
+                                        //         assessment_id:assessment_id
+                                        //     },
+                                        //     success: function(result) {
+                                        //         console.log(result);
+                                        //         if (result.message == true) {
+                                        //             $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                        //             $('#form_assessment').submit();
+                                        //         }else{
                                                     
-                                                    if (result.record_count == 0) {
-                                                        alert('ยังไม่ได้สร้างรายงานการตรวจประเมิน(รายงานที่1)');
+                                        //             if (result.record_count == 0) {
+                                        //                 alert('ยังไม่ได้สร้างรายงานการตรวจประเมิน(รายงานที่1)');
                                                        
-                                                        if (!assessment_id) {
-                                                            // window.location.href = window.location.origin + '/certify/save_assessment-cb/create/' + id;
-                                                              const baseUrl1 = "{{ url('/certify/save_assessment-cb/create') }}";
-                                                                const redirectUrl1 = `${baseUrl1}/${id}`;
-                                                                window.location.href = redirectUrl1;
-                                                        }else{
-                                                            // window.location.href = window.location.origin + '/certify/save_assessment-cb/view-cb-info/' + assessment_id;
-                                                             const baseUrl = "{{ url('/certify/save_assessment-cb/view-cb-info') }}";
-                                                                const redirectUrl = `${baseUrl}/${assessment_id}`;
-                                                                window.location.href = redirectUrl;
-                                                        }
-                                                    }else{
-                                                        alert('อยู่ระหว่างการลงนามรายงานการตรวจประเมิน(รายงานที่1)');
-                                                    }
-                                                }
-                                            }
-                                        });
+                                        //                 if (!assessment_id) {
+                                        //                     // window.location.href = window.location.origin + '/certify/save_assessment-cb/create/' + id;
+                                        //                       const baseUrl1 = "{{ url('/certify/save_assessment-cb/create') }}";
+                                        //                         const redirectUrl1 = `${baseUrl1}/${id}`;
+                                        //                         window.location.href = redirectUrl1;
+                                        //                 }else{
+                                        //                     // window.location.href = window.location.origin + '/certify/save_assessment-cb/view-cb-info/' + assessment_id;
+                                        //                      const baseUrl = "{{ url('/certify/save_assessment-cb/view-cb-info') }}";
+                                        //                         const redirectUrl = `${baseUrl}/${assessment_id}`;
+                                        //                         window.location.href = redirectUrl;
+                                        //                 }
+                                        //             }else{
+                                        //                 alert('อยู่ระหว่างการลงนามรายงานการตรวจประเมิน(รายงานที่1)');
+                                        //             }
+                                        //         }
+                                        //     }
+                                        // });
+
+                                        $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                        $('#form_assessment').submit();
 
                                     }else if(submit_type == 'save'){
                                         // console.log(submit_type)

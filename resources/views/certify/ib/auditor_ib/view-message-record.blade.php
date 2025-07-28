@@ -243,7 +243,13 @@
                 <tr>
                     <td>เรื่อง</td>
                     {{-- <td style="width: 700px;font-size:22px" class="under-line">การแต่งตั้งคณะผู้ตรวจหน่วยตรวจ {{$data->name_standard}} (คำขอเลขที่ {{$data->app_no}})</td> --}}
-                    <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})</td>
+                    {{-- <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})</td> --}}
+
+                    @if ($assessmentType == 0)
+                            <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})</td>
+                        @elseif($assessmentType == 1)
+                            <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} ความสามารถผู้ตรวจ เพื่อการรับรองระบบงานของหน่วยตรวจของ {{$data->name_standard}} ({{$data->header_text4}})</td>
+                    @endif
                 </tr>
             </table>
 

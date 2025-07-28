@@ -295,7 +295,12 @@
                 @endphp
                 <tr>
                     <td>เรื่อง</td>
-                    <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})</td>
+                    @if ($assessmentType == 0)
+                            <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})</td>
+                        @elseif($assessmentType == 1)
+                            <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} ความสามารถผู้ตรวจ เพื่อการรับรองระบบงานของหน่วยตรวจของ {{$data->name_standard}} ({{$data->header_text4}})</td>
+                    @endif
+                    
                 </tr>
             </table>
 
@@ -324,10 +329,21 @@
             <!-- การดำเนินการ -->
             <div class="section">
                 <div class="section-title">๔. การดำเนินการ</div>
-                <div style="text-indent: 137px;margin-top:10px;line-height:34px">
-                    รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย {{$teamList}}
-                    เพื่อดำเนินการตรวจประเมินสถานประกอบการ ของ {{$data->name_standard}} {{$data->date_range}} ดังนี้
-                </div>
+
+                    @if ($assessmentType == 0) 
+                            <div style="text-indent: 137px;margin-top:10px;line-height:34px">
+                                รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้เชี่ยวชาญ
+                                เพื่อดำเนินการตรวจประเมินสถานประกอบการ ของ {{$data->name_standard}} {{$data->date_range}} ดังนี้
+                            </div>
+
+                        @elseif($assessmentType == 1)
+                            <div style="text-indent: 137px;margin-top:10px;line-height:34px">
+                                รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน
+                                เพื่อดำเนินการตรวจประเมินสถานประกอบการ ของ {{$data->name_standard}} {{$data->date_range}} ดังนี้
+                            </div>
+                    @endif
+
+
                 <div style="margin-top:15px">
                     <table style="margin-left:100px">
                         @foreach ($boardAuditor->CertiIBAuditorsLists  as $key => $auditor)

@@ -16,6 +16,7 @@ use Mpdf\HTMLParserMode;
 use App\CertificateExport;
 use App\Helpers\TextHelper;
 use Illuminate\Support\Str;
+use App\Jobs\GeneratePdfJob;
 use Illuminate\Http\Request;
 use Smalot\PdfParser\Parser;
 use App\Certify\CbReportInfo;
@@ -25,6 +26,8 @@ use App\Models\Besurv\Signer;
 use App\Certify\CbReportTwoInfo;
 use App\Certify\IbReportTwoInfo;
 use Yajra\Datatables\Datatables;
+use App\Certify\CbReportTemplate;
+use App\Certify\IbReportTemplate;
 use App\Mail\Lab\OtpNofitication;
 use App\Services\CreateIbScopePdf;
 use Illuminate\Support\Facades\DB;
@@ -68,6 +71,7 @@ use App\Models\Certify\Applicant\Assessment;
 use App\Models\Certify\Applicant\NoticeItem;
 use App\Models\Certify\SendCertificateLists;
 use App\Services\CreateTrackingLabReportPdf;
+use App\Mail\CB\CBSignReportNotificationMail;
 use App\Services\CreateCbAssessmentReportPdf;
 use App\Services\CreateIbAssessmentReportPdf;
 use App\Models\Certificate\CbDocReviewAuditor;
@@ -99,6 +103,7 @@ use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Services\CreateTrackingLabMessageRecordPdf;
 use App\Models\Bcertify\CalibrationBranchInstrument;
 use App\Models\Certify\ApplicantCB\CertiCBAttachAll;
+use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
 use App\Models\Certify\Applicant\CertifyLabCalibrate;
 use App\Models\Certify\SignAssessmentReportTransaction;
 use App\Services\CreateTrackingCbAssessmentReportOnePdf;
@@ -106,6 +111,8 @@ use App\Services\CreateTrackingCbAssessmentReportTwoPdf;
 use App\Services\CreateTrackingIbAssessmentReportOnePdf;
 use App\Services\CreateTrackingIbAssessmentReportTwoPdf;
 use App\Models\Bcertify\CalibrationBranchInstrumentGroup;
+use App\Models\Certify\ApplicantCB\CertiCBSaveAssessment;
+use App\Models\Certify\ApplicantIB\CertiIBSaveAssessment;
 use App\Services\CreateTrackingLabAssessmentReportOnePdf;
 use App\Services\CreateTrackingLabAssessmentReportTwoPdf;
 use App\Models\Certificate\SignAssessmentTrackingReportTransaction;
@@ -3904,6 +3911,191 @@ $mpdf->SetHTMLFooter($footerHtml);
 
     }
 
+    public function genPdfFormId()
+    {
+        $signAssessmentReportTransaction = SignAssessmentReportTransaction::latest()->first();
+        $this->generatePdfFromDb($signAssessmentReportTransaction->report_info_id ,"ib_final_report_process_one");
+    }
+    
+    public function generatePdfFromDb($reportId ,$templateType)
+    {
+        try {
+            
+             $ibReportTemplate = IbReportTemplate::find($reportId);
+            $assessment = $ibReportTemplate->certiIBSaveAssessment;
+            $certi_ib = CertiIb::findOrFail($assessment->app_certi_ib_id);
 
+            if (empty($ibReportTemplate->template)) {
+                throw new \Exception('ไม่พบเนื้อหาของรายงานที่บันทึกไว้');
+            }
+
+            $htmlContent = $ibReportTemplate->template;
+
+            // 3. เตรียม HTML สำหรับสร้าง PDF (แปลง Checkbox และลบปุ่มที่ไม่ต้องการ)
+            $dom = new \DOMDocument();
+            @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            
+            $xpath = new \DOMXPath($dom);
+
+            // ลบปุ่ม "เลือกผู้ลงนาม" ทั้งหมด
+            $buttons = $xpath->query("//button[contains(@class, 'select-signer-btn')]");
+            foreach ($buttons as $button) {
+                $button->parentNode->removeChild($button);
+            }
+
+            // แปลง Checkbox เป็นสัญลักษณ์
+            $checkboxes = $xpath->query('//input[@type="checkbox"]');
+            foreach ($checkboxes as $checkbox) {
+                $symbolText = $checkbox->hasAttribute('checked') ? '☑' : '☐';
+                $symbolNode = $dom->createTextNode($symbolText);
+                $checkbox->parentNode->replaceChild($symbolNode, $checkbox);
+            }
+
+            $processedHtml = $dom->saveHTML();
+
+            // 4. ใช้ตรรกะการสร้าง PDF และบันทึกไฟล์
+            if (class_exists(\Barryvdh\Debugbar\Facade::class)) {
+                \Barryvdh\Debugbar\Facade::disable();
+            }
+
+            $footerTextLeft = '';
+            $footerTextRight = 'FCI-AS06-01<br>01/10/2567';
+
+            // กำหนดชื่อและ Path สำหรับไฟล์ PDF ตามรูปแบบ mPDF
+            $no = str_replace("RQ-", "", $certi_ib->app_no);
+            $no = str_replace("-", "_", $no);
+            $attachPath = '/files/applicants/check_files_ib/' . $no . '/';
+            $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+            $outputPdfPath = Storage::disk('uploads')->path($fullFileName); // สร้างใน root ของ uploads ก่อน
+            
+            // ส่ง Job ไปสร้างไฟล์ PDF
+            GeneratePdfJob::dispatch($processedHtml, $outputPdfPath, $footerTextLeft, $footerTextRight);
+
+            // 5. รอผลลัพธ์จาก Job
+            $timeout = 60;
+            $startTime = time();
+
+            $certiIBSaveAssessment = CertiIBSaveAssessment::where('app_certi_ib_id',$certi_ib->id)->first();
+            $diskName = 'uploads';
+            while (time() - $startTime < $timeout) {
+                if (Storage::disk('uploads')->exists($fullFileName)) {
+                    $pdfContent = Storage::disk('uploads')->get($fullFileName);
+
+                        // **NEW**: อัปโหลดไฟล์ขึ้น FTP
+                    Storage::disk('ftp')->put($attachPath . $fullFileName, $pdfContent);
+
+                    // **NEW**: ตรวจสอบว่าไฟล์ถูกบันทึกบน FTP สำเร็จ แล้วจึงบันทึกข้อมูลลง DB
+                    if (Storage::disk('ftp')->exists($attachPath . $fullFileName)) {
+                       
+                        $storePath = $no . '/' . $fullFileName;
+
+                        dd("sdfdsfds".'http://127.0.0.1:8081/certify/check/file_ib_client/'.$storePath.'/'. $fullFileName);
+                        // บันทึกข้อมูลลงตาราง CertiIBAttachAll (Section 3)
+                        $attach3 = new CertiIBAttachAll();
+                        $attach3->app_certi_ib_id = $assessment->app_certi_ib_id ?? null;
+                        $attach3->ref_id = $certiIBSaveAssessment->id;
+                        $attach3->table_name = (new CertiIBSaveAssessment)->getTable();
+                        $attach3->file_section = '3';
+                        $attach3->file = $storePath;
+                        $attach3->file_client_name = 'report' . '_' . $no . '.pdf';
+                        $attach3->token = Str::random(16);
+                        $attach3->save();
+
+                        // บันทึกข้อมูลลงตาราง CertiIBAttachAll (Section 1)
+                        $attach1 = new CertiIBAttachAll();
+                        $attach1->app_certi_ib_id = $assessment->app_certi_ib_id ?? null;
+                        $attach1->ref_id = $certiIBSaveAssessment->id;
+                        $attach1->table_name = (new CertiIBSaveAssessment)->getTable();
+                        $attach1->file_section = '1';
+                        $attach1->file = $storePath;
+                        $attach1->file_client_name = 'report' . '_' . $no . '.pdf';
+                        $attach1->token = Str::random(16);
+                        $attach1->save();
+                    }
+
+                     Storage::disk($diskName)->delete($fullFileName);
+               
+
+                    return response($pdfContent)
+                        ->header('Content-Type', 'application/pdf')
+                        ->header('Content-Disposition', 'inline; filename="' . $fullFileName . '"');
+                }
+                sleep(1);
+            }
+
+            throw new \Exception('การสร้างไฟล์ PDF ใช้เวลานานเกินไป');
+
+        } catch (\Exception $e) {
+            Log::error('Generate PDF from DB failed: ' . $e->getMessage());
+            return response("เกิดข้อผิดพลาดในการสร้าง PDF: " . $e->getMessage(), 500);
+        }
+    }
+
+
+
+
+
+
+
+
+
+    public function set_cb_mail() 
+    {
+        $certiCBSaveAssessment = CertiCBSaveAssessment::latest()->first();
+         $report = CbReportTemplate::where('cb_assessment_id',$certiCBSaveAssessment->id)->where('report_type',"cb_final_report_process_one")->first();
+         $reportName = "ลงนามรายงานการตรวจประเมินขั้นตอนที่1";
+        // $certiCBSaveAssessment,$report,$reportName
+
+        $signerIds = SignAssessmentReportTransaction::where('report_info_id', $report->id)
+                                    ->where('certificate_type',0)
+                                    ->where('report_type',1)
+                                    ->pluck('signer_id')
+                                    ->toArray();
+
+        $signerEmails = Signer::whereIn('id',$signerIds)->get()->pluck('user.reg_email')->filter()->values();
+        $certi_cb = $certiCBSaveAssessment->CertiCBCostTo;
+
+ 
+
+            $config = HP::getConfig();
+            $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+
+
+            $data_app = [
+                          'reportName'  => $reportName,
+                          'certi_cb'       => $certi_cb ,
+                          'url'            => $url.'certify/applicant-cb' ?? '-',
+                          'email'          =>  !empty($certi_cb->DataEmailCertifyCenter) ? $certi_cb->DataEmailCertifyCenter : 'cb@tisi.mail.go.th',
+                          'email_cc'       =>  !empty($mail_cc) ? $mail_cc : 'cb@tisi.mail.go.th',
+                          'email_reply'    => !empty($certi_cb->DataEmailDirectorCBReply) ? $certi_cb->DataEmailDirectorCBReply : 'cb@tisi.mail.go.th'
+                    ];
+
+            $log_email =  HP::getInsertCertifyLogEmail($certi_cb->app_no,
+                                                    $certi_cb->id,
+                                                    (new CertiCb)->getTable(),
+                                                    $certiCBSaveAssessment->id,
+                                                    (new CertiCBSaveAssessment)->getTable(),
+                                                    3,
+                                                    $reportName,
+                                                    view('mail.CB.sign_report_notification', $data_app),
+                                                    $certi_cb->created_by,
+                                                    $certi_cb->agent_id,
+                                                    auth()->user()->getKey(),
+                                                    !empty($certi_cb->DataEmailCertifyCenter) ?  implode(',',(array)$certi_cb->DataEmailCertifyCenter)  :  'cb@tisi.mail.go.th',
+                                                    $certi_cb->email,
+                                                    !empty($mail_cc) ?  implode(',',(array)$mail_cc)  : 'cb@tisi.mail.go.th',
+                                                    !empty($certi_cb->DataEmailDirectorCBReply) ?implode(',',(array)$certi_cb->DataEmailDirectorCBReply)   :   'cb@tisi.mail.go.th',
+                                                    null
+                                                    );
+            // dd($data_app);
+            $html = new CBSignReportNotificationMail($data_app);
+            $mail =  Mail::to($signerEmails)->send($html);
+
+            if(is_null($mail) && !empty($log_email)){
+                HP::getUpdateCertifyLogEmail($log_email->id);
+            } 
+     
+    }
 }
 

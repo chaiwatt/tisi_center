@@ -239,26 +239,7 @@
         <div class="form-group">
             <div class="col-md-6">
                 <label class="col-md-5 text-right"><span class="text-danger">*</span> รายงานข้อบกพร่อง : </label>
-                {{-- <div class="col-md-7">
-                    <div class="row">
-                        <label class="col-md-6">
-                            {!! Form::radio('bug_report', '1', false , ['class'=>'check check-readonly', 'data-radio'=>'iradio_square-green','required'=>'required']) !!}  มี
-                        </label>
-                        <label class="col-md-6">
-                            {!! Form::radio('bug_report', '2', true, ['class'=>'check check-readonly', 'data-radio'=>'iradio_square-red','required'=>'required']) !!} ไม่มี
-                        </label>
-                    </div>
-                </div> --}}
-                {{-- <div class="col-md-7">
-                    <div class="row">
-                        <label class="col-md-6">
-                            <input type="radio" name="bug_report" value="1" class="check check-readonly" data-radio="iradio_square-green" required="required" > มี
-                        </label>
-                        <label class="col-md-6">
-                            <input type="radio" name="bug_report" value="2" class="check check-readonly" data-radio="iradio_square-red" required="required"> ไม่มี
-                        </label>
-                    </div>
-                </div> --}}
+
 
                 <div class="col-md-7">
                     <div class="row">
@@ -286,8 +267,7 @@
             <div class="col-md-6">
                 <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน : </label>
                 <div class="col-md-8">
-                    {{-- {{$assessment->ibReportInfo}} --}}
-                    @if ($assessment !== null)
+                    @if ($assessment !== null && $assessment->bug_report == 2)
                     
                         @if ($assessment->ibReportInfo->status === "1")
                                 <a href="{{ url('/certify/show-ib-editor/ib_final_report_process_one/' . $assessment->id) }}"
@@ -303,25 +283,13 @@
                     @endif
 
                     @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
-                          {{-- <p id="RemoveFlie"> --}}
                             <a href="{{url('certify/check/file_ib_client/'.$assessment->FileAttachAssessment1To->file.'/'.( !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name : 'null' ))}}" 
                                 title="{{ !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name :  basename($assessment->FileAttachAssessment1To->file) }}" target="_blank">
                                 {!! HP::FileExtension($assessment->FileAttachAssessment1To->file)  ?? '' !!}
                             </a> 
                         <div id="AddFile"></div>      
                     @else 
-                        {{-- <div class="fileinput fileinput-new input-group" data-provides="fileinput" >
-                        <div class="form-control" data-trigger="fileinput">
-                        <i class="glyphicon glyphicon-file fileinput-exists"></i>
-                        <span class="fileinput-filename"></span>
-                        </div>
-                        <span class="input-group-addon btn btn-default btn-file">
-                        <span class="fileinput-new">เลือกไฟล์</span>
-                        <span class="fileinput-exists">เปลี่ยน</span>
-                            <input type="file" name="file" required class="check_max_size_file">
-                            </span>
-                        <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">ลบ</a>
-                        </div> --}}
+
                     @endif
                 </div>
             </div>
@@ -791,44 +759,41 @@
                                     }).then((result) => {
                                         if (result.value) {
                                             if(submit_type == 'confirm'){
-                                                $.ajax({
-                                                    url: "{{route('save_assessment.check_complete_ib_report_one_sign')}}",
-                                                    method: "POST",
-                                                    data: {
-                                                        _token: _token,
-                                                        assessment_id:assessment_id
-                                                    },
-                                                    success: function(result) {
-                                                        console.log(result);
-                                                        if (result.message == true) {
-                                                            $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
-                                                            $('#form_assessment').submit();
-                                                        }else{
+                                                // $.ajax({
+                                                //     url: "{{route('save_assessment.check_complete_ib_report_one_sign')}}",
+                                                //     method: "POST",
+                                                //     data: {
+                                                //         _token: _token,
+                                                //         assessment_id:assessment_id
+                                                //     },
+                                                //     success: function(result) {
+                                                //         console.log(result);
+                                                //         if (result.message == true) {
+                                                //             $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                                //             $('#form_assessment').submit();
+                                                //         }else{
                                                             
-                                                            if (result.record_count == 0) {
-                                                                alert('ยังไม่ได้สร้างรายงานการตรวจประเมิน(รายงานที่1)');
+                                                //             if (result.record_count == 0) {
+                                                //                 alert('ยังไม่ได้สร้างรายงานการตรวจประเมิน(รายงานที่1)');
+                                                //                 if (assessment_id == "") {
+                                                //                       const baseUrl1 = "{{ url('/certify/save_assessment-ib/create') }}";
+                                                //                         const redirectUrl1 = `${baseUrl1}/${id}`;
+                                                //                         window.location.href = redirectUrl1;
+                                                //                 }else{
+                                 
+                                                //                     const baseUrl = "{{ url('/certify/save_assessment-ib/ib-report-create') }}";
+                                                //                         const redirectUrl = `${baseUrl}/${assessment_id}`;
+                                                //                         window.location.href = redirectUrl;
+                                                //                 }
+                                                //             }else{
+                                                //                 alert('อยู่ระหว่างการลงนามรายงานการตรวจประเมิน(รายงานที่1)');
+                                                //             }
+                                                //         }
+                                                //     }
+                                                // });
 
-
-                                                            
-                                                                if (assessment_id == "") {
-                                                                    // window.location.href = window.location.origin + '/certify/save_assessment-ib/create/' + id;
-
-                                                                      const baseUrl1 = "{{ url('/certify/save_assessment-ib/create') }}";
-                                                                        const redirectUrl1 = `${baseUrl1}/${id}`;
-                                                                        window.location.href = redirectUrl1;
-                                                                }else{
-                                                                    // window.location.href = window.location.origin + '/certify/save_assessment-ib/view-ib-info/' + assessment_id;
-                                                                    const baseUrl = "{{ url('/certify/save_assessment-ib/ib-report-create') }}";
-                                                                        const redirectUrl = `${baseUrl}/${assessment_id}`;
-                                                                        window.location.href = redirectUrl;
-                                                                    //    http://127.0.0.1:8081/certify/save_assessment-ib/ib-report-create/209
-                                                                }
-                                                            }else{
-                                                                alert('อยู่ระหว่างการลงนามรายงานการตรวจประเมิน(รายงานที่1)');
-                                                            }
-                                                        }
-                                                    }
-                                                });
+                                                $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                                $('#form_assessment').submit();
 
                                             }else if(submit_type == 'save'){
                                                 // console.log(submit_type)

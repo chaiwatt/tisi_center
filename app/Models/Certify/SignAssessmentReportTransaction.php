@@ -29,9 +29,9 @@ class SignAssessmentReportTransaction extends Model
         'linesapce',
         'view_url',
         'approval',
-        'report_type'
+        'report_type',
+        'template'
     ];
-
 
     public function labReportInfo()
     {
@@ -62,7 +62,6 @@ class SignAssessmentReportTransaction extends Model
     {
         return $this->belongsTo(IbReportTwoInfo::class, 'report_info_id', 'id');
     }
-
 
     public function signer(){
         return $this->belongsTo(Signer::class, 'signer_id', 'id');

@@ -189,8 +189,6 @@ class SaveAssessmentIbController extends Controller
                 'app_certi_ib_id' => 'required',
             ]);
 
-            // dd($request->all());
-
             $request->request->add(['created_by' => auth()->user()->getKey()]); 
             $requestData = $request->all();
             $requestData['report_date'] =  HP::convertDate($request->report_date,true) ?? null;
@@ -347,7 +345,7 @@ class SaveAssessmentIbController extends Controller
                 }
              }
 
-             dd($assessment);
+            //  dd($assessment);
 
        //
        //

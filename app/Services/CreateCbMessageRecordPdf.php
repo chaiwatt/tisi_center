@@ -19,6 +19,7 @@ use App\Models\Bcertify\AuditorInformation;
 use App\Models\Certify\ApplicantCB\CertiCb;
 use App\Models\Certificate\CbDocReviewAuditor;
 use App\Models\Certify\MessageRecordTransaction;
+use App\Models\Bcertify\CbBoardAuditorMsRecordInfo;
 use App\Models\Certify\Applicant\CertiLabAttachAll;
 use App\Models\Certify\ApplicantCB\CertiCBAuditors;
 use App\Models\Bcertify\CalibrationBranchInstrument;
@@ -80,7 +81,8 @@ class CreateCbMessageRecordPdf
     public function ia($mpdf)
     {
         $boardAuditor = CertiCBAuditors::find($this->board_auditor_id);
-        $boardAuditorMsRecordInfo = $boardAuditor->cbBoardAuditorMsRecordInfos->first();
+        // $boardAuditorMsRecordInfo = $boardAuditor->cbBoardAuditorMsRecordInfos->first();
+        $boardAuditorMsRecordInfo = CbBoardAuditorMsRecordInfo::where('board_auditor_id',$this->board_auditor_id)->first();
         // dd($this->board_auditor_id);
         $auditorIds = []; // สร้าง array ว่างเพื่อเก็บ auditor_id
 

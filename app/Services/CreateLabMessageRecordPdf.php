@@ -16,6 +16,7 @@ use App\Models\Bcertify\BoardAuditoExpert;
 use App\Models\Bcertify\CalibrationBranch;
 use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Bcertify\AuditorInformation;
+use App\Models\Bcertify\BoardAuditorMsRecordInfo;
 use App\Models\Certify\MessageRecordTransaction;
 use App\Models\Certify\Applicant\CertiLabAttachAll;
 use App\Models\Bcertify\CalibrationBranchInstrument;
@@ -251,7 +252,7 @@ class CreateLabMessageRecordPdf
 public function ia($mpdf)
 {
     $boardAuditor = BoardAuditor::find($this->board_auditor_id);
-    $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first() ?? null; // แก้ไข: กัน first() คืนค่า null แล้วเกิด error
+    $boardAuditorMsRecordInfo = BoardAuditorMsRecordInfo::where('board_auditor_id',$this->board_auditor_id)->first() ; // $boardAuditor->boardAuditorMsRecordInfos->first() ?? null; // แก้ไข: กัน first() คืนค่า null แล้วเกิด error
 
     $groups = $boardAuditor->groups;
 

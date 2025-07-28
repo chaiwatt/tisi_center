@@ -180,6 +180,7 @@ class AuditorAssignmentController extends Controller
             }
 
             $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
+            
 
                if (is_null($boardAuditorMsRecordInfo)) {
                 return response()->json([
@@ -282,7 +283,7 @@ class AuditorAssignmentController extends Controller
             MessageRecordTransaction::find($request->id)->update([
                 'approval' => 1
             ]);
-            // CB
+            // IB
             $messageRecordTransactions = MessageRecordTransaction::where('board_auditor_id',$messageRecordTransaction->board_auditor_id)
                     ->whereNotNull('signer_id')
                     ->where('certificate_type',1)

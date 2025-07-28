@@ -241,6 +241,7 @@ class CreateIbAssessmentReportPdf
             $certi_ib_attach_more->file                 = $storePath;
             $certi_ib_attach_more->file_client_name     = 'report' . '_' . $no . '.pdf';
             $certi_ib_attach_more->token                = str_random(16);
+
             $certi_ib_attach_more->save();
 
             $certi_ib_attach_more                       = new CertiIBAttachAll();
@@ -251,6 +252,7 @@ class CreateIbAssessmentReportPdf
             $certi_ib_attach_more->file                 = $storePath;
             $certi_ib_attach_more->file_client_name     = 'report' . '_' . $no . '.pdf';
             $certi_ib_attach_more->token                = str_random(16);
+
             $certi_ib_attach_more->save();
         }      
     

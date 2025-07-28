@@ -324,16 +324,39 @@
                                                     {{ $assessment->CertiCBAuditorsTo->auditor ?? '-'}} dddd
                                                 </a>  --}}
 
-                                                @if ($assessment->submit_type == 'confirm' || $assessment->submit_type == null || $assessment->bug_report == 2)
-                                                     
-                                                        <a  class="btn {{$assessment_btn}}  " href="{{ url("$assessment_url")}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
-                                                            {{ $assessment->CertiCBAuditorsTo->auditor ?? '-'}}
-                                                        </a> 
-                                                    @elseif($assessment->submit_type == 'save')
-                                                    <a  class="btn btn-info  " href="{{route('save_cb_assessment.create',['id' => $boardAuditor->id])}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
-                                                       {{$boardAuditor->auditor}} (ฉบับร่าง)
-                                                    </a> 
-                                                @endif
+                                                 @if ($assessment->bug_report == 2)
+                                                    
+                                                        @if ($boardAuditor->isAllFinalReportSigned() == false)
+                                                            <a  class="btn btn-info  " href="{{route('save_cb_assessment.create',['id' => $boardAuditor->id])}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
+                                                                {{$boardAuditor->auditor}} (อยู่ระหว่างจัดทำรายงาน)
+                                                            </a> 
+                                                        @else
+                                                            @if ($assessment->submit_type == 'confirm' || $assessment->submit_type == null || $assessment->bug_report == 2)
+                                                                
+                                                                    <a  class="btn {{$assessment_btn}}  " href="{{ url("$assessment_url")}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
+                                                                        {{ $assessment->CertiCBAuditorsTo->auditor ?? '-'}}
+                                                                    </a> 
+                                                                @elseif($assessment->submit_type == 'save')
+                                                                <a  class="btn btn-info  " href="{{route('save_cb_assessment.create',['id' => $boardAuditor->id])}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
+                                                                {{$boardAuditor->auditor}} (ฉบับร่าง)
+                                                                </a> 
+                                                            @endif
+                                                        @endif
+                                                       
+                                                 @else
+                                                        @if ($assessment->submit_type == 'confirm' || $assessment->submit_type == null)
+                                                            
+                                                                <a  class="btn {{$assessment_btn}}  " href="{{ url("$assessment_url")}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
+                                                                    {{ $assessment->CertiCBAuditorsTo->auditor ?? '-'}}
+                                                                </a> 
+                                                            @elseif($assessment->submit_type == 'save')
+                                                            <a  class="btn btn-info  " href="{{route('save_cb_assessment.create',['id' => $boardAuditor->id])}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
+                                                            {{$boardAuditor->auditor}} (ฉบับร่าง)
+                                                            </a> 
+                                                        @endif
+                                                 @endif
+
+                                         
 
                                               
                                             @else
@@ -380,10 +403,16 @@
                         </a>
                     @endif --}}
 
+                        @if ($boardAuditor->isAllFinalReportSigned())
+                                ลงนามครบแล้ว
+                            @else
+                                ยังไม่ได้ลงหนามหรือสร้างรายงาน
+                        @endif
+
                     {{-- ทบทวน --}}
                     {{-- {{$certi_cb->fullyApproveReport()}} --}}
                    
-                    @if( $certi_cb->status >= 11  && count($certi_cb->CertiCBSaveAssessmentMany) > 0   && $certi_cb->CertiCBSaveAssessmentStatus == "statusInfo")
+                    @if( $certi_cb->status >= 11  && count($certi_cb->CertiCBSaveAssessmentMany) > 0   && $certi_cb->CertiCBSaveAssessmentStatus == "statusInfo" && $boardAuditor->isAllFinalReportSigned())
                         @php 
                             $review =  $certi_cb->CertiCBReviewTo;
                             $review_btn =  '';
