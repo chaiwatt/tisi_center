@@ -413,11 +413,11 @@
                             </a>
                         @endif --}}
 
-                        @if ($boardAuditor->isAllFinalReportSigned())
+                        {{-- @if ($boardAuditor->isAllFinalReportSigned())
                                 ลงนามครบแล้ว
                             @else
                                 ยังไม่ได้ลงหนามหรือสร้างรายงาน
-                        @endif
+                        @endif --}}
 
                         {{-- ทบทวน --}}
                         @if( $certi_ib->status >= 11 && count($certi_ib->CertiIBSaveAssessmentMany) > 0   && $certi_ib->CertiIBSaveAssessmentStatus == "statusInfo" && $boardAuditor->isAllFinalReportSigned())

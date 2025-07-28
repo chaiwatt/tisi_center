@@ -403,11 +403,11 @@
                         </a>
                     @endif --}}
 
-                        @if ($boardAuditor->isAllFinalReportSigned())
+                        {{-- @if ($boardAuditor->isAllFinalReportSigned())
                                 ลงนามครบแล้ว
                             @else
                                 ยังไม่ได้ลงหนามหรือสร้างรายงาน
-                        @endif
+                        @endif --}}
 
                     {{-- ทบทวน --}}
                     {{-- {{$certi_cb->fullyApproveReport()}} --}}
