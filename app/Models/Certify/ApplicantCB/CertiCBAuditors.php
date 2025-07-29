@@ -201,7 +201,7 @@ class CertiCBAuditors  extends Model
         // 3. ค้นหารายการที่ยังไม่ถูกอนุมัติ (approval = 0)
         $pendingSignatures = SignAssessmentReportTransaction::where('report_info_id', $report->id)
                                                         ->where('certificate_type', 0)
-                                                        ->where('report_type', $this->assessment_type)
+                                                        ->where('report_type', 1)
                                                         ->where('approval', 1)
                                                         ->get();
 
