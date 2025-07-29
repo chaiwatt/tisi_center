@@ -242,7 +242,7 @@ class AuditorCBController extends Controller
                     }
                 }
                 
-              return redirect()->route('check_certificate-cb.index');
+              return redirect()->route('auditor-cb.index');
                 // if($request->previousUrl){
                 //   return redirect("$request->previousUrl")->with('flash_message', 'เรียบร้อยแล้ว!');
                 // }else{
@@ -365,7 +365,7 @@ class AuditorCBController extends Controller
               }
           }
 
-          // return redirect()->route('check_certificate-cb.index');
+          // return redirect()->route('auditor-cb.index');
             if($request->previousUrl){
               return redirect("$request->previousUrl")->with('flash_message', 'เรียบร้อยแล้ว!');
             }else{
