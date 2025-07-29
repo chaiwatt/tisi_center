@@ -205,7 +205,7 @@ class CertiCBAuditors  extends Model
                                                         ->where('approval', 1)
                                                         ->get();
 
-        dd($pendingSignatures->count());
+        // dd($pendingSignatures->count());
         if( $pendingSignatures->count() >= 3){
             return true;
         }   else{

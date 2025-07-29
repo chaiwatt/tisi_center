@@ -326,11 +326,11 @@
 
                                                  @if ($assessment->bug_report == 2)
                                                     
-                                                        @if ($boardAuditor->isAllFinalReportSigned() == false)
+                                                        {{-- @if ($boardAuditor->isAllFinalReportSigned() == false)
                                                             <a  class="btn btn-info  " href="{{route('save_cb_assessment.create',['id' => $boardAuditor->id])}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
                                                                 {{$boardAuditor->auditor}} (อยู่ระหว่างจัดทำรายงาน)
                                                             </a> 
-                                                        @else
+                                                        @else --}}
                                                             @if ($assessment->submit_type == 'confirm' || $assessment->submit_type == null || $assessment->bug_report == 2)
                                                                 
                                                                     <a  class="btn {{$assessment_btn}}  " href="{{ url("$assessment_url")}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
@@ -341,7 +341,7 @@
                                                                 {{$boardAuditor->auditor}} (ฉบับร่าง)
                                                                 </a> 
                                                             @endif
-                                                        @endif
+                                                        {{-- @endif --}}
                                                        
                                                  @else
                                                         @if ($assessment->submit_type == 'confirm' || $assessment->submit_type == null)
