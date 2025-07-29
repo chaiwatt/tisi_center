@@ -275,10 +275,11 @@ class SaveAssessmentIbController extends Controller
                         ->where('report_type',1)
                         ->get();
 
-                        dd($check->count());
+                       
 
                 if($check->count() != 0 )
                 {
+                   
                     $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$report->id)
                             ->whereNotNull('signer_id')
                             ->where('certificate_type',1)
@@ -294,8 +295,10 @@ class SaveAssessmentIbController extends Controller
                 }
                 else
                 {
+                     
                     // dd($report);
                     $templateType = "ib_final_report_process_one";
+                    dd($templateType,$CertiIb->id,$assessment->id);
                     return view('abpdf.editor',[
                         'templateType' => $templateType,
                         'ibId' => $CertiIb->id,
