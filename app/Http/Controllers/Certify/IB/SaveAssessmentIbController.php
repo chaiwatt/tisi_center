@@ -206,7 +206,8 @@ class SaveAssessmentIbController extends Controller
 
             $assessment = CertiIBSaveAssessment::where('auditors_id',$request->auditors_id)->first();
 
-            // dd($request->all(),$assessment);
+            // dd($request->all(),$assessment,isset($requestData["detail"]));
+
            
             if($assessment == null){
                 $assessment = CertiIBSaveAssessment::create($requestData);
@@ -274,7 +275,7 @@ class SaveAssessmentIbController extends Controller
                         ->where('report_type',1)
                         ->get();
 
-                        // dd($check->count());
+                        dd($check->count());
 
                 if($check->count() != 0 )
                 {
