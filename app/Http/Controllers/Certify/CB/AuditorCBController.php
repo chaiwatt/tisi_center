@@ -194,7 +194,7 @@ class AuditorCBController extends Controller
 
     public function store(Request $request)
     {
-      // dd($request->all());
+      dd($request->all());
         $cbAuditorTeam = CbAuditorTeam::find($request->cbAuditorTeam);
         $auditorTeamData = json_decode($cbAuditorTeam->auditor_team_json, true);
         // dd($request->all());
