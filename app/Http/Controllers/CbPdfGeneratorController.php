@@ -288,8 +288,8 @@ class CbPdfGeneratorController extends Controller
                     <b style="font-size: 22px">5. มาตรฐานที่ใช้ตรวจ : </b> ... <br> 
                     <b style="font-size: 22px">6. วันที่ตรวจประเมิน : </b> ... <br> 
                     <b style="font-size: 22px">7. การตรวจประเมินเพื่อ : </b><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&#9744; การรับรองครั้งแรก&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9745; การตรวจติดตามผล ครั้งที่ 1<br> 
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&#9744; การต่ออายุการรับรองระบบงาน&nbsp;&nbsp;&nbsp;&nbsp;&#9745; อื่น ๆ<br> 
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input type="checkbox"> การรับรองครั้งแรก&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox"> การตรวจติดตามผล ครั้งที่ 1<br> 
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input type="checkbox"> การต่ออายุการรับรองระบบงาน&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox"> อื่น ๆ<br> 
                     <b style="font-size: 22px">8. คณะผู้ตรวจประเมินของสำนักงาน : </b> ... <br> 
                     <b style="font-size: 22px">9. คณะผู้ตรวจของหน่วยงาน : </b> ... <br> 
                     <b style="font-size: 22px">10. รายละเอียดการตรวจประเมิน : </b> ... <br> 
@@ -480,14 +480,14 @@ class CbPdfGeneratorController extends Controller
                             </td>
                             <td style="width: 50%; border: 1px solid black; padding: 8px; vertical-align: top;">
                                 <b style="font-weight: bold;">รายงานข้อบกพร่องที่:</b> ...<br>
-                                <b style="font-weight: bold;">การตรวจประเมินเพื่อ: </b><span>&#9744; รับรองครั้งแรก</span> <span>&#9745; ติดตามผลครั้งที่ 1</span>
+                                <b style="font-weight: bold;">การตรวจประเมินเพื่อ: </b><span><input type="checkbox"> รับรองครั้งแรก</span> <span><input type="checkbox"> ติดตามผลครั้งที่ 1</span>
                                 <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
                                     <tr>
-                                        <td style="padding: 2px; border: none; vertical-align: top;">&#9744; ต่ออายุการรับรอง</td>
-                                        <td style="padding: 2px; border: none; vertical-align: top;">&#9744; อื่นๆ ...</td>
+                                        <td style="padding: 2px; border: none; vertical-align: top;"><input type="checkbox"> ต่ออายุการรับรอง</td>
+                                        <td style="padding: 2px; border: none; vertical-align: top;"><input type="checkbox"> อื่นๆ ...</td>
                                     </tr>
                                 </table>
-                                <b style="font-weight: bold;">การตรวจประเมิน:</b> <span>&#9745; ขั้นตอนที่ 1</span> <span>&#9744; ขั้นตอนที่ 2</span><br>
+                                <b style="font-weight: bold;">การตรวจประเมิน:</b> <span><input type="checkbox"> ขั้นตอนที่ 1</span> <span><input type="checkbox"> ขั้นตอนที่ 2</span><br>
                                 <b style="font-weight: bold;">รหัส ISIC / สาขา:</b> ...
                             </td>
                         </tr>
@@ -541,7 +541,7 @@ class CbPdfGeneratorController extends Controller
                         </tr>
                         <tr style="border: 1px solid black;">
                             <td colspan="2" style="border: 1px solid black; padding: 8px; vertical-align: top;">
-                                <b style="font-weight: bold;">ความเห็น:</b> &#9745; ปิดข้อบกพร่อง &#9744; อื่นๆ ...............................................................
+                                <b style="font-weight: bold;">ความเห็น:</b> <input type="checkbox"> ปิดข้อบกพร่อง <input type="checkbox"> อื่นๆ ...............................................................
                                 <div style="margin-top: 10px;">
                                     <b style="font-weight: bold;">ผู้ตรวจสอบ:</b> .................................................................... วันที่: .................................
                                 </div>
