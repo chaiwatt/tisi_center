@@ -242,12 +242,12 @@ class AuditorCBController extends Controller
                     }
                 }
                 
-              return redirect()->route('auditor-cb.index');
-                // if($request->previousUrl){
-                //   return redirect("$request->previousUrl")->with('flash_message', 'เรียบร้อยแล้ว!');
-                // }else{
-                //     return redirect('certify/auditor-cb')->with('flash_message', 'เรียบร้อยแล้ว!');
-                // }
+              // return redirect()->route('auditor-cb.index');
+                if($request->previousUrl){
+                  return redirect("$request->previousUrl")->with('flash_message', 'เรียบร้อยแล้ว!');
+                }else{
+                    return redirect('certify/auditor-cb')->with('flash_message', 'เรียบร้อยแล้ว!');
+                }
           } catch (\Exception $e) {
                  return redirect('certify/auditor-cb')->with('message_error', 'เกิดข้อผิดพลาดกรุณาทำรายการใหม่!');
           }
