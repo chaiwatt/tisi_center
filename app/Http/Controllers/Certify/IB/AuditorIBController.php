@@ -363,13 +363,13 @@ class AuditorIBController extends Controller
                     }
                 }
 
-                return redirect()->route('check_certificate-ib.index');
+                // return redirect()->route('check_certificate-ib.index');
     
-                // if($request->previousUrl){
-                //     return redirect("$request->previousUrl")->with('flash_message', 'เรียบร้อยแล้ว!');
-                // }else{
-                //     return redirect('certify/auditor-ib')->with('flash_message', 'เรียบร้อยแล้ว!');
-                // }
+                if($request->previousUrl){
+                    return redirect("$request->previousUrl")->with('flash_message', 'เรียบร้อยแล้ว!');
+                }else{
+                    return redirect('certify/auditor-ib')->with('flash_message', 'เรียบร้อยแล้ว!');
+                }
             // } catch (\Exception $e) {
             //     return redirect('certify/auditor-ib')->with('message_error', 'เกิดข้อผิดพลาดในการบันทึก');
             // }
