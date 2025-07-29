@@ -363,7 +363,7 @@
 
                  @if (isset($certiCb) && $certiCb->FileAttach3->count() > 0)
                  <div class="row">
-                     @foreach($certiCb->FileAttach3 as $data)
+                     {{-- @foreach($certiCb->FileAttach3 as $data)
                        @if ($data->file)
                          <div class="col-md-12">
                              <div class="form-group">
@@ -374,16 +374,33 @@
                                          {{  !empty($data->file_client_name) ? $data->file_client_name :  basename($data->file)   }}
                                      </a> 
                                  </div>
-                                 {{-- <div class="col-md-2 text-left">
-                                     <a href="{{url('certify/certi_cb/delete').'/'.basename($data->id).'/'.$data->token}}" class="hide_attach btn btn-danger btn-xs" 
-                                          onclick="return confirm('ต้องการลบไฟล์นี้ใช่หรือไม่ ?')" >
-                                         <i class="fa fa-remove"></i>
-                                     </a>
-                                 </div>  --}}
                              </div>
                          </div>
                          @endif
-                      @endforeach
+                      @endforeach --}}
+
+                    @php
+                         $latestFile = $certiCb->FileAttach3
+                            ->whereNotNull('file')
+                            ->where('file', '!=', '')
+                            ->sortByDesc('id') 
+                            ->first();
+                    @endphp
+
+                    @if ($latestFile)
+                        {{-- โค้ดสำหรับแสดงผล (เหมือนกับวิธีด้านบน) --}}
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="col-md-4 text-light"> </div>
+                                <div class="col-md-6 text-light">
+                                    <a href="{{ url('certify/check/file_cb_client/'.$latestFile->file.'/'.($latestFile->file_client_name ?: basename($latestFile->file))) }}" target="_blank">
+                                        {!! HP::FileExtension($latestFile->file) ?? '' !!}
+                                        {{ $latestFile->file_client_name ?: basename($latestFile->file) }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                    </div>
                  @endif
             </div>
