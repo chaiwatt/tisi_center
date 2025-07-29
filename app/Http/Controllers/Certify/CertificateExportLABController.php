@@ -554,10 +554,10 @@ class CertificateExportLABController extends Controller
         $mpdf->showWatermarkImage = true;
 
         // --- เพิ่ม Watermark Text "DRAFT" ตรงนี้ ---
-        $mpdf->SetWatermarkText('DRAFT');
-        $mpdf->showWatermarkText = true; // เปิดใช้งาน watermark text
-        $mpdf->watermark_font = 'thsarabunnew'; // กำหนด font (ควรใช้ font ที่โหลดไว้แล้ว)
-        $mpdf->watermarkTextAlpha = 0.1;
+        // $mpdf->SetWatermarkText('DRAFT');
+        // $mpdf->showWatermarkText = true; // เปิดใช้งาน watermark text
+        // $mpdf->watermark_font = 'thsarabunnew'; // กำหนด font (ควรใช้ font ที่โหลดไว้แล้ว)
+        // $mpdf->watermarkTextAlpha = 0.1;
 
 $selectedCertiLab = CertiLab::find($id);
 
