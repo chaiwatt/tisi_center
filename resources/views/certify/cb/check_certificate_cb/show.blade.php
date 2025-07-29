@@ -412,7 +412,8 @@
                     {{-- ทบทวน --}}
                     {{-- {{$certi_cb->fullyApproveReport()}} --}}
                    
-                    @if( $certi_cb->status >= 11  && count($certi_cb->CertiCBSaveAssessmentMany) > 0   && $certi_cb->CertiCBSaveAssessmentStatus == "statusInfo" && $boardAuditor->isAllFinalReportSigned())
+                    {{-- @if( $certi_cb->status >= 11  && count($certi_cb->CertiCBSaveAssessmentMany) > 0   && $certi_cb->CertiCBSaveAssessmentStatus == "statusInfo" && $boardAuditor->isAllFinalReportSigned()) --}}
+                    @if( $certi_cb->status >= 11  && count($certi_cb->CertiCBSaveAssessmentMany) > 0   && $certi_cb->CertiCBSaveAssessmentStatus == "statusInfo" )
                         @php 
                             $review =  $certi_cb->CertiCBReviewTo;
                             $review_btn =  '';

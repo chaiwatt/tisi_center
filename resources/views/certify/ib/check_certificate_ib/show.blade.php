@@ -344,12 +344,12 @@
                                                     </a>  --}}
                                                    @if ($assessment->bug_report == 2)
 
-                                                        @if ($boardAuditor->isAllFinalReportSigned() == false)
+                                                        {{-- @if ($boardAuditor->isAllFinalReportSigned() == false)
                                                             <a  class="btn btn-info  " href="{{route('save_ib_assessment.create',['id' => $boardAuditor->id])}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
                                                                 {{$boardAuditor->auditor}} (อยู่ระหว่างจัดทำรายงาน) {{$boardAuditor->id}}
                                                             </a> 
 
-                                                            @else
+                                                            @else --}}
                                                                 @if ($assessment->submit_type == 'confirm' || $assessment->submit_type == null || $assessment->bug_report == 2)
                                                                     
                                                                         <a  class="btn {{$assessment_btn}}  " href="{{ url("$assessment_url")}}"  style="background-color:{{$assessment_btn}};width:750px;text-align: left">
@@ -362,7 +362,7 @@
                                                                     </a> 
                                                                 @endif
 
-                                                        @endif
+                                                        {{-- @endif --}}
 
                                                       @else 
                                                             @if ($assessment->submit_type == 'confirm' || $assessment->submit_type == null)
@@ -420,7 +420,8 @@
                         @endif --}}
 
                         {{-- ทบทวน --}}
-                        @if( $certi_ib->status >= 11 && count($certi_ib->CertiIBSaveAssessmentMany) > 0   && $certi_ib->CertiIBSaveAssessmentStatus == "statusInfo" && $boardAuditor->isAllFinalReportSigned())
+                        {{-- @if( $certi_ib->status >= 11 && count($certi_ib->CertiIBSaveAssessmentMany) > 0   && $certi_ib->CertiIBSaveAssessmentStatus == "statusInfo" && $boardAuditor->isAllFinalReportSigned()) --}}
+                        @if( $certi_ib->status >= 11 && count($certi_ib->CertiIBSaveAssessmentMany) > 0   && $certi_ib->CertiIBSaveAssessmentStatus == "statusInfo")
 
                             @php 
                                 $review =  $certi_ib->CertiIBReviewTo;
