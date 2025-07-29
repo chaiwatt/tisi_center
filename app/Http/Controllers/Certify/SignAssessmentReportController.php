@@ -718,7 +718,11 @@ class SignAssessmentReportController extends Controller
         
             $attachPath = '/files/applicants/check_files_ib/' . $no . '/';
 
-            dd("before distacth work well");
+            // dd("before distacth work well");
+
+            $certiIBSaveAssessment = CertiIBSaveAssessment::find($assessment_id);
+            $certiIb = $certiIBSaveAssessment->CertiIBCostTo;
+            dd($certiIBSaveAssessment,$certiIb);
             
             // --- ส่ง Job ไปสร้างไฟล์ PDF พร้อมพารามิเตอร์ที่ถูกต้อง (9 ตัว) ---
             GenerateIbCarReportTwoProcessOnePdf::dispatch(
