@@ -197,7 +197,7 @@ class CertiIBAuditors  extends Model
                                                         ->where('approval', 1)
                                                         ->where('approval', 1)
                                                         ->get();
-        if( $pendingSignatures->count() == 3){
+        if( $pendingSignatures->count() >= 3){
             return true;
         }   else{
           return false;  
