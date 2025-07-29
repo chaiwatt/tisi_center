@@ -178,7 +178,8 @@ class estimatedcostibController extends Controller
             }
 
 
-            return redirect('certify/estimated_cost-ib')->with('flash_message', 'เพิ่ม estimatedcostib เรียบร้อยแล้ว');
+            // return redirect('certify/estimated_cost-ib')->with('flash_message', 'เพิ่ม estimatedcostib เรียบร้อยแล้ว');
+            return redirect('certify/check_certificate-ib/'.$certi_ib->token)->with('flash_message', 'เพิ่ม estimatedcostib เรียบร้อยแล้ว');
         }
         abort(403);
     }
@@ -272,7 +273,8 @@ class estimatedcostibController extends Controller
             }
 
 
-            return redirect('certify/estimated_cost-ib')->with('flash_message', 'แก้ไข  เรียบร้อยแล้ว!');
+            // return redirect('certify/estimated_cost-ib')->with('flash_message', 'แก้ไข  เรียบร้อยแล้ว!');
+            return redirect('certify/check_certificate-ib/'.$certi_ib->token)->with('flash_message', 'เพิ่ม estimatedcostib เรียบร้อยแล้ว');
         }
 
         abort(403);

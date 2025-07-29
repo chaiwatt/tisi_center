@@ -173,9 +173,11 @@ class EstimatedCostCBController extends Controller
 
             }
 
-            return redirect('certify/estimated_cost-cb')->with('flash_message', 'เพิ่ม EstimatedCostCB เรียบร้อยแล้ว');
+            // return redirect('certify/estimated_cost-cb')->with('flash_message', 'เพิ่ม EstimatedCostCB เรียบร้อยแล้ว');
+            return redirect('certify/check_certificate-cb/'.$certi_cb->token.'/show/'.$certi_cb->id)->with('flash_message', 'เพิ่ม EstimatedCostCB เรียบร้อยแล้ว');
           } catch (\Exception $e) {
-            return redirect('certify/estimated_cost-cb')->with('message_error', 'เกิดข้อผิดพลาดกรุณาบันทึกใหม่');
+            // return redirect('certify/estimated_cost-cb')->with('message_error', 'เกิดข้อผิดพลาดกรุณาบันทึกใหม่');
+             return redirect('certify/check_certificate-cb/'.$certi_cb->token.'/show/'.$certi_cb->id)->with('flash_message', 'เพิ่ม EstimatedCostCB เรียบร้อยแล้ว');
           }
 
 
@@ -295,7 +297,8 @@ class EstimatedCostCBController extends Controller
 
             }
 
-            return redirect('certify/estimated_cost-cb')->with('flash_message', 'เรียบร้อยแล้ว!');
+            // return redirect('certify/estimated_cost-cb')->with('flash_message', 'เรียบร้อยแล้ว!');
+             return redirect('certify/check_certificate-cb/'.$certi_cb->token.'/show/'.$certi_cb->id)->with('flash_message', 'เรียบร้อยแล้ว');
         }
         abort(403);
 
