@@ -239,6 +239,8 @@ class CertificateExportLABController extends Controller
         // $certi_lab = CertiLab::findOrFail($request->app_certi_lab_id);
         // $export_lab = CertificateExport::where('request_number', $certi_lab->app_no)->first();
         // dd($export_lab);
+
+    
        
 
         $model = str_slug('certificateexportlab','-');
@@ -253,6 +255,8 @@ class CertificateExportLABController extends Controller
                 ]);
                 
                 if($request->submit == "submit"){
+
+                     
                    
                     $requestData = $request->all();
                     $requestData['created_by'] =   auth()->user()->runrecno;
@@ -401,7 +405,7 @@ class CertificateExportLABController extends Controller
                   
                     $this->save_certilab_export_mapreq($certi_lab->id,$export_lab->id);
 
-
+ 
 
                     $lab_ability = "test";
                     if($certi_lab->lab_type == "4")
@@ -409,11 +413,10 @@ class CertificateExportLABController extends Controller
                         $lab_ability = "calibrate";
                     }
 
-                    $ssoUser = DB::table('sso_users')->where('username', $certi_lab->tax_id)->get();  
+                    $ssoUser = DB::table('sso_users')->where('username', $certi_lab->tax_id)->first();  
                   
-                    $this->save_certilab_export_mapreq($certi_lab->id,$export_lab->id);
-
-
+                    // $this->save_certilab_export_mapreq($certi_lab->id,$export_lab->id);
+//  dd($ssoUser->id);
 
                     $labHtmlTemplate = LabHtmlTemplate::where('user_id', $ssoUser->id)
                         ->where('according_formula',$certi_lab->standard_id)
@@ -421,6 +424,8 @@ class CertificateExportLABController extends Controller
                         ->where('lab_ability',$lab_ability)
                         ->where('app_certi_lab_id',$certi_lab->id)
                         ->first();
+
+                   
 
                     $this->exportScopePdf($certi_lab->id,$labHtmlTemplate);
                  
@@ -882,34 +887,31 @@ $mpdf->SetHTMLFooter($footerHtml);
                     $this->save_certilab_export_mapreq($certi_lab->id,$export_lab->id);
 
 
-
                     // $lab_ability = "test";
                     if($certi_lab->lab_type == "4")
                     {
                         $lab_ability = "calibrate";
+                    }else if($certi_lab->lab_type == "3")
+                    {
+                        $lab_ability = "test";
                     }
 
           
 
-            $ssoUser = DB::table('sso_users')->where('username', $certi_lab->tax_id)->first();  
+                    $ssoUser = DB::table('sso_users')->where('username', $certi_lab->tax_id)->first();  
 
-            // dd($ssoUser);
-           
-                  
-                    // $this->save_certilab_export_mapreq($certi_lab->id,$export_lab->id);
+                    if($request->status != 4)
+                    {
+                        $labHtmlTemplate = LabHtmlTemplate::where('user_id', $ssoUser->id)
+                            ->where('according_formula',$certi_lab->standard_id)
+                            ->where('purpose',$certi_lab->purpose_type)
+                            ->where('lab_ability',$lab_ability)
+                            ->where('app_certi_lab_id',$certi_lab->id)
+                            ->first();
 
+                        $this->exportScopePdf($certi_lab->id,$labHtmlTemplate);
+                    }
 
-
-                           $labHtmlTemplate = LabHtmlTemplate::where('user_id', $ssoUser->id)
-                        ->where('according_formula',$certi_lab->standard_id)
-                        ->where('purpose',$certi_lab->purpose_type)
-                        ->where('lab_ability',$lab_ability)
-                        ->where('app_certi_lab_id',$certi_lab->id)
-                        ->first();
-
-                        //  dd($ssoUser)  ;
-
-                    $this->exportScopePdf($certi_lab->id,$labHtmlTemplate);
                     
                  
                     // $pdfService = new CreateLabScopePdf($certi_lab);

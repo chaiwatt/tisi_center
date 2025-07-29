@@ -223,7 +223,7 @@
     <div class="form-group">
         @if ($export_lab->applications->status !== 28)
             <button class="btn btn-primary" name="submit" type="submit" value="submit"    onclick="submit_form('submit')">
-                <i class="fa fa-paper-plane"></i> บันทึก
+                <i class="fa fa-paper-plane"></i> บันทึก 
             </button>
         @endif
         <div class="col-md-offset-5 col-md-4">
