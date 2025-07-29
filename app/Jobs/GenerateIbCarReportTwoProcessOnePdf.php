@@ -123,14 +123,14 @@ class GenerateIbCarReportTwoProcessOnePdf implements ShouldQueue
                     Log::info('FTP upload confirmed. Saving to database.', ['file' => $this->fullFileName]);
                     
                     $certiIBSaveAssessment = CertiIBSaveAssessment::find($this->assessment_id);
-                    $certiIb = $certiIBSaveAssessment->CertiIBCostTo;
+                 
                     
                     if ($certiIBSaveAssessment) {
                         $storePath = $this->no . '/' . $this->fullFileName;
 
                         // บันทึกข้อมูลไฟล์แนบ Section 3
                         CertiIBAttachAll::create([
-                            'app_certi_ib_id' => $certiIb->id,
+                            'app_certi_ib_id' => $this->certi_ib_id,
                             'ref_id' => $certiIBSaveAssessment->id,
                             'table_name' => (new CertiIBSaveAssessment)->getTable(),
                             'file_section' => '3',
@@ -141,7 +141,7 @@ class GenerateIbCarReportTwoProcessOnePdf implements ShouldQueue
 
                         // บันทึกข้อมูลไฟล์แนบ Section 1
                         CertiIBAttachAll::create([
-                            'app_certi_ib_id' => $certiIb->id,
+                            'app_certi_ib_id' => $this->certi_ib_id,
                             'ref_id' => $certiIBSaveAssessment->id,
                             'table_name' => (new CertiIBSaveAssessment)->getTable(),
                             'file_section' => '5',
