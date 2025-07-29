@@ -119,6 +119,9 @@ Route::post('/export-pdf', 'MyTestController@exportPdf');
 
 
 Route::get('/pdf-server', 'MyTestController@getServerPdf');
+Route::get('/ib-pdf-server', 'MyTestController@getIbServerPdf');
+
+
 
 
 Route::get('/set-cb-mail', 'MyTestController@set_cb_mail');

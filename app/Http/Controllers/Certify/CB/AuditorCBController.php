@@ -249,7 +249,7 @@ class AuditorCBController extends Controller
                     return redirect('certify/auditor-cb')->with('flash_message', 'เรียบร้อยแล้ว!');
                 }
           } catch (\Exception $e) {
-            // dd($e);
+            // dd($e)
                  return redirect('certify/auditor-cb')->with('message_error', 'เกิดข้อผิดพลาดกรุณาทำรายการใหม่!');
           }
 

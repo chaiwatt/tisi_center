@@ -7,31 +7,40 @@ use File;
 use QrCode;
 use App\User;
 use stdClass;
+use Mpdf\Mpdf;
 use HP_API_PID;
 use Carbon\Carbon;
+use App\AttachFile;
 use App\Http\Requests;
+
+use App\CbHtmlTemplate;
+use Mpdf\HTMLParserMode;
 use App\CertificateExport;
 use Illuminate\Http\Request;
 use App\Mail\CB\CBExportMail;
 use App\Models\Besurv\Signer;
 use App\Models\Bcertify\Formula;
 use Illuminate\Support\Facades\DB;
+
 use App\Http\Controllers\Controller;
+
+use App\Models\Certify\CertiEmailLt;
 use Illuminate\Support\Facades\Mail;
+
 use App\Services\CreateCbScopeBcmsPdf;
 use App\Services\CreateCbScopeIsicPdf;
 use Illuminate\Support\Facades\Storage;
-
 use App\Models\Certify\ApplicantCB\CertiCb;
-
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
+use App\Models\Certificate\TrackingInspection;
 use App\Models\Certify\ApplicantCB\CertiCBCheck;
-
 use App\Models\Certify\ApplicantCB\CertiCBExport;
+use App\Models\Certify\ApplicantCB\CertiCBReport;
 use App\Models\Certify\ApplicantCB\CertiCBFileAll;
 use App\Models\Certify\ApplicantCB\CertiCbHistory;
 use App\Models\Certify\ApplicantCB\CertiCBAttachAll;
 use App\Models\Certify\ApplicantCB\CertiCbExportMapreq;
+use App\Models\Certify\ApplicantCB\CertiCBSaveAssessment;
 
 class CertificateExportCBController extends Controller
 {
@@ -211,6 +220,7 @@ class CertificateExportCBController extends Controller
     public function store(Request $request)
     {
         //
+       
         $model = str_slug('certificateexportcb','-');
         if(auth()->user()->can('add-'.$model)) {
            
@@ -275,6 +285,8 @@ class CertificateExportCBController extends Controller
                     }else{
                         $export_cb->update($requestData);
                     }
+
+                
                     // $certi_cb->update(['status'=> 18]); // ออกใบรับรอง และ ลงนาม
 
                     if( isset($requestData['detail']) ){
@@ -318,26 +330,42 @@ class CertificateExportCBController extends Controller
 
                     }
 
+                       
+
                     $pathfileTemp = 'files/Tempfile/'.($export_cb->app_no);
 
                     if(Storage::directories($pathfileTemp)){
                         Storage::deleteDirectory($pathfileTemp);
                     }
                     
+              
+                    $ssoUser = DB::table('sso_users')->where('username', $certi_cb->tax_id)->first();  
+  
+            $cbHtmlTemplate = CbHtmlTemplate::where('user_id',$ssoUser->id)
+                ->where('app_certi_cb_id',$certi_cb->id)
+                ->where('type_standard',$certi_cb->type_standard)
+                ->where('petitioner',$certi_cb->petitioner)
+                ->where('trust_mark',$certi_cb->trust_mark_id)
+                ->first();
+
+// dd($cbHtmlTemplate);
+                 if($request->status < 4)
+                {
+                    $this->exportCbScopePdf( $certi_cb->id,$cbHtmlTemplate);
                    
-                    if($certi_cb->scope_table == "cb_scope_isic_transactions")
-                    {
+                    // if($certi_cb->scope_table == "cb_scope_isic_transactions")
+                    // {
                         
-                        $pdfService = new CreateCbScopeIsicPdf($certi_cb);
-                        $pdfContent = $pdfService->generatePdf();
+                    //     $pdfService = new CreateCbScopeIsicPdf($certi_cb);
+                    //     $pdfContent = $pdfService->generatePdf();
                     
     
-                    }else if($certi_cb->scope_table == "cb_scope_bcms_transactions")
-                    {
-                        // dd($certi_cb);
-                        $pdfService = new CreateCbScopeBcmsPdf($certi_cb);
-                        $pdfContent = $pdfService->generatePdf();
-                    }
+                    // }else if($certi_cb->scope_table == "cb_scope_bcms_transactions")
+                    // {
+                    //     // dd($certi_cb);
+                    //     $pdfService = new CreateCbScopeBcmsPdf($certi_cb);
+                    //     $pdfContent = $pdfService->generatePdf();
+                    // }
 
                     $json = $this->copyScopeCbFromAttachement($certi_cb->id);
                     $copiedScopes = json_decode($json, true);
@@ -355,6 +383,8 @@ class CertificateExportCBController extends Controller
 
                     ]);
 
+                }
+                  
 
                     $this->save_certicb_export_mapreq($certi_cb->id,$export_cb->id);
 
@@ -1353,5 +1383,321 @@ class CertificateExportCBController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('message_error', 'เกิดข้อผิดพลาดกรุณาลบใหม่');
         }
+    }
+
+
+        public function exportCbScopePdf($id,$cbHtmlTemplate)
+    {
+
+        $htmlPages = json_decode($cbHtmlTemplate->html_pages);
+
+        // dd($htmlPages);
+
+        if (!is_array($htmlPages)) {
+          
+            return response()->json(['message' => 'Invalid or empty HTML content received.'], 400);
+        }
+        // กรองหน้าเปล่าออก (โค้ดเดิมที่เพิ่มไป)
+        $filteredHtmlPages = [];
+        foreach ($htmlPages as $pageHtml) {
+            $trimmedPageHtml = trim(strip_tags($pageHtml, '<img>'));
+            if (!empty($trimmedPageHtml)) {
+                $filteredHtmlPages[] = $pageHtml;
+            }
+        }
+  
+        if (empty($filteredHtmlPages)) {
+            return response()->json(['message' => 'No valid HTML content to export after filtering empty pages.'], 400);
+        }
+        $htmlPages = $filteredHtmlPages;
+
+        $type = 'I';
+        $fontDirs = [public_path('pdf_fonts/')];
+
+        $fontData = [
+            'thsarabunnew' => [
+                'R' => "THSarabunNew.ttf",
+                'B' => "THSarabunNew-Bold.ttf",
+                'I' => "THSarabunNew-Italic.ttf",
+                'BI' => "THSarabunNew-BoldItalic.ttf",
+            ],
+            'dejavusans' => [
+                'R' => "DejaVuSans.ttf",
+                'B' => "DejaVuSans-Bold.ttf",
+                'I' => "DejaVuSerif-Italic.ttf",
+                'BI' => "DejaVuSerif-BoldItalic.ttf",
+            ],
+        ];
+
+        $mpdf = new Mpdf([
+            'PDFA'              => $type == 'F' ? true : false,
+            'PDFAauto'          => $type == 'F' ? true : false,
+            'format'            => 'A4',
+            'mode'              => 'utf-8',
+            'default_font_size' => 15,
+            'fontDir'           => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+            'fontdata'          => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+            'default_font'      => 'thsarabunnew',
+            'fontdata_fallback' => ['dejavusans', 'freesans', 'arial'],
+            'margin_left'       => 13,
+            'margin_right'      => 13,
+            'margin_top'        => 10,
+            'margin_bottom'     => 0,
+            // 'tempDir'           => sys_get_temp_dir(),
+        ]);
+
+    
+        // Log::info('MPDF Temp Dir: ' . $tempDirPath);
+
+        $stylesheet = file_get_contents(public_path('css/pdf-css/cb.css'));
+        $mpdf->WriteHTML($stylesheet, 1);
+
+        $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, [23, 23], [170, 12]);
+        $mpdf->showWatermarkImage = true;
+
+        // --- เพิ่ม Watermark Text "DRAFT" ตรงนี้ ---
+        // $mpdf->SetWatermarkText('DRAFT');
+        // $mpdf->showWatermarkText = true; // เปิดใช้งาน watermark text
+        // $mpdf->watermark_font = 'thsarabunnew'; // กำหนด font (ควรใช้ font ที่โหลดไว้แล้ว)
+        // $mpdf->watermarkTextAlpha = 0.1;
+
+$footerHtml = '';
+
+
+
+
+// $initialIssueDateEn = $this->ordinal(Carbon::now()->day) . ' ' . Carbon::now()->format('F Y');
+$initialIssueDateTh = HP::formatDateThaiFull(Carbon::now());
+
+$appCertiMail = CertiEmailLt::where('certi',1803)->where('roles',1)->pluck('admin_group_email')->toArray();
+    $groupAdminUsers = DB::table('user_register')->where('reg_email', $appCertiMail)->get();    
+            $firstSignerGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }
+
+$attach1 = !empty($firstSignerGroups->first()->AttachFileAttachTo) ? $firstSignerGroups->first()->AttachFileAttachTo : null;
+
+  $sign_url1 = $this->getSignature($attach1);
+
+
+$footerHtml = '
+<div width="100%" style="display:inline;line-height:12px">
+
+    <div style="display:inline-block;line-height:16px;float:left;width:70%;">
+      <span style="font-size:20px;">ออกให้ครั้งแรกเมื่อวันที่ ' . $initialIssueDateTh . '</span><br>
+      <span style="font-size: 16px">กระทรวงอุตสาหกรรม สำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม</span>
+    </div>
+
+    <div style="display: inline-block; width: 15%;float:right;width:25%">
+     <img src="' . $sign_url1 . '" style="height:40px;">
+    </div>
+
+    <div width="100%" style="display:inline;text-align:center">
+      <span>หน้าที่ {PAGENO}/{nbpg}</span>
+    </div>
+</div>';
+
+// แล้วนำไปกำหนดให้ mPDF เป็น Footer
+$mpdf->SetHTMLFooter($footerHtml);
+
+        foreach ($htmlPages as $index => $pageHtml) {
+            if ($index > 0) {
+                $mpdf->AddPage();
+            }
+            $mpdf->WriteHTML($pageHtml,HTMLParserMode::HTML_BODY);
+        }
+
+    //  $mpdf->Output('', 'S');
+    //  $title = "mypdf.pdf";
+    //  $mpdf->Output($title, "I");  
+
+  
+ $app_certi_cb = CertiCb::find($id);
+        $no = str_replace("RQ-", "", $app_certi_cb->app_no);
+        $no = str_replace("-", "_", $no);
+
+
+        $attachPath = '/files/applicants/check_files_cb/' . $no . '/';
+        $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+    
+        // สร้างไฟล์ชั่วคราว
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+        // บันทึก PDF ไปยังไฟล์ชั่วคราว
+        $mpdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);
+        // ใช้ Storage::putFileAs เพื่อย้ายไฟล์
+        Storage::putFileAs($attachPath, new \Illuminate\Http\File($tempFilePath), $fullFileName);
+    
+        $storePath = $no  . '/' . $fullFileName;
+    
+
+    
+        $tb = new CertiCb;
+        $certi_cb_attach                   = new CertiCBAttachAll();
+        $certi_cb_attach->app_certi_cb_id = $app_certi_cb->id;
+        $certi_cb_attach->table_name       = $tb->getTable();
+        $certi_cb_attach->file_section     = 3;
+        $certi_cb_attach->file_desc        = null;
+        $certi_cb_attach->file             = $storePath;
+        $certi_cb_attach->file_client_name = $no . '_scope_'.now()->format('Ymd_His').'.pdf';
+        $certi_cb_attach->token            = str_random(16);
+        $certi_cb_attach->save();
+
+        $checkScopeCertiCBSaveAssessment = CertiCBAttachAll::where('app_certi_cb_id',$id)
+        ->where('table_name', (new CertiCBSaveAssessment)->getTable())
+        ->where('file_section', 2)
+        ->latest() // ใช้ latest() เพื่อให้เรียงตาม created_at โดยอัตโนมัติ
+        ->first(); // ดึง record ล่าสุดเพียงตัวเดียว
+
+
+        if($checkScopeCertiCBSaveAssessment != null)
+        {
+            $assessment = CertiCBSaveAssessment::find($checkScopeCertiCBSaveAssessment->ref_id);
+            $json = $this->copyScopeCbFromAttachement($assessment->app_certi_cb_id);
+            $copiedScopes = json_decode($json, true);
+            $tbx = new CertiCBSaveAssessment;
+            $certi_cb_attach_more = new CertiCBAttachAll();
+            $certi_cb_attach_more->app_certi_cb_id      = $assessment->app_certi_cb_id ?? null;
+            $certi_cb_attach_more->ref_id               = $assessment->id;
+            $certi_cb_attach_more->table_name           = $tbx->getTable();
+            $certi_cb_attach_more->file_section         = '2';
+            $certi_cb_attach_more->file                 = $copiedScopes[0]['attachs'];
+            $certi_cb_attach_more->file_client_name     = $copiedScopes[0]['file_client_name'];
+            $certi_cb_attach_more->token                = str_random(16);
+            $certi_cb_attach_more->save();
+        }
+
+        $checkScopeCertiCBReport= CertiCBAttachAll::where('app_certi_cb_id',$id)
+        ->where('table_name',(new CertiCBReport)->getTable())
+        ->where('file_section',1)
+        ->latest() // ใช้ latest() เพื่อให้เรียงตาม created_at โดยอัตโนมัติ
+        ->first(); // ดึง record ล่าสุดเพียงตัวเดียว
+
+        if($checkScopeCertiCBReport != null)
+        {
+            $report = CertiCBReport::find($checkScopeCertiCBReport->ref_id);
+            $json = $this->copyScopeCbFromAttachement($report->app_certi_cb_id);
+            $copiedScopes = json_decode($json, true);
+            $tb = new CertiCBReport;
+            $certi_cb_attach_more = new CertiCBAttachAll();
+            $certi_cb_attach_more->app_certi_cb_id      = $report->app_certi_cb_id ?? null;
+            $certi_cb_attach_more->ref_id               = $report->id;
+            $certi_cb_attach_more->table_name           = $tb->getTable();
+            $certi_cb_attach_more->file_section         = '1';
+            $certi_cb_attach_more->file                 = $copiedScopes[0]['attachs'];
+            $certi_cb_attach_more->file_client_name     = $copiedScopes[0]['file_client_name'];
+            $certi_cb_attach_more->token                = str_random(16);
+            $certi_cb_attach_more->save();
+        }
+
+
+            $tracking = $app_certi_cb->tracking;
+        if($tracking !== null)
+        {
+            $inspection = TrackingInspection::where('tracking_id',$tracking->id)  
+                    ->where('reference_refno',$tracking->reference_refno)
+                    ->first();
+            if($inspection !== null){
+                    $certiCbFileAll = CertiCBAttachAll::where('app_certi_cb_id',$app_certi_cb->id)
+                        ->where('table_name',$tb->getTable())
+                        ->where('file_section',1)
+                        ->latest() // เรียงจาก created_at จากมากไปน้อย
+                        ->first();
+            
+                    $filePath = 'files/applicants/check_files_cb/' . $certiCbFileAll->file ;
+            
+                    $localFilePath = HP::downloadFileFromTisiCloud($filePath);
+
+                    // dd($app_certi_cb ,$certiCbFileAll,$filePath,$localFilePath);
+
+                    $check = AttachFile::where('systems','Center')
+                            ->where('ref_id',$inspection->id)
+                            ->where('ref_table',(new TrackingInspection)->getTable())
+                            ->where('section','file_scope')
+                            ->first();
+                    if($check != null)
+                    {
+                        $check->delete();
+                    }
+
+                    $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+            
+                    $uploadedFile = new \Illuminate\Http\UploadedFile(
+                        $localFilePath,      // Path ของไฟล์
+                        basename($localFilePath), // ชื่อไฟล์
+                        mime_content_type($localFilePath), // MIME type
+                        null,               // ขนาดไฟล์ (null ถ้าไม่ทราบ)
+                        true                // เป็นไฟล์ที่ valid แล้ว
+                    );
+                                
+                    $attach_path = "files/trackingcb";
+                    // ใช้ไฟล์ที่จำลองในการอัปโหลด
+                    HP::singleFileUploadRefno(
+                        $uploadedFile,
+                        $attach_path.'/'.$inspection->reference_refno,
+                        ( $tax_number),
+                        (auth()->user()->FullName ?? null),
+                        'Center',
+                        (  (new TrackingInspection)->getTable() ),
+                        $inspection->id,
+                        'file_scope',
+                        null
+                    );
+            }        
+        }
+
+
+
+
+    }
+
+
+        public function getSignature($attach)
+    {
+        
+        $existingFilePath = $attach->url;//  'files/signers/3210100336046/tvE4QPMaEC-date_time20241211_011258.png'  ;
+
+        $attachPath = 'bcertify_attach/signer';
+        $fileName = basename($existingFilePath) ;// 'tvE4QPMaEC-date_time20241211_011258.png';
+        // dd($existingFilePath);
+
+        // ตรวจสอบไฟล์ใน disk uploads ก่อน
+        if (Storage::disk('uploads')->exists("{$attachPath}/{$fileName}")) {
+            // หากพบไฟล์ใน disk
+            $storagePath = Storage::disk('uploads')->path("{$attachPath}/{$fileName}");
+            $filePath = 'uploads/'.$attachPath .'/'.$fileName;
+            // dd('File already exists in uploads',  $filePath);
+            return $filePath;
+        } else {
+            // หากไม่พบไฟล์ใน disk ให้ไปตรวจสอบในเซิร์ฟเวอร์
+            if (HP::checkFileStorage($existingFilePath)) {
+                // ดึง path ของไฟล์ที่อยู่ในเซิร์ฟเวอร์
+                $localFilePath = HP::getFileStoragePath($existingFilePath);
+
+                // ตรวจสอบว่าไฟล์มีอยู่หรือไม่
+                if (file_exists($localFilePath)) {
+                    // บันทึกไฟล์ลง disk 'uploads' โดยใช้ subfolder ที่กำหนด
+                    $storagePath = Storage::disk('uploads')->putFileAs($attachPath, new \Illuminate\Http\File($localFilePath), $fileName);
+
+                    // ตอบกลับว่าพบไฟล์และบันทึกสำเร็จ
+                    $filePath = 'uploads/'.$attachPath .'/'.$fileName;
+                    return $filePath;
+                    // dd('File exists in server and saved to uploads', $storagePath);
+                } else {
+                    // กรณีไฟล์ไม่สามารถเข้าถึงได้ใน path เดิม
+                    return null;
+                }
+            } else {
+                // ตอบกลับกรณีไม่มีไฟล์ในเซิร์ฟเวอร์
+                return null;
+            }
+        }
+        
     }
 }

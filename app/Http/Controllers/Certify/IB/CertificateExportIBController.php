@@ -8,8 +8,11 @@ use QrCode;
 use App\User;
 use Response;
 use stdClass;
+use Mpdf\Mpdf;
 use Carbon\Carbon;
 use App\Http\Requests;
+use App\IbHtmlTemplate;
+use Mpdf\HTMLParserMode;
 use App\CertificateExportIB;
 use Illuminate\Http\Request;
 use App\Mail\IB\IBExportMail;
@@ -18,18 +21,21 @@ use App\Models\Bcertify\Formula;
 use App\Services\CreateIbScopePdf;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+
+use App\Models\Certify\CertiEmailLt;
+
 use App\Models\Sso\User AS SSO_User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-
 use App\Models\Certify\ApplicantIB\CertiIb;
-
 use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use App\Models\Certify\ApplicantIB\CertiIBCheck;
 use App\Models\Certify\ApplicantIB\CertiIBExport;
+use App\Models\Certify\ApplicantIB\CertiIBReport;
 use App\Models\Certify\ApplicantIB\CertiIBFileAll;
 use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
 use App\Models\Certify\ApplicantIB\CertiIbExportMapreq;
+use App\Models\Certify\ApplicantIB\CertiIBSaveAssessment;
 
 class CertificateExportIBController extends Controller
 {
@@ -317,24 +323,43 @@ class CertificateExportIBController extends Controller
     
                 }
 
-                $pdfService = new CreateIbScopePdf($certi_ib);
-                $pdfContent = $pdfService->generatePdf();
+                // $pdfService = new CreateIbScopePdf($certi_ib);
+                // $pdfContent = $pdfService->generatePdf();
 
-                $json = $this->copyScopeIbFromAttachement($certi_ib->id);
-                $copiedScopes = json_decode($json, true);
+                        //  $certi_ib =  CertiIb::latest()->first();
+                // $certi_lab = CertiLab::latest()->first();
+                $ssoUser = DB::table('sso_users')->where('username', $certi_ib->tax_id)->first();  
+            
+                $ibHtmlTemplate = IbHtmlTemplate::where('user_id',$ssoUser->id)
+                        ->where('type_standard',$certi_ib->type_standard)
+                        ->where('app_certi_ib_id',$certi_ib->id)
+                        ->where('type_unit',$certi_ib->type_unit)
+                        ->first();
 
-                CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
-                    ->whereNotNull('attach_pdf')
-                    ->update(['state' => 0]);
-                CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
-                            ->orderBy('id','desc')
-                            ->first()
-                            ->update([
-                                'attach_pdf'            =>   $copiedScopes[0]['attachs'],
-                                'attach_pdf_client_name'=>   $copiedScopes[0]['file_client_name'],
-                                'state'                 =>   1
+                // dd($certi_lab,$labHtmlTemplate,$certi_lab->standard_id,$certi_lab->purpose_type,$lab_ability,$ssoUser->username);
 
-                ]);
+                if($request->status < 4)
+                {
+                $this->exportIbScopePdf($certi_ib->id,$ibHtmlTemplate);
+
+                    $json = $this->copyScopeIbFromAttachement($certi_ib->id);
+                    $copiedScopes = json_decode($json, true);
+
+                    CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
+                        ->whereNotNull('attach_pdf')
+                        ->update(['state' => 0]);
+                    CertiIBFileAll::where('app_certi_ib_id',$certi_ib->id)
+                                ->orderBy('id','desc')
+                                ->first()
+                                ->update([
+                                    'attach_pdf'            =>   $copiedScopes[0]['attachs'],
+                                    'attach_pdf_client_name'=>   $copiedScopes[0]['file_client_name'],
+                                    'state'                 =>   1
+
+                    ]);
+                }
+
+ 
 
 
                 $this->save_certiib_export_mapreq($certi_ib->id,$export_ib->id);
@@ -1263,5 +1288,324 @@ class CertificateExportIBController extends Controller
         }
     }
 
+    
+    public function exportIbScopePdf($id,$ibHtmlTemplate)
+    {
+        $htmlPages = json_decode($ibHtmlTemplate->html_pages);
+
+       
+
+        if (!is_array($htmlPages)) {
+          
+            return response()->json(['message' => 'Invalid or empty HTML content received.'], 400);
+        }
+        // กรองหน้าเปล่าออก (โค้ดเดิมที่เพิ่มไป)
+        $filteredHtmlPages = [];
+        foreach ($htmlPages as $pageHtml) {
+            $trimmedPageHtml = trim(strip_tags($pageHtml, '<img>'));
+            if (!empty($trimmedPageHtml)) {
+                $filteredHtmlPages[] = $pageHtml;
+            }
+        }
+  
+        if (empty($filteredHtmlPages)) {
+            return response()->json(['message' => 'No valid HTML content to export after filtering empty pages.'], 400);
+        }
+        $htmlPages = $filteredHtmlPages;
+
+        $type = 'I';
+        $fontDirs = [public_path('pdf_fonts/')];
+
+        $fontData = [
+            'thsarabunnew' => [
+                'R' => "THSarabunNew.ttf",
+                'B' => "THSarabunNew-Bold.ttf",
+                'I' => "THSarabunNew-Italic.ttf",
+                'BI' => "THSarabunNew-BoldItalic.ttf",
+            ],
+            'dejavusans' => [
+                'R' => "DejaVuSans.ttf",
+                'B' => "DejaVuSans-Bold.ttf",
+                'I' => "DejaVuSerif-Italic.ttf",
+                'BI' => "DejaVuSerif-BoldItalic.ttf",
+            ],
+        ];
+
+        $mpdf = new Mpdf([
+            'PDFA'              => $type == 'F' ? true : false,
+            'PDFAauto'          => $type == 'F' ? true : false,
+            'format'            => 'A4',
+            'mode'              => 'utf-8',
+            'default_font_size' => 15,
+            'fontDir'           => array_merge((new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'], $fontDirs),
+            'fontdata'          => array_merge((new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'], $fontData),
+            'default_font'      => 'thsarabunnew',
+            'fontdata_fallback' => ['dejavusans', 'freesans', 'arial'],
+            'margin_left'       => 13,
+            'margin_right'      => 13,
+            'margin_top'        => 10,
+            'margin_bottom'     => 0,
+            // 'tempDir'           => sys_get_temp_dir(),
+        ]);
+
+    
+        // Log::info('MPDF Temp Dir: ' . $tempDirPath);
+
+        $stylesheet = file_get_contents(public_path('css/pdf-css/cb.css'));
+        $mpdf->WriteHTML($stylesheet, 1);
+
+        $mpdf->SetWatermarkImage(public_path('images/nc_hq.png'), 1, [23, 23], [170, 12]);
+        $mpdf->showWatermarkImage = true;
+
+        // --- เพิ่ม Watermark Text "DRAFT" ตรงนี้ ---
+        // $mpdf->SetWatermarkText('DRAFT');
+        // $mpdf->showWatermarkText = true; // เปิดใช้งาน watermark text
+        // $mpdf->watermark_font = 'thsarabunnew'; // กำหนด font (ควรใช้ font ที่โหลดไว้แล้ว)
+        // $mpdf->watermarkTextAlpha = 0.1;
+
+// $footerHtml = '';
+// $foundScope = false;
+
+// ตรวจสอบว่า $htmlPages เป็น array และไม่เป็นค่าว่าง
+// if (is_array($htmlPages) && !empty($htmlPages)) {
+//     foreach ($htmlPages as $pageContent) {
+//         // ตรวจสอบว่า $pageContent เป็น string และมีข้อความที่ต้องการ
+//         if (is_string($pageContent) && str_contains($pageContent, 'Scope of Accreditation for Inspection Body')) {
+//             $foundScope = true;
+//             break; // พบแล้ว ไม่จำเป็นต้องตรวจสอบต่อ
+//         }
+//     }
+// }
+
+$footerHtml = '';
+$foundScope = false;
+
+
+// $initialIssueDateEn = $this->ordinal(Carbon::now()->day) . ' ' . Carbon::now()->format('F Y');
+$initialIssueDateTh = HP::formatDateThaiFull(Carbon::now());
+
+// // ตรวจสอบว่า $htmlPages เป็น array และไม่เป็นค่าว่าง
+// if (is_array($htmlPages) && !empty($htmlPages)) {
+//     foreach ($htmlPages as $pageContent) {
+//         // ตรวจสอบว่า $pageContent เป็น string และมีข้อความที่ต้องการ
+//         if (is_string($pageContent) && str_contains($pageContent, 'Scope of Accreditation for Inspection Body')) {
+//             $foundScope = true;
+//             break; // พบแล้ว ไม่จำเป็นต้องตรวจสอบต่อ
+//         }
+//     }
+// }
+
+// if ($foundScope) {
+//     $footerHtml = '
+// <div width="100%" style="display:inline;line-height:12px">
+
+//     <div style="display:inline-block;line-height:16px;float:left;width:70%;">
+//       <span style="font-size:20px;">Date of Initial Issue: ' . $initialIssueDateEn . '</span><br>
+//       <span style="font-size: 16px">Ministry of Industry Thailand, Thai Industrial Standards Institute</span>
+//     </div>
+
+//     <div style="display: inline-block; width: 15%;float:right;width:25%">
+//       </div>
+
+//     <div width="100%" style="display:inline;text-align:center">
+//       <span>หน้าที่ {PAGENO}/{nbpg}</span>
+//     </div>
+// </div>';
+// } else {
+//     $footerHtml = '
+// <div width="100%" style="display:inline;line-height:12px">
+
+//     <div style="display:inline-block;line-height:16px;float:left;width:70%;">
+//       <span style="font-size:20px;">ออกให้ครั้งแรกเมื่อวันที่ ' . $initialIssueDateTh . '</span><br>
+//       <span style="font-size: 16px">กระทรวงอุตสาหกรรม สำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม</span>
+//     </div>
+
+//     <div style="display: inline-block; width: 15%;float:right;width:25%">
+//       </div>
+
+//     <div width="100%" style="display:inline;text-align:center">
+//       <span>หน้าที่ {PAGENO}/{nbpg}</span>
+//     </div>
+// </div>';
+// }
+
+$appCertiMail = CertiEmailLt::where('certi',1802)->where('roles',1)->pluck('admin_group_email')->toArray();
+    $groupAdminUsers = DB::table('user_register')->where('reg_email', $appCertiMail)->get();    
+            $firstSignerGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }
+
+$attach1 = !empty($firstSignerGroups->first()->AttachFileAttachTo) ? $firstSignerGroups->first()->AttachFileAttachTo : null;
+
+  $sign_url1 = $this->getSignature($attach1);
+
+
+$footerHtml = '
+<div width="100%" style="display:inline;line-height:12px">
+
+    <div style="display:inline-block;line-height:16px;float:left;width:70%;">
+      <span style="font-size:20px;">ออกให้ครั้งแรกเมื่อวันที่ ' . $initialIssueDateTh . '</span><br>
+      <span style="font-size: 16px">กระทรวงอุตสาหกรรม สำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม</span>
+    </div>
+
+    <div style="display: inline-block; width: 15%;float:right;width:25%">
+   <img src="' . $sign_url1 . '" style="height:40px;">
+    </div>
+
+    <div width="100%" style="display:inline;text-align:center">
+      <span>หน้าที่ {PAGENO}/{nbpg}</span>
+    </div>
+</div>';
+
+// แล้วนำไปกำหนดให้ mPDF เป็น Footer
+$mpdf->SetHTMLFooter($footerHtml);
+
+        foreach ($htmlPages as $index => $pageHtml) {
+            if ($index > 0) {
+                $mpdf->AddPage();
+            }
+            $mpdf->WriteHTML($pageHtml,HTMLParserMode::HTML_BODY);
+        }
+
+    //  $mpdf->Output('', 'S');
+    //  $title = "mypdf.pdf";
+    //  $mpdf->Output($title, "I");  
+
+  
+
+        $tbx = new CertiIBSaveAssessment;
+        $tb = new CertiIBReport;
+
+
+
+        // $combinedPdf->Output('combined.pdf', \Mpdf\Output\Destination::INLINE);
+        $app_certi_ib = CertiIb::find($id);
+        $no = str_replace("RQ-", "", $app_certi_ib->app_no);
+        $no = str_replace("-", "_", $no);
+
+
+        $attachPath = '/files/applicants/check_files_ib/' . $no . '/';
+        $fullFileName = uniqid() . '_' . now()->format('Ymd_His') . '.pdf';
+    
+        // สร้างไฟล์ชั่วคราว
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
+        // บันทึก PDF ไปยังไฟล์ชั่วคราว
+        $mpdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);
+        // ใช้ Storage::putFileAs เพื่อย้ายไฟล์
+        Storage::putFileAs($attachPath, new \Illuminate\Http\File($tempFilePath), $fullFileName);
+    
+        $storePath = $no  . '/' . $fullFileName;
+    
+        $tb = new CertiIb;
+        $certi_ib_attach                   = new CertiIBAttachAll();
+        $certi_ib_attach->app_certi_ib_id = $app_certi_ib->id;
+        $certi_ib_attach->table_name       = $tb->getTable();
+        $certi_ib_attach->file_section     = '3';
+        $certi_ib_attach->file_desc        = null;
+        $certi_ib_attach->file             = $storePath;
+        $certi_ib_attach->file_client_name = $no . '_scope_'.now()->format('Ymd_His').'.pdf';
+        $certi_ib_attach->token            = str_random(16);
+        $certi_ib_attach->save();
+
+        $checkScopeCertiIBSaveAssessment = CertiIBAttachAll::where('app_certi_ib_id',$id)
+        ->where('table_name', (new CertiIBSaveAssessment)->getTable())
+        ->where('file_section', 2)
+        ->latest() // ใช้ latest() เพื่อให้เรียงตาม created_at โดยอัตโนมัติ
+        ->first(); // ดึง record ล่าสุดเพียงตัวเดียว
+
+
+        if($checkScopeCertiIBSaveAssessment != null)
+        {
+            $assessment = CertiIBSaveAssessment::find($checkScopeCertiIBSaveAssessment->ref_id);
+            $json = $this->copyScopeIbFromAttachement($assessment->app_certi_ib_id);
+            $copiedScopes = json_decode($json, true);
+            $tbx = new CertiIBSaveAssessment;
+            $certi_ib_attach_more = new CertiIBAttachAll();
+            $certi_ib_attach_more->app_certi_ib_id      = $assessment->app_certi_ib_id ?? null;
+            $certi_ib_attach_more->ref_id               = $assessment->id;
+            $certi_ib_attach_more->table_name           = $tbx->getTable();
+            $certi_ib_attach_more->file_section         = '2';
+            $certi_ib_attach_more->file                 = $copiedScopes[0]['attachs'];
+            $certi_ib_attach_more->file_client_name     = $copiedScopes[0]['file_client_name'];
+            $certi_ib_attach_more->token                = str_random(16);
+            $certi_ib_attach_more->save();
+        }
+
+        $checkScopeCertiIBReport= CertiIBAttachAll::where('app_certi_ib_id',$id)
+        ->where('table_name',(new CertiIBReport)->getTable())
+        ->where('file_section',1)
+        ->latest() // ใช้ latest() เพื่อให้เรียงตาม created_at โดยอัตโนมัติ
+        ->first(); // ดึง record ล่าสุดเพียงตัวเดียว
+
+        if($checkScopeCertiIBReport != null)
+        {
+            $report = CertiIBReport::find($checkScopeCertiIBReport->ref_id);
+            $json = $this->copyScopeIbFromAttachement($report->app_certi_ib_id);
+            $copiedScopes = json_decode($json, true);
+            $tb = new CertiIBReport;
+            $certi_ib_attach_more = new CertiIBAttachAll();
+            $certi_ib_attach_more->app_certi_ib_id      = $report->app_certi_ib_id ?? null;
+            $certi_ib_attach_more->ref_id               = $report->id;
+            $certi_ib_attach_more->table_name           = $tb->getTable();
+            $certi_ib_attach_more->file_section         = '1';
+            $certi_ib_attach_more->file                 = $copiedScopes[0]['attachs'];
+            $certi_ib_attach_more->file_client_name     = $copiedScopes[0]['file_client_name'];
+            $certi_ib_attach_more->token                = str_random(16);
+            $certi_ib_attach_more->save();
+        }
+
+
+
+
+    }
+    public function getSignature($attach)
+    {
+        
+        $existingFilePath = $attach->url;//  'files/signers/3210100336046/tvE4QPMaEC-date_time20241211_011258.png'  ;
+
+        $attachPath = 'bcertify_attach/signer';
+        $fileName = basename($existingFilePath) ;// 'tvE4QPMaEC-date_time20241211_011258.png';
+        // dd($existingFilePath);
+
+        // ตรวจสอบไฟล์ใน disk uploads ก่อน
+        if (Storage::disk('uploads')->exists("{$attachPath}/{$fileName}")) {
+            // หากพบไฟล์ใน disk
+            $storagePath = Storage::disk('uploads')->path("{$attachPath}/{$fileName}");
+            $filePath = 'uploads/'.$attachPath .'/'.$fileName;
+            // dd('File already exists in uploads',  $filePath);
+            return $filePath;
+        } else {
+            // หากไม่พบไฟล์ใน disk ให้ไปตรวจสอบในเซิร์ฟเวอร์
+            if (HP::checkFileStorage($existingFilePath)) {
+                // ดึง path ของไฟล์ที่อยู่ในเซิร์ฟเวอร์
+                $localFilePath = HP::getFileStoragePath($existingFilePath);
+
+                // ตรวจสอบว่าไฟล์มีอยู่หรือไม่
+                if (file_exists($localFilePath)) {
+                    // บันทึกไฟล์ลง disk 'uploads' โดยใช้ subfolder ที่กำหนด
+                    $storagePath = Storage::disk('uploads')->putFileAs($attachPath, new \Illuminate\Http\File($localFilePath), $fileName);
+
+                    // ตอบกลับว่าพบไฟล์และบันทึกสำเร็จ
+                    $filePath = 'uploads/'.$attachPath .'/'.$fileName;
+                    return $filePath;
+                    // dd('File exists in server and saved to uploads', $storagePath);
+                } else {
+                    // กรณีไฟล์ไม่สามารถเข้าถึงได้ใน path เดิม
+                    return null;
+                }
+            } else {
+                // ตอบกลับกรณีไม่มีไฟล์ในเซิร์ฟเวอร์
+                return null;
+            }
+        }
+        
+    }
 
 }
