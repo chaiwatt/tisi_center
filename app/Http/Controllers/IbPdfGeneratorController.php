@@ -1205,11 +1205,15 @@ class IbPdfGeneratorController extends Controller
 
     public function showEditor($templateType,$assessmentId)
     {
+        // คุณอาจจะต้องดึงข้อมูล CertiIb หรือ Assessment อีกครั้งถ้าจำเป็น
+        // แต่ถ้ามีแค่ ID ก็สามารถส่งไปได้เลย
         $certiIBSaveAssessment = CertiIBSaveAssessment::find($assessmentId);
+        // dd($certiIBSaveAssessment,$certiIBSaveAssessment->CertiIBCostTo);
         return view('abpdf.editor', [
             'templateType' => $templateType,
             'ibId' => $certiIBSaveAssessment->CertiIBCostTo->id,
             'assessmentId' => $assessmentId,
+            // 'status' => 'draft' // คุณสามารถส่งค่าเริ่มต้นของ status ไปได้ด้วย
         ]);
     }
 

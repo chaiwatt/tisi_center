@@ -393,7 +393,7 @@ class SignAssessmentReportController extends Controller
                   ->where('approval',0)
                   ->get();  
 
-                  dd($signAssessmentReportTransaction->report_type,$signAssessmentReportTransactions->count());
+                //   dd($signAssessmentReportTransaction->report_type,$signAssessmentReportTransactions->count());
       
                 if($signAssessmentReportTransactions->count() == 0){
                     $this->generateIbCarReportTwo($signAssessmentReportTransaction->report_info_id);
@@ -717,6 +717,8 @@ class SignAssessmentReportController extends Controller
             $assessment_id = $assessment->id;
         
             $attachPath = '/files/applicants/check_files_ib/' . $no . '/';
+
+            dd("before distacth work well");
             
             // --- ส่ง Job ไปสร้างไฟล์ PDF พร้อมพารามิเตอร์ที่ถูกต้อง (9 ตัว) ---
             GenerateIbCarReportTwoProcessOnePdf::dispatch(
