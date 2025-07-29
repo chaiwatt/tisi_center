@@ -379,28 +379,30 @@
                          @endif
                       @endforeach --}}
 
-                    @php
-                         $latestFile = $certiCb->FileAttach3
-                            ->whereNotNull('file')
-                            ->where('file', '!=', '')
-                            ->sortByDesc('id') 
-                            ->first();
-                    @endphp
+                      @php
+                            $latestFile = $certiCb->FileAttach3
+                                            ->where('file', '!=', null) // กรองรายการที่มีชื่อไฟล์ (ไม่เป็น null)
+                                            ->where('file', '!=', '')   // กรองรายการที่มีชื่อไฟล์ (ไม่เป็นค่าว่าง)
+                                            ->sortByDesc('id')         // เรียงจาก id มากไปน้อย
+                                            ->first();                // เอามาแค่รายการแรก (ซึ่งก็คือรายการล่าสุด)
+                        @endphp
 
-                    @if ($latestFile)
-                        {{-- โค้ดสำหรับแสดงผล (เหมือนกับวิธีด้านบน) --}}
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <div class="col-md-4 text-light"> </div>
-                                <div class="col-md-6 text-light">
-                                    <a href="{{ url('certify/check/file_cb_client/'.$latestFile->file.'/'.($latestFile->file_client_name ?: basename($latestFile->file))) }}" target="_blank">
-                                        {!! HP::FileExtension($latestFile->file) ?? '' !!}
-                                        {{ $latestFile->file_client_name ?: basename($latestFile->file) }}
-                                    </a>
+                        {{-- ตรวจสอบว่าหาไฟล์ล่าสุดเจอหรือไม่ --}}
+                        @if ($latestFile)
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="col-md-4 text-light"> </div>
+                                        <div class="col-md-6 text-light">
+                                            <a href="{{ url('certify/check/file_cb_client/'.$latestFile->file.'/'.($latestFile->file_client_name ?: basename($latestFile->file))) }}" target="_blank">
+                                                {!! HP::FileExtension($latestFile->file) ?? '' !!}
+                                                {{ $latestFile->file_client_name ?: basename($latestFile->file) }}
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
                    </div>
                  @endif
             </div>
