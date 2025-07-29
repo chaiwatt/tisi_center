@@ -72,11 +72,11 @@
                                     title="{{  !empty($report->FileAttachReport1To->file_client_name) ? $report->FileAttachReport1To->file_client_name : basename($report->FileAttachReport1To->file) }}" target="_blank">
                                     {!! HP::FileExtension($report->FileAttachReport1To->file)  ?? '' !!}
                                 </a>
-                                @if ($report->CertiIBCostTo->require_scope_update != "1")
+                                {{-- @if ($report->CertiIBCostTo->require_scope_update != "1")
                                     <button type="button" class="btn btn-sm btn-success" id="ask_to_edit_scope">
                                         ขอให้แก้ไข
                                     </button>
-                                @endif
+                                @endif --}}
                             </p> 
                     @else 
                             <div class="fileinput fileinput-new input-group m-t-10" data-provides="fileinput">
