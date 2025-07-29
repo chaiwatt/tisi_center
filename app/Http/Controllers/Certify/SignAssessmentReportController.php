@@ -282,11 +282,11 @@ class SignAssessmentReportController extends Controller
 
     public function signDocument(Request $request)
     {
-        // dd("ok");
+    
         // certificate_type 0=CB, 1=IB, 2=LAB
         $signAssessmentReportTransaction = SignAssessmentReportTransaction::find($request->id);
 
-        // dd($signAssessmentReportTransaction);
+        // dd($signAssessmentReportTransaction,$signAssessmentReportTransaction->certificate_type);
 
         SignAssessmentReportTransaction::find($request->id)->update([
             'approval' => 1
@@ -366,8 +366,10 @@ class SignAssessmentReportController extends Controller
         }
         else if($signAssessmentReportTransaction->certificate_type == 1)
         {
+            
             if($signAssessmentReportTransaction->report_type == 1)
             {
+               
                   // IB
                   $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$signAssessmentReportTransaction->report_info_id)
                   ->whereNotNull('signer_id')
@@ -382,13 +384,16 @@ class SignAssessmentReportController extends Controller
             }
             else if($signAssessmentReportTransaction->report_type == 2)
             {
+                
                   // IB
                   $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$signAssessmentReportTransaction->report_info_id)
                   ->whereNotNull('signer_id')
                   ->where('certificate_type',1)
                   ->where('report_type',2)
                   ->where('approval',0)
-                  ->get();           
+                  ->get();  
+
+                  dd($signAssessmentReportTransaction->report_type,$signAssessmentReportTransactions->count());
       
                 if($signAssessmentReportTransactions->count() == 0){
                     $this->generateIbCarReportTwo($signAssessmentReportTransaction->report_info_id);
