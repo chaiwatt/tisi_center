@@ -131,7 +131,7 @@ class GenerateIbCarReportTwoProcessOnePdf implements ShouldQueue
                         // บันทึกข้อมูลไฟล์แนบ Section 3
                         CertiIBAttachAll::create([
                             'app_certi_ib_id' => $this->certi_ib_id,
-                            'ref_id' => $certiIBSaveAssessment->id,
+                            'ref_id' => $this->assessment_id,
                             'table_name' => (new CertiIBSaveAssessment)->getTable(),
                             'file_section' => '3',
                             'file' => $storePath,
@@ -142,7 +142,7 @@ class GenerateIbCarReportTwoProcessOnePdf implements ShouldQueue
                         // บันทึกข้อมูลไฟล์แนบ Section 1
                         CertiIBAttachAll::create([
                             'app_certi_ib_id' => $this->certi_ib_id,
-                            'ref_id' => $certiIBSaveAssessment->id,
+                            'ref_id' => $this->assessment_id,
                             'table_name' => (new CertiIBSaveAssessment)->getTable(),
                             'file_section' => '5',
                             'file_desc' => 'รายงานปิด Car',

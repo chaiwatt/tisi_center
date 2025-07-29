@@ -1213,7 +1213,7 @@ class IbPdfGeneratorController extends Controller
             'templateType' => $templateType,
             'ibId' => $certiIBSaveAssessment->CertiIBCostTo->id,
             'assessmentId' => $assessmentId,
-            // 'status' => 'draft' // คุณสามารถส่งค่าเริ่มต้นของ status ไปได้ด้วย
+            // 'status' => 'draft' // คุณสามารถส่งค่าเริ่มต้นของ
         ]);
     }
 

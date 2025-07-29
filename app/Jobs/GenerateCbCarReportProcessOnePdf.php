@@ -123,15 +123,15 @@ class GenerateCbCarReportProcessOnePdf implements ShouldQueue
                     Log::info('FTP upload confirmed. Saving to database.', ['file' => $this->fullFileName]);
                     
                     $certiCBSaveAssessment = CertiCBSaveAssessment::find($this->assessment_id);
-                    $certiCb = $certiCBSaveAssessment->CertiCBCostTo;
+                    // $certiCb = $certiCBSaveAssessment->CertiCBCostTo;
                     
                     if ($certiCBSaveAssessment) {
                         $storePath = $this->no . '/' . $this->fullFileName;
 
                         // บันทึกข้อมูลไฟล์แนบ Section 3
                         CertiCBAttachAll::create([
-                            'app_certi_cb_id' => $certiCb->id,
-                            'ref_id' => $certiCBSaveAssessment->id,
+                            'app_certi_cb_id' => $this->certi_cb_id,
+                            'ref_id' => $this->assessment_id,
                             'table_name' => (new CertiCBSaveAssessment)->getTable(),
                             'file_section' => '3',
                             'file' => $storePath,
@@ -141,8 +141,8 @@ class GenerateCbCarReportProcessOnePdf implements ShouldQueue
 
                         // บันทึกข้อมูลไฟล์แนบ Section 1
                         CertiCBAttachAll::create([
-                            'app_certi_cb_id' => $certiCb->id,
-                            'ref_id' => $certiCBSaveAssessment->id,
+                            'app_certi_cb_id' => $this->certi_cb_id,
+                            'ref_id' => $this->assessment_id,
                             'table_name' => (new CertiCBSaveAssessment)->getTable(),
                             'file_section' => '5',
                              'file_desc' => 'รายงานปิด Car',
