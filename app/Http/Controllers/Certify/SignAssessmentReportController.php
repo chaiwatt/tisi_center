@@ -722,7 +722,7 @@ class SignAssessmentReportController extends Controller
 
             $certiIBSaveAssessment = CertiIBSaveAssessment::find($assessment_id);
             $certiIb = $certiIBSaveAssessment->CertiIBCostTo;
-            dd($certiIBSaveAssessment->id,$certiIb->id);
+            dd($certiIBSaveAssessment->id,$certiIb->id,$certi_ib_id);
             
             // --- ส่ง Job ไปสร้างไฟล์ PDF พร้อมพารามิเตอร์ที่ถูกต้อง (9 ตัว) ---
             GenerateIbCarReportTwoProcessOnePdf::dispatch(
