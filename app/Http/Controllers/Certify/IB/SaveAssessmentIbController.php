@@ -298,7 +298,7 @@ class SaveAssessmentIbController extends Controller
                      
                     // dd($report);
                     $templateType = "ib_final_report_process_one";
-                    dd($templateType,$CertiIb->id,$assessment->id);
+                    // dd($templateType,$CertiIb->id,$assessment->id);
                     return view('abpdf.editor',[
                         'templateType' => $templateType,
                         'ibId' => $CertiIb->id,
