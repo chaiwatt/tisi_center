@@ -341,7 +341,7 @@
                                                                 {{$boardAuditor->auditor}} (ฉบับร่าง)
                                                                 </a> 
                                                             @endif
-                                                        @endif
+                                                        {{-- @endif --}}
                                                        
                                                  @else
                                                         @if ($assessment->submit_type == 'confirm' || $assessment->submit_type == null)
