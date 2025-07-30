@@ -313,14 +313,13 @@
                                                     {{-- @php
                                                         dd($item)
                                                     @endphp --}}
-
+{{-- {{$item->estandard_plan_to->method_to->id}} --}}
                                                    
-                                                    @if ($item->estandard_plan_to->method_to->id == 2)
+                                                    @if ($item->estandard_plan_to->method_to->id == 1 || $item->estandard_plan_to->method_to->id == 2)
                                                             <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                 <i class="fa fa-pencil-square-o"></i>
                                                             </a>
                                                     @elseif($item->estandard_plan_to->method_to->id == 3)
-
                                                
                                                     @if ($item->subAppointmentMeetingApproved->count() == 0)
                                                             <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">

@@ -157,10 +157,16 @@ class StandardController extends Controller
      * @return \Illuminate\View\View
      */
     public function create()
-    {
+    { 
+        $request_status = null;
+        // dd("ok");
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('add-'.$model)) {
-            return view('certify/standards.create');
+            return view('certify/standards.create',[
+                'request_status' => $request_status,
+                'status_text' => null,
+                'isbn_number' => null
+            ]);
         }
         abort(403);
 
