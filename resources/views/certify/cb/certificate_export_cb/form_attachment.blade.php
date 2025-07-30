@@ -47,7 +47,7 @@
                                             @endphp
 
                                             {{$certicb_file->app_no ?? '-'}}
-                                             {!!$purpose!!}
+                                             {{-- {!!$purpose!!} --}}
                                              
                                             <input type="hidden" value="{{$certicb_file->id}}" class="certificate_edit_row" name="id"/>
                                             <input type="hidden" value="{{ HP::revertDate($certicb_file->start_date) ?? '-' }}" class="start_date"/>

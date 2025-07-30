@@ -44,7 +44,7 @@
                                             {{-- {{$certiib_file->certi_ib_to->StandardChangeTitle}}
                                             {{$certiib_file->ref_table}} --}}
                                             {{$certiib_file->app_no ?? '-'}} 
-                                            {!!$purpose!!}
+                                            {{-- {!!$purpose!!} --}}
 
                                             
                                             <input type="hidden" value="{{$certiib_file->id}}" class="certificate_edit_row" name="id"/>
