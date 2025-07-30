@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Certificate\TrackingAuditors;
 use App\Models\Certificate\TrackingAssessment;
+use App\Models\Certify\ApplicantCB\CertiCBCheck;
 use App\Models\Certificate\TrackingAssessmentBug;
 use App\Models\Certify\ApplicantCB\CertiCBAuditors;
 use App\Models\Certify\ApplicantCB\CertiCBSaveAssessment;
