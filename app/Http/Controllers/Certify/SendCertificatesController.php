@@ -552,7 +552,7 @@ class SendCertificatesController extends Controller
                     foreach($export as $key => $item){
                         if(!empty($item->CertiIBCostTo) ){
                             $send_cer_list =   SendCertificateLists::select('id','sign_status')->where('certificate_id',$item->id)->where('certificate_tb',$table)->first();   
-                            if( is_null($send_cer_list) || ( !is_null($send_cer_list)  &&  $send_cer_list->sign_status == 4 ) ){
+                            if( is_null($send_cer_list) || ( !is_null($send_cer_list)  &&  $send_cer_list->sign_status >= 3 ) ){
                                 $ib                     = $item->CertiIBCostTo;
                                 $list                   = (object)[];
                                 $list->id               =  $item->id; 
