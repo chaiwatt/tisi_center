@@ -310,12 +310,12 @@
                                                     {{-- <a href="{{route('save_assessment.cb_report_two_create',['id' => $assessment->id])}}" --}}
                                                     <a href="{{ url('/certify/show-cb-editor/cb_car_report_two_process_one/' . $assessment->id) }}"
                                                         title="จัดทำรายงาน2" class="btn btn-warning">
-                                                        รายงานที่2 
+                                                        สร้างรายงาน 
                                                     </a>
                                                      {{-- @else
                                                      <a href="{{route('save_assessment.cb_report_two_create',['id' => $assessment->id])}}"
                                                         title="จัดทำรายงาน2" class="btn btn-info">
-                                                        รายงานที่2 
+                                                        สร้างรายงาน 
                                                     </a> --}}
                                                     @endif
 

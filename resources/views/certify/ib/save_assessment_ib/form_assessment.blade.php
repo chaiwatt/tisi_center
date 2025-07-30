@@ -268,12 +268,12 @@
 
                                                 {{-- <a href="{{route('save_assessment.ib_report_two_create',['id' => $assessment->id])}}"
                                                     title="จัดทำรายงาน2" class="btn btn-warning">
-                                                    รายงานที่2 ff
+                                                    สร้างรายงาน ff
                                                 </a> --}}
                                                  {{-- @else
                                                  <a href="{{route('save_assessment.ib_report_two_create',['id' => $assessment->id])}}"
                                                     title="จัดทำรายงาน2" class="btn btn-info">
-                                                    รายงานที่2 
+                                                    สร้างรายงาน 
                                                 </a> --}}
                                                 @endif
                                             @endif

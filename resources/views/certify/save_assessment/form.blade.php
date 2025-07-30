@@ -267,12 +267,12 @@
                                 @if ($find_notice->labReportInfo->status === "1")
                                         <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
                                             title="จัดทำรายงาน" class="btn btn-warning">
-                                            รายงานที่1
+                                            สร้างรายงาน
                                         </a>
                                     @else
                                         <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
                                             title="จัดทำรายงาน" class="btn btn-info">
-                                            รายงานที่1
+                                            สร้างรายงาน
                                         </a>
                                 @endif 
 

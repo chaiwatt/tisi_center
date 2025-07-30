@@ -248,12 +248,12 @@
                         @if ($assessment->trackingCbReportOne->status == "1" || $assessment->trackingCbReportOne->status == null)
                                 <a href="{{route('certificate.assessment-cb.view_cb_report_one',['id' => $assessment->id])}}"
                                     title="จัดทำรายงาน" class="btn btn-warning">
-                                    รายงานที่1
+                                    สร้างรายงาน
                                 </a>
                             @else
                                 <a href="{{route('certificate.assessment-cb.view_cb_report_one',['id' => $assessment->id])}}"
                                     title="จัดทำรายงาน" class="btn btn-info">
-                                    รายงานที่1
+                                    สร้างรายงาน
                                 </a>
                         @endif 
                     @endif

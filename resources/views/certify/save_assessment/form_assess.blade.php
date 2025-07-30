@@ -230,23 +230,23 @@
                                                     @if ($find_notice->labReportTwoInfo->status === "1")
                                                             <a href="{{route('save_assessment.view_lab_report2_info',['id' => $find_notice->id])}}"
                                                                 title="จัดทำรายงาน2" class="btn btn-warning">
-                                                                รายงานที่2
+                                                                สร้างรายงาน
                                                             </a>
                                                             {{-- <a href="{{ url('save-assessment/view-lab-report2-info/' . $find_notice->id) }}"
                                                                 title="จัดทำรายงาน2" class="btn btn-warning">
-                                                                รายงานที่2
+                                                                สร้างรายงาน
                                                              </a> --}}
                                                         @else
                                                             <a href="{{route('save_assessment.view_lab_report2_info',['id' => $find_notice->id])}}"
                                                                 title="จัดทำรายงาน2" class="btn btn-info">
-                                                                รายงานที่2
+                                                                สร้างรายงาน
                                                             </a>
                                                     @endif 
                                                 @else
                                                   @if($find_notice->date_car != null)
                                                         <a href="{{route('save_assessment.view_lab_report2_info',['id' => $find_notice->id])}}"
                                                             title="จัดทำรายงาน2" class="btn btn-info">
-                                                            รายงานที่2
+                                                            สร้างรายงาน
                                                         </a>
                                                         <a href="{{url('certify/check/file_client/'.$find_notice->file_car.'/'.( !empty($find_notice->file_car_client_name) ? $find_notice->file_car_client_name : 'null' ))}}"
                                                             title="{{ !empty($find_notice->file_car_client_name) ? $find_notice->file_car_client_name :  basename($find_notice->file_car) }}" target="_blank">
@@ -255,12 +255,12 @@
                                                     @if ($find_notice->labReportTwoInfo->status === "1")
                                                             <a href="{{route('save_assessment.view_lab_report2_info',['id' => $find_notice->id])}}"
                                                                 title="จัดทำรายงาน2" class="btn btn-warning">
-                                                                รายงานที่2
+                                                                สร้างรายงาน
                                                             </a>
                                                         @else
                                                             <a href="{{route('save_assessment.view_lab_report2_info',['id' => $find_notice->id])}}"
                                                                 title="จัดทำรายงาน2" class="btn btn-info">
-                                                                รายงานที่2
+                                                                สร้างรายงาน
                                                             </a>
                                                     @endif 
                                                   @endif

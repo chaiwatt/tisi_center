@@ -160,19 +160,19 @@
                     @if ($assessment->trackingLabReportTwo->status == "1" || $assessment->trackingLabReportTwo->status == null)
                             <a href="{{route('certificate.assessment-labs.view_lab_report_two',['id' => $assessment->id])}}"
                                 title="จัดทำรายงาน" class="btn btn-warning">
-                                รายงานที่2
+                                สร้างรายงาน
                             </a>
                         @else
                                 <a href="{{route('certificate.assessment-labs.view_lab_report_two',['id' => $assessment->id])}}"
                                 title="จัดทำรายงาน" class="btn btn-info">
-                                รายงานที่2
+                                สร้างรายงาน
                             </a>
                     @endif 
                      
                 @else
                     <a href="{{route('certificate.assessment-labs.view_lab_report_two',['id' => $assessment->id])}}"
                         title="จัดทำรายงาน" class="btn btn-warning">
-                        รายงานที่2
+                        สร้างรายงาน
                     </a>
                 @endif
             </div>

@@ -270,12 +270,12 @@
                         @if ($assessment->cbReportInfo->status === "1")
                                 <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_one/' . $assessment->id) }}"
                                     title="จัดทำรายงาน" class="btn btn-warning">
-                                    รายงานที่1
+                                    สร้างรายงาน
                                 </a>
                             @else
                                 <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_one/' . $assessment->id) }}"
                                     title="จัดทำรายงาน" class="btn btn-info">
-                                    รายงานที่1
+                                    สร้างรายงาน
                                 </a>
                         @endif 
                 

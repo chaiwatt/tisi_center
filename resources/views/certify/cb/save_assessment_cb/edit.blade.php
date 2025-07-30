@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (CB) #{{ $assessment->id }}</h3>
+                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (CB)</h3>
                     @can('view-'.str_slug('saveassessmentcb'))
                         <a class="btn btn-success pull-right" href="{{ url('/certify/save_assessment-cb') }}">
                             <i class="icon-arrow-left-circle" aria-hidden="true"></i> กลับ
