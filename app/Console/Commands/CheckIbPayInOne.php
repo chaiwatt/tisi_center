@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use App\Models\Certify\TransactionPayIn;
 use App\Http\Controllers\API\Checkbill2Controller;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
@@ -12,9 +13,9 @@ use App\Models\Certify\ApplicantIB\CertiIBPayInOne;
 
 class CheckIbPayInOne extends Command
 {
-    public function callCheckBill($ref1)
+     public function callCheckBill($ref1)
     {
-         // สร้าง Request Object และเพิ่มข้อมูลที่ต้องการส่งไป
+        // สร้าง Request Object และเพิ่มข้อมูลที่ต้องการส่งไป
         $request = new Request();
         $request->merge(['ref1' => $ref1]); // ใส่ข้อมูล 'ref1'
 
@@ -31,6 +32,7 @@ class CheckIbPayInOne extends Command
 
     public function handle()
     {
+        Log::info('เริ่มต้นการทำงาน check:ib-payin-one-ib');
         // type = 2 ใบเสร็จ
     
         $now = Carbon::now();
@@ -48,67 +50,76 @@ class CheckIbPayInOne extends Command
                 })
                 ->get();
         
-        // dd();
-        // $this->info($transactionPayIns);
+        Log::info('พบ Transaction PayIn1 (IB) ที่ต้องตรวจสอบจำนวน: ' . $transactionPayIns->count() . ' รายการ');
 
         foreach ($transactionPayIns as $transactionPayIn) {
             $ref1 = $transactionPayIn->ref1;
+            Log::info('กำลังตรวจสอบ ref1: ' . $ref1);
             $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
             // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
             if ($result instanceof \Illuminate\Http\JsonResponse) {
                 // แปลง JsonResponse เป็น array
                 $resultArray = $result->getData(true);
+                Log::info('Response จาก CheckBill API สำหรับ ref1: ' . $ref1, $resultArray);
         
                 // ตรวจสอบค่า message
                 if (!empty($resultArray['message']) && $resultArray['message'] === true) {
                     // ดึงค่าทั้งหมดจาก response
                     $response = $resultArray['response'] ?? null;
-        
+            
                     // ตรวจสอบว่า response เป็น array หลายรายการหรือไม่
                     if (is_array($response) && count($response) > 0) {
                         // ใช้ array_map เพื่อดึง ref1
                         $ref1List = array_map(function ($item) {
                             return isset($item['ref1']) ? $item['ref1'] : null;
                         }, $response);
-        
+            
                         // กรองเฉพาะ ref1 ที่ไม่เป็น null
                         $validRef1 = array_filter($ref1List);
-        
-                        // แสดงผล ref1 ทั้งหมด
-                        // $this->info("Valid ref1: " . implode(", ", $validRef1));
+                        Log::info('พบการชำระเงินสำหรับ ref1: ' . implode(", ", $validRef1));
 
                         $payInOneId = $transactionPayIn->ref_id;
                         $certiIBPayInOne = CertiIBPayInOne::find($payInOneId);
 
-                        if($certiIBPayInOne->state != 3){
+                        if ($certiIBPayInOne && $certiIBPayInOne->state != 3) {
+                            Log::info('อัปเดตสถานะสำหรับ CertiIBPayInOne ID: ' . $payInOneId);
                             CertiIBPayInOne::find($payInOneId)->update([
                                 'state'=>3,
                                 'status'=> 1,
                                 'remark'=> null
                             ]);
     
-                            $auditor = CertiIBAuditors::findOrFail($certiIBPayInOne->auditors_id);
+                            $auditor = CertiIBAuditors::find($certiIBPayInOne->auditors_id);
                             if(!is_null($auditor)){
+                                Log::info('อัปเดต step_id สำหรับ Auditor ID: ' . $certiIBPayInOne->auditors_id);
                                 $auditor->step_id = 6; 
                                 $auditor->save();
+                            } else {
+                                Log::warning('ไม่พบ Auditor ID: ' . $certiIBPayInOne->auditors_id . ' สำหรับ CertiIBPayInOne ID: ' . $payInOneId);
+                            }
+                        } else {
+                             if (!$certiIBPayInOne) {
+                                Log::warning('ไม่พบ CertiIBPayInOne ID: ' . $payInOneId);
+                            } else {
+                                Log::info('CertiIBPayInOne ID: ' . $payInOneId . ' มี state เป็น 3 อยู่แล้ว ไม่มีการอัปเดต');
                             }
                         }
 
                     } else {
+                        Log::info('ไม่พบข้อมูลการชำระเงินใน response สำหรับ ref1: ' . $ref1);
                         $this->info("Response is empty or not an array.");
                     }
                 } else {
+                    Log::info('CheckBill API แจ้งว่ายังไม่มีการชำระเงินสำหรับ ref1: ' . $ref1);
                     $this->info("No valid message or response.");
                 }
             } else {
+                Log::error('ได้รับ Response ที่ไม่ใช่ JsonResponse สำหรับ ref1: ' . $ref1);
                 $this->info("Invalid response type. Expected JsonResponse.");
             }
         }
         
-        
-        
-        
-        
         $this->info('ตรวจสอบการชำระเงินระบบ epayment ของ payin1 ib เสร็จสิ้น');
+        Log::info('สิ้นสุดการทำงาน check:ib-payin-one-ib');
     }
 }

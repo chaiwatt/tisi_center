@@ -170,8 +170,13 @@
                                                 @endphp
                                                 @if ($item->status_cancel != 1)
                                                     <a  class="btn {{$auditors_btn}} " href="{{ url("certify/auditor-ib/".$item->id."/edit")}}"  style="background-color:{{$auditors_btn}};width:450px;text-align: left">
-                                                        ครั้งที่ {{ $display_key }} :  
+                                                        {{-- ครั้งที่ {{ $display_key }} :   --}}
                                                         {{ $item->auditor ?? '-'}}
+                                                        @if ($item->assessment_type == 0)
+                                                            (ขั้นตอนที่1)
+                                                        @elseif($item->assessment_type == 1)  
+                                                            (ขั้อนตอนที่2)
+                                                        @endif
                                                     </a> <br>
                                                 @endif
                                             @endforeach

@@ -195,11 +195,21 @@
                                     <div class="col-md-6">
                                         <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน : </label>
                                         <div class="col-md-8">
-
-                                              <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_two/' . $assessment->id) }}"
+{{-- @php
+    dd($assessment->CertiCBAuditorsTo->assessment_type);
+@endphp --}}
+                                            @if ($assessment->CertiCBAuditorsTo->assessment_type == 0)
+                                                <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_one/' . $assessment->id) }}"
                                                     title="จัดทำรายงาน" class="btn btn-warning">
                                                     สร้างรายงาน
                                                 </a>
+                                            @elseif($assessment->CertiCBAuditorsTo->assessment_type == 1)
+                                                <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_two/' . $assessment->id) }}"
+                                                    title="จัดทำรายงาน" class="btn btn-warning">
+                                                    สร้างรายงาน
+                                                </a>
+                                            @endif
+                                         
                                             {{-- @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
                                                     <a href="{{url('certify/check/file_cb_client/'.$assessment->FileAttachAssessment1To->file.'/'.( !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name : 'null' ))}}" 
                                                         title="{{ !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name :  basename($assessment->FileAttachAssessment1To->file) }}" target="_blank">

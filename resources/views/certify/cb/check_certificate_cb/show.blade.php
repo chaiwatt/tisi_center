@@ -123,7 +123,7 @@
                             <div class="form_group btn-group">
                                 <div class="btn-group">
                                     <button type="button" class="btn {{$auditors_btn}} dropdown-toggle" data-toggle="dropdown">
-                                        แต่งตั้งคณะฯ  <span class="caret"></span>
+                                        แต่งตั้งคณะฯ <span class="caret"></span>
                                     </button>
                                     <div class="dropdown-menu" role="menu" >
                                         @if($certi_cb->status == 10)   <!-- อยู่ระหว่างดำเนินการ -->
@@ -131,7 +131,7 @@
                                                 {{ csrf_field() }}
                                                 {!! Form::hidden('certicb_id', (!empty($certi_cb->id) ? $certi_cb->id  : null) , [ 'class' => 'form-control' ]); !!}
                                                 <button class="btn btn-warning" type="submit"   style="width:750px;text-align: left"> 
-                                                    <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ
+                                                    <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ 
                                                 </button>
                                             </form>
                                         @endif
@@ -155,9 +155,20 @@
                                                 $display_key = $total - $i_key;
                                             @endphp
                                             @if ($item->status_cancel != 1)
+
+                                            {{-- @php
+                                                dd($item->assessment_type);
+                                            @endphp --}}
                                                 <a  class="btn {{$auditors_btn}} " href="{{ url("certify/auditor-cb/".$item->id."/edit")}}" style="background-color:{{$auditors_btn}};width:750px;text-align: left">
-                                                    ครั้งที่ {{ $display_key }} :  
-                                                    {{ $item->auditor ?? '-'}}
+                                                    {{-- ครั้งที่ {{ $display_key }} :   --}}
+                                                    {{ $item->auditor ?? '-'}} 
+
+                                                    @if ($item->assessment_type == 0)
+                                                        (ขั้นตอนที่1)
+                                                      @elseif($item->assessment_type == 1)  
+                                                        (ขั้อนตอนที่2)
+                                                    @endif
+                                                    
                                                 </a> 
                                                 <br>
                                             @endif
@@ -178,7 +189,7 @@
                                     @csrf
                                     <input type="hidden" name="certicb_id" value="{{ !empty($certi_cb->id) ? $certi_cb->id : null }}" class="form-control">
                                     <button class="btn btn-warning" type="submit">
-                                        <i class="fa fa-plus"></i> แต่งตั้งคณะฯ
+                                        <i class="fa fa-plus"></i> แต่งตั้งคณะฯ 
                                     </button>
                                 </form>
                             </div>
