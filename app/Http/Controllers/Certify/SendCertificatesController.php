@@ -579,7 +579,7 @@ class SendCertificatesController extends Controller
                 $signer->certificate_type    = 1;
                 $table              =  (new CertiCBExport)->getTable();
                 $export             =  CertiCBExport::where('sign_id',$signer->id)->whereIn('status',[2])->get();  
-                dd($export);
+                dd($export->count());
                 if(count($export) > 0){
                     foreach($export as $key => $item){
    
