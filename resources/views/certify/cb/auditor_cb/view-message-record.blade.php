@@ -244,8 +244,8 @@
             <table class="table-section" >
                 <tr>
                     <td>เรื่อง</td>
-                    {{-- <td style="width: 700px;font-size:22px" class="under-line">การแต่งตั้งคณะผู้ตรวจหน่วยตรวจ {{$data->name_standard}} (คำขอเลขที่ {{$data->app_no}})</td> --}}
-                     <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})</td>
+                    {{-- <td style="width: 700px;font-size:22px" class="under-line">การแต่งตั้งคณะผู้ตรวจหน่วยรับรอง {{$data->name_standard}} (คำขอเลขที่ {{$data->app_no}})</td> --}}
+                     <td style="width: 700px;font-size:22px" class="under-line">{{$topicHeader}} หน่วยรับรอง {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยรับรอง ({{$data->header_text4}})</td>
                 </tr>
             </table>
 
@@ -257,15 +257,15 @@
                     ห้องปฏิบัติการ {{$data->lab_type}} {{$data->company}}
                 </div> --}}
                 {{-- <div class="indent" style="text-indent: 120px;">
-                    วันที่ {{$data->register_date}} {{$data->name_standard}} ได้ยื่นคำขอรับใบรับรองหน่วยตรวจ ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
+                    วันที่ {{$data->register_date}} {{$data->name_standard}} ได้ยื่นคำขอรับใบรับรองหน่วยรับรอง ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
                 </div> --}}
 
                  <div class="indent" style="text-indent: 125px;" >
-                    ๑.๑ {{$certi_cb->name}} ซึ่งต่อไปนี้จะเรียกว่า "หน่วยตรวจ" ได้ยื่นคำขอการรับรองระบบงานหน่วยตรวจ ตามมาตรฐานเลขที่ มอก. 17020-2556 ต่อสก. ผ่านระบบ e-Accreditation ตามคำขอเลขที่ {{$certi_cb->app_no}} เมื่อวันที่ {{$data->get_date}} <br>
+                    ๑.๑ {{$certi_cb->name}} ซึ่งต่อไปนี้จะเรียกว่า "หน่วยรับรอง" ได้ยื่นคำขอการรับรองระบบงานหน่วยรับรอง ตามมาตรฐานเลขที่ มอก. 17020-2556 ต่อสก. ผ่านระบบ e-Accreditation ตามคำขอเลขที่ {{$certi_cb->app_no}} เมื่อวันที่ {{$data->get_date}} <br>
                 </div>
                  <div class="indent" style="text-indent: 125px;" >
                    
-                    ๑.๒ หน่วยตรวจแจ้งความพร้อมให้ดำเนินการตรวจประเมินสถานประกอบการของหน่วยตรวจ {{$data->date_range}} ดังเอกสารแนบ 1 
+                    ๑.๒ หน่วยรับรองแจ้งความพร้อมให้ดำเนินการตรวจประเมินสถานประกอบการของหน่วยรับรอง {{$data->date_range}} ดังเอกสารแนบ 1 
                 </div>
             </div>
 
@@ -323,14 +323,14 @@
             <div class="section">
                 <div class="section-title">๖. ข้อพิจารณา</div>
                 {{-- <div class="indent" style="margin-left:135px">นำเรียน ลมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมิน</div>            --}}
-                <div class="indent" style="margin-left:135px">เพื่อโปรดนำเรียน ลมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมิน สถานประกอบการหน่วยตรวจ เพื่อการรับรองระบบงานของ {{$data->name_standard}} {{$data->date_range}}</div>           
+                <div class="indent" style="margin-left:135px">เพื่อโปรดนำเรียน ลมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมิน สถานประกอบการหน่วยรับรอง เพื่อการรับรองระบบงานของ {{$data->name_standard}} {{$data->date_range}}</div>           
             </div>
 
             <!-- ข้อเสนอ -->
             <div class="section">
                 <div class="section-title">๗. ข้อเสนอ</div>
                 {{-- <div style="text-indent: 137px;margin-top:10px;line-height:34px">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นเป็นการสมควร ขอได้โปรดนำเรียน ลมอ. เพื่ออนุมัติการแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบการ{{$data->name_standard}} ในวันที่ {{$data->date_range}} รายละเอียดดังข้างต้น</div> --}}
-                 <div style="text-indent: 137px;margin-top:10px;line-height:34px">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นเป็นการสมควร ขอได้โปรดนำเรียน ลมอ. เพื่ออนุมัติการแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบการของหน่วยตรวจ  เพื่อการรับรองระบบงานของ {{$data->name_standard}} {{$data->date_range}} รายละเอียดดังกล่าวข้างต้น</div>      
+                 <div style="text-indent: 137px;margin-top:10px;line-height:34px">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นเป็นการสมควร ขอได้โปรดนำเรียน ลมอ. เพื่ออนุมัติการแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบการของหน่วยรับรอง  เพื่อการรับรองระบบงานของ {{$data->name_standard}} {{$data->date_range}} รายละเอียดดังกล่าวข้างต้น</div>      
       
             </div>
             {{-- <div class="submit-section">

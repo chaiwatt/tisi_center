@@ -60,9 +60,9 @@
         <td style="line-height: 0.5;width: 30px; font-size: 28px; font-weight:bold">เรื่อง</td>
         <td style="border-bottom: 1px dotted #000; padding-bottom: 1;line-height: 0.8;width: 600px;padding-left:20px">
             @if ($assessmentType == 0)
-                    {{$topicHeader}} หน่วยตรวจ {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยตรวจ ({{$data->header_text4}})
+                    {{$topicHeader}} หน่วยรับรอง {{$data->name_standard}} เพื่อการรับรองระบบงานหน่วยรับรอง ({{$data->header_text4}})
                 @elseif($assessmentType == 1)
-                    {{$topicHeader}} ความสามารถผู้ตรวจ เพื่อการรับรองระบบงานของหน่วยตรวจของ {{$data->name_standard}} ({{$data->header_text4}})
+                    {{$topicHeader}} ความสามารถผู้ตรวจ เพื่อการรับรองระบบงานของหน่วยรับรองของ {{$data->name_standard}} ({{$data->header_text4}})
             @endif
             
         </td>
@@ -81,21 +81,21 @@
     <div style="font-weight: bold;margin-left:90px;margin-top:15px">๑. เรื่องเดิม</div>
     <div>
         {{-- @php
-            $textResult = TextHelper::callLonganTokenizePost("วันที่!" . $data->register_date . "!".str_replace(' ', '!', $data->name_standard)." ได้ยื่นคำขอรับใบรับรองหน่วยตรวจ ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
+            $textResult = TextHelper::callLonganTokenizePost("วันที่!" . $data->register_date . "!".str_replace(' ', '!', $data->name_standard)." ได้ยื่นคำขอรับใบรับรองหน่วยรับรอง ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
             $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
 
         @endphp --}}
 
         @php
-            // $textResult = TextHelper::callLonganTokenizePost("วันที่!" . $data->register_date . "!".str_replace(' ', '!', $data->name_standard)." ได้ยื่นคำขอรับใบรับรองหน่วยตรวจ ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
-            $textResult = TextHelper::callLonganTokenizePost("๑.๑". str_replace(' ', '!', $certi_cb->name) . " ซึ่งต่อไปนี้จะเรียกว่า 'หน่วยตรวจ' ได้ยื่นคำขอการรับรองระบบงานหน่วยตรวจ ตามมาตรฐานเลขที่ มอก. 17020-2556 ต่อสก. ผ่านระบบ e-Accreditation ตามคำขอเลขที่ " . $certi_cb->app_no . " เมื่อวันที่!" . $data->register_date . "!");
+            // $textResult = TextHelper::callLonganTokenizePost("วันที่!" . $data->register_date . "!".str_replace(' ', '!', $data->name_standard)." ได้ยื่นคำขอรับใบรับรองหน่วยรับรอง ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
+            $textResult = TextHelper::callLonganTokenizePost("๑.๑". str_replace(' ', '!', $certi_cb->name) . " ซึ่งต่อไปนี้จะเรียกว่า 'หน่วยรับรอง' ได้ยื่นคำขอการรับรองระบบงานหน่วยรับรอง ตามมาตรฐานเลขที่ มอก. 17020-2556 ต่อสก. ผ่านระบบ e-Accreditation ตามคำขอเลขที่ " . $certi_cb->app_no . " เมื่อวันที่!" . $data->register_date . "!");
             $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
         @endphp
    
         <div style="text-indent: 125px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
          <div class="indent" style="text-indent: 125px;" >
                    
-                ๑.๒ หน่วยตรวจแจ้งความพร้อมให้ดำเนินการตรวจประเมินสถานประกอบการของ หน่วยตรวจ {{$data->date_range}} ดังเอกสารแนบ 1 
+                ๑.๒ หน่วยรับรองแจ้งความพร้อมให้ดำเนินการตรวจประเมินสถานประกอบการของ หน่วยรับรอง {{$data->date_range}} ดังเอกสารแนบ 1 
             </div> 
     </div>
     <div style="margin-top:15px">
@@ -170,7 +170,7 @@
 
         <div style="font-weight: bold;margin-left:90px;margin-top:10px;">๖. ข้อพิจารณา</div>
         {{-- <p style="margin: top 0;margin-left:105px;">เพื่อโปรดนําเรียน สมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมิน</p> --}}
-         <p style="margin: top 0;margin-left:105px;">เพื่อโปรดนำเรียน ลมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบ การหน่วยตรวจ เพื่อการรับรองระบบงานของ {{$data->name_standard}} {{$data->date_range}}</p>
+         <p style="margin: top 0;margin-left:105px;">เพื่อโปรดนำเรียน ลมอ. พิจารณาลงนามอนุมัติการแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบ การหน่วยรับรอง เพื่อการรับรองระบบงานของ {{$data->name_standard}} {{$data->date_range}}</p>
 
         <div style="font-weight: bold;margin-left:90px;margin-top:10px;">๗. ข้อเสนอ</div>
         {{-- <p style="margin: top 0;margin-left:105px;letter-spacing: 0.85px;">จึงเรียนมาเพื่อโปรดพิจารณา หากเห็นเป็นการสมควร ขอได้โปรดนำเรียน ลมอ. เพื่ออนุมัติการแต่งตั้งคณะผู้ตรวจประเมินสถานประกอบการ{{$data->name_standard}} ในวันที่ {{$data->date_range}} รายละเอียดดังข้างต้น</p> --}}
@@ -214,10 +214,10 @@
         <div style="position: relative;padding-top:10px ;line-height:1.18">
             <p style="margin: bottom 0;">เรียน ลมอ.</p>
             <div style="margin-left:90px; letter-spacing: 0.5px;">สก. ได้ตรวจสอบรายละเอียดการดําเนินการสําหรับการแต่งตั้งคณะผู้ตรวจประเมินแล้ว</div>
-            <p style="margin: top 0;">ตามหลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองการรับรองหน่วยตรวจ รายละเอียด ดังข้างต้น</p>
+            <p style="margin: top 0;">ตามหลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองการรับรองหน่วยรับรอง รายละเอียด ดังข้างต้น</p>
 
             <div style="margin-left:90px;margin-top:5px; letter-spacing: 0.15px;">จึงเรียนมาเพื่อโปรดอนุมัติการแต่งตั้งคณะผู้ตรวจประเมินเพื่อดําเนินการตรวจประเมินให้การ</div>
-            <div style="letter-spacing: 0.1px;">การรับรองหน่วยตรวจ {{$data->name_standard}} ตามวันและเวลา ดังกล่าว</div>
+            <div style="letter-spacing: 0.1px;">การรับรองหน่วยรับรอง {{$data->name_standard}} ตามวันและเวลา ดังกล่าว</div>
 
             <table style="width: 100%;text-align:center;margin-top:20px">
                 <tr>
