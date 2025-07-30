@@ -620,9 +620,10 @@ class SendCertificatesController extends Controller
                                                                 ->where('certificate_tb',$table)
                                                                 ->first();
 
+                            dd($item);
                             // เงื่อนไข: ใบรับรองยังไม่เคยถูกส่ง หรือถูกยกเลิกการส่ง (สถานะ 4)
                             if(is_null($send_cer_list) || (!is_null($send_cer_list) && $send_cer_list->sign_status == 4)){
-                                dd($item);
+                                
                                 $cb = $item->CertiCbTo;
                                 $list = (object)[];
                                 $list->id = $item->id;
