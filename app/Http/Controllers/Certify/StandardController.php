@@ -479,7 +479,7 @@ class StandardController extends Controller
 
 
     public function save_standards(Request $request){
-        dd($request->all());
+        // dd($request->all());
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('edit-'.$model)) {
             
