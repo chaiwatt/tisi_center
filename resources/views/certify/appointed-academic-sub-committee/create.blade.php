@@ -168,7 +168,7 @@
                         <div class="form-group {{ $errors->has('signer_position') ? 'has-error' : '' }}">
                             <label for="signer_position" class="col-md-3 control-label">ตำแหน่ง :</label>
                             <div class="col-md-8">
-                                <input type="text" name="signer_position" placeholder="คณะกรรมการกำหนดมาตรฐานด้านการตรวจสอบและรับรอง" value="" class="form-control">
+                                <input type="text" name="signer_position" value="คณะกรรมการกำหนดมาตรฐานด้านการตรวจสอบและรับรอง" value="" class="form-control">
                             </div>
                         </div>
 
