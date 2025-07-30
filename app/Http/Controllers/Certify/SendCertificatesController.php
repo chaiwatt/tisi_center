@@ -584,8 +584,9 @@ class SendCertificatesController extends Controller
                     foreach($export as $key => $item){
                         
                         if(!empty($item->CertiCbTo)  ){
-                            dd($item,$item->CertiCbTo);
-                            $send_cer_list =   SendCertificateLists::select('id','sign_status')->where('certificate_id',$item->id)->where('certificate_tb',$table)->first();   
+                            
+                            $send_cer_list =   SendCertificateLists::select('id','sign_status')->where('certificate_id',$item->id)->where('certificate_tb',$table)->first();  
+                            dd($send_cer_list); 
                             if( is_null($send_cer_list) || ( !is_null($send_cer_list)  &&  $send_cer_list->sign_status == 4 ) ){
                                 $cb                     = $item->CertiCbTo;
                                 $list                   = (object)[];
