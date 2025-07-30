@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         <!-- ISBN By -->
-                        <div class="row">
+                        {{-- <div class="row">
                             <div class="col-md-11">
                                 <div class="form-group">
                                     <label for="isbn_by" class="control-label text-right col-md-3">ผู้ขอ: </label>
@@ -89,7 +89,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <!-- Hidden Inputs -->
                         <input type="hidden" name="id" id="standard_id" value="{{ $id ?? '' }}">
                         <input type="hidden" name="submit" id="standard_pdf" value="request_isbn">
