@@ -615,12 +615,15 @@ class SendCertificatesController extends Controller
                     // }
                     foreach($export as $key => $item){
                         if(!empty($item->CertiCbTo)){
-                            $send_cer_list = SendCertificateLists::select('id','sign_status')
-                                                                ->where('certificate_id',$item->id)
+                            // $send_cer_list = SendCertificateLists::select('id','sign_status')
+                            //                                     ->where('certificate_id',$item->id)
+                            //                                     ->where('certificate_tb',$table)
+                            //                                     ->first();
+                            $send_cer_list = SendCertificateLists::where('certificate_id',$item->id)
                                                                 ->where('certificate_tb',$table)
-                                                                ->first();
+                                                                ->first();                                    
 
-                            dd($item,$send_cer_list->id );
+                            dd($item,$send_cer_list );
                             // เงื่อนไข: ใบรับรองยังไม่เคยถูกส่ง หรือถูกยกเลิกการส่ง (สถานะ 4)
                             if(is_null($send_cer_list) || (!is_null($send_cer_list) && $send_cer_list->sign_status == 4)){
                                 
