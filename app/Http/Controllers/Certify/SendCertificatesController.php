@@ -579,10 +579,10 @@ class SendCertificatesController extends Controller
                 $signer->certificate_type    = 1;
                 $table              =  (new CertiCBExport)->getTable();
                 $export             =  CertiCBExport::where('sign_id',$signer->id)->whereIn('status',[2])->get();  
-                dd($export->count());
+               
                 if(count($export) > 0){
                     foreach($export as $key => $item){
-   
+                        dd($item,$item->CertiCbTo);
                         if(!empty($item->CertiCbTo)  ){
                             $send_cer_list =   SendCertificateLists::select('id','sign_status')->where('certificate_id',$item->id)->where('certificate_tb',$table)->first();   
                             if( is_null($send_cer_list) || ( !is_null($send_cer_list)  &&  $send_cer_list->sign_status == 4 ) ){
