@@ -383,6 +383,8 @@
                            if(object.message == true){
                                 var  signer = object.signer;
                                 var  datas = object.datas;
+
+                                console.log(signer,datas);
                           
                                 if(datas.length > 0){
                                             let html = [];
