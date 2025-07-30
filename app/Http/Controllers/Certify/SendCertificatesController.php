@@ -615,6 +615,7 @@ class SendCertificatesController extends Controller
 
                             // เงื่อนไข: ใบรับรองยังไม่เคยถูกส่ง หรือถูกยกเลิกการส่ง (สถานะ 4)
                             if(is_null($send_cer_list) || (!is_null($send_cer_list) && $send_cer_list->sign_status == 4)){
+                                dd("stupid");
                                 $cb = $item->CertiCbTo;
                                 $list = (object)[];
                                 $list->id = $item->id;
@@ -628,10 +629,8 @@ class SendCertificatesController extends Controller
                                 $list->cer_pdf = '<a class="btn btn-link" href="'.(url('certify/send-certificates/view-pdf/'.$item->id.'/1')).'" target="_blank"> <i class="fa fa-file-pdf-o" style="color:red"></i> </a>';
                                 $certilab_file = CertiCBFileAll::select('attach_pdf','attach_pdf_client_name')->where('app_certi_cb_id',$cb->id)->where('state',1)->first();
                                 if(!is_null($certilab_file)){
-                                   dd("fuck");
                                     $list->cer_file = ' <a href="'.(url('certify/check/file_cb_client/'.$certilab_file->attach_pdf.'/'.( !empty($certilab_file->attach_pdf_client_name) ? $certilab_file->attach_pdf_client_name : basename($certilab_file->attach_pdf) ))).'" target="_blank"> <i class="fa fa-paperclip" aria-hidden="true"></i> </a>';
                                 }else{
-                                     dd("you");
                                     $list->cer_file = '';
                                 }
                                 $datas[] = $list;
