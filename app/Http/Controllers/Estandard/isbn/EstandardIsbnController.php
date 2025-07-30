@@ -72,7 +72,7 @@ class EstandardIsbnController extends Controller
                 $regName = $user->reg_uname;
             }
         }
-    //    dd($formData, $user);
+       dd($formData, $user);
         $client = new Client();
         try {
             $response = $client->post(env('TISI_API_URL') . '/tisi-isbn/web/test-api/create', [
