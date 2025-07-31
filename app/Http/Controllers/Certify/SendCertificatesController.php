@@ -613,23 +613,23 @@ class SendCertificatesController extends Controller
                     //          }
                     //     }
                     // }
-                        $id_array = [];
-                        foreach($export as $key => $item){
-                            if(!empty($item->CertiCbTo)){
-                                $send_cer_list = SendCertificateLists::where('certificate_id',$item->id)
-                                                                    ->where('certificate_tb',$table)
-                                                                    ->first();  
+                        // $id_array = [];
+                        // foreach($export as $key => $item){
+                        //     if(!empty($item->CertiCbTo)){
+                        //         $send_cer_list = SendCertificateLists::where('certificate_id',$item->id)
+                        //                                             ->where('certificate_tb',$table)
+                        //                                             ->first();  
                                                                     
-                                if ($send_cer_list && $send_cer_list->sign_status != 4) {
-                                    // dd($send_cer_list);
-                                    // 3. Add (append) the found ID to your array
-                                    $id_array[] = $send_cer_list->id;
-                                }
+                        //         if ($send_cer_list && $send_cer_list->sign_status != 4) {
+                        //             // dd($send_cer_list);
+                        //             // 3. Add (append) the found ID to your array
+                        //             $id_array[] = $send_cer_list->id;
+                        //         }
 
-                            }
-                        }
+                        //     }
+                        // }
 
-                        dd($id_array);
+                        // dd($id_array);
 
 
                     foreach($export as $key => $item){
@@ -642,7 +642,7 @@ class SendCertificatesController extends Controller
                                                                 ->where('certificate_tb',$table)
                                                                 ->first();                                    
 
-                            dd($item,$send_cer_list );
+                            // dd($item,$send_cer_list );
                             // เงื่อนไข: ใบรับรองยังไม่เคยถูกส่ง หรือถูกยกเลิกการส่ง (สถานะ 4)
                             if(is_null($send_cer_list) || (!is_null($send_cer_list) && $send_cer_list->sign_status == 4)){
                                 
