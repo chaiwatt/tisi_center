@@ -654,7 +654,7 @@ class AuditorCBController extends Controller
           // dd($request->input('signaturesJson'));
          if($check->count() == 0){
              $signatures = json_decode($request->input('signaturesJson'), true);
-             $viewUrl = url('/certify/auditor/view-cb-message-record/'.$baId);
+             $viewUrl = url('/certify/auditor-cb/view-cb-message-record/'.$baId);
              if ($signatures) {
                  foreach ($signatures as $signatureId => $signature) {
                      try {
@@ -1133,7 +1133,7 @@ HTML;
 
   public function viewCbMessageRecord($id)
   {
-
+      // dd("ok");
       $boardAuditor = CertiCBAuditors::find($id);
       $boardAuditorMsRecordInfo = CbBoardAuditorMsRecordInfo::where('board_auditor_id',$id)->first(); // $boardAuditor->cbBoardAuditorMsRecordInfos->first();
 

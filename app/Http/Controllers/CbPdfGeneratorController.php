@@ -78,6 +78,7 @@ class CbPdfGeneratorController extends Controller
 
     public function loadCbTemplate(Request $request)
     {
+
         $id = $request->assessmentId;
        
         $assessment = CertiCBSaveAssessment::find($id);
@@ -1228,6 +1229,7 @@ class CbPdfGeneratorController extends Controller
                                     ->where('report_type',$report_type)
                                     ->where('template',$template)
                                     ->delete();
+        $certiCb = $report->certiCBSaveAssessment->CertiCBCostTo;
         foreach ($signers as $key => $signer) {
             if (!isset($signer['id'], $signer['name'], $signer['position'])) {
                 continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
@@ -1238,7 +1240,7 @@ class CbPdfGeneratorController extends Controller
                 'signer_name' => $signer['name'],
                 'signer_position' => $signer['position'],
                 'signer_order' => $key,
-                'view_url' => $url . '/certify/show-cb-editor/'. $template . '/' . $report->id,
+                'view_url' => $url . '/certify/show-cb-editor/'. $template . '/' . $certiCb->id,
                 'certificate_type' => 0,
                 'report_type' => $report_type,
                 'template' => $template,
@@ -1252,6 +1254,7 @@ class CbPdfGeneratorController extends Controller
     {
         // คุณอาจจะต้องดึงข้อมูล CertiIb หรือ Assessment อีกครั้งถ้าจำเป็น
         // แต่ถ้ามีแค่ ID ก็สามารถส่งไปได้เลย
+        
         $certiCBSaveAssessment = CertiCBSaveAssessment::find($assessmentId);
         // dd($certiIBSaveAssessment,$certiIBSaveAssessment->CertiIBCostTo);
         return view('cbpdf.editor', [

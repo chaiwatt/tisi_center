@@ -1184,6 +1184,8 @@ class IbPdfGeneratorController extends Controller
                                     ->where('report_type',$report_type)
                                     ->where('template',$template)
                                     ->delete();
+
+        $certiCb = $report->certiIBSaveAssessment->CertiIBCostTo;                            
         foreach ($signers as $key => $signer) {
             if (!isset($signer['id'], $signer['name'], $signer['position'])) {
                 continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
@@ -1194,7 +1196,7 @@ class IbPdfGeneratorController extends Controller
                 'signer_name' => $signer['name'],
                 'signer_position' => $signer['position'],
                 'signer_order' => $key,
-                'view_url' => $url . '/certify/show-ib-editor/'. $template . '/' . $report->id,
+                'view_url' => $url . '/certify/show-ib-editor/'. $template . '/' . $certiCb->id,
                 'certificate_type' => 1,
                 'report_type' => $report_type,
                 'template' => $template,
