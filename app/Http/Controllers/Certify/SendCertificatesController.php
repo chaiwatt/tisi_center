@@ -613,6 +613,24 @@ class SendCertificatesController extends Controller
                     //          }
                     //     }
                     // }
+                        $id_array = [];
+                        foreach($export as $key => $item){
+                            if(!empty($item->CertiCbTo)){
+                                $send_cer_list = SendCertificateLists::where('certificate_id',$item->id)
+                                                                    ->where('certificate_tb',$table)
+                                                                    ->first();  
+                                                                    
+                                if ($send_cer_list) {
+                                    // 3. Add (append) the found ID to your array
+                                    $id_array[] = $send_cer_list->id;
+                                }
+
+                            }
+                        }
+
+                        dd($id_array);
+
+
                     foreach($export as $key => $item){
                         if(!empty($item->CertiCbTo)){
                             // $send_cer_list = SendCertificateLists::select('id','sign_status')
