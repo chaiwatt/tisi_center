@@ -620,7 +620,7 @@ class SendCertificatesController extends Controller
                                                                     ->where('certificate_tb',$table)
                                                                     ->first();  
                                                                     
-                                if ($send_cer_list) {
+                                if ($send_cer_list && $send_cer_list->sign_status != 4) {
                                     // dd($send_cer_list);
                                     // 3. Add (append) the found ID to your array
                                     $id_array[] = $send_cer_list->id;
