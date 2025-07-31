@@ -621,6 +621,7 @@ class SendCertificatesController extends Controller
                                                                     ->first();  
                                                                     
                                 if ($send_cer_list) {
+                                    dd($send_cer_list);
                                     // 3. Add (append) the found ID to your array
                                     $id_array[] = $send_cer_list->id;
                                 }
