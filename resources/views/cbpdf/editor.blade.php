@@ -153,6 +153,8 @@
         const assessmentId = @json($assessmentId ?? null);
         const initialStatus = @json($status ?? 'draft');
 
+        // console.log('templateType',templateType);
+
         document.addEventListener('DOMContentLoaded', function() {
             document.execCommand('defaultParagraphSeparator', false, 'p');
             const editor = document.getElementById('document-editor');

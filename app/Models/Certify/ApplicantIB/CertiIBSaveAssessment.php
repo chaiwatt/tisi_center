@@ -9,6 +9,7 @@ use App\User;
 use App\Certify\IbReportInfo;
 
 use App\Certify\IbReportTwoInfo;
+use App\Certify\IbReportTemplate;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -221,4 +222,26 @@ class CertiIBSaveAssessment extends Model
     public function ibReportTwoInfo() {
       return $this->hasOne(IbReportTwoInfo::class, 'ib_assessment_id','id');
     }
+
+    
+    public function IbReportTemplateStatus($reportType)
+    {
+        // ค้นหาข้อมูล ถ้าไม่เจอจะคืนค่า null
+        $ibReportTemplate = IbReportTemplate::where('ib_assessment_id', $this->id)
+                                        ->where('report_type', $reportType)
+                                        ->first();
+
+        // ถ้า $bReportTwoInfo ไม่ใช่ null จะคืนค่า ->status
+        // แต่ถ้าเป็น null จะคืนค่า false
+        if ($ibReportTemplate !== null) { // หรือ if ($bReportTwoInfo !== null)
+            return $ibReportTemplate->status;
+        } else {
+            return false;
+        }
+    }
+
+    public function ibReportTemplate() {
+      return $this->hasOne(IbReportTemplate::class, 'ib_assessment_id','id');
+    }
+
 }

@@ -93,13 +93,10 @@
                             <thead>
                             <tr>
                                 <th width="1%" class="text-center">#</th>
-                                {{-- <th  width="1%" ><input type="checkbox" id="checkall"></th> --}}
 								<th width="15%" class="text-center">คำขอ</th>
                                 <th width="15%" class="text-center">การรับรองงาน</th>
                                 <th width="15%" class="text-center">ผู้ลงนาม</th>
                                 <th width="15%" class="text-center">ตำแหน่งลงนาม</th>
-                               
-                                {{-- <th width="15%" class="text-center">วันที่ยืนยันตัวตน</th> --}}
                                 <th width="13%" class="text-center">สถานะ</th>
                                 <th width="10%" class="text-center">จัดการ</th>
                             </tr>
@@ -110,11 +107,6 @@
 
                     </div>
                 </div>
-           
-
-
-
-
                 </div>
             </div>
         </div>
@@ -385,11 +377,10 @@
                 }
             });
         });
-            
-        
 
 
         $(document).on('click', '#signDocument', function() {
+
             var transaction_id = $('#signAssessmentReportTransactionId').val().trim(); // ดึง data-id จากปุ่ม
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             
@@ -407,12 +398,29 @@
                     id: transaction_id
                 },
                 success: function(response) {
+                    console.log(response);
                     // ซ่อนข้อความระหว่างรอเมื่อเสร็จ
                     $.LoadingOverlay("hide");
+
+                                // --- ส่วนที่แก้ไข ---
+                    // ตรวจสอบสถานะจาก response
+                    if (response.success) {
+                        // กรณีสำเร็จ
+                        // แสดงข้อความว่าสำเร็จ (แนะนำใช้ SweetAlert2 จะสวยกว่า)
+                        // alert('ลงนามเอกสารเรียบร้อยแล้ว');
+
+                        // ปิด Modal และวาดตารางใหม่
+                        $('#signerModal').modal('hide');
+                        table.draw();
+                    } else {
+                        // กรณีไม่สำเร็จ (เช่น ต้องรอคนอื่นลงนามก่อน)
+                        // แสดงข้อความ error ที่ได้จาก Server โดยตรง
+                        alert(response.message);
+                    }
                     
-                    $('#signerModal').modal('hide');
+                    // $('#signerModal').modal('hide');
                     // location.reload(); // ทำการ reload หน้าเว็บ
-                    table.draw();
+                    // table.draw();
                 },
                 error: function(xhr, status, error) {
                     // ซ่อนข้อความระหว่างรอเมื่อมีข้อผิดพลาด

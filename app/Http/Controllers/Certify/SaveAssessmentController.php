@@ -9,13 +9,14 @@ use stdClass;
 use Exception;
 use Carbon\Carbon;
  
+use App\SignerGroup;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 
+use Illuminate\Http\Request;
 use App\Models\Besurv\Signer;
 use App\Mail\Lab\CreateLabReport;
-use App\Mail\Lab\MailToLabExpert;
 
+use App\Mail\Lab\MailToLabExpert;
 use App\Mail\Lab\RequestEditScope;
 use App\Http\Controllers\Controller;
 use function GuzzleHttp\json_encode;
@@ -2335,9 +2336,14 @@ class SaveAssessmentController extends Controller
                 ->where('status',1)
                 ->where('file_status',1)
                 ->get();
-                // dd('okdd');
 
             $labScopeTransaction = LabScopeTransaction::where('app_certi_lab_id',$app_certi_lab->id)->first();
+
+            // $defaultSignerIds = [167,168,169];
+            $group = SignerGroup::where('name', 'lab')->first();
+            $signerIdsJsonString = $group->signer_ids;
+            $defaultSignerIds = json_decode($signerIdsJsonString, true);
+
             return view('certify.save_assessment.view-report', [
                 'labReportInfo' => $labReportInfo,
                 'data' => $data,
@@ -2349,7 +2355,8 @@ class SaveAssessmentController extends Controller
                 'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
                 'approveNoticeItems' => $approveNoticeItems,
                 'labScopeTransaction' => $labScopeTransaction,
-                'id' => $id
+                'id' => $id,
+                'defaultSignerIds' => $defaultSignerIds,
             ]);
         }
 
@@ -3238,6 +3245,11 @@ class SaveAssessmentController extends Controller
             $labInformation = $app_certi_lab->information;
             // dd("ok");
             // dd($boardAuditor->board_auditors_date->start_date);
+
+            $group = SignerGroup::where('name', 'lab')->first();
+            $signerIdsJsonString = $group->signer_ids;
+            $defaultSignerIds = json_decode($signerIdsJsonString, true);
+
             return view('certificate.labs.assessment-labs.view-report', [
                 'labReportInfo' => $labReportInfo,
                 'data' => $data,
@@ -3249,7 +3261,8 @@ class SaveAssessmentController extends Controller
                 'signAssessmentReportTransactions' => $signAssessmentReportTransactions,
                 'approveNoticeItems' => $approveNoticeItems,
                 'labInformation' => $labInformation[0],
-                'id' => $id
+                'id' => $id,
+                'defaultSignerIds' => $defaultSignerIds
             ]);
 
 

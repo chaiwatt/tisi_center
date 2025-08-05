@@ -1622,6 +1622,8 @@ class AssessmentLabsController extends Controller
      //       abort(403);
      //   }
 
+    //  dd('p');
+
        $assessment = TrackingAssessment::find($assessment_id);
        $labReportInfo = TrackingLabReportInfo::where('tracking_assessment_id',$assessment_id)->first();
        

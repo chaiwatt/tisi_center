@@ -163,7 +163,109 @@ class AuditorAssignmentController extends Controller
         }
     }
 
+
     public function signDocument(Request $request)
+    {
+        // 1. ค้นหา Transaction ที่ต้องการลงนาม
+        $currentTransaction = MessageRecordTransaction::find($request->id);
+
+        if (!$currentTransaction) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ไม่พบรายการที่ต้องการลงนาม'
+            ]);
+        }
+
+        if ($currentTransaction->approval == 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'เอกสารนี้ได้ถูกลงนามไปแล้ว'
+            ]);
+        }
+
+        // 2. ตรวจสอบและค้นหาผู้ลงนามลำดับก่อนหน้าที่ยังไม่ได้ลงนาม
+        $nextPendingTransaction = MessageRecordTransaction::where('board_auditor_id', $currentTransaction->board_auditor_id)
+            ->where('certificate_type', $currentTransaction->certificate_type)
+            ->where('approval', 0)
+            ->where('signer_order', '<', $currentTransaction->signer_order)
+            ->where('signer_id', '!=', $currentTransaction->signer_id)
+            ->orderBy('signer_order', 'asc') // จัดลำดับเพื่อหา order ที่น้อยที่สุด
+            ->first(); // เอาแค่รายการแรกที่เจอ
+
+        // หากมี Transaction ที่ต้องลงนามก่อนหน้า
+        if ($nextPendingTransaction) {
+            // ค้นหาชื่อผู้ลงนามโดยตรงจาก Model Signer โดยไม่ใช้ relation
+            $signer = Signer::find($nextPendingTransaction->signer_id);
+            
+            // กำหนดชื่อ fallback กรณีไม่พบข้อมูล
+            $signerName = $signer ? $signer->name : 'ผู้ลงนามลำดับก่อนหน้า';
+
+            return response()->json([
+                'success' => false,
+                'message' => 'กรุณารอการลงนามจาก: ' . $signerName
+            ]);
+        }
+
+        // 3. ถ้าผ่านการตรวจสอบ ให้ทำการอัปเดตสถานะการลงนาม
+        $currentTransaction->update(['approval' => 1]);
+
+        // 3. ถ้าผ่านการตรวจสอบ ให้ทำการอัปเดตสถานะการลงนาม
+        $currentTransaction->update(['approval' => 1]);
+
+        // 4. ตรวจสอบว่าการลงนามทั้งหมดเสร็จสิ้นแล้วหรือไม่
+        $remainingApprovals = MessageRecordTransaction::where('board_auditor_id', $currentTransaction->board_auditor_id)
+            ->where('certificate_type', $currentTransaction->certificate_type)
+            ->whereNotNull('signer_id')
+            ->where('approval', 0)
+            ->count();
+
+        // 5. หากลงนามครบทุกคนแล้ว ให้ทำขั้นตอนสุดท้าย (เช่น สร้าง PDF, ส่งอีเมล)
+        if ($remainingApprovals === 0) {
+            $boardAuditor = $currentTransaction->boardAuditor;
+
+            switch ($currentTransaction->certificate_type) {
+                case 2: // LAB
+                    if (is_null($boardAuditor->boardAuditorMsRecordInfos) || is_null($boardAuditor->boardAuditorMsRecordInfos->first())) {
+                        // Log an error or handle the case where the record is missing but signing is complete.
+                        // This part of the logic might need review based on business requirements.
+                    } else {
+                        $this->set_mail($boardAuditor, $boardAuditor->CertiLabs);
+                        $pdfService = new CreateLabMessageRecordPdf($boardAuditor, "ia");
+                        $pdfService->generateBoardAuditorMessageRecordPdf();
+                    }
+                    break;
+
+                case 0: // CB
+                    if (is_null($boardAuditor->cbBoardAuditorMsRecordInfos) || is_null($boardAuditor->cbBoardAuditorMsRecordInfos->first())) {
+                        // Handle missing record
+                    } else {
+                        $board = CertiCBAuditors::find($currentTransaction->board_auditor_id);
+                        $pdfService = new CreateCbMessageRecordPdf($board, "ia");
+                        $pdfService->generateBoardAuditorMessageRecordPdf();
+                    }
+                    break;
+
+                case 1: // IB
+                    if (is_null($boardAuditor->ibBoardAuditorMsRecordInfos) || is_null($boardAuditor->ibBoardAuditorMsRecordInfos->first())) {
+                        // Handle missing record
+                    } else {
+                        $board = CertiIBAuditors::find($currentTransaction->board_auditor_id);
+                        $pdfService = new CreateIbMessageRecordPdf($board, "ia");
+                        $pdfService->generateBoardAuditorMessageRecordPdf();
+                    }
+                    break;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'ลงนามเอกสารเรียบร้อยแล้ว'
+        ]);
+    }
+
+
+
+    public function signDocument_old(Request $request)
     {
         
         $messageRecordTransaction = MessageRecordTransaction::find($request->id);
@@ -189,15 +291,6 @@ class AuditorAssignmentController extends Controller
                 ]);
             }
 
-            // dd($boardAuditorMsRecordInfo);
-            // if($boardAuditorMsRecordInfo == null)
-            // {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
-            //     ]);
-            // }
-            
             MessageRecordTransaction::find($request->id)->update([
                 'approval' => 1
             ]);
@@ -235,15 +328,6 @@ class AuditorAssignmentController extends Controller
                 ]);
             }
 
-
-            // if($cbBoardAuditorMsRecordInfo == null)
-            // {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'บันทึกข้อความยังไม่ได้สร้าง'
-            //     ]);
-            // }
-            // dd($cbBoardAuditorMsRecordInfo);
             MessageRecordTransaction::find($request->id)->update([
                 'approval' => 1
             ]);

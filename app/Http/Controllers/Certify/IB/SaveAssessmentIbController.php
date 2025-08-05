@@ -183,6 +183,7 @@ class SaveAssessmentIbController extends Controller
      */
     public function store(Request $request)
     {
+        
         $model = str_slug('saveassessmentib','-');
         if(auth()->user()->can('add-'.$model)) {
             $request->validate([
@@ -253,17 +254,28 @@ class SaveAssessmentIbController extends Controller
             }
              if($assessment->bug_report == 2){
 
+              
+
+                $assessment_type = $assessment->CertiIBAuditorsTo->assessment_type;
+                $report_type = "";
+                if($assessment_type == 0)
+                {
+                    $report_type = "ib_final_report_process_one";
+                }else{
+                    $report_type = "ib_final_report_process_two";
+                }
+
 
                 //   $ibReportInfo = IbReportInfo::where('ib_assessment_id',$assessment->id)->first();
                 $report = IbReportTemplate::where('ib_assessment_id',$assessment->id)
-                                        ->where('report_type',"ib_final_report_process_one")
+                                        ->where('report_type',$report_type)
                                         ->first();
 
 
                 if($report == null){
                         $report = new IbReportTemplate();
                         $report->ib_assessment_id = $assessment->id;
-                        $report->report_type = "ib_final_report_process_one";
+                        $report->report_type = $report_type;
                         $report->save();
                 }
 
@@ -275,7 +287,7 @@ class SaveAssessmentIbController extends Controller
                         ->where('report_type',1)
                         ->get();
 
-                       
+                        //  dd($request->all(),$check->count(),$request->previousUrl);
 
                 if($check->count() != 0 )
                 {
@@ -290,7 +302,10 @@ class SaveAssessmentIbController extends Controller
                             // $pdfService = new CreateIbAssessmentReportPdf($report->id,"ia");
                             // $pdfContent = $pdfService->generateIbAssessmentReportPdf();
                         }else{
-                            return redirect()->back()->with('error', 'อยู่ระหว่างจัดทำรายงานและลงนาม');
+                            // return redirect('certify/check_certificate-ib')->with('message', 'เรียบร้อยแล้ว!');
+                            return redirect('certify/check_certificate-ib/'.$CertiIb->token)->with('message', 'เรียบร้อยแล้ว!');
+
+                            // certify/check_certificate-ib/LFEdscNPicAEkEnW
                         }  
                 }
                 else
@@ -300,7 +315,7 @@ class SaveAssessmentIbController extends Controller
                     $templateType = "ib_final_report_process_one";
                     // dd($templateType,$CertiIb->id,$assessment->id);
                     return view('abpdf.editor',[
-                        'templateType' => $templateType,
+                        'templateType' => $report_type,
                         'ibId' => $CertiIb->id,
                         'assessmentId' => $assessment->id,
                     ]);
@@ -402,6 +417,7 @@ class SaveAssessmentIbController extends Controller
                 }
         }
 
+       
 
             if($assessment->degree == 4){
                 $committee->step_id = 7; // ผ่านการตรวจสอบประเมิน

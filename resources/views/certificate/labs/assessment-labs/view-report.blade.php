@@ -846,6 +846,7 @@
 
             totalPendingTransactions = @json($totalPendingTransactions ?? null);
             totalTransactions = @json($totalTransactions ?? null);
+              defaultSignerIds = @json($defaultSignerIds ?? []);
 
             console.log('notice',notice)
 
@@ -1010,9 +1011,16 @@
                         $('.signature-select').empty().append('<option value="">- ผู้ลงนาม -</option>');
                         
                         // เติม option ใหม่
+                        // response.signers.forEach(function(signer) {
+                        //     const option = `<option value="${signer.id}">${signer.name}</option>`;
+                        //     $('.signature-select').append(option);
+                        // });
+
                         response.signers.forEach(function(signer) {
-                            const option = `<option value="${signer.id}">${signer.name}</option>`;
-                            $('.signature-select').append(option);
+                            if (defaultSignerIds.includes(signer.id)) {
+                                const option = `<option value="${signer.id}">${signer.name}</option>`;
+                                $('.signature-select').append(option);
+                            }
                         });
 
                         // เทียบ signer_id กับ select และเลือก option ให้ตรงกัน

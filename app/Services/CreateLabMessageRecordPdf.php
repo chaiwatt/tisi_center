@@ -251,6 +251,7 @@ class CreateLabMessageRecordPdf
 
 public function ia($mpdf)
 {
+ 
     $boardAuditor = BoardAuditor::find($this->board_auditor_id);
     $boardAuditorMsRecordInfo = BoardAuditorMsRecordInfo::where('board_auditor_id',$this->board_auditor_id)->first() ; // $boardAuditor->boardAuditorMsRecordInfos->first() ?? null; // แก้ไข: กัน first() คืนค่า null แล้วเกิด error
 
@@ -311,7 +312,7 @@ public function ia($mpdf)
     } elseif ($certi_lab->lab_type == 4) {
         $scope_branch = $certi_lab->ClibrateBranchTitle;
     }
-
+  
     $data = new stdClass();
     $data->header_text1 = '';
     $data->header_text2 = '';
@@ -385,6 +386,13 @@ public function ia($mpdf)
     $footer = view('certify.auditor.ia_lab_message_record_pdf.footer', []);
 
     $mpdf->WriteHTML($body, 2);
+ 
+
+
+        // $title = "message_record.pdf";
+
+        // $mpdf->Output($title, 'I');
+
 
     $no = str_replace("RQ-", "", $certi_lab->app_no);
     $no = str_replace("-", "_", $no);

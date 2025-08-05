@@ -1116,6 +1116,8 @@ class CbPdfGeneratorController extends Controller
 
     public function saveHtml(Request $request)
     {
+
+        // dd($request->input('templateType'));
         // 1. ตรวจสอบข้อมูลที่ส่งมา
         $validator = Validator::make($request->all(), [
             'html_content' => 'required|string',

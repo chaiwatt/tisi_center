@@ -1101,8 +1101,6 @@ class IbPdfGeneratorController extends Controller
         $signers = $request->input('signers', []); // << รับข้อมูล signers (ถ้าไม่มีให้เป็น array ว่าง)
         $certiIBSaveAssessment = CertiIBSaveAssessment::find($assessmentId);
         
-
-
         // dd("signer",$signers,$reportType);
 
         // 3. แปลงสัญลักษณ์ checkbox กลับเป็น HTML (หากจำเป็น)

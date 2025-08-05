@@ -1830,14 +1830,14 @@ public function ibMessageRecordPdf()
         }
         
     }
-//     public function CreateLabMessageRecordPdfDemo()
-//     {
-//         // http://127.0.0.1:8081/certify/auditor/create-lab-message-record-pdf/1754
-//         $boardAuditor = BoardAuditor::find(1850);
-//         // dd( $boardAuditor);
-//         $pdfService = new CreateLabMessageRecordPdf($boardAuditor,"ia");
-//         $pdfContent = $pdfService->generateBoardAuditorMessageRecordPdf();
-//     }
+    public function CreateLabMessageRecordPdfDemo()
+    {
+        // http://127.0.0.1:8081/certify/auditor/create-lab-message-record-pdf/1754
+        $boardAuditor = BoardAuditor::find(1880);
+        // dd( $boardAuditor);
+        $pdfService = new CreateLabMessageRecordPdf($boardAuditor,"ia");
+        $pdfContent = $pdfService->generateBoardAuditorMessageRecordPdf();
+    }
 
 //     public function upDatePayin()
 //     {
@@ -2069,12 +2069,12 @@ public function ibMessageRecordPdf()
  
 //     }
 
-//     public function mergePdf()
-//     {
-//         $report_info_id = 11;
-//         $pdfService = new CreateLabAssessmentReportPdf($report_info_id,"ia");
-//         $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-//     }
+    public function mergePdf()
+    {
+        $report_info_id = 136;
+        $pdfService = new CreateLabAssessmentReportPdf($report_info_id,"ia");
+        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+    }
 
     
 //     public function checkPayIn2()

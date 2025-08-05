@@ -105,7 +105,7 @@
                        </div>
                        {!! $errors->first('attach', '<p class="help-block">:message</p>') !!}
                 </div>
-                <span class="text-warning"> *รูปประเภท PNG พื้นหลังโปร่งหรือขาว ขนาด 189x95 พิกเซล เซ็นให้เต็ม</span>
+                <span class="text-warning"> *รูปประเภท PNG พื้นหลังสีขาว ขนาด 1030x796 พิกเซล เซ็นให้เต็ม</span>
             </div>
             @endif
         </div>

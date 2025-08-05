@@ -265,32 +265,48 @@
             </div>
 
             <div class="col-md-6">
-                <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน : </label>
+                <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน: </label>
                 <div class="col-md-8">
-                    @if ($assessment !== null && $assessment->bug_report == 2)
-                    
-                        @if ($assessment->ibReportInfo->status === "1")
-                                <a href="{{ url('/certify/show-ib-editor/ib_final_report_process_one/' . $assessment->id) }}"
-                                    title="จัดทำรายงาน" class="btn btn-warning">
+
+                    @if(isset($assessment))
+                        @php
+                            // 1. กำหนด Report Type และ URL ตาม assessment_type
+                            if ($assessment->CertiIBAuditorsTo->assessment_type == 1) {
+                                $reportType = "ib_final_report_process_two";
+                                $reportUrlSegment = "ib_final_report_process_two";
+                            } else {
+                                $reportType = "ib_final_report_process_one";
+                                $reportUrlSegment = "ib_final_report_process_one";
+                            }
+
+                            // 2. ใช้ Report Type ที่ถูกต้องเพื่อดึง Status
+                            $status = $assessment->IbReportTemplateStatus($reportType);
+
+                            // 3. กำหนด Class ของปุ่มจาก Status ที่ได้มา
+                            $buttonClass = ($status === 'final') ? 'btn-info' : 'btn-warning';
+                        @endphp
+
+                         {{-- 4. แสดงผล HTML แค่ครั้งเดียว โดยใช้ตัวแปรที่เตรียมไว้ --}}
+
+
+                        @if(!is_null($assessment->FileAttachAssessment1To)) 
+                                <a id="report_one_file" href="{{url('certify/check/file_ib_client/'.$assessment->FileAttachAssessment1To->file.'/'.( !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name : 'null' ))}}" 
+                                    title="{{ !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name :  basename($assessment->FileAttachAssessment1To->file) }}" target="_blank">
+                                    {!! HP::FileExtension($assessment->FileAttachAssessment1To->file)  ?? '' !!}
+                                </a> 
+                        @else
+                            @if ($assessment->CertiIBAuditorsTo->assessment_type == 0 || $assessment->CertiIBAuditorsTo->assessment_type == 1)
+                                <a id="report_one_button" href="{{ url('/certify/show-ib-editor/' . $reportUrlSegment . '/' . $assessment->id) }}"
+                                title="จัดทำรายงาน"
+                                class="btn {{ $buttonClass }}">
                                     สร้างรายงาน
                                 </a>
-                            @else
-                                <a href="{{ url('/certify/show-ib-editor/ib_final_report_process_one/' . $assessment->id) }}"
-                                    title="จัดทำรายงาน" class="btn btn-info">
-                                    สร้างรายงาน
-                                </a>
-                        @endif 
+                            @endif
+                        
+                        @endif
                     @endif
 
-                    @if(isset($assessment)  && !is_null($assessment->FileAttachAssessment1To)) 
-                            <a href="{{url('certify/check/file_ib_client/'.$assessment->FileAttachAssessment1To->file.'/'.( !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name : 'null' ))}}" 
-                                title="{{ !empty($assessment->FileAttachAssessment1To->file_client_name) ? $assessment->FileAttachAssessment1To->file_client_name :  basename($assessment->FileAttachAssessment1To->file) }}" target="_blank">
-                                {!! HP::FileExtension($assessment->FileAttachAssessment1To->file)  ?? '' !!}
-                            </a> 
-                        <div id="AddFile"></div>      
-                    @else 
 
-                    @endif
                 </div>
             </div>
         </div>
@@ -679,6 +695,20 @@
 
 
             if(bug_report == 2){
+
+
+
+                if ($('#report_one_button').hasClass('btn-info')) {
+                
+                    alert("อยู่ระหว่างการการลงนามรายงานตรวจประเมิน")
+                    return;
+                    
+                } else if($('#report_one_button').hasClass('btn-warning')) {
+                    alert("อยู่ระหว่างการการจัดทำรายงาน")
+                    return;
+                }
+
+
                 let i = 4;
                 Swal.fire({
                         title:"ยืนยันทำรายการ !",
@@ -759,44 +789,43 @@
                                     }).then((result) => {
                                         if (result.value) {
                                             if(submit_type == 'confirm'){
-                                                // $.ajax({
-                                                //     url: "{{route('save_assessment.check_complete_ib_report_one_sign')}}",
-                                                //     method: "POST",
-                                                //     data: {
-                                                //         _token: _token,
-                                                //         assessment_id:assessment_id
-                                                //     },
-                                                //     success: function(result) {
-                                                //         console.log(result);
-                                                //         if (result.message == true) {
-                                                //             $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
-                                                //             $('#form_assessment').submit();
-                                                //         }else{
-                                                            
-                                                //             if (result.record_count == 0) {
-                                                //                 alert('ยังไม่ได้สร้างรายงานการตรวจประเมิน(รายงานที่1)');
-                                                //                 if (assessment_id == "") {
-                                                //                       const baseUrl1 = "{{ url('/certify/save_assessment-ib/create') }}";
-                                                //                         const redirectUrl1 = `${baseUrl1}/${id}`;
-                                                //                         window.location.href = redirectUrl1;
-                                                //                 }else{
-                                 
-                                                //                     const baseUrl = "{{ url('/certify/save_assessment-ib/ib-report-create') }}";
-                                                //                         const redirectUrl = `${baseUrl}/${assessment_id}`;
-                                                //                         window.location.href = redirectUrl;
-                                                //                 }
-                                                //             }else{
-                                                //                 alert('อยู่ระหว่างการลงนามรายงานการตรวจประเมิน(รายงานที่1)');
-                                                //             }
-                                                //         }
-                                                //     }
-                                                // });
+    
+                                                // if ($('#report_one_button').hasClass('btn-info')) {
 
-                                                $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
-                                                $('#form_assessment').submit();
+                                                //      if ($('#report_one_file').length > 0) {
+                                                //         $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                                //         $('#form_assessment').submit();
+                                                //     } else {
+                                                //         alert("อยู่ระหว่างการการลงนามรายงานตรวจประเมิน")
+                                                //     }
+                                                // } else if($('#report_one_button').hasClass('btn-warning')) {
+                                                //     alert("อยู่ระหว่างการการจัดทำรายงาน")
+                                                // }else{
+                                                //     if ($('#report_one_file').length > 0) {
+                                                //         $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                                //         $('#form_assessment').submit();
+                                                //     } else {
+                                                //         alert("อยู่ระหว่างการการลงนามรายงานตรวจประเมิน")
+                                                //     }
+                                                // }
+
+                                                // 1. จัดการกรณีที่ชัดเจนที่สุดก่อน: ถ้าปุ่มเป็นสีส้ม (กำลังทำ) ให้แจ้งเตือนแล้วจบ
+                                                if ($('#report_one_button').hasClass('btn-warning')) {
+                                                    alert("อยู่ระหว่างการการจัดทำรายงาน");
+                                                } else {
+                                                    // 2. ถ้าไม่ใช่สีส้ม กรณีที่เหลือทั้งหมด (ไม่ว่าจะเป็น btn-info หรือไม่มีคลาสเลย)
+                                                    //    จะใช้ Logic เดียวกัน คือเช็คว่ามีไฟล์หรือไม่
+                                                    if ($('#report_one_file').length > 0) {
+                                                        // ถ้ามีไฟล์แล้ว -> submit
+                                                        $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
+                                                        $('#form_assessment').submit();
+                                                    } else {
+                                                        // ถ้ายังไม่มีไฟล์ -> รอลงนาม
+                                                        alert("อยู่ระหว่างการการลงนามรายงานตรวจประเมิน");
+                                                    }
+                                                }
 
                                             }else if(submit_type == 'save'){
-                                                // console.log(submit_type)
                                             
                                                     $('#degree_btn').html('<input type="text" name="degree" value="' + l + '" hidden>');
                                                     $('#form_assessment').submit();

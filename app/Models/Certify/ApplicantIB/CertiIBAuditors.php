@@ -170,7 +170,7 @@ class CertiIBAuditors  extends Model
         return $this->hasMany(MessageRecordTransaction::class, 'board_auditor_id')->where('certificate_type',1);
     }
 
-    public function isAllFinalReportSigned()
+    public function isAllFinalReportSigned($reportType)
     {
             // 1. ค้นหา Assessment
         $assessment = CertiIBSaveAssessment::where('auditors_id', $this->id)->first();
@@ -182,7 +182,7 @@ class CertiIBAuditors  extends Model
 
         // 2. ค้นหา Report Template
         $report = IbReportTemplate::where('ib_assessment_id', $assessment->id)
-                                ->where('report_type', "ib_final_report_process_one")
+                                ->where('report_type', $reportType)
                                 ->first();
 
         // ถ้าไม่พบข้อมูล Report ให้ return false
@@ -194,7 +194,6 @@ class CertiIBAuditors  extends Model
         $pendingSignatures = SignAssessmentReportTransaction::where('report_info_id', $report->id)
                                                         ->where('certificate_type', 1)
                                                         ->where('report_type', 1)
-                                                        ->where('approval', 1)
                                                         ->where('approval', 1)
                                                         ->get();
         if( $pendingSignatures->count() >= 3){

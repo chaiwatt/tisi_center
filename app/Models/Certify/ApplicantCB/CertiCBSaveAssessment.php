@@ -9,6 +9,7 @@ use App\User;
 use App\Certify\CbReportInfo;
 
 use App\Certify\CbReportTwoInfo;
+use App\Certify\CbReportTemplate;
 use Kyslik\ColumnSortable\Sortable;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Certify\ApplicantCB\AuditorRepresentative;
@@ -205,6 +206,22 @@ class CertiCBSaveAssessment extends Model
 
     public function cbReportTwoInfo() {
       return $this->hasOne(CbReportTwoInfo::class, 'cb_assessment_id','id');
+    }
+
+    public function CbReportTemplateStatus($reportType)
+    {
+        // ค้นหาข้อมูล ถ้าไม่เจอจะคืนค่า null
+        $cbReportTemplate = CbReportTemplate::where('cb_assessment_id', $this->id)
+                                        ->where('report_type', $reportType)
+                                        ->first();
+
+        // ถ้า $bReportTwoInfo ไม่ใช่ null จะคืนค่า ->status
+        // แต่ถ้าเป็น null จะคืนค่า false
+        if ($cbReportTemplate !== null) { // หรือ if ($bReportTwoInfo !== null)
+            return $cbReportTemplate->status;
+        } else {
+            return false;
+        }
     }
 
 }

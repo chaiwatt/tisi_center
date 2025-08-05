@@ -180,7 +180,7 @@
 
 
              
-            <div class="form-group" >
+            <div class="form-group" hidden>
                 {!! HTML::decode(Form::label('select_user_id', '<span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย', ['class' => 'col-md-5 control-label'])) !!}
                 <div class="col-md-7">
                     <select name="select_user_id" id="select_user_id" class="form-control" required>

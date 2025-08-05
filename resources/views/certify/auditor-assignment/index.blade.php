@@ -416,16 +416,31 @@
                     id: transaction_id
                 },
                 success: function(response) {
+                    console.log(response);
                     // ซ่อนข้อความระหว่างรอเมื่อเสร็จ
                     $.LoadingOverlay("hide");
-                    
-                    $('#signerModal').modal('hide');
-                    // location.reload(); // ทำการ reload หน้าเว็บ
-                    table.draw();
-                    if (response.success == false)
-                    {
-                        alert("ผิดพลาด ยังไม่ได้สร้างรายการบันทึกแต่งตั้ง")
+
+                    if (response.success) {
+                        // กรณีสำเร็จ
+                        // แสดงข้อความว่าสำเร็จ (แนะนำใช้ SweetAlert2 จะสวยกว่า)
+                        // alert('ลงนามเอกสารเรียบร้อยแล้ว');
+
+                        // ปิด Modal และวาดตารางใหม่
+                        $('#signerModal').modal('hide');
+                        table.draw();
+                    } else {
+                        // กรณีไม่สำเร็จ (เช่น ต้องรอคนอื่นลงนามก่อน)
+                        // แสดงข้อความ error ที่ได้จาก Server โดยตรง
+                        alert(response.message);
                     }
+                    
+                    // $('#signerModal').modal('hide');
+                    // // location.reload(); // ทำการ reload หน้าเว็บ
+                    // table.draw();
+                    // if (response.success == false)
+                    // {
+                    //     alert("ผิดพลาด ยังไม่ได้สร้างรายการบันทึกแต่งตั้ง")
+                    // }
                 },
                 error: function(xhr, status, error) {
                     // ซ่อนข้อความระหว่างรอเมื่อมีข้อผิดพลาด

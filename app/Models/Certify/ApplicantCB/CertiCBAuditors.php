@@ -177,7 +177,7 @@ class CertiCBAuditors  extends Model
         return $this->hasMany(MessageRecordTransaction::class, 'board_auditor_id')->where('certificate_type',0);
     }
 
-       public function isAllFinalReportSigned()
+    public function isAllFinalReportSigned($reportType)
     {
     
             // 1. ค้นหา Assessment
@@ -190,7 +190,7 @@ class CertiCBAuditors  extends Model
 
         // 2. ค้นหา Report Template
         $report = CbReportTemplate::where('cb_assessment_id', $assessment->id)
-                                ->where('report_type', "cb_final_report_process_one")
+                                ->where('report_type', $reportType)
                                 ->first();
 
         // ถ้าไม่พบข้อมูล Report ให้ return false

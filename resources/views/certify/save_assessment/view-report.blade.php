@@ -1568,7 +1568,7 @@
                        </select>
                    </div>
                    <div>
-                       <input type="text" class="input-no-border" style="text-align: center" id="position-1" value="" />
+                       <input type="text" class="input-no-border" style="text-align: center" id="position-1" value="หัวหน้าคณะผู้ตรวจประเมิน" />
                    </div>
                 </div>
    
@@ -1580,7 +1580,7 @@
                        </select>
                    </div>
                    <div>
-                       <input type="text" class="input-no-border" style="text-align: center" id="position-2" value="" />
+                       <input type="text" class="input-no-border" style="text-align: center" id="position-2" value="นักวิชาการมาตรฐานชำนาญการพิเศษ" />
                    </div>
                 </div>
    
@@ -1591,7 +1591,7 @@
                        </select>
                    </div>
                    <div>
-                       <input type="text" class="input-no-border" style="text-align: center" id="position-3" value="" />
+                       <input type="text" class="input-no-border" style="text-align: center" id="position-3" value="ผู้อำนวยการสำนักงานคณะกรรมการมาตรฐานแห่งชาติ" />
                    </div>
                 </div>
             </div>
@@ -1669,6 +1669,7 @@
             certi_lab = @json($app_certi_lab ?? []);
             labRequest = @json($labRequest ?? []);
             signAssessmentReportTransactions = @json($signAssessmentReportTransactions ?? []);
+            defaultSignerIds = @json($defaultSignerIds ?? []);
 
             // console.log('boardAuditor',boardAuditor);
 
@@ -1700,7 +1701,7 @@
             });
 
             signAssessmentReportTransactions.forEach((transaction, index) => {
-                console.log('index',index)
+                console.log('index',index,transaction.signer_id)
                 if (signer[index]) {
                     signer[index].signer_id = transaction.signer_id || "";
                     signer[index].signer_name = transaction.signer_name || "";
@@ -2314,26 +2315,28 @@
                     _token: '{{ csrf_token() }}' // ส่ง CSRF token สำหรับ Laravel
                 },
                 success: function(response) {
-                    console.log('signers', response);
-
                     if (response.signers && Array.isArray(response.signers)) {
                         // ลบ option เก่าใน <select>
                         $('.signature-select').empty().append('<option value="">- ผู้ลงนาม -</option>');
                         
-                        // เติม option ใหม่
+                        // response.signers.forEach(function(signer) {
+                        //     const option = `<option value="${signer.id}">${signer.id} ${signer.name}</option>`;
+                        //     $('.signature-select').append(option);
+                        // });
+
                         response.signers.forEach(function(signer) {
-                            const option = `<option value="${signer.id}">${signer.name}</option>`;
-                            $('.signature-select').append(option);
+                            if (defaultSignerIds.includes(signer.id)) {
+                                const option = `<option value="${signer.id}">${signer.name}</option>`;
+                                $('.signature-select').append(option);
+                            }
                         });
 
                         // เทียบ signer_id กับ select และเลือก option ให้ตรงกัน
                         signer.forEach(function(signerItem) {
-                           
                             const selectElement = $(`#${signerItem.code}`);
                             if (selectElement.length) {
                                 selectElement.val(signerItem.signer_id).trigger('change');
                             }
-
                         });
 
                     } else {
@@ -2346,6 +2349,49 @@
                 }
             });
         }
+
+        //  function loadSigners() {
+        //     $.ajax({
+        //         url: "{{ route('assessment_report_assignment.api.get_signers') }}",
+        //         method: 'POST',
+        //         data: {
+        //             _token: '{{ csrf_token() }}'
+        //         },
+        //         success: function(response) {
+        //             if (response.signers && Array.isArray(response.signers)) {
+                        
+        //                 // 1. ล้างและเพิ่ม option "- ผู้ลงนาม -" เริ่มต้น (เหมือนเดิม)
+        //                 $('.signature-select').empty().append('<option value="">- ผู้ลงนาม -</option>');
+                        
+        //                 // 2. วนลูปสร้าง <option> จากข้อมูลที่ได้จาก API (เหมือนเดิม)
+        //                 // response.signers.forEach(function(signer) {
+        //                 //     const option = `<option value="${signer.id}">${signer.id} ${signer.name}</option>`;
+        //                 //     $('.signature-select').append(option);
+        //                 // });
+
+                        
+
+        //                 // console.log(defaultSignerIds)
+
+        //                 response.signers.forEach(function(signer) {
+        //                     if (defaultSignerIds.includes(signer.id)) {
+        //                         const option = `<option value="${signer.id}">${signer.name}</option>`;
+        //                         $('.signature-select').append(option);
+        //                     }
+        //                 });
+
+
+
+        //             } else {
+        //                 alert('ไม่มีข้อมูลผู้ลงนาม');
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             console.error('Error:', error);
+        //             alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+        //         }
+        //     });
+        // }
 
         // เพิ่ม event change ให้กับ select แต่ละตัว
         $('.signature-select').on('change', function() {
