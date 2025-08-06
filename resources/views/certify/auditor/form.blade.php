@@ -180,7 +180,7 @@
 
 
              
-            <div class="form-group" hidden>
+            <div class="form-group" hidden >
                 {!! HTML::decode(Form::label('select_user_id', '<span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย', ['class' => 'col-md-5 control-label'])) !!}
                 <div class="col-md-7">
                     <select name="select_user_id" id="select_user_id" class="form-control" required>
@@ -189,6 +189,7 @@
                             <option value="{{ $signer->id }}" data-position="{{$signer->position}}" @if ($loop->first) selected @endif>{{ $signer->name }}</option>
                         @endforeach
                     </select>
+         
                 </div>
             </div>
 
@@ -198,7 +199,7 @@
                 <div class="col-md-7">
                     <select name="signer_1" id="signer_1" class="form-control" required>
                         <option value="" selected>- เจ้าหน้าที่ผู้รับผิดชอบ -</option>
-                        @foreach ($select_users as $signer)
+                        @foreach ($allExammineSigners as $signer)
                             <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
                         @endforeach
                         
@@ -211,7 +212,7 @@
                 <div class="col-md-7">
                     <select name="signer_2" id="signer_2" class="form-control" required>
                         <option value="" selected>- ผู้ลงนาม -</option>
-                        @foreach ($signers as $signer)
+                        @foreach ($firstSignerGroups as $signer)
                             <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
                         @endforeach
                     </select>
@@ -223,7 +224,7 @@
                 <div class="col-md-7">
                     <select name="signer_3" id="signer_3" class="form-control" required>
                         <option value="" selected>- ผู้ลงนาม -</option>
-                        @foreach ($signers as $signer)
+                        @foreach ($adminBoardSigners as $signer)
                             <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
                         @endforeach
                     </select>
@@ -234,7 +235,7 @@
                 <div class="col-md-7">
                     <select name="signer_4" id="signer_4" class="form-control" required>
                         <option value="" selected>- ผู้ลงนาม -</option>
-                        @foreach ($signers as $signer)
+                        @foreach ($adminBoardSigners as $signer)
                         <option value="{{ $signer->id }}" data-position="{{$signer->position}}">{{ $signer->name }}</option>
                         @endforeach
                     </select>

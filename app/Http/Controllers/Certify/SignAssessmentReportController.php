@@ -337,6 +337,7 @@ class SignAssessmentReportController extends Controller
 
             // แยก Logic การสร้างรายงานตาม certificate_type และ report_type
             if ($currentTransaction->certificate_type == 2) { // LAB
+               
                 if ($currentTransaction->report_type == 1) {
                     $pdfService = new CreateLabAssessmentReportPdf($reportInfoId, "ia");
                     $pdfService->generateLabAssessmentReportPdf();

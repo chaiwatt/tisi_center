@@ -157,14 +157,19 @@ class CheckCertificateLabController extends Controller
         $User =   User::where('runrecno',auth()->user()->runrecno)->first();
         $select_users = array();
         if($User->IsGetIdRoles() == 'false'){  //ไม่ใช่ admin , ผอ , ลท
-
+            //  dd(auth()->user()->RoleListId);
+            // Role ผก
             if(!is_null($examiner) && count($examiner) > 0  && !in_array('22',auth()->user()->RoleListId)){
+               
                 $Query = $Query->LeftJoin((new CheckExaminer)->getTable().' AS check_exminer', 'check_exminer.app_certi_lab_id','=','app_certi_labs.id')
                                 ->where('user_id',auth()->user()->runrecno);  //เจ้าหน้าที่ที่ได้มอบหมาย
             }else{
+                
                 if(isset($User) && !is_null($User->reg_subdepart) && (in_array('11',$User->BasicRoleUser) || in_array('22',$User->BasicRoleUser))  ) {  //ผู้อำนวยการกอง ของ สก.
+                    //  dd($Query->latest()->first(),$User->reg_subdepart);
                     $Query = $Query->where('subgroup',$User->reg_subdepart);
                 }else{
+                   
                     $Query = $Query->whereIn('id',['']);  // ไม่ตรงกับเงื่อนไข
                 }
             }
@@ -175,6 +180,7 @@ class CheckCertificateLabController extends Controller
                             ->orderbyRaw('CONVERT(title USING tis620)')
                             ->pluck('title','runrecno');
 
+
          }else{
 
              $select_users  = User::select(DB::raw("CONCAT(reg_fname,' ',reg_lname) AS title"),'runrecno')
@@ -182,6 +188,8 @@ class CheckCertificateLabController extends Controller
                             ->orderbyRaw('CONVERT(title USING tis620)')
                             ->pluck('title','runrecno');
          }
+
+        //  dd($select_users);
 
         if($filter['sort'] != '' && $filter['direction'] != ''){
             $apps = $Query->sortable()->paginate($filter['perPage']);

@@ -75,7 +75,7 @@ class RoleController extends Controller
         return Datatables::of($query)
                             ->addIndexColumn()      
                             ->addColumn('name', function ($item) {
-                                return !empty($item->name)?$item->name:'-';
+                                return !empty($item->name)?'(Role ID:'.$item->id.') '. $item->name:'-';
                             })
                             ->addColumn('label', function ($item) {
                                 return !empty($item->label)?($item->label=='staff'?'เจ้าหน้าที่':'ผู้ประกอบการ'):'-';

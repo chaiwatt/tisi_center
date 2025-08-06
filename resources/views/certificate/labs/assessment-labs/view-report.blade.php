@@ -560,50 +560,54 @@
                     <span style="font-weight: 600">2.3 วันที่ตรวจประเมิน :</span>  
                     <span >
                         
-  @php
-                    // ฟังก์ชันจัดการวันที่ใน Blade
-                    $start = new \DateTime($boardAuditor->board_auditors_date->start_date);
-                    $end = new \DateTime($boardAuditor->board_auditors_date->end_date);
+{{-- @php
+    dd($notice);
+@endphp --}}
 
-                    // ชื่อเดือนภาษาไทย
-                    $thaiMonths = [
-                        1 => 'มกราคม', 2 => 'กุมภาพันธ์', 3 => 'มีนาคม', 4 => 'เมษายน',
-                        5 => 'พฤษภาคม', 6 => 'มิถุนายน', 7 => 'กรกฎาคม', 8 => 'สิงหาคม',
-                        9 => 'กันยายน', 10 => 'ตุลาคม', 11 => 'พฤศจิกายน', 12 => 'ธันวาคม'
-                    ];
-
-                    // ปี พ.ศ.
-                    $startYearBE = $start->format('Y') + 543;
-                    $endYearBE = $end->format('Y') + 543;
-
-                    // วันและเดือน
-                    $startDay = (int)$start->format('j');
-                    $endDay = (int)$end->format('j');
-                    $startMonth = (int)$start->format('n');
-                    $endMonth = (int)$end->format('n');
-
-                    // ตรวจสอบเงื่อนไข
-                    if ($startMonth === $endMonth && $startYearBE === $endYearBE) {
-                        $formattedDate = "$startDay - $endDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE";
-                    } else {
-                        $formattedDate = "$startDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE - $endDay {$thaiMonths[$endMonth]} พ.ศ. $endYearBE";
-                    }
-                @endphp
-
-                {{ $formattedDate }}
-
-                        {{-- {{HP::formatDateThaiFullPoint($assessment->created_at)}} --}}
+                    {{HP::formatDateThaiFullPoint($notice->assessment_date)}}
                     
                     
-                    </span>  
-                    {{-- <span >xxx</span>   --}}
-                    {{-- {{$boardAuditor->start_date}} --}}
+                </span>  
+
 
 
             </div>
             <div style="margin-top:10px;">
                 <span style="display:block; font-weight: 600">2.4 ผลการตรวจประเมิน</span> 
-                <span style="display:block;margin-left:30px;">การตรวจประเมินครั้งนี้เป็นการตรวจติดตามผลการปฏิบัติการแก้ไขข้อบกพร่องและข้อสังเกต จากการตรวจประเมินเมื่อวันที่ {{HP::formatDateThaiFullPoint($assessment->created_at)}} ซึ่งพบข้อบกพร่องและข้อสังเกต จำนวน <input type="text" class="input-no-border" placeholder="" style="width: 100px;text-align:center" name="inp_2_4_defects_and_remarks_text" id="inp_2_4_defects_and_remarks_text"> รายการ 
+
+                                  @php
+                        // ฟังก์ชันจัดการวันที่ใน Blade
+                        $start = new \DateTime($boardAuditor->board_auditors_date->start_date);
+                        $end = new \DateTime($boardAuditor->board_auditors_date->end_date);
+
+                        // ชื่อเดือนภาษาไทย
+                        $thaiMonths = [
+                            1 => 'มกราคม', 2 => 'กุมภาพันธ์', 3 => 'มีนาคม', 4 => 'เมษายน',
+                            5 => 'พฤษภาคม', 6 => 'มิถุนายน', 7 => 'กรกฎาคม', 8 => 'สิงหาคม',
+                            9 => 'กันยายน', 10 => 'ตุลาคม', 11 => 'พฤศจิกายน', 12 => 'ธันวาคม'
+                        ];
+
+                        // ปี พ.ศ.
+                        $startYearBE = $start->format('Y') + 543;
+                        $endYearBE = $end->format('Y') + 543;
+
+                        // วันและเดือน
+                        $startDay = (int)$start->format('j');
+                        $endDay = (int)$end->format('j');
+                        $startMonth = (int)$start->format('n');
+                        $endMonth = (int)$end->format('n');
+
+                        // ตรวจสอบเงื่อนไข
+                        if ($startMonth === $endMonth && $startYearBE === $endYearBE) {
+                            $formattedDate = "$startDay - $endDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE";
+                        } else {
+                            $formattedDate = "$startDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE - $endDay {$thaiMonths[$endMonth]} พ.ศ. $endYearBE";
+                        }
+                    @endphp
+
+                {{-- {{ $formattedDate }} --}}
+
+                <span style="display:block;margin-left:30px;">การตรวจประเมินครั้งนี้เป็นการตรวจติดตามผลการปฏิบัติการแก้ไขข้อบกพร่องและข้อสังเกต จากการตรวจประเมินเมื่อวันที่ {{$formattedDate}} ซึ่งพบข้อบกพร่องและข้อสังเกต จำนวน <input type="text" class="input-no-border" placeholder="" style="width: 100px;text-align:center" name="inp_2_4_defects_and_remarks_text" id="inp_2_4_defects_and_remarks_text"> รายการ 
                     ห้องปฏิบัติการได้นำส่งหลักฐานผลการปฏิบัติการแก้ไขข้อบกพร่องและข้อสังเกต ตามหนังสือ ({{$certi_lab->lab_name}}) ลงวันที่ <input type="text" class="input-no-border" placeholder="" style="width: 200px;text-align:center" name="inp_2_4_doc_reference_date_text" id="inp_2_4_doc_reference_date_text"> /ไปรษณีย์อิเล็กทรอนิกส์ วันที่ <input type="text" class="input-no-border" placeholder="" style="width: 200px;text-align:center" name="inp_2_4_doc_sent_date1_text" id="inp_2_4_doc_sent_date1_text"> (ถ้ามี) และ <input type="text" class="input-no-border" placeholder="" style="width: 200px;text-align:center" name="inp_2_4_doc_sent_date2_text" id="inp_2_4_doc_sent_date2_text"> (ถ้ามี)</span>
             </div>
             <div style="margin-top:10px;">
@@ -736,7 +740,7 @@
                        </select>
                    </div>
                    <div>
-                       <input type="text" class="input-no-border" style="text-align: center" id="position-1" value="" />
+                       <input type="text" class="input-no-border" style="text-align: center" id="position-1" value="หัวหน้าคณะผู้ตรวจประเมิน" />
                    </div>
                 </div>
    
@@ -748,7 +752,7 @@
                        </select>
                    </div>
                    <div>
-                       <input type="text" class="input-no-border" style="text-align: center" id="position-2" value="" />
+                       <input type="text" class="input-no-border" style="text-align: center" id="position-2" value="นักวิชาการมาตรฐานชำนาญการพิเศษ" />
                    </div>
                 </div>
    
@@ -759,7 +763,7 @@
                        </select>
                    </div>
                    <div>
-                       <input type="text" class="input-no-border" style="text-align: center" id="position-3" value="" />
+                       <input type="text" class="input-no-border" style="text-align: center" id="position-3" value="ผู้อำนวยการสำนักงานคณะกรรมการมาตรฐานแห่งชาติ" />
                    </div>
                 </div>
             </div>

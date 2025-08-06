@@ -7,6 +7,7 @@ use App\User;
 use stdClass;
 use Exception;
 use Mpdf\Mpdf;
+use App\RoleUser;
 use Carbon\Carbon;
 use App\Helpers\TextHelper;
 use Illuminate\Support\Arr;
@@ -16,17 +17,17 @@ use App\Models\Besurv\Signer;
 use Illuminate\Http\Response;
 use App\Mail\Lab\MailBoardAuditor;
 use Illuminate\Support\Facades\DB;
-use App\Models\Certify\BoardAuditor;
 
+use App\Models\Certify\BoardAuditor;
 use App\Models\Certify\CertiEmailLt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
+
+
 use App\Models\Bcertify\StatusAuditor;
-
-
 use App\Models\Certify\Applicant\Cost;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\Lab\MailBoardAuditorSigner;
@@ -41,8 +42,8 @@ use App\Models\Bcertify\AuditorInformation;
 use App\Models\Certify\BoardAuditorHistory;
 use App\Services\CreateLabMessageRecordPdf;
 use App\Models\Certify\Applicant\Assessment;
-use App\Models\Certify\Applicant\CostDetails;
 
+use App\Models\Certify\Applicant\CostDetails;
 use App\Models\Certify\Applicant\CheckExaminer;
 use App\Models\Certify\BoardAuditorInformation;
 use App\Models\Certify\Applicant\CostAssessment;
@@ -134,6 +135,39 @@ class BoardAuditorController extends Controller
         abort(403);
     }
 
+    private function getSignersByRoleId(int $roleId)
+    {
+        // 1. ดึง user_runrecno ทั้งหมดจากตาราง role_user ที่มี role_id ตรงกับที่ต้องการ
+        $userRunrecnos = RoleUser::where('role_id', $roleId)->pluck('user_runrecno');
+
+        // ถ้าไม่พบผู้ใช้ใน Role นี้ ให้ return collection ว่างกลับไป
+        if ($userRunrecnos->isEmpty()) {
+            return collect(); // คืนค่า Collection ว่าง
+        }
+
+        // 2. นำ Array ของ user_runrecno ที่ได้ ไปค้นหาข้อมูลผู้ใช้
+        $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->get();
+
+        // 3. ดึง reg_13ID จากผู้ใช้ที่พบและทำการ format (ลบขีด)
+        $allReg13Ids = [];
+        foreach ($groupAdminUsers as $groupAdminUser) {
+            // ตรวจสอบให้แน่ใจว่ามี reg_13ID ก่อนนำไปใช้งาน
+            if (!empty($groupAdminUser->reg_13ID)) {
+                $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                $allReg13Ids[] = $reg13Id;
+            }
+        }
+
+        // ถ้าไม่มี reg_13ID ที่ใช้งานได้เลย ให้ return collection ว่างกลับไป
+        if (empty($allReg13Ids)) {
+            return collect();
+        }
+
+        // 4. ค้นหาข้อมูล Signer จาก tax_number ที่ตรงกับ reg_13ID ที่ได้มา
+        $signers = Signer::whereIn('tax_number', $allReg13Ids)->get();
+
+        return $signers;
+    }
 
     public function create(Request $request)
     {
@@ -199,11 +233,14 @@ class BoardAuditorController extends Controller
             $selectedCertiLab = CertiLab::find($app_certi_lab_id);
            $subGroup = $selectedCertiLab->subgroup;
           
+            $user =  auth()->user();
 
-            $appCertiMail = CertiEmailLt::where('certi',$subGroup)->where('roles',1)->pluck('admin_group_email')->toArray();
-            // dd($appCertiMail );
-            //  
-              $groupAdminUsers = User::whereIn('reg_email',$appCertiMail)->get();
+
+            
+            $targetRoleId = 22;
+            $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$user->reg_subdepart)->get();
+
             $firstSignerGroups = [];
             if(count($groupAdminUsers) != 0){
                  $allReg13Ids = [];
@@ -217,7 +254,7 @@ class BoardAuditorController extends Controller
 
             // dd($firstSignerGroups);
 
-//  dd($selectedCertiLab,$appCertiMail,$groupAdminUser);
+
            $signers = Signer::all();
        
             // ดึง reg_13ID จาก User ที่ reg_subdepart เป็น 1804, 1805, 1806
@@ -230,12 +267,43 @@ class BoardAuditorController extends Controller
                 })
                 ->toArray();
 
-            // ดึง Signer ที่ tax_number ตรงกับ reg_13ID ที่แปลงแล้ว
+
             $signers = Signer::all();
             $select_users = $signers->filter(function ($signer) use ($reg_13_ids) {
                 return in_array($signer->tax_number, $reg_13_ids);
             })->values();
 
+            $userIds = CheckExaminer::where('app_certi_lab_id',$request->app_certi_lab_id)->pluck('user_id')->toArray();
+
+            $reg_13_ids = User::whereIn('runrecno', $userIds)
+                ->pluck('reg_13ID')
+                ->map(function ($reg_13_id) {
+                    return str_replace('-', '', $reg_13_id); // ลบขีด เช่น 3-5406-00200-10-8 -> 3540600200108
+                })
+                ->toArray();
+
+            $examiner_signers = $signers->filter(function ($signer) use ($reg_13_ids) {
+                return in_array($signer->tax_number, $reg_13_ids);
+            })->values();
+
+        //    dd($examiner_signers);
+           $allExammineSigners = $firstSignerGroups->merge($examiner_signers)->unique()->values();
+
+        
+            $targetRoleId = 47;
+            $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->get();
+
+            $adminBoardSigners = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $adminBoardSigners = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }
 
             return view('certify/auditor/create', [
                                                         'status_auditor'    => $status_auditor,
@@ -245,7 +313,9 @@ class BoardAuditorController extends Controller
                                                         'signers'  => $signers,
                                                         'selectedCertiLab'  => $selectedCertiLab,
                                                         'view_url'  => $request->current_url,
-                                                        'firstSignerGroups' => $firstSignerGroups
+                                                        'firstSignerGroups' => $firstSignerGroups,
+                                                        'allExammineSigners' => $allExammineSigners,
+                                                        'adminBoardSigners' => $adminBoardSigners
                                                  ]);
         }   
         abort(403);

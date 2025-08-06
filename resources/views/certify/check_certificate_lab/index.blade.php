@@ -157,6 +157,7 @@
                     <h3 class="box-title pull-left">ระบบตรวจสอบคำขอใบรับรองห้องปฏิบัติการ (LAB)</h3>
 
                     <div class="pull-right">
+                        {{-- {{$select_users}} --}}
                         @if(isset($select_users) && count($select_users) > 0)
                             @can('assign_work-'.str_slug('certificate'))
                                 {{-- @include('certify.includes.modal-add',  [
