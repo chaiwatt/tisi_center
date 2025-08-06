@@ -138,14 +138,14 @@ class CheckCertificateCBController extends Controller
                 // dd(auth()->user()->RoleListId);
                 $check = CertiCBCheck::where('user_id',auth()->user()->runrecno)->pluck('app_certi_cb_id'); // เช็คเจ้าหน้าที่ IB
                 if(isset($check) && count($check) > 0  ) {
-                    dd(count($check));
+                    // dd($Query->latest()->first());
                      $Query = $Query->LeftJoin('app_certi_cb_check','app_certi_cb_check.app_certi_cb_id','=','app_certi_cb.id')
                                     ->where('user_id',auth()->user()->runrecno);  //เจ้าหน้าที่  IB ที่ได้มอบหมาย
                 }else{
                     $Query = $Query->whereIn('id',['']);  // ไม่ตรงกับเงื่อนไข
                 }
             }
-
+//  dd($Query->latest()->first());
             // dd($Query->latest()->first());
             $certi_cbs =  $Query->orderby('id','desc')
                                ->sortable()
