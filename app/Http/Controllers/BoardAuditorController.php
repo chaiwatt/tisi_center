@@ -252,7 +252,7 @@ class BoardAuditorController extends Controller
                 $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
             }
 
-            // dd($firstSignerGroups);
+            dd($firstSignerGroups);
 
 
            $signers = Signer::all();
