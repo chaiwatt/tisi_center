@@ -133,8 +133,9 @@ class CheckCertificateCBController extends Controller
                 $Query = $Query->whereDate('created_at',$start);
             }
 
-            dd(auth()->user()->RoleListId);
+            
              if(in_array("29",auth()->user()->RoleListId) && auth()->user()->SetRolesAdminCertify() == "false" ){
+                dd(auth()->user()->RoleListId);
                 $check = CertiCBCheck::where('user_id',auth()->user()->runrecno)->pluck('app_certi_cb_id'); // เช็คเจ้าหน้าที่ IB
                 if(isset($check) && count($check) > 0  ) {
                     // dd($check->latest()->first());
