@@ -167,10 +167,10 @@ class CheckCertificateLabController extends Controller
                
                 if(isset($User) && !is_null($User->reg_subdepart) && (in_array('11',$User->BasicRoleUser) || in_array('22',$User->BasicRoleUser))  ) {  //ผู้อำนวยการกอง ของ สก.
                     //  dd("c");
-                     dd($Query->latest()->first(),$User->reg_subdepart);
+                    //  dd($Query->latest()->first(),$User->reg_subdepart);
                     $Query = $Query->where('subgroup',$User->reg_subdepart);
                 }else{
-                   dd("d");
+                //    dd("d");
                     $Query = $Query->whereIn('id',['']);  // ไม่ตรงกับเงื่อนไข
                 }
             }
