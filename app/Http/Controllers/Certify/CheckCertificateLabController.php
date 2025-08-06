@@ -152,7 +152,7 @@ class CheckCertificateLabController extends Controller
                     ->OrWhere(DB::raw("REPLACE(app_no,' ','')"), 'like', '%'.$key.'%');
             });
         }
-        dd(auth()->user());
+        // dd(auth()->user());
         $examiner = CheckExaminer::where('user_id',auth()->user()->runrecno)->pluck('app_certi_lab_id'); //เจ้าหน้าที่ รับผิดชอบ  สก.
         $User =   User::where('runrecno',auth()->user()->runrecno)->first();
         $select_users = array();
@@ -160,11 +160,11 @@ class CheckCertificateLabController extends Controller
             //  dd(auth()->user()->RoleListId);
             // Role ผก
             if(!is_null($examiner) && count($examiner) > 0  && !in_array('22',auth()->user()->RoleListId)){
-               
+                 dd("a");
                 $Query = $Query->LeftJoin((new CheckExaminer)->getTable().' AS check_exminer', 'check_exminer.app_certi_lab_id','=','app_certi_labs.id')
                                 ->where('user_id',auth()->user()->runrecno);  //เจ้าหน้าที่ที่ได้มอบหมาย
             }else{
-                
+                dd("b");
                 if(isset($User) && !is_null($User->reg_subdepart) && (in_array('11',$User->BasicRoleUser) || in_array('22',$User->BasicRoleUser))  ) {  //ผู้อำนวยการกอง ของ สก.
                      dd($Query->latest()->first(),$User->reg_subdepart);
                     $Query = $Query->where('subgroup',$User->reg_subdepart);
