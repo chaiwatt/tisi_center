@@ -241,6 +241,8 @@ class BoardAuditorController extends Controller
             $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
             $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$user->reg_subdepart)->get();
 
+  dd($groupAdminUsers,$user->reg_subdepart,$userRunrecnos);
+
             $firstSignerGroups = [];
             if(count($groupAdminUsers) != 0){
                  $allReg13Ids = [];
@@ -252,7 +254,7 @@ class BoardAuditorController extends Controller
                 $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
             }
 
-            dd($firstSignerGroups,$user->reg_subdepart,$userRunrecnos);
+          
 
 
            $signers = Signer::all();
