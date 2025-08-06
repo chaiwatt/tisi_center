@@ -546,7 +546,7 @@
      <div class="col-md-offset-4 col-md-6">
         <input type="hidden" name="previousUrl" id="previousUrl" value="{{ app('url')->previous() }}">
       
-        <label>{!! Form::checkbox('vehicle', '1', true, ['class'=>'check','data-checkbox'=>"icheckbox_flat-red"]) !!} 
+        <label >{!! Form::checkbox('vehicle', '1', true, ['class'=>'check','data-checkbox'=>"icheckbox_flat-red"]) !!} 
             &nbsp;ส่ง e-mail แจ้งผู้ประกอบการเพื่อยืนยันข้อมูล 
             </label>
        
