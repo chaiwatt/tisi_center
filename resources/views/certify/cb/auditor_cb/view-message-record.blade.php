@@ -251,7 +251,7 @@
 
             <!-- Main Content -->
             <div class="section">
-                <div>เรียน ผอ.สก. ผ่าน ผก.รต.<input type="text" class="input-no-border" id="body_text1" name="body_text1" value="{{$boardAuditorMsRecordInfo->body_text1}}" style="width:30px" required readonly></div>
+                <div>เรียน ผอ.สก. ผ่าน ผก.รร.<input type="text" class="input-no-border" id="body_text1" name="body_text1" value="{{$boardAuditorMsRecordInfo->body_text1}}" style="width:30px" required readonly></div>
                 <div class="section-title" >๑. เรื่องเดิม</div>
                 {{-- <div class="indent">
                     ห้องปฏิบัติการ {{$data->lab_type}} {{$data->company}}
@@ -281,7 +281,7 @@
             <div class="section">
                 <div class="section-title">๔. การดำเนินการ</div>
                 <div style="text-indent: 137px;margin-top:10px;line-height:34px">
-                    รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="{{$boardAuditorMsRecordInfo->body_text2}}" style="width:30px" required readonly> สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินและผู้เชี่ยวชาญ
+                    รร.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="{{$boardAuditorMsRecordInfo->body_text2}}" style="width:30px" required readonly> สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินและผู้เชี่ยวชาญ
                     เพื่อดำเนินการตรวจประเมินสถานประกอบการ ของ {{$data->name_standard}} ในวันที่ {{$data->date_range}} ดังนี้
                 </div>
                 <div style="margin-top:15px">

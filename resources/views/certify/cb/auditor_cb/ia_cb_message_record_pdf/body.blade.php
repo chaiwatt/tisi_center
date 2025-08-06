@@ -77,7 +77,7 @@
 </div>
 
 <div style="position: relative;margin-top:20px;line-height:1.15">
-    <div Style="margin-bottom:5px;">เรียน &nbsp;&nbsp;&nbsp; ผอ.สก. ผ่าน ผก.รต.{{$boardAuditorMsRecordInfo->body_text1}}</div>
+    <div Style="margin-bottom:5px;">เรียน &nbsp;&nbsp;&nbsp; ผอ.สก. ผ่าน ผก.รร.{{$boardAuditorMsRecordInfo->body_text1}}</div>
     <div style="font-weight: bold;margin-left:90px;margin-top:15px">๑. เรื่องเดิม</div>
     <div>
         {{-- @php
@@ -128,10 +128,10 @@
             $textResult = "";
             if($assessmentType == 0)
             {
-                $textResult = TextHelper::callLonganTokenizePost("รต.".$boardAuditorMsRecordInfo->body_text2." รต. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินและผู้เชี่ยวชาญ เพื่อดำเนินการตรวจประเมินสถานประกอบการ".str_replace(' ', '!', $data->name_standard). " ". str_replace(' ', '!', $data->date_range). " ดังนี้");
+                $textResult = TextHelper::callLonganTokenizePost("รร.".$boardAuditorMsRecordInfo->body_text2." รร. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินและผู้เชี่ยวชาญ เพื่อดำเนินการตรวจประเมินสถานประกอบการ".str_replace(' ', '!', $data->name_standard). " ". str_replace(' ', '!', $data->date_range). " ดังนี้");
             }elseif($assessmentType == 1)
             {
-                $textResult = TextHelper::callLonganTokenizePost("รต.".$boardAuditorMsRecordInfo->body_text2." รต. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน เพื่อดำเนินการตรวจประเมินสถานประกอบการ".str_replace(' ', '!', $data->name_standard). " ". str_replace(' ', '!', $data->date_range). " ดังนี้");
+                $textResult = TextHelper::callLonganTokenizePost("รร.".$boardAuditorMsRecordInfo->body_text2." รร. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน เพื่อดำเนินการตรวจประเมินสถานประกอบการ".str_replace(' ', '!', $data->name_standard). " ". str_replace(' ', '!', $data->date_range). " ดังนี้");
             }
 
             

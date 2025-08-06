@@ -311,7 +311,7 @@
 
             <!-- Main Content -->
             <div class="section">
-                <div>เรียน ผอ.สก. ผ่าน ผก.รต.<input type="text" class="input-no-border" id="body_text1" name="body_text1" value="{{ old('body_text1') }}" style="width:30px" ></div>
+                <div>เรียน ผอ.สก. ผ่าน ผก.รร.<input type="text" class="input-no-border" id="body_text1" name="body_text1" value="{{ old('body_text1') }}" style="width:30px" ></div>
                 <div class="section-title" >๑. เรื่องเดิม</div>
                 {{-- <div class="indent" style="text-indent: 125px;" >
                     วันที่ {{$data->register_date}} {{$data->name_standard}} ได้ยื่นคำขอรับใบรับรองหน่วยรับรอง ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
@@ -340,12 +340,12 @@
 
                    @if ($assessmentType == 0)
                              <div style="text-indent: 137px;margin-top:10px;line-height:34px">
-                                รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินและผู้เชี่ยวชาญ
+                                รร.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมินและผู้เชี่ยวชาญ
                                 เพื่อดำเนินการตรวจประเมินสถานประกอบการ ของ {{$data->name_standard}} ในวันที่ {{$data->date_range}} ดังนี้
                             </div>
                         @elseif($assessmentType == 1)
                            <div style="text-indent: 137px;margin-top:10px;line-height:34px">
-                                รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน
+                                รร.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน
                                 เพื่อดำเนินการตรวจประเมินสถานประกอบการ ของ {{$data->name_standard}} ในวันที่ {{$data->date_range}} ดังนี้
                             </div>
                     @endif
