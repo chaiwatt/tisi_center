@@ -70,7 +70,7 @@ class CheckCertificateCBController extends Controller
 
     public function index(Request $request)
     {
-        // dd('ok');
+        
         $model = str_slug('checkcertificatecb','-');
         if(auth()->user()->can('view-'.$model)) {
 
@@ -133,6 +133,7 @@ class CheckCertificateCBController extends Controller
                 $Query = $Query->whereDate('created_at',$start);
             }
 
+            dd(auth()->user()->RoleListId);
              if(in_array("29",auth()->user()->RoleListId) && auth()->user()->SetRolesAdminCertify() == "false" ){
                 $check = CertiCBCheck::where('user_id',auth()->user()->runrecno)->pluck('app_certi_cb_id'); // เช็คเจ้าหน้าที่ IB
                 if(isset($check) && count($check) > 0  ) {

@@ -1,3 +1,4 @@
+{{-- CheckCertificateCBController --}}
 @extends('layouts.master')
 
 @push('css')
