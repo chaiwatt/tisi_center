@@ -135,10 +135,10 @@ class CheckCertificateCBController extends Controller
 
             
              if(in_array("29",auth()->user()->RoleListId) && auth()->user()->SetRolesAdminCertify() == "false" ){
-                dd(auth()->user()->RoleListId);
+                // dd(auth()->user()->RoleListId);
                 $check = CertiCBCheck::where('user_id',auth()->user()->runrecno)->pluck('app_certi_cb_id'); // เช็คเจ้าหน้าที่ IB
                 if(isset($check) && count($check) > 0  ) {
-                    // dd($check->latest()->first());
+                    dd($check->latest()->first());
                      $Query = $Query->LeftJoin('app_certi_cb_check','app_certi_cb_check.app_certi_cb_id','=','app_certi_cb.id')
                                     ->where('user_id',auth()->user()->runrecno);  //เจ้าหน้าที่  IB ที่ได้มอบหมาย
                 }else{
