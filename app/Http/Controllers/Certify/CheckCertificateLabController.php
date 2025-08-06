@@ -152,7 +152,7 @@ class CheckCertificateLabController extends Controller
                     ->OrWhere(DB::raw("REPLACE(app_no,' ','')"), 'like', '%'.$key.'%');
             });
         }
-        // dd(auth()->user()->runrecno);
+        dd(auth()->user());
         $examiner = CheckExaminer::where('user_id',auth()->user()->runrecno)->pluck('app_certi_lab_id'); //เจ้าหน้าที่ รับผิดชอบ  สก.
         $User =   User::where('runrecno',auth()->user()->runrecno)->first();
         $select_users = array();
