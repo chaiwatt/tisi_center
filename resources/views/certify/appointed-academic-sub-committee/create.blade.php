@@ -1,3 +1,4 @@
+{{-- AppointedAcademicSubCommitteeController --}}
 @extends('layouts.master')
 
 @section('content')
@@ -5,7 +6,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">หนังสือเชิญประชุม</h3>
+                    <h3 class="box-title pull-left">หนังสือเชิญประชุม มาตรฐาน</h3>
                     @can('view-'.str_slug('standarddrafts'))
                         <a class="btn btn-success pull-right" href="{{url('/certify/standard-drafts')}}">
                             <i class="icon-arrow-left-circle"></i> กลับ
@@ -37,6 +38,7 @@
                                     
                                     <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด</option>
                                     <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }}>เชิญประชุมอนุกรรมการวิชาการ</option>
+                                    <option value="3" {{ old('doc_type') == '3' ? 'selected' : '' }}>เชิญประชุม เจ้าหน้าที่ ลท.</option>
                                 </select>
                                 @if ($errors->has('doc_type'))
                                     <p class="help-block">{{ $errors->first('doc_type') }}</p>
@@ -99,7 +101,7 @@
                         </div>
 
                         <div class="form-group {{ $errors->has('set_standard') ? 'has-error' : '' }}">
-                            <label for="set_standard" class="col-md-3 control-label">มาตรฐาน :</label>
+                            <label for="set_standard" class="col-md-3 control-label">มาตรฐาน / คำขอ :</label>
                             <div class="col-md-8">
                                 <select name="set_standard[]" id="set_standard" class="select2-multiple" multiple data-placeholder="- เลือกมาตรฐาน -">
                                      @foreach ($setStandards as $setStandard)
@@ -115,7 +117,7 @@
                         </div>
 
                         <div class="form-group {{ $errors->has('board') ? 'has-error' : '' }}">
-                            <label for="board" class="col-md-3 control-label">คณะกรรมการเฉพาะด้าน :</label>
+                            <label for="board" class="col-md-3 control-label">คณะเข้าร่วมประชุม :</label>
                             <div class="col-md-8">
                                 <select name="board[]" id="board" class="select2-multiple" multiple data-placeholder="- เลือกคณะกรรมการเฉพาะด้าน -">
                                     @foreach(\App\CommitteeSpecial::orderbyRaw('CONVERT(committee_group USING tis620)')->get() as $committee)

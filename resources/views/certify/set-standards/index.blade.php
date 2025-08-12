@@ -1,3 +1,4 @@
+{{-- SetStandardsController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -239,7 +240,7 @@
                                     <tr>
                                         <th width="1%" class="text-center">#</th>
                                         {{-- <th width="1%"></th> --}}
-                                        <th width="15%" >รหัสโครงการ</th>
+                                        {{-- <th width="15%" >รหัสโครงการ</th> --}}
                                         <th width="20%" >ชื่อมาตรฐาน</th>
                                         <th width="10%" >ประเภท</th>
                                         <th width="10%" class="text-center">วิธีการ</th>
@@ -260,7 +261,7 @@
                                                     <!-- Empty checkbox cell if state is not 99 -->
                                                 @endif
                                             </td> --}}
-                                            <td >{{ $item->projectid ?? 'อยู่ระหว่างกำหนดมาตรฐาน' }}</td>
+                                            {{-- <td >{{ $item->projectid ?? 'อยู่ระหว่างกำหนดมาตรฐาน' }}</td> --}}
                                             <td >{{ $item->TisName ?? '' }}</td>
                                             <td >{{ $item->StdTypeName ?? '' }}</td>
                                             <td class="text-center">{{ $item->estandard_plan_to->method_to->title ?? '' }}</td>
@@ -269,67 +270,47 @@
                                             <td >{{ $item->StatusText ?? '' }}</td>
                                             <td class="text-center">
                                                 
-                                                {{-- {{$item->estandard_plan_to->method_id}}
-                                                @if ($item->estandard_plan_to->method_id == 1 || $item->estandard_plan_to->method_id == 2)
-                                                    สูง
-                                                    @elseif($item->estandard_plan_to->method_id == 3)
-                                                    ต่ำ/ร่าง
-                                                @endif --}}
-
-                                                {{-- <div class="dropdown">
-                                                    <button class="btn btn-warning btn-xs dropdown-toggle" title="View setstandard" data-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fa fa-pencil-square-o"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a href="#">รายการ1</a></li>
-                                                        <li><a href="#">รายการ2</a></li>
-                                                    </ul>
-                                                </div>
-
-                                                <a href="/certify/set-standards/{{$item->id}}" title="View setstandar" class="btn btn-info btn-xs">
-                                                    <i class="fa fa-eye"></i>
-                                                </a>
-                                                <a href="/certify/set-standards/{{$item->id}}/edit" title="Edit setstandar" class="btn btn-warning btn-xs">
-                                                    <i class="fa fa-pencil-square-o"></i>
-                                                </a> --}}
+              
 
                                                 <div style="display: inline-flex; align-items: center; gap: 5px;">
-                                                    {{-- <a href="" title="View setstandard" class="btn btn-danger btn-xs" style="display: inline-block;">
-                                                        <i class="fa fa-cog"></i>
-                                                    </a>
-                                                    <div class="dropdown" style="display: inline-block;">
-                                                        <button class="btn btn-warning btn-xs dropdown-toggle" title="View setstandard" data-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fa fa-pencil-square-o"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            <li><a href="#">คณะกรรมธิการ</a></li>
-                                                            <li><a href="#">เวียนรมาตรฐาน</a></li>
-                                                            <li><a href="#">คณะกรรมหนด</a></li>
-                                                        </ul>
-                                                    </div> --}}
+          
                                                     <a href="{{ url('/certify/set-standards/' . $item->id) }}" title="View setstandard" class="btn btn-info btn-xs" style="display: inline-block;">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
-                                                    {{-- @php
-                                                        dd($item)
-                                                    @endphp --}}
-{{-- {{$item->estandard_plan_to->method_to->id}} --}}
-                                                   
+
                                                     @if ($item->estandard_plan_to->method_to->id == 1 || $item->estandard_plan_to->method_to->id == 2)
-                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                    
+                                                            {{-- <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                <i class="fa fa-pencil-square-o"></i>
+                                                            </a> --}}
+                                                            {{-- @php
+                                                                dd($item);
+                                                            @endphp --}}
+
+                                                            @if ($item->mainAppointmentMeetingApproved->count() == 0)
+                                                                <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                </a>
+                                                            @else  
+
+                                                              <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                 <i class="fa fa-pencil-square-o"></i>
                                                             </a>
+                                                               
+                                                        @endif
+                                                               
+
                                                     @elseif($item->estandard_plan_to->method_to->id == 3)
                                                
-                                                    @if ($item->subAppointmentMeetingApproved->count() == 0)
-                                                            <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
-                                                                <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                                                            </a>
-                                                        @else  
-                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit_sub_appointment')}}" title="Edit setstandard" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                <i class="fa fa-pencil" aria-hidden="true"></i>
-                                                            </a>
-                                                    @endif
+                                                        @if ($item->subAppointmentMeetingApproved->count() == 0)
+                                                                <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                </a>
+                                                            @else  
+                                                                <a href="{{url('/certify/set-standards/'.$item->id.'/edit_sub_appointment')}}" title="Edit setstandard" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                                </a>
+                                                        @endif
                                                                
 
                                                       

@@ -29,7 +29,7 @@
  
 {!! Form::hidden('amount_sum', (!empty($quantity_status)?$quantity_status:0) , ['class' => 'form-control text-right amount', 'readonly'=>true]) !!}
 {!! Form::hidden('cost_sum', (!empty($sum_cost_status)?$sum_cost_status:0) , ['class' => 'form-control text-right amount','id'=>'amount_bill_all','readonly'=>true]) !!}
-<div class="form-group">
+<div class="form-group" hidden>
     <div class="  {{ $errors->has('amount_sum') ? 'has-error' : ''}}">
         {!! HTML::decode(Form::label('amount_sum', 'สรุปผลการประชุม :', ['class' => 'col-md-3 control-label'])) !!}
         <div class="col-md-9">

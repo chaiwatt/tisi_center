@@ -142,6 +142,8 @@
 @endpush
  
       <div class="row">
+        {{-- {{$setstandard->status_id}} --}}
+
         <div class="col-md-12 text-center">
  
           <ul class="nav nav-tabs process-model more-icon-preocess" role="tablist">
@@ -236,9 +238,9 @@
         @if (in_array($setstandard->status_sub_appointment_id,[2,3]))
         <div class="form-group">
             <div class="col-md-offset-4 col-md-4">
-                <button class="btn btn-success " type="submit" @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_update" value="1">
+                {{-- <button class="btn btn-success " type="submit" @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_update" value="1">
                     <i class="fa fa-paper-plane"></i> อัพเดทข้อมูล
-                </button>
+                </button> --}}
                 <button class="btn btn-primary " type="submit"     @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_save" value="1">
                     <i class="fa fa-paper-plane"></i> บันทึก 
                 </button>
@@ -259,9 +261,9 @@
         @else   
             <div class="form-group">
                 <div class="col-md-offset-4 col-md-4">
-                        <button class="btn btn-success" type="submit" name="is_update" value="1">
+                        {{-- <button class="btn btn-success" type="submit" name="is_update" value="1">
                             <i class="fa fa-paper-plane"></i> อัพเดทข้อมูล
-                        </button>
+                        </button> --}}
                         <button class="btn btn-primary" type="submit" name="is_save" value="1">
                             <i class="fa fa-paper-plane"></i> บันทึก 
                         </button>

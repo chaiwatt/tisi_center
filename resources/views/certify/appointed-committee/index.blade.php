@@ -1,4 +1,5 @@
 {{-- work on Certify\\SendCertificatesController --}}
+{{-- AppointedCommitteeController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -95,9 +96,12 @@
                                         <td class="text-center">{{ $meetingInvitation->setStandards->pluck('TisName')->implode(', ') ?: 'ไม่มี' }}</td>
                                         <td class="text-center"><span class="label label-warning">ส่งลงนาม</span></td>
                                         <td class="text-center">
+                                             <a href="{{ route('certify.appointed-academic-sub-committee.view', $meetingInvitation->id) }}" class="btn btn-sm btn-info" title="ดู">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
                                             @can('view-' . str_slug('appointed-committee'))
-                                                <a  class="btn btn-sm btn-info btn_sign" data-id="{{$meetingInvitation->signer_id}}" data-meetinginvitation="{{$meetingInvitation->id}}" >
-                                                <i class="fa fa-check-circle"></i>  ลงนาม
+                                                <a  class="btn btn-sm btn-warning btn_sign" data-id="{{$meetingInvitation->signer_id}}" data-meetinginvitation="{{$meetingInvitation->id}}" >
+                                                <i class="fa fa-check"></i>  ลงนาม
                                                 </a>
                                             @endcan
                                         </td>
@@ -251,7 +255,7 @@
                             $('#signerModal').modal('hide');
                             setTimeout(function() {
                                 location.reload();
-                            }, 300); // รอ 300ms ก่อน reload
+                            }, 300);
                     
                         },
                         error: function(xhr, status, error) {

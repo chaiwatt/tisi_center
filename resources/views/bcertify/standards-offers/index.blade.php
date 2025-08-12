@@ -1,3 +1,4 @@
+{{-- StandardsOffersController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -22,6 +23,7 @@
 
                      @can('assign_work-'.str_slug('standardsoffers'))
                             <button type="button" class="btn btn-warning" id="button_assign">มอบหมาย</button>
+                             <button type="button" class="btn btn-info" id="button_export_excel">ส่งออก excel</button>
 
                        <!--   popup ข้อมูลผู้ตรวจการประเมิน   -->
                        <div class="modal fade" id="modal_assign">
@@ -186,6 +188,7 @@
    <!-- thai extension -->
    <script src="{{ asset('plugins/components/bootstrap-datepicker-thai/js/bootstrap-datepicker-thai.js') }}"></script>
    <script src="{{ asset('plugins/components/bootstrap-datepicker-thai/js/locales/bootstrap-datepicker.th.js') }}"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -232,7 +235,6 @@
                     { data: 'title', name: 'title' },
                     { data: 'objectve', name: 'objectve' },
                     { data: 'name', name: 'name' },
-                    // { data: 'standard_type', name: 'standard_type' },
                     { data: 'state', name: 'state' },
                     { data: 'asigns', name: 'asigns' },
                     { data: 'action', name: 'action' },
@@ -287,6 +289,69 @@
                             });
                 }
                   
+            });
+
+            // var selectedIds = [];
+
+            $("#button_export_excel").click(function() {
+                if (table.$('.item_checkbox:checked').length > 0) {
+                    
+                    var exportData = [];
+                    table.$('.item_checkbox:checked').each(function() {
+                        var rowData = table.row($(this).closest('tr')).data();
+                        if (rowData) {
+                            // เราต้องการข้อมูล "ประเภท" (สมมติว่าเก็บอยู่ในฟิลด์ชื่อ 'type' หรือฟิลด์อื่น)
+                            // จากรูปภาพของคุณ ผมจะเดาว่าข้อมูลประเภทคือฟิลด์ 'c' ที่คุณให้มา
+                            // ถ้าฟิลด์ประเภทชื่ออื่น ให้แก้ตรง `type: rowData.c`
+                            var dataObject = {
+                                iso_number:         rowData.iso_number,
+                                standard_name:      rowData.standard_name,
+                                standard_name_en:   rowData.standard_name_en,
+                                national_strategy:  rowData.national_strategy,
+                                type:               'c', // << สมมติว่านี่คือข้อมูลประเภทที่ได้มา
+                                reason:             rowData.reason
+                            };
+                            exportData.push(dataObject);
+                        }
+                    });
+
+                    // ================================================================
+                    // ===== ส่วนของการสร้างและดาวน์โหลด Excel ที่เพิ่มเข้ามา =====
+                    // ================================================================
+
+                    // 1. สร้างตัวแปรสำหรับแปลงค่า "ประเภท" ให้เป็นข้อความเต็ม
+                    const typeMapping = {
+                        'P': 'P-ผลิตภัณฑ์',
+                        'M': 'M-วิธีทดสอบ',
+                        'B': 'B-มาตรฐาน',
+                        'S': 'S-ระบบ',
+                        'C': 'C-ข้อแนะนำ'
+                    };
+
+                    // 2. แปลงข้อมูล (Transform) ให้ตรงกับหัวคอลัมน์ Excel ที่ต้องการ
+                    const transformedData = exportData.map(item => ({
+                        'เลขมาตรฐาน ISO': item.iso_number,
+                        'ชื่อมาตรฐาน': item.standard_name,
+                        'ชื่อมาตรฐานภาษาอังกฤษ': item.standard_name_en,
+                        'แผนยุทธศาสตร์ชาติ 20ปี/แผนพัฒนาเศรษฐกิจและสังคมแห่งชาติ ฉบับที่ 13 (ถ้ามี)': item.national_strategy,
+                        'ประเภท': typeMapping[item.type] || item.type, // แปลงค่า C -> C-ข้อแนะนำ
+                        'กำหนดใหม่/ทบทวน': '', // << ตั้งให้เป็นค่าว่างเสมอตามที่คุณต้องการ
+                        'เหตุผล': item.reason
+                    }));
+
+                    // 3. สร้าง Worksheet จากข้อมูลที่แปลงแล้ว
+                    const worksheet = XLSX.utils.json_to_sheet(transformedData);
+
+                    // 4. สร้าง Workbook ใหม่ และเพิ่ม Worksheet เข้าไป
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "StandardsOffers"); // ตั้งชื่อชีต
+
+                    // 5. สั่งให้เบราว์เซอร์ดาวน์โหลดไฟล์ Excel
+                    XLSX.writeFile(workbook, "Exported_Standards_Offers.xlsx"); // ตั้งชื่อไฟล์
+
+                } else {
+                    alert("กรุณาเลือกรายการที่ต้องการส่งออกอย่างน้อย 1 รายการ");
+                }
             });
 
 

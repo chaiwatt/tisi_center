@@ -46,6 +46,133 @@ class StandardDraftsController extends Controller
 
     public function data_list(Request $request)
     {
+        // This now correctly uses the authenticated user from the session.
+        $roles =  !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : [];
+        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles) && !in_array(44, $roles));  // ไม่ใช่ Admin หรือไม่ใช่ ผอ. ผก
+
+        $model = str_slug('standarddrafts', '-');
+        $filter_search = $request->input('filter_search');
+        $filter_year = $request->input('filter_year');
+        $filter_standard_type = $request->input('filter_standard_type');
+        $filter_method_id = $request->input('filter_method_id');
+        $filter_status = $request->input('filter_status');
+
+        $query = TisiEstandardDraft::query()->with([
+            'TisiEstandardDraftCommitteeMany.committee_specials'
+        ])
+        // ==================================================================
+        //  vvv  เงื่อนไขที่แก้ไขใหม่ให้ถูกต้อง  vvv
+        // ==================================================================
+        // คัดกรอง TisiEstandardDraft ที่ "ไม่มี" (whereDoesntHave) Plan ใดๆ ที่เข้าข่ายเงื่อนไข "เสีย"
+        ->whereDoesntHave('TisiEstandardDraftPlanMany', function ($planQuery) {
+            // Plan ที่ "เสีย" คือ Plan ที่...
+            // 1. ไม่มีข้อมูล Offer ที่ผูกอยู่เลย (offer_id is null)
+            $planQuery->whereDoesntHave('estandard_offers_to')
+                // 2. หรือ มี Offer ที่ผูกอยู่ แต่ standard_name ใน Offer นั้นเป็น null
+                ->orWhereHas('estandard_offers_to', function ($offerQuery) {
+                    $offerQuery->whereNull('standard_name');
+                });
+        })
+        // ==================================================================
+        //  ^^^  สิ้นสุดเงื่อนไขที่แก้ไขใหม่  ^^^
+        // ==================================================================
+        ->when($not_admin, function ($query) {
+            return $query->where(function ($query) {
+                return $query->whereHas('TisiEstandardDraftPlanMany', function ($query) {
+                    return $query->where('assign_id', auth()->user()->getKey());
+                })->orWhere('created_by', auth()->user()->getKey());
+            });
+        })
+        ->when($filter_search, function ($query, $filter_search) {
+            $search_full = str_replace(' ', '', $filter_search);
+            $query->where(function ($query2) use ($search_full) {
+                $draft_plan = TisiEstandardDraftPlan::select('draft_id')
+                    ->Where(DB::raw("REPLACE(tis_number,' ','')"), 'LIKE', "%" . $search_full . "%")
+                    ->OrWhere(DB::raw("REPLACE(tis_book,' ','')"), 'LIKE', "%" . $search_full . "%")
+                    ->OrWhere(DB::raw("REPLACE(tis_year,' ','')"), 'LIKE', "%" . $search_full . "%")
+                    ->OrWhere(DB::raw("REPLACE(tis_name,' ','')"), 'LIKE', "%" . $search_full . "%")
+                    ->OrWhere(DB::raw("REPLACE(tis_name_eng,' ','')"), 'LIKE', "%" . $search_full . "%")
+                    ->OrWhere(DB::raw("REPLACE(confirm_time,' ','')"), 'LIKE', "%" . $search_full . "%");
+                $query2->whereIn('id', $draft_plan)
+                    ->orWhereHas('TisiEstandardDraftCommitteeMany.committee_specials', function ($query) use ($search_full) {
+                        $query->where(DB::raw("REPLACE(committee_group,' ','')"), 'LIKE', "%" . $search_full . "%");
+                    });
+            });
+        })
+        ->when($filter_year, function ($query, $filter_year) {
+            $query->where('draft_year', $filter_year);
+        })
+        ->when($filter_standard_type, function ($query, $filter_standard_type) {
+            $draft_plan = TisiEstandardDraftPlan::select('draft_id')->where('std_type', $filter_standard_type);
+            $query->whereIn('id', $draft_plan);
+        })
+        ->when($filter_method_id, function ($query, $filter_method_id) {
+            $draft_plan = TisiEstandardDraftPlan::select('draft_id')->where('method_id', $filter_method_id);
+            $query->whereIn('id', $draft_plan);
+        })
+        ->when($filter_status, function ($query, $filter_status) {
+            $query->where('status_id', $filter_status);
+        });
+
+        return Datatables::of($query)
+            ->addIndexColumn()
+            ->addColumn('checkbox', function ($item) {
+                $draft_plan = TisiEstandardDraftPlan::where('draft_id', $item->id)->where('status_id', '>', '1')->first();
+                if (!is_null($draft_plan)) {
+                    return '';
+                } else {
+                    return '<input type="checkbox" name="item_checkbox[]" class="item_checkbox"  value="' . $item->id . '">';
+                }
+            })
+            ->addColumn('offer_details', function ($item) {
+                $firstPlan = $item->TisiEstandardDraftPlanMany->first();
+                if ($firstPlan && $firstPlan->estandard_offers_to) {
+                    return $firstPlan->estandard_offers_to->title;
+                }
+                return '-';
+            })
+            ->addColumn('committee_group', function ($item) {
+                return  !empty($item->CommitteeTitle) ? $item->CommitteeTitle : '';
+            })
+            ->addColumn('draft_year', function ($item) {
+                return  !empty($item->draft_year) ? $item->draft_year : '';
+            })
+            ->addColumn('quantity', function ($item) {
+                return  count($item->TisiEstandardDraftPlanMany) . ' รายการ';
+            })
+            ->addColumn('assign', function ($item) {
+                return @$item->AssignName;
+            })
+            ->addColumn('created_name', function ($item) {
+                $users =  !empty($item->user_created->FullName) ? $item->user_created->FullName : '';
+                $users .= !empty($item->created_at) ?  '<br/>' . HP::DateThai($item->created_at) : '';
+                return $users;
+            })
+            ->addColumn('status_name', function ($item) {
+                return !empty($item->StatusName) ? $item->StatusName : '';
+            })
+            ->addColumn('action', function ($item) use ($model) {
+                $draft_plan = TisiEstandardDraftPlan::where('draft_id', $item->id)->where('status_id', '>', '1')->first();
+                $edit = true;
+                $delete = true;
+                if (!is_null($draft_plan)) {
+                    $delete = false;
+                }
+                if ($item->status_id != 1) {
+                    $edit = false;
+                }
+                return HP::buttonAction($item->id, 'certify/standard-drafts', 'Certify\\StandardDraftsController@destroy', 'standarddrafts', true, $edit, $delete);
+            })
+            ->order(function ($query) {
+                $query->orderBy('id', 'DESC');
+            })
+            ->rawColumns(['checkbox', 'created_name', 'action', 'assign'])
+            ->make(true);
+    }
+
+    public function data_list_org(Request $request)
+    {
+       
         $roles =  !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : []; 
         $not_admin = (!in_array(1, $roles) && !in_array(25, $roles));  // ไม่ใช่ Admin หรือไม่ใช่ ผอ.
 
@@ -98,7 +225,6 @@ class StandardDraftsController extends Controller
                                                })
                                               ;
 
-// dd($query->get());
         return Datatables::of($query)
                             ->addIndexColumn()
                             ->addColumn('checkbox', function ($item) {
@@ -109,6 +235,20 @@ class StandardDraftsController extends Controller
                                     return '<input type="checkbox" name="item_checkbox[]" class="item_checkbox"  value="'. $item->id .'">';
                                 }
 
+                            })
+                            ->addColumn('offer_details', function ($item) {
+                                // เนื่องจาก TisiEstandardDraftPlanMany เป็นแบบ "Many" (หนึ่งร่างมีได้หลายแผน)
+                                // เราจะดึงข้อมูลจาก "แผนแรก" มาแสดงเป็นตัวอย่าง
+                                $firstPlan = $item->TisiEstandardDraftPlanMany->first();
+
+                                // ตรวจสอบว่ามีแผนแรก และแผนนั้นมีข้อมูล offer ที่เชื่อมอยู่หรือไม่
+                                if ($firstPlan && $firstPlan->estandard_offers_to) {
+                                    // สมมติว่าต้องการแสดงชื่อเรื่อง (title) ของ offer
+                                    return $firstPlan->estandard_offers_to->title; 
+                                }
+
+                                // ถ้าไม่มีข้อมูล ให้แสดงเป็นค่าว่าง
+                                return '-';
                             })
                             ->addColumn('committee_group', function ($item) {
                                 return   !empty($item->CommitteeTitle)? $item->CommitteeTitle:'';
@@ -160,12 +300,24 @@ class StandardDraftsController extends Controller
      */
     public function create()
     {
-   
+ 
+    // $standard_offers = EstandardOffers::selectRaw('*, CONCAT_WS(" : ", refno, title) AS titles')
+    // ->whereNotNull('standard_name')
+    // ->where('state',2)->get();
+
+        $standard_offers = DB::table('tisi_estandard_offers')
+            ->selectRaw('tisi_estandard_offers.*, CONCAT_WS(" : ", tisi_estandard_offers.refno, tisi_estandard_offers.title) AS titles')
+            ->leftJoin('tisi_estandard_draft_plan', 'tisi_estandard_offers.id', '=', 'tisi_estandard_draft_plan.offer_id')
+            ->whereNull('tisi_estandard_draft_plan.id') // <-- จุดสำคัญ: เลือกเฉพาะรายการที่ไม่มีคู่ในตาราง draft_plans
+            ->whereNotNull('tisi_estandard_offers.standard_name')
+            ->where('tisi_estandard_offers.state', 2)
+            ->get();
+
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('add-'.$model)) {
             $estandard_draft_plans = collect([new TisiEstandardDraftPlan]);
             
-            return view('certify.standard-drafts.create', compact('estandard_draft_plans'));
+            return view('certify.standard-drafts.create', compact('estandard_draft_plans','standard_offers'));
         }
         abort(403);
 
@@ -180,7 +332,9 @@ class StandardDraftsController extends Controller
      */
     public function store(Request $request)
     {
-        
+         
+        // dd($request->all());
+        // dd($standardOfferId);
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('add-'.$model)) {
 
@@ -188,14 +342,42 @@ class StandardDraftsController extends Controller
             $requestData['created_by'] = auth()->user()->getKey();
             $draft                     = TisiEstandardDraft::create($requestData);
 
+            //  dd("fuck",$request->board,$draft);
+
             // คณะกรรมการเฉพาะด้าน
             self::save_tisi_estandard_draft_board($request->board, $draft->id);
-
+    
             self::save_tisi_estandard_draft_plan($requestData['list'], $draft->id);
+
+           if($request->status_id == 3)
+           {
+                $standardOfferId = $request->list['board'][0][0];
+                $estandardOffers = EstandardOffers::find($standardOfferId);
+                if($estandardOffers !== null)
+                {
+                    EstandardOffers::find($standardOfferId)->update([
+                        'state' => 3
+                    ]);
+                }
+           }
+            
 
             return redirect('certify/standard-drafts')->with('flash_message', 'เพิ่มเรียบร้อยแล้ว');
         }
         abort(403);
+    }
+
+    public function getExamine(Request $request)
+    {
+       
+        $estandardOffer = EstandardOffers::find($request->id) ;
+        if($estandardOffer != null){
+            // dd($estandardOffer->EstandardOffersAsignId);
+            return $estandardOffer->EstandardOffersAsignId;
+        }
+
+        return [];
+            
     }
 
     /**
@@ -375,9 +557,11 @@ class StandardDraftsController extends Controller
 
     // คณะกรรมการเฉพาะด้าน
     public function save_tisi_estandard_draft_board($datas, $id){
+      
         TisiEstandardDraftCommittee::where('draft_id', $id)->delete();
         if(is_array($datas) && count($datas) > 0){
             foreach($datas as $key => $item) {
+              
                 $input = [];
                 $input['draft_id']        = $id;
                 $input['committee_id']    = $item;
@@ -385,12 +569,15 @@ class StandardDraftsController extends Controller
                 TisiEstandardDraftCommittee::create($input);
             }
         }
+       
     }
 
           // คณะกรรมการเฉพาะด้าน
     public function save_tisi_estandard_draft_plan($datas, $id){
 
         foreach($datas['estandard_draft_plan_id'] as $key => $item) {
+            $standardOfferId = $datas['board'][0][0];
+
             $input = [];
             $input['draft_id']        = $id;
             $input['std_type']        = array_key_exists($key, $datas['std_type'])        ? $datas['std_type'][$key] : null ;
@@ -408,6 +595,9 @@ class StandardDraftsController extends Controller
             $input['industry_target'] = array_key_exists($key, $datas['industry_target']) ? $datas['industry_target'][$key] : null ;
             $input['assign_id']       = array_key_exists($key, $datas['assign_id'])       ? $datas['assign_id'][$key] : null ;
             $input['assign_date']     = date('Y-m-d H:i:s') ;
+            $input['offer_id']     = $standardOfferId;
+
+            //  dd($standardOfferId);
 
             $draft_plan = TisiEstandardDraftPlan::find($item);
             if(!is_null($draft_plan)){
@@ -424,14 +614,25 @@ class StandardDraftsController extends Controller
                                    ->where('draft_plan_id', $draft_plan->id)
                                    ->whereNotIn('id', $datas['board_id'][$key])
                                    ->delete(); //ลบความเห็นที่ถูกกดลบ
+                               
             foreach ($datas['board'][$key] as $board) {
+                 
                 if(!empty($board)){
+                  
                     $draft_board = [];
                     $draft_board['draft_id']      = $id;
                     $draft_board['draft_plan_id'] = $draft_plan->id;
                     $draft_board['offer_id']      = $board;
                     if(TisiEstandardDraftBoard::where('draft_id', $id)->where('draft_plan_id', $draft_plan->id)->where('offer_id', $board)->count() == 0){
-                        TisiEstandardDraftBoard::create($draft_board);
+                        //   dd($datas,$draft_plan->id,$id,$board)   ;
+                        // TisiEstandardDraftBoard::create($draft_board);
+                        $new = new TisiEstandardDraftBoard();
+                        $new->draft_id = $id;
+                        $new->draft_plan_id = $draft_plan->id;
+                        $new->offer_id =  $board;
+                        $new->save();
+
+                        // dd($new);
                     }
                 }
             }

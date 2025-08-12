@@ -39,6 +39,7 @@ use App\Models\Certify\ApplicantIB\CertiIBPayInOne;
 use App\Models\Certify\ApplicantIB\CertiIBAuditorsCost;
 use App\Models\Certify\ApplicantIB\CertiIBAuditorsDate;
 use App\Models\Certify\ApplicantIB\CertiIBAuditorsList;
+use App\Models\Certify\SignAssessmentReportTransaction;
 use App\Models\Certify\ApplicantIB\CertiIBAuditorsStatus;
 use App\Models\Certify\ApplicantIB\CertiIBSaveAssessment;
 use App\Models\Certify\ApplicantIB\CertiIBCost; // ประมาณการค่าใช้จ่าย
@@ -754,6 +755,7 @@ class AuditorIBController extends Controller
 
  public function auditor_ib_doc_review($id)
  {
+    // dd($id);
     $model = str_slug('auditorib','-');
     if(auth()->user()->can('add-'.$model)) {
         $previousUrl = app('url')->previous();
@@ -902,14 +904,68 @@ public function reject_doc_review(Request $request)
   ]);
 }
 
+// public function accept_doc_review(Request $request)
+// {
+    
+
+//     $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id', $request->certiIbId)
+//             ->where('template', 'ib_doc_review_template')
+//             ->where('certificate_type', 1)
+//             ->where('report_type', 1)
+//             ->where('approval', 1)
+//             ->get();
+
+//     if($signAssessmentReportTransactions != 3){
+
+//     }        
+
+
+//     CertiIb::find($request->certiIbId)->update([
+//     'doc_auditor_assignment' => 2,
+//     'doc_review_reject' => null,
+//     'doc_review_reject_message' => null,
+//   ]);
+// }
+
 public function accept_doc_review(Request $request)
 {
-    // dd($request->all());
-    CertiIb::find($request->certiIbId)->update([
-    'doc_auditor_assignment' => 2,
-    'doc_review_reject' => null,
-    'doc_review_reject_message' => null,
-  ]);
+    try {
+        $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id', $request->certiIbId)
+            ->where('template', 'ib_doc_review_template')
+            ->where('certificate_type', 1)
+            ->where('report_type', 1)
+            ->where('approval', 1)
+            ->get();
+
+        // ตรวจสอบจำนวนรายการด้วย ->count()
+        if ($signAssessmentReportTransactions->count() != 3) {
+            // ถ้าเงื่อนไขไม่สำเร็จ ให้ส่ง false กลับไป
+            return response()->json([
+                'success' => false,
+                'message' => 'อยู่ระหว่างการจัดทำรายงาน / การลงนาม'
+            ]);
+        }
+
+        // ถ้าเงื่อนไขสำเร็จ ให้ทำการอัปเดต
+        CertiIb::find($request->certiIbId)->update([
+            'doc_auditor_assignment' => 2,
+            'doc_review_reject' => null,
+            'doc_review_reject_message' => null,
+        ]);
+
+        // ส่งผลลัพธ์ว่าสำเร็จกลับไป
+        return response()->json([
+            'success' => true,
+            'message' => 'ดำเนินการสำเร็จ'
+        ]);
+
+    } catch (\Exception $e) {
+        // กรณีเกิดข้อผิดพลาดอื่นๆ ในระบบ
+        return response()->json([
+            'success' => false,
+            'message' => 'เกิดข้อผิดพลาดในระบบ: ' . $e->getMessage()
+        ], 500);
+    }
 }
 
 public function cancel_doc_review_team(Request $request)

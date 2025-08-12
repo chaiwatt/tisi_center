@@ -42,6 +42,7 @@ use App\Models\Certify\ApplicantCB\CertiCBPayInOne;
 use App\Models\Certify\ApplicantCB\CertiCBAttachAll; 
 use App\Models\Certify\ApplicantCB\CertiCBAuditorsCost;
 use App\Models\Certify\ApplicantCB\CertiCBAuditorsDate;
+use App\Models\Certify\SignAssessmentReportTransaction;
 use App\Models\Certify\ApplicantCB\CertiCBAuditorsList; 
 use App\Models\Certify\ApplicantCB\CertiCBAuditorsStatus;
 
@@ -1016,14 +1017,56 @@ public function sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor)
     ]);
   }
 
+  // public function accept_doc_review(Request $request)
+  // {
+  //   CertiCb::find($request->certiCbId)->update([
+  //     'doc_auditor_assignment' => 2,
+  //     'doc_review_reject' => null,
+  //     'doc_review_reject_message' => null,
+  //   ]);
+  // }
   public function accept_doc_review(Request $request)
-  {
-    CertiCb::find($request->certiCbId)->update([
-      'doc_auditor_assignment' => 2,
-      'doc_review_reject' => null,
-      'doc_review_reject_message' => null,
-    ]);
-  }
+{
+    try {
+      
+        $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id', $request->certiCbId)
+            ->where('template', 'cb_doc_review_template')
+            ->where('certificate_type', 0)
+            ->where('report_type', 1)
+            ->where('approval', 1)
+            ->get();
+
+        // ตรวจสอบจำนวนรายการด้วย ->count()
+        if ($signAssessmentReportTransactions->count() != 3) {
+            // ถ้าเงื่อนไขไม่สำเร็จ ให้ส่ง false กลับไป
+            return response()->json([
+                'success' => false,
+                'message' => 'อยู่ระหว่างการจัดทำรายงาน / การลงนาม'
+            ]);
+        }
+
+        // ถ้าเงื่อนไขสำเร็จ ให้ทำการอัปเดต
+        CertiCb::find($request->certiCbId)->update([
+            'doc_auditor_assignment' => 2,
+            'doc_review_reject' => null,
+            'doc_review_reject_message' => null,
+        ]);
+
+        // ส่งผลลัพธ์ว่าสำเร็จกลับไป
+        return response()->json([
+            'success' => true,
+            'message' => 'ดำเนินการสำเร็จ'
+        ]);
+
+    } catch (\Exception $e) {
+        // กรณีเกิดข้อผิดพลาดอื่นๆ ในระบบ
+        return response()->json([
+            'success' => false,
+            'message' => 'เกิดข้อผิดพลาดในระบบ: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
 
   public function CreateCbMessageRecord($id)
   {

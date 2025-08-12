@@ -1,3 +1,4 @@
+{{-- MeetingStandardsController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')}}" rel="stylesheet" />
@@ -199,7 +200,7 @@
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('commitee_id') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('commitee_id') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('commitee_id', '<span class="select-label">ผู้เข้าร่วมประชุม :', ['class' => 'col-md-3 control-label '])) !!}
         <div class="col-md-9">
          <table class="table color-bordered-table primary-bordered-table">
@@ -243,13 +244,13 @@
     </div>
 
 <div class=" {{ $errors->has('detail') ? 'has-error' : ''}}">
-{!! Html::decode(Form::label('detail', '<span class="select-label">วาระการประชุม :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
+{!! Html::decode(Form::label('detail', '<span class="select-label">การพิจารณา :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
     <div class="col-md-9">
         <table class="table color-bordered-table primary-bordered-table">
             <thead>
                 <tr>
                     <th class="text-center" width="2%">ลำดับ</th>
-                    <th class="text-center" width="48%">ProjectID / ค่าใช้จ่าย</th>
+                    <th class="text-center" width="48%">มาตรฐาน</th>
                     <th class="text-center" width="20%">สถานะการประชุม</th>
                     <th class="text-center" width="20%">คำใช้จ่าย</th>
                     {{-- <th class="text-center" width="10%">
@@ -262,7 +263,10 @@
                     @foreach($setstandard_meeting_types as  $item)
                     @php
                         if(!empty($item->setstandard_to->projectid)  &&  !empty($item->meetingtype_to->title)){
-                           $setstandard_title =  $item->setstandard_to->projectid.' ('.$item->meetingtype_to->title.')';
+                        // if(!empty($item->setstandard_to)  &&  !empty($item->meetingtype_to->title)){
+                        //    $setstandard_title =  $item->setstandard_to->projectid.' ('.$item->meetingtype_to->title.')';
+                           $setstandard_title =  $item->setstandard_to->estandard_plan_to->tis_name;
+                           
                            $record_cost =    App\Models\Certify\MeetingStandardRecordCost::where('meeting_record_id',$meetingstandard_record->id)->where('expense_other',$setstandard_title)->where('setstandard_id', $item->setstandard_id )->first();
                         }
                     
@@ -272,12 +276,18 @@
                             1
                         </td>
                         <td>
-                                {!!  !empty($item->setstandard_to->projectid)  &&  !empty($item->meetingtype_to->title) ?  '<p>'.$item->setstandard_to->projectid.' <span class="text-danger">('.$item->meetingtype_to->title.')</span></p>' : null !!}
+
+                            {{-- @php
+                                dd($setstandard_title);
+                            @endphp --}}
+                            {{$item->setstandard_to->estandard_plan_to->tis_name}}
+                                {{-- {!!  !empty($item->setstandard_to->projectid)  &&  !empty($item->meetingtype_to->title) ?  '<p>'.$item->setstandard_to->projectid.' <span class="text-danger">('.$item->meetingtype_to->title.')</span></p>' : null !!} --}}
                                 <input type="hidden" name="meeting[setstandard_title][]"  class="setstandard_title"
-                                 value="{!! $setstandard_title ?? null !!}" 
+                                 value="{!! $item->setstandard_to->projectid ?? null !!}" 
                                  >
                                  <input type="hidden" name="meeting[setstandard_id][]"  class="setstandard_id"  value="{!!  $item->setstandard_id ?? null !!}"      >
                                 <input type="hidden" name="meeting[cost_id][]"  class="cost_id"  >
+                                
                         </td> 
                         <td>
                        

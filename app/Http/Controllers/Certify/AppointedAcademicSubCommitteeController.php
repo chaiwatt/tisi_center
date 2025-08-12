@@ -20,13 +20,18 @@ class AppointedAcademicSubCommitteeController extends Controller
         $model = str_slug('appointed-academic-sub-committee','-');
         if(auth()->user()->can('view-'.$model)) {
 
-            $meetingInvitations = MeetingInvitation::whereHas('setStandards', function ($query) {
-                    $query->where('status_id', 0)
-                          ->orWhere('status_sub_appointment_id',0);
-                })
-                ->whereIn('status',[1,2])
+            // $meetingInvitations = MeetingInvitation::whereHas('setStandards', function ($query) {
+            //         $query->where('status_id', 0)
+            //               ->orWhere('status_sub_appointment_id',0);
+            //     })
+            //     ->whereIn('status',[1,2])
+            //     ->with('setStandards') // Eager load เพื่อลด query
+            //     ->get();
+
+            $meetingInvitations = MeetingInvitation::whereIn('status',[1,2])
                 ->with('setStandards') // Eager load เพื่อลด query
                 ->get();
+                
                 
 
                         // dd($meetingInvitations);
@@ -40,13 +45,26 @@ class AppointedAcademicSubCommitteeController extends Controller
 
     public function create()
     {
-        // dd("ok");
+       
         $model = str_slug('appointed-academic-sub-committee','-');
         $singers = Signer::all();
-        $setStandards = SetStandards::where('status_id', 0)
-                ->orWhere('status_sub_appointment_id', 0)
+        $setStandards = SetStandards::whereHas('estandard_plan_to', function ($query) {
+                    $query->whereNotNull('approve');
+                })
+                // ->where(function ($query) { // <-- จัดกลุ่มเงื่อนไขเดิมด้วย Closure
+                //     $query->where('status_id', 0)
+                //         ->orWhere('status_sub_appointment_id', 0);
+                // })
                 ->orderBy('id', 'desc')
                 ->get();
+
+        // $setStandards = SetStandards::whereHas('estandard_plan_to') // <-- ตรวจสอบแค่ว่ามี relation อยู่หรือไม่
+        //     ->where(function ($query) {
+        //         $query->where('status_id', 0)
+        //             ->orWhere('status_sub_appointment_id', 0);
+        //     })
+        //     ->orderBy('id', 'desc')
+        //     ->get();
 
         if(auth()->user()->can('add-'.$model)) {
             return view('certify.appointed-academic-sub-committee.create',[
@@ -59,6 +77,7 @@ class AppointedAcademicSubCommitteeController extends Controller
 
     public function store(Request $request)
     {
+        
         $validatedData = $request->validate([
             'doc_type' => 'required|in:1,2', // ต้องระบุและต้องเป็น 1 หรือ 2
             'header' => 'required|string|max:255', // ต้องระบุและไม่เกิน 255 ตัวอักษร

@@ -46,7 +46,7 @@ class StandardPlansController extends Controller
     {
 
         $roles =  !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : []; 
-        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles)); // ไม่ใช่ Admin หรือไม่ใช่ ผอ.
+        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles) && !in_array(44, $roles)); // ไม่ใช่ Admin หรือไม่ใช่ ผอ. ผก
  
         $model = str_slug('standardplans', '-');
         $filter_search = $request->input('filter_search');
@@ -55,6 +55,7 @@ class StandardPlansController extends Controller
         $filter_method_id = $request->input('filter_method_id');
         $filter_status = $request->input('filter_status');
         $query = TisiEstandardDraftPlan::query()->with(['tisi_estandard_draft_to'])
+                                            ->whereNotNull('approve')
                                             ->whereHas('tisi_estandard_draft_to', function($query){
                                                 return $query->where('status_id', 2);
                                             })
@@ -220,6 +221,7 @@ class StandardPlansController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $attach_path = 'files/standardconfirmplans';
         // dd($request->all());
         $model = str_slug('standardplans','-');
         if(auth()->user()->can('edit-'.$model)) {
@@ -232,6 +234,9 @@ class StandardPlansController extends Controller
             $requestData['budget']              =  !empty($requestData['budget'])   ? str_replace(",","",$requestData['budget']) : null; 
             $standardplan                       = TisiEstandardDraftPlan::findOrFail($id);
            
+            $standardOffer = $standardplan->estandard_offers_to;
+            // dd($standardOffer);
+
             $data_old = $standardplan->toArray();
             $standardplan->update($requestData);
             $data_changes = $standardplan->getChanges();
@@ -239,12 +244,19 @@ class StandardPlansController extends Controller
              $set_standards  =  SetStandards::where('plan_id', $standardplan->id)->first();
 //  
             if($standardplan->status_id == 3 && is_null($set_standards)){  // นำส่งแผน
-                
+              
                   $standards            = new  SetStandards;
                   $standards->plan_id   = $standardplan->id;
-                //   $standards->projectid =  self::get_projectid();
+                  $standards->projectid =  self::get_projectid();
                 $standards->created_by  =  auth()->user()->getKey();
-                  $standards->status_id = 0; // รอกำหนดมาตรฐาน
+                if($standardOffer->proposer_type == "sdo_basic_or_non_sdo"){
+                    $standards->status_id = 0; 
+                }else{
+                    $standards->status_id = 2; 
+                }
+                  // รอกำหนดมาตรฐาน
+                //   $standards->status_id = 2; // รอกำหนดมาตรฐาน
+                //   $standards->plan_time = $standardOffer->meeting_count;
                   $standards->save();
                   $meeting_group = $standards->estandard_plan_to->method_to->id;
                 //   dd($meeting_group);
@@ -297,6 +309,29 @@ class StandardPlansController extends Controller
                 if(!empty($log)){
                     $log->update($data_log);
                 }
+            }
+
+            if($standardplan->status_id == 3)
+            {
+                $requestData['confirm_by']          =  auth()->user()->getKey(); 
+                $requestData['confirm_at']          =  date('Y-m-d H:i:s'); 
+                $requestData['status_id']          =  4; 
+                $standardconfirmplan = TisiEstandardDraftPlan::findOrFail($id);
+                $standardconfirmplan->update($requestData);
+
+                // if ( $request->confirm_attach && $request->hasFile('confirm_attach')) {
+                //     HP::singleFileUpload(
+                //         $request->file('confirm_attach') ,
+                //         $attach_path,
+                //         !empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000',
+                //         (auth()->user()->FullName ?? null),
+                //         'Center',
+                //         (  (new TisiEstandardDraftPlan)->getTable() ),
+                //         $standardconfirmplan->id,
+                //         'confirm_attach',
+                //         !empty($request->document_details) ? $request->document_details : null
+                //     );
+                // }
             }
 
             return redirect('certify/standard-plans')->with('flash_message', 'เรียบร้อยแล้ว!');

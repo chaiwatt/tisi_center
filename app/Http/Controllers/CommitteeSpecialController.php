@@ -74,6 +74,7 @@ class CommitteeSpecialController extends Controller
      */
     public function create()
     {
+
         $model = str_slug('committee','-');
         if(auth()->user()->can('add-'.$model)) {
             $departments = DB::table('basic_departments')->where('state',1)->get();
@@ -90,6 +91,7 @@ class CommitteeSpecialController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $model = str_slug('committee','-');
         if(auth()->user()->can('add-'.$model)) {
             $this->validate($request,[
@@ -106,7 +108,8 @@ class CommitteeSpecialController extends Controller
             $committeeSpecial = new CommitteeSpecial([
                 'committee_group'=>$request->title,
                 'appoint_number'=>$request->appoint_number,
-                'expert_group_id'=>$request->expert_group_id,
+                'expert_group_id'=> 1,
+                // 'expert_group_id'=>$request->expert_group_id,
                 'appoint_date'=> Carbon::createFromFormat('d/m/Y',$request->appoint_date),
                 'message'=>$request->message ?? null,
                 'user_id' => Auth::user()->runrecno,

@@ -442,6 +442,14 @@ Route::group(['prefix' => 'certify'], function () {
     Route::post('/download-ib-template','IbPdfGeneratorController@loadIbTemplate')->name('download-ib-template');
     Route::post('/save-ib-template','IbPdfGeneratorController@saveHtml')->name('ib.save-html-template');
 
+    Route::get('/doc-review-ib-template/{id}','IbPdfGeneratorController@docReviewHtml')->name('ib.doc-review-html-template');
+    Route::post('/save-doc-review-ib-template','IbPdfGeneratorController@saveDocReviewHtml')->name('ib.save-doc-review-html-template');
+    Route::post('/download-doc-review-ib-template','IbPdfGeneratorController@loadIbDocReviewTemplate')->name('ib.download-doc-review-html-template');
+    Route::post('/ib-default-download-doc-review-html-template','IbPdfGeneratorController@loadDefaultIbDocReviewTemplate')->name('ib.default-download-doc-review-html-template');
+
+
+
+
     Route::get('/show-ib-editor/{templateType}/{assessmentId}','IbPdfGeneratorController@showEditor')->name('ib.editor.show');
 
     Route::get('/ib-generate-pdf-from-db','IbPdfGeneratorController@generatePdfFromDb')->name('ib.generate-pdf-from-db');
@@ -505,7 +513,7 @@ Route::group(['prefix' => 'certify'], function () {
     Route::post('/auditor-ib/update_delete/{id?}', 'Certify\IB\\AuditorIBController@update_delete');
 
 
-    Route::get('/auditor-ib/create-ib-message-record/{id?}', 'Certify\IB\\AuditorIBController@CreateIbMessageRecord')->name('certify.create_ib_message_record');
+    Route::get('/auditor-ib/create-ib-message-record/{id?}/ib', 'Certify\IB\\AuditorIBController@CreateIbMessageRecord')->name('certify.create_ib_message_record');
     Route::post('/auditor-ib/save-ib-message-record/{id?}', 'Certify\IB\\AuditorIBController@SaveIbMessageRecord')->name('save.create_ib_message_record');
     Route::get('/auditor-ib/view-ib-message-record/{id?}', 'Certify\IB\\AuditorIBController@ViewIbMessageRecord')->name('view.create_ib_message_record');
 
@@ -600,6 +608,16 @@ Route::group(['prefix' => 'certify'], function () {
 
 
 
+    Route::get('/doc-review-cb-template/{id}','CbPdfGeneratorController@docReviewHtml')->name('cb.doc-review-html-template');
+    Route::post('/save-doc-review-cb-template','CbPdfGeneratorController@saveDocReviewHtml')->name('cb.save-doc-review-html-template');
+    Route::post('/download-doc-review-cb-template','CbPdfGeneratorController@loadCbDocReviewTemplate')->name('cb.download-doc-review-html-template');
+    Route::post('/cb-default-download-doc-review-html-template','CbPdfGeneratorController@loadDefaultCbDocReviewTemplate')->name('cb.default-download-doc-review-html-template');
+
+    
+
+
+
+
     // แสดงรายการข้อมูลทั้งหมด (index)
     Route::get('/check_certificate-cb', 'Certify\CB\CheckCertificateCBController@index')->name('check_certificate_cb.index');
 
@@ -662,7 +680,7 @@ Route::group(['prefix' => 'certify'], function () {
     Route::post('/auditor-cb/update_delete/{id?}', 'Certify\CB\\AuditorCBController@update_delete');
 
 
-    Route::get('/auditor-cb/create-cb-message-record/{id?}', 'Certify\CB\\AuditorCBController@CreateCbMessageRecord')->name('certify.create_cb_message_record');
+    Route::get('/auditor-cb/create-cb-message-record/{id?}/cb', 'Certify\CB\\AuditorCBController@CreateCbMessageRecord')->name('certify.create_cb_message_record');
     Route::post('/auditor-cb/save-cb-message-record/{id?}', 'Certify\CB\\AuditorCBController@SaveCbMessageRecord')->name('save.create_cb_message_record');
     Route::get('/auditor-cb/view-cb-message-record/{id?}', 'Certify\CB\\AuditorCBController@ViewCbMessageRecord')->name('view.create_cb_message_record');
 
@@ -845,6 +863,16 @@ Route::group(['prefix' => 'certify'], function () {
     Route::resource('standards', 'Certify\\StandardController');
     
 });   
+
+
+    Route::get('certify/internalrequest', 'Certify\\InternalRequestController@index'); 
+    Route::get('certify/internalrequest/create', 'Certify\\InternalRequestController@create')->name('certify.internalrequest.create'); 
+    Route::post('certify/internalrequest/store', 'Certify\\InternalRequestController@store')->name('certify.internalrequest.store'); 
+    Route::get('certify/internalrequest/edit/{id}', 'Certify\\InternalRequestController@edit')->name('certify.internalrequest.edit'); 
+    Route::get('certify/internalrequest/show/{id}', 'Certify\\InternalRequestController@view')->name('certify.internalrequest.show');
+    Route::put('certify/internalrequest/update/{id}', 'Certify\\InternalRequestController@update')->name('certify.internalrequest.update');
+
+
     Route::get('certify/dashboard', 'Certify\\DashboardController@index'); 
     Route::get('certify/dashboard/draw_app', 'Certify\\DashboardController@draw_app');
     Route::get('certify/dashboard/chart_cer', 'Certify\\DashboardController@chart_cer');
@@ -865,6 +893,8 @@ Route::group(['prefix' => 'certify'], function () {
     Route::POST('certify/standard-drafts/delete', 'Certify\\StandardDraftsController@delete');
     Route::put('certify/standard-drafts/update-state', 'Certify\StandardDraftsController@update_state');
     Route::resource('certify/standard-drafts', 'Certify\\StandardDraftsController');
+
+    Route::POST('certify/standard-drafts/get_examminer', 'Certify\\StandardDraftsController@getExamine')->name('standard-drafts.get_examminer');
     
     // จัดทำแผนการกำหนดมาตรฐานการตรวจสอบและรับรอง
     Route::get('certify/standard-plans/set_date_end', 'Certify\\StandardPlansController@set_date_end');
@@ -902,6 +932,14 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('certify/meeting-standards/conclusion/{id?}', 'Certify\\MeetingStandardsController@conclusion');
     Route::get('certify/meeting-standards/data_list', 'Certify\\MeetingStandardsController@data_list');
     Route::resource('certify/meeting-standards', 'Certify\\MeetingStandardsController');
+
+    Route::get('certify/appointed-committee-lt', 'Certify\\AppointedCommitteeLtController@index')->name('certify.meeting-standards.lt.index');
+    Route::get('certify/appointed-committee-lt/create', 'Certify\\AppointedCommitteeLtController@create')->name('certify.meeting-standards.lt.create');
+    Route::post('certify/appointed-committee-lt/store', 'Certify\\AppointedCommitteeLtController@store')->name('certify.meeting-standards.lt.store');
+
+    Route::get('certify/appointed-committee-lt/show/{id}', 'Certify\\AppointedCommitteeLtController@show')->name('certify.meeting-standards.lt.show');
+    Route::post('certify/appointed-committee-lt/update/{id}', 'Certify\\AppointedCommitteeLtController@update')->name('certify.meeting-standards.lt.update');
+    
     
     Route::get('certify/report/standard-status/data_list', 'Certify\\ReportStandardStatusController@data_list');
     Route::resource('certify/report/standard-status', 'Certify\\ReportStandardStatusController');

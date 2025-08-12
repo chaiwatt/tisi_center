@@ -126,15 +126,15 @@
                                         แต่งตั้งคณะฯ <span class="caret"></span>
                                     </button>
                                     <div class="dropdown-menu" role="menu" >
-                                        @if($certi_cb->status == 10)   <!-- อยู่ระหว่างดำเนินการ -->
+                                        {{-- @if($certi_cb->status == 10)   --}}
                                             <form action="{{ url('/certify/auditor-cb/create')}}" method="POST" style="display:inline" > 
                                                 {{ csrf_field() }}
                                                 {!! Form::hidden('certicb_id', (!empty($certi_cb->id) ? $certi_cb->id  : null) , [ 'class' => 'form-control' ]); !!}
                                                 <button class="btn btn-warning" type="submit"   style="width:750px;text-align: left"> 
-                                                    <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ 
+                                                    <i class="fa fa-plus"></i>   แต่งตั้งคณะฯ 
                                                 </button>
                                             </form>
-                                        @endif
+                                        {{-- @endif --}}
 
                                         @php 
                                             $i_key = 0;   

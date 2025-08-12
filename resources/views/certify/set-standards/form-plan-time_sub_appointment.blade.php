@@ -29,7 +29,7 @@
         {!! $errors->first('budget', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
-<div class="form-group {{ $errors->has('plan_time') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('plan_time') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('plan_time', 'ประมาณการจำนวนครั้งการประชุม'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-4 control-label'])) !!}
     <div class="col-md-4">
         <div class=" input-group ">

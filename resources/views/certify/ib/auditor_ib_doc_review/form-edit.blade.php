@@ -1,3 +1,4 @@
+{{-- AuditorIBController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css"/>
     <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
@@ -412,8 +413,11 @@
     <div class="row" style="margin-top: 50px">
         
         <div class="col-md-offset-4 col-md-4">
+            <a type="button" class="btn btn-info" href="{{route('ib.doc-review-html-template',['id' => $certiIb->id])}}"  >
+                จัดทำรายงาน
+            </a>
             <button type="button" class="btn btn-primary" id="save_doc_review"  >
-                <i class="fa fa-paper-plane"></i> บันทึก
+               บันทึก
             </button>
      
             <a class="btn btn-default" href="{{  app('url')->previous() }}">
@@ -1115,7 +1119,7 @@
         let agreeValue = $("input[name='result']:checked").val();
         console.log(agreeValue)
         // return;
-
+        // alert('first');
 
         if(agreeValue == 1)
         {
@@ -1141,21 +1145,45 @@
         }
         else if(agreeValue == 2)
         {
+            // $.ajax({
+            //     url: "{{route('ib_accept_doc_review')}}",
+            //     method: "POST",
+            //     data: {
+            //         certiIbId: certiIb.id,
+            //         _token: _token
+            //     },
+            //     success: function(result) {
+
+                    
+            //         const baseUrl = "{{ url('/certify/check_certificate-ib') }}";
+            //         const redirectUrl = `${baseUrl}/${certiIb.token}`;
+            //         window.location.href = redirectUrl;
+            //     }
+            // });
             $.ajax({
-                url: "{{route('ib_accept_doc_review')}}",
+                url: "{{ route('ib_accept_doc_review') }}",
                 method: "POST",
                 data: {
                     certiIbId: certiIb.id,
                     _token: _token
                 },
                 success: function(result) {
-                    // let baseUrl = window.location.origin; // ดึง base URL ปัจจุบัน (เช่น https://example.com)
-                    // let redirectUrl = baseUrl + "/certify/check_certificate-ib/" + certiIb.token;
-                    // window.location.href = redirectUrl; // เปลี่ยนเส้นทางไปยัง URL ที่สร้าง
-                    
-                    const baseUrl = "{{ url('/certify/check_certificate-ib') }}";
-                    const redirectUrl = `${baseUrl}/${certiIb.token}`;
-                    window.location.href = redirectUrl;
+                    // ตรวจสอบค่า success ที่ส่งมาจาก Controller
+                    if (result.success === true) {
+                        // ถ้าสำเร็จ ให้ทำการ Redirect
+                        const baseUrl = "{{ url('/certify/check_certificate-ib') }}";
+                        const redirectUrl = `${baseUrl}/${certiIb.token}`;
+                        window.location.href = redirectUrl;
+                    } else {
+                        // ถ้าไม่สำเร็จ ให้แสดงข้อความแจ้งเตือน
+                        // คุณสามารถใช้ Modal หรือ Alert ที่สวยงามกว่านี้ได้ เช่น SweetAlert2
+                        alert('เกิดข้อผิดพลาด: ' + result.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // จัดการกรณีที่ Server ตอบกลับมาเป็น Error (เช่น status 500)
+                    alert('ไม่สามารถติดต่อกับ Server ได้');
+                    console.error("AJAX Error:", error);
                 }
             });
         }

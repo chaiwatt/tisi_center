@@ -1,3 +1,4 @@
+{{-- App\Http\Controllers\Certify\StandardController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -79,11 +80,11 @@
 
                       @endcan
 
-                      @can('add-'.str_slug('certifystandard'))
+                      {{-- @can('add-'.str_slug('certifystandard'))
                           <a class="btn btn-success btn-sm waves-effect waves-light" href="{{ url('/certify/standards/create') }}">
                             <span class="btn-label"><i class="fa fa-plus"></i></span><b>เพิ่ม</b>
                           </a>
-                      @endcan
+                      @endcan --}}
 
 
                     </div>
@@ -147,9 +148,11 @@
                                         <tr>
                                             <th width="2%"><input type="checkbox" id="checkall"></th>
                                             <th width="2%" class="text-center">No.</th>
-                                            <th width="20%" class="text-center">ประเภทมาตรฐาน</th>
-                                            <th width="8%" class="text-center">เลขมาตรฐาน</th>
                                             <th width="15%" class="text-center">ชื่อมาตรฐาน</th>
+                                             <th width="8%" class="text-center">เลขมาตรฐาน</th>
+                                            <th width="20%" class="text-center">ประเภทมาตรฐาน</th>
+                                           
+                                            
                                             <th width="15%" class="text-center">ขั้นตอนการจัดทำ</th>
                                             <th width="8%" class="text-center">สถานะ</th>
                                             <th width="10%" class="text-center">จัดการ</th>
@@ -240,10 +243,13 @@
           },
           columns: [
               { data: 'checkbox', searchable: false, orderable: false},
+            
               { data: 'DT_Row_Index', searchable: false, orderable: false},
+                  { data: 'std_title', name: 'std_title' },
+                    { data: 'std_no', name: 'std_no' }, 
               { data: 'set_standard_id', name: 'set_standard_id' },
-              { data: 'std_no', name: 'std_no' }, 
-              { data: 'std_title', name: 'std_title' },
+            
+            
               { data: 'status_id', name: 'status_id' },
               { data: 'publish_state', name: 'publish_state' },
               { data: 'action', name: 'action' },

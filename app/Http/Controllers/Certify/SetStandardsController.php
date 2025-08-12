@@ -49,8 +49,9 @@ class SetStandardsController extends Controller
 
 public function index(Request $request)
     {
+        
         $roles = !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : [];
-        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles)); // ไม่ใช่ Admin หรือไม่ใช่ ผอ.
+        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles) && !in_array(44, $roles) ); // ไม่ใช่ Admin หรือไม่ใช่ ผอ. ผก
 
         $filter_search = $request->input('filter_search');
         $filter_year = $request->input('filter_year');
@@ -287,6 +288,7 @@ public function index(Request $request)
      */
     public function create()
     {
+        
         $model = str_slug('setstandard','-');
         if(auth()->user()->can('add-'.$model)) {
             return view('certify.set-standards.create');
@@ -339,6 +341,7 @@ public function index(Request $request)
      */
     public function show($id)
     {
+       
         $model = str_slug('setstandard','-');
         if(auth()->user()->can('view-'.$model)) {
             $setstandard = SetStandards::findOrFail($id);
@@ -426,6 +429,7 @@ public function index(Request $request)
      */
     public function update(Request $request, $id)
     {
+        // dd($request->all());
         $model = str_slug('setstandard','-');
         if(auth()->user()->can('edit-'.$model)) {
 

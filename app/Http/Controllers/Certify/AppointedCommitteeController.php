@@ -20,12 +20,17 @@ class AppointedCommitteeController extends Controller
 
         $model = str_slug('appointed-committee','-');
         if(auth()->user()->can('view-'.$model)) {
-            $meetingInvitations = MeetingInvitation::whereHas('setStandards', function ($query) {
-                    // $query->where('projectid', null);
-                   $query->where('status_id', 0)
-                    ->orWhere('status_sub_appointment_id', 0);
-                })
-                ->whereHas('signer.user', function ($query) {
+            // $meetingInvitations = MeetingInvitation::whereHas('setStandards', function ($query) {
+            //        $query->where('status_id', 0)
+            //         ->orWhere('status_sub_appointment_id', 0);
+            //     })
+            //     ->whereHas('signer.user', function ($query) {
+            //         $query->where('runrecno', auth()->user()->runrecno);
+            //     })
+            //     ->where('status', 2) // เพิ่มเงื่อนไข status = 2
+            //     ->with(['setStandards', 'signer.user'])->get();
+
+                $meetingInvitations = MeetingInvitation::whereHas('signer.user', function ($query) {
                     $query->where('runrecno', auth()->user()->runrecno);
                 })
                 ->where('status', 2) // เพิ่มเงื่อนไข status = 2
@@ -43,6 +48,26 @@ class AppointedCommitteeController extends Controller
     public function signDocument(Request $request)
     {
        $meetingInvitation = MeetingInvitation::find($request->id);
+
+
+       $setStandards = $meetingInvitation->setStandards;
+    //    dd($setStandards->count());
+
+       foreach($setStandards as $setStandard)
+       {
+            if($setStandard->status_id < 2){
+                $setStandard->update([
+                    'status_id' => 2
+                ]);
+            }
+
+            if($setStandard->status_sub_appointment_id < 2){
+                $setStandard->update([
+                    'status_sub_appointment_id' => 2
+                ]);
+            }
+            
+       }
 
         $pdfService = new MeetingAppointmentCommitteePdf($request->id);
         $pdfContent = $pdfService->generateMeetingAppointmentCommitteePdf();

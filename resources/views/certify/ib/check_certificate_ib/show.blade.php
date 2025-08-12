@@ -134,7 +134,7 @@
 
                                         <div class="dropdown-menu" role="menu" >
 
-                                            @if($certi_ib->status == 10)   <!-- อยู่ระหว่างดำเนินการ -->
+                                            {{-- @if($certi_ib->status == 10)   --}}
                                                 {{-- <form action="{{ url('/certify/auditor-ib/create')}}" method="POST" style="display:inline" >  --}}
                                                     {{-- {{ csrf_field() }} --}}
                                                     {{-- {!! Form::hidden('certiib_id', (!empty($certi_ib->id) ? $certi_ib->id  : null) , [ 'class' => 'form-control' ]); !!} --}}
@@ -144,7 +144,7 @@
                                                 {{-- </form> --}}
 
 
-                                            @endif
+                                            {{-- @endif --}}
 
                                             @php 
                                                 $i_key = 0;   

@@ -29,12 +29,6 @@
                     "url": "\/certify\/standards"
                 },
               {
-                  "title": "standardconfirmplans",
-                  "display": "พิจารณาแผนกำหนดมาตรฐาน",
-                  "icon": "mdi mdi-chevron-double-right",
-                  "url": "\/certify\/standard-confirmplans"
-              },
-              {
                   "title": "setstandard",
                   "display": "กำหนดมาตรฐานรับรอง",
                   "icon": "mdi mdi-chevron-double-right",

@@ -1,10 +1,11 @@
+{{-- StandardPlansController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="{{asset('plugins/components/jquery-datatables-editable/datatables.css')}}" />
 @endpush
 
-<div class="form-group {{ $errors->has('std_type') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('std_type') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('std_type', 'ประเภทมาตรฐาน'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
         {!! Form::select('std_type',
@@ -17,7 +18,7 @@
     </div>
 </div>
     
-<div class="form-group  {{ $errors->has('list[start_std]') ? 'has-error' : ''}}">
+<div class="form-group  {{ $errors->has('list[start_std]') ? 'has-error' : ''}}"  hidden>
     {!! HTML::decode(Form::label('list[start_std]', 'การกำหนดมาตรฐาน : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3  control-label'])) !!}
     <div class="col-md-9">
         <label>{!! Form::radio('start_std', '1', is_null($standardplan->start_std) ||  $standardplan->start_std == 1, ['class'=> "check start_std_check", 'data-id' => "#start_std", 'data-radio'=>'iradio_square-green']) !!} กำหนดใหม่ &nbsp;&nbsp;</label>
@@ -25,7 +26,7 @@
     </div>
 </div>
 @if (!empty($standardplan->start_std) && $standardplan->start_std == 2)
-<div class="form-group {{ $errors->has('list[ref_std]') ? 'has-error' : ''}}"  >
+<div class="form-group {{ $errors->has('list[ref_std]') ? 'has-error' : ''}}"  hidden>
     {!! Html::decode(Form::label('', '', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
         {!! Form::select('ref_std',
@@ -39,7 +40,7 @@
 </div>
 @endif
 
-<div class="form-group {{ $errors->has('tis_number') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('tis_number') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('tis_number', 'เลขที่มาตรฐาน'.' : ', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-3">
         {!! Form::text('tis_number', null, ['class' => 'form-control ','disabled'=>true]) !!}
@@ -63,7 +64,7 @@
 </div>
 
 
-<div class="form-group {{ $errors->has('tis_name') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('tis_name') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('tis_name', 'ชื่อมาตรฐาน'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
         {!! Form::text('tis_name',    null ,  ['class' => 'form-control ','disabled'=>true]) !!}
@@ -71,7 +72,7 @@
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('tis_name_eng') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('tis_name_eng') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('tis_name_eng', 'ชื่อมาตรฐาน (eng)'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
         {!! Form::text('tis_name_eng',    null ,  ['class' => 'form-control ','disabled'=>true]) !!}
@@ -80,7 +81,7 @@
 </div>
 
  
-<div class="form-group {{ $errors->has('ref_document') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('ref_document') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('ref_document', 'เอกสารอ้างอิง'.' : ', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
         {!! Form::text('ref_document', null , ['class' => 'form-control ' ,'disabled'=>true]) !!}
@@ -88,24 +89,24 @@
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('reason') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('reason', 'เหตุผลและความจำเป็น'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-4 control-label'])) !!}
-    <div class="col-md-7">
+<div class="form-group {{ $errors->has('reason') ? 'has-error' : ''}}" hidden>
+    {!! Html::decode(Form::label('reason', 'เหตุผลและความจำเป็น'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+    <div class="col-md-8">
         {!! Form::text('reason', null  ,  ['class' => 'form-control ','disabled'=>true]) !!}  
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('confirm_time') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('confirm_time', 'คณะกรรมการเห็นในการประชุมครั้งที่'.' : ', ['class' => 'col-md-4 control-label'])) !!}
-    <div class="col-md-7">
+<div class="form-group {{ $errors->has('confirm_time') ? 'has-error' : ''}}" hidden>
+    {!! Html::decode(Form::label('confirm_time', 'คณะกรรมการเห็นในการประชุมครั้งที่'.' : ', ['class' => 'col-md-3 control-label'])) !!}
+    <div class="col-md-8">
         {!! Form::text('confirm_time', null ,  ['class' => 'form-control ','disabled'=>true]) !!}
         {!! $errors->first('confirm_time', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('industry_target') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('industry_target', 'อุตสาหกรรมเป้าหมาย/บริการแห่งอนาคต'.' : ', ['class' => 'col-md-4 control-label '])) !!}
-    <div class="col-md-7">
+<div class="form-group {{ $errors->has('industry_target') ? 'has-error' : ''}}" hidden>
+    {!! Html::decode(Form::label('industry_target', 'อุตสาหกรรมเป้าหมาย/บริการแห่งอนาคต'.' : ', ['class' => 'col-md-3 control-label '])) !!}
+    <div class="col-md-8">
         {!! Form::select('industry_target',
                           App\Models\Basic\IndustryTarget::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id'),//อุตสาหกรรมเป้าหมาย/บริการแห่งอนาคต
                            null,
@@ -134,7 +135,7 @@
 </div>
 @endif
 @if (count($standardplan->boards) > 0)
-<div class="form-group">
+<div class="form-group" hidden>
 
     {!! Html::decode(Form::label('name', 'ความเห็นการกำหนดมาตรฐาน : ', ['class' => 'col-md-3 control-label'])) !!}
 
@@ -178,42 +179,10 @@
     @endif      
 </div>
 @endif
-{{-- <div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('name', 'ความต้องการจาก'.' : ', ['class' => 'col-md-3 control-label'])) !!}
-    <div class="col-md-8">
-        {!! Form::text('name', null,  ['class' => 'form-control ','disabled'=>true]) !!}  
-    </div>
-</div> --}}
 
-<div class="row">
-    <div class="col-lg-12 col-sm-12">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                  รายละเอียดการจัดทำแผน
-                <div class="pull-right">
-                    <a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a>
-                </div>
-            </div>
-            <div class="panel-wrapper collapse in" aria-expanded="true">
-                <div class="panel-body">
-<div id="input_disabled">
-    @php
-        if(!empty($standardplan) && ($standardplan->status_id >= 3 && $standardplan->status_id != 6)){
-            $standardplan->status_id = 3;
-        }
-    @endphp
- <div class="form-group {{ $errors->has('status_id') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('status_id', 'สถานะ'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
-    <div class="col-md-8">
-        {!! Form::select('status_id',
-         ['2'=>'อยู่ระหว่างจัดทำแผน','3'=>'นำส่งแผน'],
-            null,
-        ['class' => 'form-control',
-        'required'=> true,
-        'placeholder'=>'- เลือกสถานะ -']) !!}
-        {!! $errors->first('status_id', '<p class="help-block">:message</p>') !!}
-    </div>
-</div>
+
+
+
 <div class="form-group {{ $errors->has('method_id') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('method_id', 'วิธีการ'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
@@ -226,7 +195,7 @@
         {!! $errors->first('method_id', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
-<div class="form-group {{ $errors->has('period') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('period') ? 'has-error' : ''}}" >
     {!! Html::decode(Form::label('period', 'ระยะเวลา'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-4">
           <div class=" input-group ">
@@ -275,11 +244,53 @@
     </div>
 </div>
 
+{{-- <div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
+    {!! Html::decode(Form::label('name', 'ความต้องการจาก'.' : ', ['class' => 'col-md-3 control-label'])) !!}
+    <div class="col-md-8">
+        {!! Form::text('name', null,  ['class' => 'form-control ','disabled'=>true]) !!}  
+    </div>
+</div> --}}
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12">
+        <div class="panel panel-info">
+            {{-- <div class="panel-heading">
+                  รายละเอียดการจัดทำแผน
+                <div class="pull-right">
+                    <a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a>
+                </div>
+            </div> --}}
+            <div class="panel-wrapper collapse in" aria-expanded="true">
+                <div class="panel-body">
+<div id="input_disabled">
+    @php
+        if(!empty($standardplan) && ($standardplan->status_id >= 3 && $standardplan->status_id != 6)){
+            $standardplan->status_id = 3;
+        }
+    @endphp
+
+
+
+
+
 <div class="form-group {{ $errors->has('remark') ? 'has-error' : ''}}" >
     {!! Html::decode(Form::label('', 'หมายเหตุ'.' : ', ['class' => 'col-md-3 control-label'])) !!}
-    <div class="col-md-8">
+    <div class="col-md-4">
         {!! Form::textarea('remark', null, ['class' => 'form-control ', 'rows'=>'3']); !!}
            {!! $errors->first('remark', '<p class="help-block">:message</p>') !!}
+    </div>
+</div>
+
+ <div class="form-group {{ $errors->has('status_id') ? 'has-error' : ''}}">
+    {!! Html::decode(Form::label('status_id', 'การบรรจุแผน'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+    <div class="col-md-4">
+        {!! Form::select('status_id',
+         ['2'=>'อยู่ระหว่างจัดทำแผน','3'=>'บรรจุแผน'],
+            null,
+        ['class' => 'form-control',
+        'required'=> true,
+        'placeholder'=>'- เลือกสถานะ -']) !!}
+        {!! $errors->first('status_id', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
 

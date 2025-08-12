@@ -73,7 +73,8 @@ class RegisterExpertsController extends Controller
             $registerexperts = $Query ->orderby('id','desc')->sortable()->paginate($filter['perPage']);
 
             $select_users  = user_general::select(DB::raw("CONCAT(reg_fname,' ',reg_lname) AS title"),'runrecno')
-            ->whereIn('reg_subdepart',[1802])
+            ->whereIn('reg_subdepart',[1801])
+            ->where('status',1)
             ->orderbyRaw('CONVERT(title USING tis620)')
             ->pluck('title','runrecno');
 

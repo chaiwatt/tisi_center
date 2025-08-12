@@ -4395,7 +4395,21 @@ $mpdf->SetHTMLFooter($footerHtml);
     }
 
 
+  public function longIbEditor()
+  {
 
+     $report_type = "ib_final_report_process_one";
+
+     $certiIb = CertiIb::latest()->first();
+
+
+          return view('ablonngibeditor.editor',[
+                        'templateType' => $report_type,
+                        'certiIbId' => $certiIb->id,
+                        // 'assessmentId' => $assessment->id,
+                    ]);
+
+  }
 
 
 }

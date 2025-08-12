@@ -93,14 +93,18 @@
                 <h3 style="color:black;"><b>ผลการประชุม</b></h3>
                 @php
                     $record =   !empty($meetingstandard->meeting_standard_to->record) ? $meetingstandard->meeting_standard_to->record : null ;
+                    // dd($record);
                 @endphp
                 @if (!is_null($record))
                 @php
                     if(!empty($meetingstandard->setstandard_to->projectid)  &&  !empty($meetingstandard->meetingtype_to->title)){
                     $setstandard_title =  $meetingstandard->setstandard_to->projectid.' ('.$meetingstandard->meetingtype_to->title.')';
-                    $record_cost =    App\Models\Certify\MeetingStandardRecordCost::where('meeting_record_id',$record->id)->where('expense_other',$setstandard_title)->where('setstandard_id', $meetingstandard->setstandard_id )->first();
+                    // $record_cost =    App\Models\Certify\MeetingStandardRecordCost::where('meeting_record_id',$record->id)->where('expense_other',$setstandard_title)->where('setstandard_id', $meetingstandard->setstandard_id )->first();
+                     $record_cost =    App\Models\Certify\MeetingStandardRecordCost::where('meeting_record_id',$record->id)->where('setstandard_id', $meetingstandard->setstandard_id )->first();
                     }
                     $names =      !empty($record->meeting_record_participant_many) ?  $record->meeting_record_participant_many->pluck('id') : null ; 
+
+                    // dd($record_cost,$meetingstandard->setstandard_id,$record->id);
                 @endphp
                 
                     @if (!is_null($record_cost))

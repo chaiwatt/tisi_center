@@ -283,90 +283,141 @@ class SignAssessmentReportController extends Controller
 
     public function signDocument(Request $request)
     {
-        // 1. ค้นหา Transaction และตรวจสอบสถานะเบื้องต้น
         $currentTransaction = SignAssessmentReportTransaction::find($request->id);
+      
+        if($currentTransaction->template == "ib_doc_review_template" || $currentTransaction->template == "cb_doc_review_template" ){
 
-        if (!$currentTransaction) {
-            return response()->json(['success' => false, 'message' => 'ไม่พบรายการที่ต้องการลงนาม']);
-        }
+            if (!$currentTransaction) {
+                return response()->json(['success' => false, 'message' => 'ไม่พบรายการที่ต้องการลงนาม']);
+            }
 
-        if ($currentTransaction->approval == 1) {
-            return response()->json(['success' => false, 'message' => 'เอกสารนี้ได้ถูกลงนามไปแล้ว']);
-        }
+            if ($currentTransaction->approval == 1) {
+                return response()->json(['success' => false, 'message' => 'เอกสารนี้ได้ถูกลงนามไปแล้ว']);
+            }
 
-        // 2. ตรวจสอบลำดับการลงนาม
-        $nextPendingTransaction = SignAssessmentReportTransaction::where('report_info_id', $currentTransaction->report_info_id)
-            ->where('certificate_type', $currentTransaction->certificate_type)
-            ->where('report_type', $currentTransaction->report_type)
-            ->where('approval', 0)
-            ->where('signer_order', '<', $currentTransaction->signer_order)
+        
+            // 2. ตรวจสอบลำดับการลงนาม
+            $nextPendingTransaction = SignAssessmentReportTransaction::where('report_info_id', $currentTransaction->report_info_id)
+                ->whereIn('template', ['ib_doc_review_template', 'cb_doc_review_template'])
+                ->where('certificate_type', $currentTransaction->certificate_type)
+                ->where('report_type', $currentTransaction->report_type)
+                ->where('approval', 0)
+                ->where('signer_order', '<', $currentTransaction->signer_order)
+                
+                // --- บรรทัดที่เพิ่มเข้ามา ---
+                // ตรวจสอบว่า signer_id ต้องไม่ใช่ของคนปัจจุบัน
+                ->where('signer_id', '!=', $currentTransaction->signer_id)
+                
+                ->orderBy('signer_order', 'asc')
+                ->first();
+                //  dd( $nextPendingTransaction);
+
+            // หากพบว่ามี "คนอื่น" ที่ต้องลงนามก่อนหน้า
+            if ($nextPendingTransaction) {
             
-            // --- บรรทัดที่เพิ่มเข้ามา ---
-            // ตรวจสอบว่า signer_id ต้องไม่ใช่ของคนปัจจุบัน
-            ->where('signer_id', '!=', $currentTransaction->signer_id)
-            
-            ->orderBy('signer_order', 'asc')
-            ->first();
+                $signer = Signer::find($nextPendingTransaction->signer_id);
+                $signerName = $signer ? $signer->name : 'ผู้ลงนามลำดับก่อนหน้า';
 
-        // หากพบว่ามี "คนอื่น" ที่ต้องลงนามก่อนหน้า
-        if ($nextPendingTransaction) {
-            $signer = Signer::find($nextPendingTransaction->signer_id);
-            $signerName = $signer ? $signer->name : 'ผู้ลงนามลำดับก่อนหน้า';
+                return response()->json([
+                    'success' => false,
+                    'message' => 'กรุณารอการลงนามจาก: ' . $signerName
+                ]);
+            }
+
+            $currentTransaction->update(['approval' => 1]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'กรุณารอการลงนามจาก: ' . $signerName
+                'success' => true,
+                'message' => 'ลงนามเอกสารเรียบร้อยแล้ว'
             ]);
-        }
+        }else{
+           
 
-        // 3. หากผ่านการตรวจสอบ ให้ลงนาม (Update Approval)
-        $currentTransaction->update(['approval' => 1]);
+            if (!$currentTransaction) {
+                return response()->json(['success' => false, 'message' => 'ไม่พบรายการที่ต้องการลงนาม']);
+            }
 
-        // ... ส่วนที่เหลือของโค้ดเหมือนเดิม ...
-        // 4. ตรวจสอบว่าลงนามครบทุกคนแล้วหรือยัง
-        $remainingApprovals = SignAssessmentReportTransaction::where('report_info_id', $currentTransaction->report_info_id)
-            ->where('certificate_type', $currentTransaction->certificate_type)
-            ->where('report_type', $currentTransaction->report_type)
-            ->whereNotNull('signer_id')
-            ->where('approval', 0)
-            ->count();
+            if ($currentTransaction->approval == 1) {
+                return response()->json(['success' => false, 'message' => 'เอกสารนี้ได้ถูกลงนามไปแล้ว']);
+            }
 
-        // 5. หากลงนามครบแล้ว (remainingApprovals == 0) ให้ดำเนินการขั้นสุดท้าย
-        if ($remainingApprovals === 0) {
-            $reportInfoId = $currentTransaction->report_info_id;
+            // 2. ตรวจสอบลำดับการลงนาม
+            $nextPendingTransaction = SignAssessmentReportTransaction::where('report_info_id', $currentTransaction->report_info_id)
+                ->whereNotIn('template', ['ib_doc_review_template', 'cb_doc_review_template'])
+                ->where('certificate_type', $currentTransaction->certificate_type)
+                ->where('report_type', $currentTransaction->report_type)
+                ->where('approval', 0)
+                ->where('signer_order', '<', $currentTransaction->signer_order)
+                
+                // --- บรรทัดที่เพิ่มเข้ามา ---
+                // ตรวจสอบว่า signer_id ต้องไม่ใช่ของคนปัจจุบัน
+                ->where('signer_id', '!=', $currentTransaction->signer_id)
+                
+                ->orderBy('signer_order', 'asc')
+                ->first();
 
-            // แยก Logic การสร้างรายงานตาม certificate_type และ report_type
-            if ($currentTransaction->certificate_type == 2) { // LAB
-               
-                if ($currentTransaction->report_type == 1) {
-                    $pdfService = new CreateLabAssessmentReportPdf($reportInfoId, "ia");
-                    $pdfService->generateLabAssessmentReportPdf();
-                } else if ($currentTransaction->report_type == 2) {
-                    $pdfService = new CreateLabAssessmentReportTwoPdf($reportInfoId, "ia");
-                    $pdfService->generateLabReportTwoPdf();
-                }
-            } 
-            else if ($currentTransaction->certificate_type == 0) { // CB
-                if ($currentTransaction->report_type == 1) {
-                    $this->generateCbFinalReport($reportInfoId);
-                } else if ($currentTransaction->report_type == 2) {
-                    $this->generateCbCarReport($reportInfoId);
-                }
-            } 
-            else if ($currentTransaction->certificate_type == 1) { // IB
-                if ($currentTransaction->report_type == 1) {
-                    $this->generateIbFinalReport($reportInfoId);
-                } else if ($currentTransaction->report_type == 2) {
-                    $this->generateIbCarReportTwo($reportInfoId);
+            // หากพบว่ามี "คนอื่น" ที่ต้องลงนามก่อนหน้า
+            if ($nextPendingTransaction) {
+                $signer = Signer::find($nextPendingTransaction->signer_id);
+                $signerName = $signer ? $signer->name : 'ผู้ลงนามลำดับก่อนหน้า';
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'กรุณารอการลงนามจาก: ' . $signerName
+                ]);
+            }
+
+            // 3. หากผ่านการตรวจสอบ ให้ลงนาม (Update Approval)
+            $currentTransaction->update(['approval' => 1]);
+
+            // ... ส่วนที่เหลือของโค้ดเหมือนเดิม ...
+            // 4. ตรวจสอบว่าลงนามครบทุกคนแล้วหรือยัง
+            $remainingApprovals = SignAssessmentReportTransaction::where('report_info_id', $currentTransaction->report_info_id)
+                ->whereNotIn('template', ['ib_doc_review_template', 'cb_doc_review_template'])
+                ->where('certificate_type', $currentTransaction->certificate_type)
+                ->where('report_type', $currentTransaction->report_type)
+                ->whereNotNull('signer_id')
+                ->where('approval', 0)
+                ->count();
+
+            // 5. หากลงนามครบแล้ว (remainingApprovals == 0) ให้ดำเนินการขั้นสุดท้าย
+            if ($remainingApprovals === 0) {
+                $reportInfoId = $currentTransaction->report_info_id;
+
+                // แยก Logic การสร้างรายงานตาม certificate_type และ report_type
+                if ($currentTransaction->certificate_type == 2) { // LAB
+                
+                    if ($currentTransaction->report_type == 1) {
+                        $pdfService = new CreateLabAssessmentReportPdf($reportInfoId, "ia");
+                        $pdfService->generateLabAssessmentReportPdf();
+                    } else if ($currentTransaction->report_type == 2) {
+                        $pdfService = new CreateLabAssessmentReportTwoPdf($reportInfoId, "ia");
+                        $pdfService->generateLabReportTwoPdf();
+                    }
+                } 
+                else if ($currentTransaction->certificate_type == 0) { // CB
+                    if ($currentTransaction->report_type == 1) {
+                        $this->generateCbFinalReport($reportInfoId);
+                    } else if ($currentTransaction->report_type == 2) {
+                        $this->generateCbCarReport($reportInfoId);
+                    }
+                } 
+                else if ($currentTransaction->certificate_type == 1) { // IB
+                    if ($currentTransaction->report_type == 1) {
+                        $this->generateIbFinalReport($reportInfoId);
+                    } else if ($currentTransaction->report_type == 2) {
+                        $this->generateIbCarReportTwo($reportInfoId);
+                    }
                 }
             }
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'ลงนามเอกสารเรียบร้อยแล้ว'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'ลงนามเอกสารเรียบร้อยแล้ว'
+            ]);
+        }
     }
+
 
 
     public function signDocument_old(Request $request)

@@ -1,3 +1,4 @@
+{{-- StandardDraftsController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -153,12 +154,13 @@
                             <tr>
                                 <th width="1%" class="text-center">#</th>
                                 <th width="1%" ><input type="checkbox" id="checkall"></th>
-                                <th width="5%" class="text-center">ร่างแผนปี</th>
-                                <th width="30%" class="text-center">คณะกรรมการ</th>
+                                <th width="10%" >ร่างแผนปี</th>
+                                {{-- <th width="30%" class="text-center">คณะกรรมการ</th> --}}
+                                <th width="20%" class="">คำขอ</th>
                                 <th width="15%" class="text-center">จำนวนร่างมาตรฐาน</th>
-                                <th width="10%" class="text-center">มอบหมาย</th>
-                                <th width="14%" class="text-center">ผู้บันทึก</th>
-                                <th width="14%" class="text-center">สถานะ</th>
+                                <th width="20%" >มอบหมาย</th>
+                                <th width="14%" >ผู้บันทึก</th>
+                                <th width="14%" >สถานะ</th>
                                 <th width="10%" class="text-center">จัดการ</th>
                             </tr>
                             </thead>
@@ -271,7 +273,8 @@
                     { data: 'DT_Row_Index', searchable: false, orderable: false},
                     { data: 'checkbox', searchable: false, orderable: false},
                     { data: 'draft_year', name: 'draft_year' },
-                    { data: 'committee_group', name: 'committee_group' },
+                    // { data: 'committee_group', name: 'committee_group' },
+                    { data: 'offer_details', name: 'offer_details' },
                     { data: 'quantity', name: 'quantity' }, 
                     { data: 'assign', name: 'assign' },
                     { data: 'created_name', name: 'created_name' },

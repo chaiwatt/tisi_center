@@ -1,3 +1,4 @@
+{{-- CommitteeSpecialController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -21,7 +22,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">เพิ่มคณะกรรมการเฉพาะด้าน</h3>
+                    <h3 class="box-title pull-left">เพิ่มคณะกรรมการเฉพาะด้าน </h3>
 {{--                    @can('view-'.str_slug('board'))--}}
 {{--                        <a class="btn btn-success pull-right" href="{{url('/certify/committee')}}">--}}
 {{--                            <i class="icon-arrow-left-circle"></i> กลับ--}}
@@ -101,7 +102,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group required{{ $errors->has('expert_group_id') ? 'has-error' : ''}}">
+                    <div class="form-group {{ $errors->has('expert_group_id') ? 'has-error' : ''}}" hidden>
                         {!! Form::label('expert_group_id', 'หมวดหมู่คณะกรรมการ', ['class' => 'col-md-4 control-label']) !!}
                         <div class="col-md-6">
                             {!! Form::select('expert_group_id',
@@ -110,7 +111,7 @@
                             ['class' => 'form-control',
                             'id'=>'expert_group_id', 
                             'placeholder'=>'- เลือกหมวดหมู่คณะกรรมการ -',
-                            'required' => 'required']) !!}
+                            ]) !!}
                             {!! $errors->first('expert_group_id', '<p class="help-block">:expert_group_id</p>') !!}
                         </div>
                     </div>

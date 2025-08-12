@@ -48,6 +48,7 @@ class SetStandardsController extends Controller
 
 public function index(Request $request)
     {
+ 
         $roles = !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : [];
         $not_admin = (!in_array(1, $roles) && !in_array(25, $roles)); // ไม่ใช่ Admin หรือไม่ใช่ ผอ.
 

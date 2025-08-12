@@ -1,3 +1,4 @@
+{{-- RegisterExpertsController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -73,6 +74,9 @@
         <h3 class="box-title pull-left">พิจารณาคำขอผู้เชี่ยวชาญ</h3>
 
         <div class="pull-right">
+           <a type="button" href="{{url('certify/register-experts/create')}}" class="btn btn-info" > เพิ่มผู้เชี่ยวชาญ</a>
+          </button>
+
           @if(isset($select_users) && count($select_users) > 0)
           @can('assign_work-'.str_slug('registerexperts'))
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> มอบหมาย

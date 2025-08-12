@@ -23,7 +23,9 @@
 
                     {!! Form::open(['url' => '/experts', 'class' => 'form-horizontal', 'files' => true]) !!}
 
-                    @include ('experts.form')
+                    {{-- @include ('experts.form') --}}
+
+                    @include ('certify.register-experts.creat-form')
 
                     {!! Form::close() !!}
 

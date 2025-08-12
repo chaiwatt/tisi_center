@@ -1,3 +1,4 @@
+{{-- StandardPlansController --}}
 @extends('layouts.master')
 
 @push('css')

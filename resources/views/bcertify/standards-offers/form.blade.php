@@ -1,3 +1,4 @@
+{{-- StandardsOffersController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     
@@ -45,14 +46,16 @@
         {!! $errors->first('scope', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
-<div class="form-group {{ $errors->has('objectve') ? 'has-error' : ''}}">
+{{-- @php
+    dd($estandardoffers);
+@endphp --}}
+{{-- <div class="form-group {{ $errors->has('objectve') ? 'has-error' : ''}}">
     {!! Html::decode(Form::label('objectve', 'จุดประสงค์และเหตุผล'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-9">
-       {{-- {!! Form::textarea('objectve', null, [ 'rows' => 2,'cols'=>'110','disabled'=>true]) !!} --}}
        {!! Form::text('objectve', null,  ['class' => 'form-control','disabled'=>true]) !!}
         {!! $errors->first('objectve', '<p class="help-block">:message</p>') !!}
     </div>
-</div>
+</div> --}}
 <div class="form-group {{ $errors->has('stakeholders') ? 'has-error' : ''}}">
     {!! Form::label('stakeholders', 'ผู้มีส่วนได้เสียที่เกี่ยวข้อง'.' : ', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-9">
@@ -60,10 +63,74 @@
         {!! $errors->first('stakeholders', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
-<div class="form-group {{ $errors->has('stakeholders') ? 'has-error' : ''}}">
-    {!! Form::label('stakeholders', 'เอกสารเพิ่มเติม'.' : ', ['class' => 'col-md-3 control-label']) !!}
+
+<div class="form-group">
+    <label for="objectve" class="col-md-3 control-label">จุดประสงค์และเหตุผลในการจัดทำ :</label>
     <div class="col-md-9">
-        @php
+        <select name="objectve" id="objectve" class="form-control" disabled>
+            <option value="first_creation" {{ ($estandardoffers->objectve ?? '') == 'first_creation' ? 'selected' : '' }}>จัดทำครั้งแรก</option>
+            <option value="standard_revision" {{ ($estandardoffers->objectve ?? '') == 'standard_revision' ? 'selected' : '' }}>ปรับปรุงมาตรฐาน</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="proposer_type" class="col-md-3 control-label">ประเภทข้อเสนอ (Proposer) :</label>
+    <div class="col-md-9">
+        <select name="proposer_type" id="proposer_type" class="form-control" disabled>
+            <option value="sdo_advanced" {{ ($estandardoffers->proposer_type ?? '') == 'sdo_advanced' ? 'selected' : '' }}>SDO ขั้นสูง</option>
+            <option value="sdo_basic_or_non_sdo" {{ ($estandardoffers->proposer_type ?? '') == 'sdo_basic_or_non_sdo' ? 'selected' : '' }}>SDO ขั้นต้น หรือหน่วยงานที่ไม่ใช่ SDO</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">จำนวนการประชุมเชิงปฏิบัติการฯ :</label>
+    <div class="col-md-9">
+        <input class="form-control" type="text" value="{{ $estandardoffers->meeting_count ?? '' }}" readonly>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">ชื่อมาตรฐาน :</label>
+    <div class="col-md-9">
+        <input class="form-control" type="text" value="{{ $estandardoffers->standard_name ?? '' }}" readonly>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">ชื่อมาตรฐาน (Eng) :</label>
+    <div class="col-md-9">
+        <input class="form-control" type="text" value="{{ $estandardoffers->standard_name_en ?? '' }}" readonly>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">เลขมาตรฐาน ISO :</label>
+    <div class="col-md-9">
+        <input class="form-control" type="text" value="{{ $estandardoffers->iso_number ?? '' }}" readonly>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">แผนยุทธศาสตร์ชาติฯ (ถ้ามี) :</label>
+    <div class="col-md-9">
+        <input class="form-control" type="text" value="{{ $estandardoffers->national_strategy ?? '' }}" readonly>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">เหตุผล :</label>
+    <div class="col-md-9">
+        <textarea class="form-control" readonly>{{ $estandardoffers->reason ?? '' }}</textarea>
+    </div>
+</div>
+
+
+<div class="form-group {{ $errors->has('stakeholders') ? 'has-error' : ''}}">
+    {!! Form::label('stakeholders', 'เอกสาร (.zip) ประกอบด้วย แผนการดำเนินงาน, ร่างมาตรฐาน หรืออื่น ๆ'.' : ', ['class' => 'col-md-3 control-label']) !!}
+    <div class="col-md-9">
+        {{-- @php
             $attach = $estandardoffers->AttachFileAttachFileTo;
         @endphp
         @if (!empty($attach))
@@ -74,13 +141,25 @@
             </a>
          @else 
             {!! Form::label('stakeholders', '(ไม่มี)', ['class' => 'control-label', 'style' => 'text-align: left; color: black !important;']) !!}
-         @endif 
-        {{-- @if($estandardoffers->attach_new !='' && HP::checkFileStorage($estandardoffers->path.$estandardoffers->attach_new))
-        <a class="btn btn-info btn-xs" href="{{ HP::getFileStorage($estandardoffers->path.$estandardoffers->attach_new) }}" target="_blank" >
-                <i class="mdi mdi-download"></i>
-        </a>
-               {{$estandardoffers->caption}}
-       @endif --}}
+         @endif  --}}
+
+          @forelse ($estandardoffers->getAttachments() as $attach)
+                {{-- วนลูปแสดงผลทีละไฟล์ --}}
+                <div>
+                    {!! !empty($attach->caption) ? $attach->caption . ':' : '' !!}
+                    <a href="{{ url('funtions/get-view/' . $attach->url . '/' . (!empty($attach->filename) ? $attach->filename : basename($attach->url))) }}"
+                    target="_blank"
+                    title="{!! !empty($attach->filename) ? $attach->filename : 'ไฟล์แนบ' !!}">
+                    
+                    <i class="fa fa-paperclip"></i> {{-- Add an icon for better UI --}}
+                    {!! !empty($attach->filename) ? $attach->filename : 'เปิดไฟล์' !!}
+                    </a>
+                </div>
+            @empty
+                {{-- ส่วนที่จะแสดงผลถ้าไม่มีไฟล์แนบเลย --}}
+                {!! Form::label('stakeholders', '(ไม่มี)', ['class' => 'control-label', 'style' => 'text-align: left; color: black !important;']) !!}
+            @endforelse
+
     </div>
 </div>
 
@@ -140,9 +219,11 @@
     <div class="col-md-4">
         {!! Form::select('state',
          [
+
             '1' => 'เสนอความเห็น',
-            '2' => 'สมควรบรรจุในแผน',
-            '3' => 'ไม่สมควรบรรจุในแผน'
+            '2' => 'รับคำขอ',
+            '3' => 'ยกเลิกคำขอ',
+            '0' => 'ขอเอกสารเพิ่มเติม',
         ], 
         null,
         ['class' => 'form-control text-center',
@@ -152,6 +233,15 @@
         {!! $errors->first('department', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
+
+
+<div class="form-group" id="reason_div">
+    <label class="col-md-3 control-label">เหตุผล :</label>
+    <div class="col-md-4">
+        <textarea class="form-control" rows="2" cols="40" name="reason_detail" id="reason_detail"> </textarea>
+    </div>
+</div>
+
 
 <div class="form-group {{ $errors->has('standard_types') ? 'has-error' : ''}}">
     {!! Html::decode(Form::label('standard_types', 'ประเภทมาตรฐาน'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
@@ -287,6 +377,8 @@
   <script src="{{asset('js/jasny-bootstrap.js')}}"></script>
   <script type="text/javascript">
     $(document).ready(function() {
+         $('#reason_div').hide();
+          console.log('สคริปต์ทำงานแล้ว และได้สั่งซ่อน #reason_div'); 
         $('#state').change(function(){ 
             checkrefnos();
         });
@@ -303,13 +395,25 @@
                 $('#div_refno').show();
             }
         }
+
+
+        
      
-        // checkrefnos();
     });
 
     function  checkrefnos() {
          var state          = $('#state').val(); 
          var standard_types = $('#standard_types').val(); 
+
+
+                 console.log(state)
+
+        if(state == '0'){
+                $('#reason_div').show(); 
+            }
+        else{
+            $('#reason_div').hide(); 
+        }
  
          if(state == '2' && standard_types != ''){
                 $('#div_refno').show();

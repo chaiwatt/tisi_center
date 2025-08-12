@@ -416,6 +416,60 @@ class HelperController extends Controller
         //     $admin_role->givePermissionTo($appointed_committee_delete);
         // }
 
+        // $appointed_committee_lt_add    = Permission::firstOrCreate(['name' => 'add-appointed-committee-lt']);
+        // $appointed_committee_lt_view   = Permission::firstOrCreate(['name' => 'view-appointed-committee-lt']);
+        // $appointed_committee_lt_edit   = Permission::firstOrCreate(['name' => 'edit-appointed-committee-lt']);
+        // $appointed_committee_lt_delete = Permission::firstOrCreate(['name' => 'delete-appointed-committee-lt']);
+
+        // if (!$admin->hasPermission($appointed_committee_lt_add)) {
+        //     $admin_role->givePermissionTo($appointed_committee_lt_add);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_lt_view)) {
+        //     $admin_role->givePermissionTo($appointed_committee_lt_view);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_lt_edit)) {
+        //     $admin_role->givePermissionTo($appointed_committee_lt_edit);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_lt_delete)) {
+        //     $admin_role->givePermissionTo($appointed_committee_lt_delete);
+        // }
+
+        // $clientssouser_add    = Permission::firstOrCreate(['name' => 'add-clientssouser']);
+        // $clientssouser_view   = Permission::firstOrCreate(['name' => 'view-clientssouser']);
+        // $clientssouser_edit   = Permission::firstOrCreate(['name' => 'edit-clientssouser']);
+        // $clientssouser_delete = Permission::firstOrCreate(['name' => 'delete-clientssouser']);
+
+        // if (!$admin->hasPermission($clientssouser_add)) {
+        //     $admin_role->givePermissionTo($clientssouser_add);
+        // }
+        // if (!$admin->hasPermission($clientssouser_view)) {
+        //     $admin_role->givePermissionTo($clientssouser_view);
+        // }
+        // if (!$admin->hasPermission($clientssouser_edit)) {
+        //     $admin_role->givePermissionTo($clientssouser_edit);
+        // }
+        // if (!$admin->hasPermission($clientssouser_delete)) {
+        //     $admin_role->givePermissionTo($clientssouser_delete);
+        // }
+
+        // $internalrequest_add    = Permission::firstOrCreate(['name' => 'add-internalrequest']);
+        // $internalrequest_view   = Permission::firstOrCreate(['name' => 'view-internalrequest']);
+        // $internalrequest_edit   = Permission::firstOrCreate(['name' => 'edit-internalrequest']);
+        // $internalrequest_delete = Permission::firstOrCreate(['name' => 'delete-internalrequest']);
+
+        // if (!$admin->hasPermission($internalrequest_add)) {
+        //     $admin_role->givePermissionTo($internalrequest_add);
+        // }
+        // if (!$admin->hasPermission($internalrequest_view)) {
+        //     $admin_role->givePermissionTo($internalrequest_view);
+        // }
+        // if (!$admin->hasPermission($internalrequest_edit)) {
+        //     $admin_role->givePermissionTo($internalrequest_edit);
+        // }
+        // if (!$admin->hasPermission($internalrequest_delete)) {
+        //     $admin_role->givePermissionTo($internalrequest_delete);
+        // }
+
         return "done";
 
     }

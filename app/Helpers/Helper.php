@@ -85,6 +85,39 @@ class HP
         ]);
     }
 
+       public static function CheckPermission($row = '')
+    {
+
+        // $data_session               = HP::CheckSession();
+        // $role_id                 = RoleUser::where('user_id',$data_session->id)->get()->pluck('role_id')->toArray();
+        // dd($role_id);
+        //dd(auth()->user());
+        return auth()->user()->can($row);
+
+            // $data_session               = HP::CheckSession();
+            // $request                    = false;
+
+            // if(!empty($data_session) ){
+            //     // $tax_id                 = RoleUser::where('tax_id',$data_session->tax_number)->get()->pluck('role_id')->toArray();
+            //     $role_id                 = RoleUser::where('user_id',$data_session->id)->get()->pluck('role_id')->toArray();
+            //     if(count($role_id) > 0){
+            //             $permission     =   DB::table((new PermissionRole)->getTable().' AS role')
+            //                                     ->select('permission.name as name')
+            //                                     ->leftJoin((new  Permission )->getTable().' AS permission', 'permission.id', '=', 'role.permission_id')
+            //                                     ->whereIn('role.role_id',$role_id)
+            //                                     ->where('permission.name',$row)
+            //                                     ->first();
+            //         if(!is_null($permission)){
+            //             $request                    = true;
+            //         }
+            //     }
+            // }else{
+            //     $request                    = false;
+            // }
+         
+        // return $request;
+     }
+     
     public static function BEDate($date)
     {
         // แปลงวันที่ให้เป็น Carbon instance

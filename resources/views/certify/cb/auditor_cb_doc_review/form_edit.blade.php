@@ -327,41 +327,44 @@
         </div>
     </div>
 
-
-    <div class="form-group" style="margin-top: 20px">
-        <div class="row">
-            <div class="col-md-offset-2  col-md-7" style="margin-top: 20px">
-                <hr>
-                <div class="col-md-6" >
-                    <input type="radio" name="result" value="2" class="check" data-radio="iradio_square-blue" id="pass" checked>
-                    <label for="offsite" class="control-label">ผ่านการประเมินเอกสาร</label>
-                </div>
-                <div class="col-md-6">
-                    <input type="radio" name="result" value="1" class="check" data-radio="iradio_square-blue" id="reject">
-                    <label for="onsite" class="control-label">ให้แก้ไข</label>
-                </div>
-                <div class="col-sm-12" id="text-area-wrapper" style="margin-top: 20px;display: none;">
-                    <label> หมายเหตุ : </label>
-                    <textarea class="form-control" name="doc_reject_detail" id="doc_reject_detail" rows="4" ></textarea>
+    @if ($certiCb->cbDocReviewAuditor->status == 1)
+        <div class="form-group" style="margin-top: 20px">
+            <div class="row">
+                <div class="col-md-offset-2  col-md-7" style="margin-top: 20px">
+                    <hr>
+                    <div class="col-md-6" >
+                        <input type="radio" name="result" value="2" class="check" data-radio="iradio_square-blue" id="pass" checked>
+                        <label for="offsite" class="control-label">ผ่านการประเมินเอกสาร</label>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="radio" name="result" value="1" class="check" data-radio="iradio_square-blue" id="reject">
+                        <label for="onsite" class="control-label">ให้แก้ไข</label>
+                    </div>
+                    <div class="col-sm-12" id="text-area-wrapper" style="margin-top: 20px;display: none;">
+                        <label> หมายเหตุ : </label>
+                        <textarea class="form-control" name="doc_reject_detail" id="doc_reject_detail" rows="4" ></textarea>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row" style="margin-top: 50px">
+            <div class="row" style="margin-top: 50px">
+                
+                <div class="col-md-offset-4 col-md-4">
+                    <a type="button" class="btn btn-info" href="{{route('cb.doc-review-html-template',['id' => $certiCb->id])}}" >
+                         จัดทำรายงาน
+                    </a>
+                    <button type="button" class="btn btn-primary" id="save_doc_review"  >
+                         บันทึก
+                    </button>
             
-            <div class="col-md-offset-4 col-md-4">
-                <button type="button" class="btn btn-primary" id="save_doc_review"  >
-                    <i class="fa fa-paper-plane"></i> บันทึก
-                </button>
-         
-                <a class="btn btn-default" href="{{  app('url')->previous() }}">
-                    <i class="fa fa-rotate-left"></i> ยกเลิก
-                </a>
+                    <a class="btn btn-default" href="{{  app('url')->previous() }}">
+                        <i class="fa fa-rotate-left"></i> ยกเลิก
+                    </a>
+                </div>
             </div>
+        
         </div>
-       
-     </div>
-
+    @endif
 @endif
 
 
@@ -1010,14 +1013,22 @@
                     _token: _token
                 },
                 success: function(result) {
-                    // let baseUrl = window.location.origin; // ดึง base URL ปัจจุบัน (เช่น https://example.com)
-                    // let redirectUrl = baseUrl + "/certify/check_certificate-cb/" + certiCb.token + "/show/" + certiCb.id;
-                    // window.location.href = redirectUrl; // เปลี่ยนเส้นทางไปยัง URL ที่สร้าง
 
-                    
-                    const baseUrl = "{{ url('/certify/check_certificate-cb') }}";
-                    const redirectUrl = `${baseUrl}/${certiCb.token}/show/${certiCb.id}`;
-                     window.location.href = redirectUrl;
+                      if (result.success === true) {
+                        // ถ้าสำเร็จ ให้ทำการ Redirect
+                         const baseUrl = "{{ url('/certify/check_certificate-cb') }}";
+                        const redirectUrl = `${baseUrl}/${certiCb.token}/show/${certiCb.id}`;
+                        window.location.href = redirectUrl;
+                    } else {
+                        // ถ้าไม่สำเร็จ ให้แสดงข้อความแจ้งเตือน
+                        // คุณสามารถใช้ Modal หรือ Alert ที่สวยงามกว่านี้ได้ เช่น SweetAlert2
+                        alert('เกิดข้อผิดพลาด: ' + result.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // จัดการกรณีที่ Server ตอบกลับมาเป็น Error (เช่น status 500)
+                    alert('ไม่สามารถติดต่อกับ Server ได้');
+                    console.error("AJAX Error:", error);
                 }
             });
         }

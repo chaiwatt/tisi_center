@@ -1,3 +1,4 @@
+{{-- MeetingStandardsController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')}}" rel="stylesheet" />
@@ -147,7 +148,7 @@
             <thead>
                 <tr>
                     <th class="text-center" width="2%">ลำดับ</th>
-                    <th class="text-center" width="30%">วาระการประชุม</th>
+                    <th class="text-center" width="30%" hidden>วาระการประชุม</th>
                     <th class="text-center" width="60%">Project ID</th>
                     <th class="text-center meetingstandard_remove" width="10%">
                           <button type="button" class="btn btn-success btn-sm "  id="addCostInput"><i class="icon-plus"></i>เพิ่ม</button>  
@@ -160,45 +161,76 @@
                 @php
                 
                     if(!empty($meetingstandard) && $meetingstandard->status_id >= 4){
-                         
+
                         $standards =  App\Models\Certify\SetStandards::pluck('projectid', 'id');
                     }else{
-                        $standards =  App\Models\Certify\SetStandards::whereIn('status_id',[2,3])
-                        ->orWhereIn('status_sub_appointment_id',[2,3])
-                        ->pluck('projectid', 'id');
-                    //    dd($standards);
+                        
+                        // $standards =  App\Models\Certify\SetStandards::whereIn('status_id',[2,3])
+                        // ->orWhereIn('status_sub_appointment_id',[2,3])
+                        // ->pluck('projectid', 'id');
+           
                     }
                 @endphp
                 @foreach($setstandard_meeting_types as $item)
-                @php
-                     $projectids =  App\Models\Certify\CertifySetstandardMeetingType::where('meetingtype_id',$item->meetingtype_id)->where('setstandard_meeting_id',@$meetingstandard->id)->pluck('setstandard_id');
-                @endphp
-                <tr>
-                    <td  class="text-center">
-                        1
-                    </td>
-                    <td>
-                        {!! Form::select('detail[meetingtype_id][]',
-                        App\Models\Bcertify\Meetingtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id'),
-                        $item->meetingtype_id ?? null, 
-                        ['class' => 'form-control select2 meetingtype_id', 
-                        'required'=>true,
-                        'placeholder'=>'- เลือกวาระการประชุม -']); !!}
-                    </td>
-                    <td>
-                        {!! Form::select('detail[projectid]['.$item->meetingtype_id .'][]',
-                            $standards ,
-                              $projectids  ?? null, 
-                            ['class' => 'select2-multiple select2 projectid',
-                            'multiple'=>'multiple', 
-                            'required' => true]); !!}
-                        {!! $errors->first('projectid', '<p class="help-block">:message</p>') !!}
-                    </td>
- 
-                    <td  class="text-center meetingstandard_remove">
-                        <button type="button" class="btn btn-danger btn-xs remove-row "><i class="fa fa-trash"></i></button>
-                    </td>
-                </tr>
+                    @php
+                        $projectids =  App\Models\Certify\CertifySetstandardMeetingType::where('meetingtype_id',$item->meetingtype_id)->where('setstandard_meeting_id',@$meetingstandard->id)->pluck('setstandard_id');
+                    @endphp
+                    <tr>
+                        <td  class="text-center">
+                            1
+                        </td>
+                        {{-- <td>
+                            {!! Form::select('detail[meetingtype_id][]',
+                            App\Models\Bcertify\Meetingtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id'),
+                            $item->meetingtype_id ?? null, 
+                            ['class' => 'form-control select2 meetingtype_id', 
+                            'required'=>true,
+                            'placeholder'=>'- เลือกวาระการประชุม -']); !!}
+                        </td> --}}
+                        <td hidden>
+                            @php
+                                // ดึงรายการตัวเลือกทั้งหมด
+                                $meetingTypes = App\Models\Bcertify\Meetingtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');
+                                
+                                // กำหนดให้ตัวที่ถูกเลือก คือ id ของรายการแรกสุดเสมอ
+                                $selectedId = $meetingTypes->keys()->first();
+                            @endphp
+
+                            {!! Form::select('detail[meetingtype_id][]',
+                                $meetingTypes,
+                                $selectedId,
+                                [
+                                    'class' => 'form-control select2 meetingtype_id',
+                                    'required' => true
+                                ]
+                            ) !!}
+                        </td>
+                 <td>
+                    {{-- <select name="detail[projectid][{{ $item->meetingtype_id }}][]" class="select2-multiple select2 projectid" multiple required>
+                        @foreach($standards => $standard)
+                            <option value="{{ $standard->id }}" @if(in_array($standard->id, $projectids ?? [])) selected @endif>
+                                {{ $standard->estandard_plan_to->tis_name }}
+                            </option>
+                        @endforeach
+                    </select> --}}
+
+                    <select name="detail[projectid][{{ $item->meetingtype_id }}][]" class="select2-multiple select2 projectid" multiple required>
+                           @foreach($standards as $standard)
+                            <option value="{{ $standard->id }}" @if($projectids->contains('id', $standard->id)) selected @endif>
+                                {{ $standard->estandard_plan_to->tis_name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @if($errors->has('projectid'))
+                        <p class="help-block">{{ $errors->first('projectid') }}</p>
+                    @endif
+                </td>
+    
+                        <td  class="text-center meetingstandard_remove">
+                            <button type="button" class="btn btn-danger btn-xs remove-row "><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>
                  @endforeach  
             @endif
             </tbody>

@@ -1,3 +1,4 @@
+{{-- SetStandardsController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')}}" rel="stylesheet" />
@@ -142,6 +143,7 @@
 @endpush
  
       <div class="row">
+        {{-- {{$setstandard->status_id}} --}}
         <div class="col-md-12 text-center">
  
           <ul class="nav nav-tabs process-model more-icon-preocess" role="tablist">
@@ -162,6 +164,7 @@
               </a>
             </li>
             <li role="presentation">
+                
                 <a  id="3" href="#meet_topic" aria-controls="meet_topic" role="tab" data-toggle="tab" 
                 @if(isset($setstandard) &&  in_array($setstandard->status_id,[2,3])) class="active"@endif
                 >
@@ -236,9 +239,9 @@
         @if (in_array($setstandard->status_id,[2,3]))
         <div class="form-group">
             <div class="col-md-offset-4 col-md-4">
-                <button class="btn btn-success " type="submit" @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_update" value="1">
+                {{-- <button class="btn btn-success " type="submit" @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_update" value="1">
                     <i class="fa fa-paper-plane"></i> อัพเดทข้อมูล
-                </button>
+                </button> --}}
                 <button class="btn btn-primary " type="submit"     @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_save" value="1">
                     <i class="fa fa-paper-plane"></i> บันทึก
                 </button>
@@ -259,9 +262,9 @@
         @else   
             <div class="form-group">
                 <div class="col-md-offset-4 col-md-4">
-                        <button class="btn btn-success" type="submit" name="is_update" value="1">
+                        {{-- <button class="btn btn-success" type="submit" name="is_update" value="1">
                             <i class="fa fa-paper-plane"></i> อัพเดทข้อมูล
-                        </button>
+                        </button> --}}
                         <button class="btn btn-primary" type="submit" name="is_save" value="1">
                             <i class="fa fa-paper-plane"></i> บันทึก
                         </button>

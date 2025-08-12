@@ -10,6 +10,12 @@
                     "title": "set_std_basic",
                     "display": "ข้อมูลพื้นฐาน",
                     "sub_menus":[
+                         {
+                            "title": "internalrequest",
+                            "display": "คำขอ",
+                            "icon": "mdi mdi-account-multiple-outline",
+                            "url": "\/certify\/internalrequest"
+                        },
                         {
                             "title": "committee",
                             "display": "คณะกรรมการเฉพาะด้าน",
@@ -47,7 +53,7 @@
                         }
                     ]
                 },
-                {
+                  {
                     "title": "set_std_basic",
                     "display": "กำหนดมาตรฐาน",
                     "sub_menus":[
@@ -68,12 +74,6 @@
                             "display": "ทำแผนกำหนดมาตรฐาน",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/standard-plans"
-                        },
-                        {
-                            "title": "standardconfirmplans",
-                            "display": "พิจารณาแผนกำหนดมาตรฐาน",
-                            "icon": "mdi mdi-chevron-double-right",
-                            "url": "\/certify\/standard-confirmplans"
                         },
                         {
                             "title": "setstandard",
@@ -99,7 +99,7 @@
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/meeting-standards"
                         },
-                                                {
+                        {
                             "title": "appointed-academic-sub-committee",
                             "display": "หนังสือเชิญประชุม",
                             "icon": "mdi mdi-chevron-double-right",
@@ -110,6 +110,18 @@
                             "display": "ลงนามหนังสือเชิญประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-committee"
+                        }
+                    ]
+                },
+                {
+                    "title": "set_std_basic",
+                    "display": "เครื่องมือ",
+                    "sub_menus":[
+                        {
+                            "title": "appointed-committee-lt",
+                            "display": "หนังสือเชิญประชุมเจ้าหน้าที่ ลท",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/appointed-committee-lt"
                         }
                     ]
                 },

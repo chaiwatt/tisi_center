@@ -62,6 +62,8 @@ Route::get('/generate-tracking-cb-report-two-pdf','MyTestController@createTracki
 
 Route::get('/ib-ms-pdf','MyTestController@ibMessageRecordPdf');
 
+Route::get('/long-ib-editor','MyTestController@longIbEditor');
+
 
 
 Route::get('/create-tracking-message-record','MyTestController@CreateTrackingLabMessageRecord');

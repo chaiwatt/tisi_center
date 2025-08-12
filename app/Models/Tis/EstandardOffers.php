@@ -34,9 +34,9 @@ class EstandardOffers extends Model
      *
      * @var array
      */
-    protected $fillable = ['title','owner', 'title_eng', 'std_type', 'scope', 'objectve', 'path','caption', 'attach_old', 'attach_new', 'attach_type',
+    protected $fillable = ['proposer_type','meeting_count','iso_number','standard_name','standard_name_en','national_strategy','reason','title','owner', 'title_eng', 'std_type', 'scope', 'objectve', 'path','caption', 'attach_old', 'attach_new', 'attach_type',
      'stakeholders', 'name', 'telephone','department_id', 'department', 'email', 'address', 'ip_address', 'user_agent', 'state', 'created_by', 'updated_by',
-    'standard_types','details','refno'];
+    'standard_types','details','refno','reason_detail','request_owner'];
 
     /*
       Sorting
@@ -88,6 +88,10 @@ class EstandardOffers extends Model
     public function getEstandardOffersAsignNameAllAttribute(){
         return @$this->tisi_estandard_offers_asigns->pluck('EstandardOffersAsignName')->implode(', ');
     }
+
+    public function getEstandardOffersAsignIdAttribute(){
+        return @$this->tisi_estandard_offers_asigns->pluck('user_id')->toArray();
+    }
   
     public function getEstandardOffersAsignName2Attribute(){
         return @$this->tisi_estandard_offers_asigns->where('ordering', 2)->pluck('EstandardOffersAsignName')->implode(', ');
@@ -132,5 +136,13 @@ class EstandardOffers extends Model
          }
       return $datas;
   }
+
+  
+  public function getAttachments()
+  {
+    $tb = new EstandardOffers;
+    return AttachFile::where('ref_table',$tb->getTable())->where('section','attach_file')->where('ref_id',$this->id)->orderby('id','desc')->get();
+  }
+
   
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use HP;
+use Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Jobs\GeneratePdfJob;
@@ -12,10 +13,10 @@ use App\Certify\IbReportTemplate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\IB\IBSaveAssessmentMail;
-use Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Certify\ApplicantIB\CertiIb;
 use App\Mail\IB\IBSignReportNotificationMail;
+use App\Certify\ApplicantIB\IbDocReviewReport;
 use App\Models\Certificate\IbDocReviewAuditor;
 use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
 use App\Models\Certify\SignAssessmentReportTransaction;
@@ -1399,4 +1400,372 @@ class IbPdfGeneratorController extends Controller
         }
     }
 
+
+public function docReviewHtml($id)
+{
+    $certiIb = CertiIb::find($id);
+    return view('ablonngibeditor.editor',[
+                'templateType' => "ib_doc_review_template",
+                'certiIbId' => $certiIb->id,
+                // 'assessmentId' => $assessment->id,
+            ]);  
+}
+
+    public function saveDocReviewHtml(Request $request)
+    {
+        
+                // 1. ตรวจสอบข้อมูลที่ส่งมา
+        $validator = Validator::make($request->all(), [
+            'html_content' => 'required|string',
+            'certiIbId' => 'required|integer',
+            'templateType' => 'required|string',
+            'status'       => 'required|string',
+            'signers'      => 'nullable|array' // << เพิ่มการตรวจสอบ signers (เป็นค่าว่างได้)
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'ข้อมูลไม่ครบถ้วน', 'errors' => $validator->errors()], 422);
+        }
+
+        // 2. รับข้อมูลจาก Request
+        $htmlContent = $request->input('html_content');        
+        $certiIbId = $request->input('certiIbId');
+        $reportType = $request->input('templateType');
+        $status = $request->input('status');
+        $signers = $request->input('signers', []); // << รับข้อมูล signers (ถ้าไม่มีให้เป็น array ว่าง)
+        $certiIb = CertiIb::find($certiIbId);
+
+        // 3. แปลงสัญลักษณ์ checkbox กลับเป็น HTML (หากจำเป็น)
+        // หมายเหตุ: หาก Blade ส่ง <input> มาโดยตรง บรรทัดนี้อาจไม่จำเป็น แต่ใส่ไว้เพื่อความปลอดภัย
+        $htmlContent = str_replace('☑', '<input type="checkbox" checked="checked">', $htmlContent);
+        $htmlContent = str_replace('☐', '<input type="checkbox">', $htmlContent);
+
+        IbDocReviewReport::updateOrCreate(
+                [
+                    'app_certi_ib_id' => $certiIbId,
+                    'report_type'      => $reportType,
+                ],
+                [
+                    'template' => $htmlContent,
+                    'status'   => $status,
+                    'signers'  => json_encode($signers) // แปลง array ของ signers เป็น JSON string
+                ]
+            );
+            
+        if($status  == 'final'){
+            $config = HP::getConfig();
+            $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+            SignAssessmentReportTransaction::where('report_info_id', $certiIbId)
+                ->where('certificate_type',1)
+                ->where('report_type',1)
+                ->where('template',"ib_doc_review_template")
+                ->delete();
+
+            foreach ($signers as $key => $signer) {
+                if (!isset($signer['id'], $signer['name'], $signer['position'])) {
+                    continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
+                }
+                SignAssessmentReportTransaction::create([
+                    'report_info_id' => $certiIbId,
+                    'signer_id' => $signer['id'],
+                    'signer_name' => $signer['name'],
+                    'signer_position' => $signer['position'],
+                    'signer_order' => $key,
+                    'view_url' => $url . '/certify/doc-review-ib-template/'.$certiIb->id ,
+                    'certificate_type' => 1,
+                    'report_type' => 1,
+                    'template' => "ib_doc_review_template",
+                    'app_id' => $certiIb->app_no,
+                ]);
+            }
+        }
+
+
+        // http://127.0.0.1:8081/certify/check_certificate-ib/ARnM37bCYdQI5sJ9
+        $redirectUrl = url('/certify/check_certificate-ib/' . $certiIb->token);
+        return response()->json([
+            'success' => true,
+            'message' => 'บันทึกรายงานสำเร็จ',
+            'redirect_url' => $redirectUrl // << ส่ง URL กลับไปด้วย
+        ]);
+    }
+
+    public function loadIbDocReviewTemplate(Request $request)
+    {
+      
+       $ibDocReviewReport=  IbDocReviewReport::where('app_certi_ib_id', $request->certiIbId)
+                                ->where('report_type', $request->templateType)
+                                ->first();
+
+        if($ibDocReviewReport !== null)
+        {
+            return response()->json([
+                'html' => $ibDocReviewReport->template, 
+                'status' => $ibDocReviewReport->status
+            ]);
+        }   
+        
+        $html = 
+                '
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px">
+                    <tr>
+                        <td colspan="3" style="padding: 10px 0; text-align: center; font-size: 24px; font-weight: bold;">
+                            รายงานการตรวจประเมิน ณ สถานประกอบการ
+                        </td>
+                    </tr>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:-7px">
+                    <tr>
+                        <td style="width: 18%; padding: 5px 8px; vertical-align: top;"><b>1. หน่วยตรวจ</b> :</td>
+                        <td style="width: 77%; padding: 5px 8px; vertical-align: top;">xxx</td>
+                    </tr>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:-7px">
+                    <tr>
+                        <td style="padding: 5px 8px; vertical-align: top;width: 25%;"><b>2. ที่ตั้งสำนักงานใหญ่</b> :</td>
+                        <td style="padding: 5px 8px; vertical-align: top;">
+                            xxxx<br>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+                                <tr>
+                                    <td style="width: 50%;">โทรศัพท์ : xxxx</td>
+                                    <td style="width: 50%;">โทรสาร : xxx</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                        <tr >
+                            <td style="padding: 5px 8px 5px 22px; vertical-align: top; width: 25%;"><b>ที่ตั้งสำนักงานสาขา</b>:</td>
+                            <td style="padding: 5px 8px; vertical-align: top;">
+                                xxxx<br>
+                                <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+                                    <tr>
+                                        <td style="width: 50%;">โทรศัพท์ : xxxx</td>
+                                        <td style="width: 50%;">โทรสาร : xxxx</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:-7px">
+                    <tr>
+                        <td style="width: 15%; padding: 5px 8px; vertical-align: top;"><b>3. ประเภทการตรวจประเมิน</b> :</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left:30px">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; padding: 2px;"><input type="checkbox"> การตรวจประเมินรับรองครั้งแรก</td>
+                                    <td style="width: 50%; padding: 2px;"><input type="checkbox"> การตรวจติดตามผลครั้งที่ 1</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 50%; padding: 2px;"><input type="checkbox"> การตรวจประเมินเพื่อต่ออายุการรับรอง</td>
+                                    <td style="width: 50%; padding: 2px;"><input type="checkbox"> อื่น ๆ</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:-7px">
+                    <tr>
+                        <td style="width: 32%; padding: 5px 8px; vertical-align: top;width:180px"><b>4. สาขาและขอบข่ายการรับรอง</b> :</td>
+                        <td style="width: 65%; padding: 5px 8px; vertical-align: top;"> รายละเอียด ดังเอกสารแนบ 1</td>
+                    </tr>
+                </table>
+                <b style="font-size: 22px">5. เกณฑ์การตรวจประเมิน</b><br>
+                &nbsp;&nbsp;&nbsp;(1) ...<br>
+                &nbsp;&nbsp;&nbsp;(2) ...<br>
+                &nbsp;&nbsp;&nbsp;(3) ...<br>
+                
+                <b style="font-size: 22px">6. วันที่ตรวจประเมิน</b> : &nbsp;&nbsp;&nbsp; xxxxx<br>
+                <b style="font-size: 22px">7. คณะผู้ตรวจประเมิน</b><br>
+                xxxx
+                <b style="font-size: 22px">8. ผู้แทนหน่วยตรวจ</b><br>
+                xxxxx
+                <b style="font-size: 22px">9. เอกสารอ้างอิงที่ใช้ในตรวจประเมิน</b> : &nbsp;&nbsp;&nbsp;xxxxx<br>
+                <b style="font-size: 22px">10. รายละเอียดการตรวจประเมิน</b><br>
+                <b style="font-size: 22px">&nbsp;&nbsp;&nbsp;10.1. ความเป็นมา</b><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;บริษัท...
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                    <tbody>
+                        <tr>
+                            <!-- Column 1 -->
+                            <td style="width: 33.33%; text-align: center; vertical-align: top; padding: 5px; border: none;">
+                            
+                                    <div style="height: 35px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center;">
+                                        <img src="https://placehold.co/200x50/FFFFFF/000000.png?text=Signature&font=parisienne" style="height: 35px; object-fit: contain;">
+                                    </div>
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
+                                        <p style="margin: 0;">(xxxx)</p>
+                                        <p style="margin: 0;">xxxx</p>
+                                        <p style="margin: 0;">วันที่ xxx</p>
+                                    </div>
+                            </td>
+                            <!-- Column 2 -->
+                            <td style="width: 33.33%; text-align: center; vertical-align: top; padding: 5px; border: none;">
+                                    <div style="height: 35px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center;">
+                                        <img src="https://placehold.co/200x50/FFFFFF/000000.png?text=Signature&font=parisienne" style="height: 35px; object-fit: contain;">
+                                    </div>
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
+                                        <p style="margin: 0;">(xxxx)</p>
+                                        <p style="margin: 0;">xxxx</p>
+                                        <p style="margin: 0;">วันที่ xxx</p>
+                                    </div>
+                            </td>
+                            <!-- Column 3 -->
+                            <td style="width: 33.33%; text-align: center; vertical-align: top; padding: 5px; border: none;">
+                                    <div style="height: 35px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center;">
+                                        <img src="https://placehold.co/200x50/FFFFFF/000000.png?text=Signature&font=parisienne" style="height: 35px; object-fit: contain;">
+                                    </div>
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
+                                        <p style="margin: 0;">(xxx)</p>
+                                        <p style="margin: 0;">xxxx</p>
+                                        <p style="margin: 0;">วันที่ ssss</p>
+                                    </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table> 
+            ';
+        return response()->json([
+            'html' => $html, 
+            'status' => null
+        ]);
+    }
+
+
+    public function loadDefaultIbDocReviewTemplate(Request $request)
+    {
+      
+
+        $html = 
+                '
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px">
+                    <tr>
+                        <td colspan="3" style="padding: 10px 0; text-align: center; font-size: 24px; font-weight: bold;">
+                            รายงานการตรวจประเมิน ณ สถานประกอบการ
+                        </td>
+                    </tr>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:-7px">
+                    <tr>
+                        <td style="width: 18%; padding: 5px 8px; vertical-align: top;"><b>1. หน่วยตรวจ</b> :</td>
+                        <td style="width: 77%; padding: 5px 8px; vertical-align: top;">xxx</td>
+                    </tr>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:-7px">
+                    <tr>
+                        <td style="padding: 5px 8px; vertical-align: top;width: 25%;"><b>2. ที่ตั้งสำนักงานใหญ่</b> :</td>
+                        <td style="padding: 5px 8px; vertical-align: top;">
+                            xxxx<br>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+                                <tr>
+                                    <td style="width: 50%;">โทรศัพท์ : xxxx</td>
+                                    <td style="width: 50%;">โทรสาร : xxx</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                        <tr >
+                            <td style="padding: 5px 8px 5px 22px; vertical-align: top; width: 25%;"><b>ที่ตั้งสำนักงานสาขา</b>:</td>
+                            <td style="padding: 5px 8px; vertical-align: top;">
+                                xxxx<br>
+                                <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+                                    <tr>
+                                        <td style="width: 50%;">โทรศัพท์ : xxxx</td>
+                                        <td style="width: 50%;">โทรสาร : xxxx</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:-7px">
+                    <tr>
+                        <td style="width: 15%; padding: 5px 8px; vertical-align: top;"><b>3. ประเภทการตรวจประเมิน</b> :</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left:30px">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; padding: 2px;"><input type="checkbox"> การตรวจประเมินรับรองครั้งแรก</td>
+                                    <td style="width: 50%; padding: 2px;"><input type="checkbox"> การตรวจติดตามผลครั้งที่ 1</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 50%; padding: 2px;"><input type="checkbox"> การตรวจประเมินเพื่อต่ออายุการรับรอง</td>
+                                    <td style="width: 50%; padding: 2px;"><input type="checkbox"> อื่น ๆ</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                
+                <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:-7px">
+                    <tr>
+                        <td style="width: 32%; padding: 5px 8px; vertical-align: top;width:180px"><b>4. สาขาและขอบข่ายการรับรอง</b> :</td>
+                        <td style="width: 65%; padding: 5px 8px; vertical-align: top;"> รายละเอียด ดังเอกสารแนบ 1</td>
+                    </tr>
+                </table>
+                <b style="font-size: 22px">5. เกณฑ์การตรวจประเมิน</b><br>
+                &nbsp;&nbsp;&nbsp;(1) ...<br>
+                &nbsp;&nbsp;&nbsp;(2) ...<br>
+                &nbsp;&nbsp;&nbsp;(3) ...<br>
+                
+                <b style="font-size: 22px">6. วันที่ตรวจประเมิน</b> : &nbsp;&nbsp;&nbsp; xxxxx<br>
+                <b style="font-size: 22px">7. คณะผู้ตรวจประเมิน</b><br>
+                xxxx
+                <b style="font-size: 22px">8. ผู้แทนหน่วยตรวจ</b><br>
+                xxxxx
+                <b style="font-size: 22px">9. เอกสารอ้างอิงที่ใช้ในตรวจประเมิน</b> : &nbsp;&nbsp;&nbsp;xxxxx<br>
+                <b style="font-size: 22px">10. รายละเอียดการตรวจประเมิน</b><br>
+                <b style="font-size: 22px">&nbsp;&nbsp;&nbsp;10.1. ความเป็นมา</b><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;บริษัท...
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                    <tbody>
+                        <tr>
+                            <!-- Column 1 -->
+                            <td style="width: 33.33%; text-align: center; vertical-align: top; padding: 5px; border: none;">
+                            
+                                    <div style="height: 35px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center;">
+                                        <img src="https://placehold.co/200x50/FFFFFF/000000.png?text=Signature&font=parisienne" style="height: 35px; object-fit: contain;">
+                                    </div>
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
+                                        <p style="margin: 0;">(xxxx)</p>
+                                        <p style="margin: 0;">xxxx</p>
+                                        <p style="margin: 0;">วันที่ xxx</p>
+                                    </div>
+                            </td>
+                            <!-- Column 2 -->
+                            <td style="width: 33.33%; text-align: center; vertical-align: top; padding: 5px; border: none;">
+                                    <div style="height: 35px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center;">
+                                        <img src="https://placehold.co/200x50/FFFFFF/000000.png?text=Signature&font=parisienne" style="height: 35px; object-fit: contain;">
+                                    </div>
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
+                                        <p style="margin: 0;">(xxxx)</p>
+                                        <p style="margin: 0;">xxxx</p>
+                                        <p style="margin: 0;">วันที่ xxx</p>
+                                    </div>
+                            </td>
+                            <!-- Column 3 -->
+                            <td style="width: 33.33%; text-align: center; vertical-align: top; padding: 5px; border: none;">
+                                    <div style="height: 35px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center;">
+                                        <img src="https://placehold.co/200x50/FFFFFF/000000.png?text=Signature&font=parisienne" style="height: 35px; object-fit: contain;">
+                                    </div>
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
+                                        <p style="margin: 0;">(xxx)</p>
+                                        <p style="margin: 0;">xxxx</p>
+                                        <p style="margin: 0;">วันที่ ssss</p>
+                                    </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table> 
+            ';
+        return response()->json([
+            'html' => $html, 
+            'status' => null
+        ]);
+    }
 }

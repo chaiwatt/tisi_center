@@ -53,16 +53,20 @@ class StandardsOffersController extends Controller
                                         ->orderbyRaw('CONVERT(title USING tis620)')
                                         ->pluck('title','runrecno');
                 }else if(in_array(44,$roles)){ // ผก. - กำหนดมาตรฐานการตรวจสอบและรับรอง
-                    $user_ids = RoleUser::select('user_runrecno')->where('role_id',45);
+                    // dd(auth()->user()->reg_subdepart);
+                    // $user_ids = RoleUser::select('user_runrecno')->where('role_id',45);
+                    $excluded_user_ids = RoleUser::select('user_runrecno')->where('role_id', 44);
                     $select_users  = User::select(DB::raw("CONCAT(reg_fname,' ',reg_lname) AS title"),'runrecno')
-                                        ->whereIn('runrecno',$user_ids)
+                                        // ->whereIn('runrecno',$user_ids)
                                         ->where('reg_subdepart', (auth()->user()->reg_subdepart ?? ''))
+                                        ->whereNotIn('runrecno', $excluded_user_ids) 
+                                        ->where('status', 1)
                                         ->orderbyRaw('CONVERT(title USING tis620)')
                                         ->pluck('title','runrecno');
                 }
             }
 
-
+// dd($select_users);
             return view('bcertify.standards-offers.index', compact('select_users'));
         }
         abort(403);
@@ -159,32 +163,37 @@ public function data_list(Request $request)
                                 return   !empty($item->standard_type_to->title)? $item->standard_type_to->title:'';
                             })
                             ->addColumn('state', function ($item) {
-                                return  $item->StateTitle;
+                                return  $item->StateTitle . " (ID:".$item->state.")";
                             })
                             ->addColumn('asigns', function ($item) {
-                                // if(is_array($roles)){
-                                //     if(in_array(45,$roles) || in_array(46,$roles)){ //ผก. , จนท. - กำหนดมาตรฐานการตรวจสอบและรับรอง
-                                //         $asigns =  count($item->Asigns3Title) > 0 ?  implode(",",$item->Asigns3Title)  : '';
-                                //     }else {
-                                //         $asigns =  count($item->Asigns2Title) > 0 ?  implode(",",$item->Asigns2Title)  : '';
-                                //     }
-                                // }else{
-                                //     $asigns =  count($item->Asigns2Title) > 0 ?  implode(",",$item->Asigns2Title)  : '';
-                                // }
-
-                                // return $asigns;
+                                // dd($item);
                                 return @$item->EstandardOffersAsignNameAll;
                             })
                             ->addColumn('action', function ($item) use($model) {
 
                                 $btn = '';
-                                if( auth()->user()->can('edit-'.$model) && $item->state == 1){
+                                if( auth()->user()->can('edit-'.$model) && ($item->state == 0 || $item->state == 1) ){
                                     $btn .=  ' <a href="'. url('bcertify/standards-offers/'.$item->id. '/edit') .'" class="btn btn-warning btn-xs">     <i class="fa fa-pencil-square-o" aria-hidden="true"> </i> </a>';
                                 }
                                 if( auth()->user()->can('view-'.$model) ){
                                     $btn .=  ' <a href="'. url('bcertify/standards-offers/'.$item->id) .'" class="btn btn-info btn-xs">   <i class="fa fa-eye" aria-hidden="true"></i> </a>';
                                 }
                                 return $btn;
+                            })
+                              ->addColumn('iso_number', function ($item) {
+                                return $item->iso_number ?? '-';
+                            })
+                            ->addColumn('standard_name', function ($item) {
+                                return $item->standard_name ?? '-';
+                            })
+                            ->addColumn('standard_name_en', function ($item) {
+                                return $item->standard_name_en ?? '-';
+                            })
+                            ->addColumn('national_strategy', function ($item) {
+                                return $item->national_strategy ?? '-';
+                            })
+                            ->addColumn('reason', function ($item) {
+                                return $item->reason ?? '-';
                             })
                             ->order(function ($query) {
                                 $query->orderBy('id', 'DESC');
@@ -312,6 +321,7 @@ public function data_list(Request $request)
 
     public function save_assign(Request $request)
     {
+        // dd($request->all());
         $offers = $request->input('id_publish');
         $assigns = $request->input('assigns');
         foreach ($offers as $offer_id) {

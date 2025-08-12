@@ -37,7 +37,7 @@ class TisiEstandardDraftPlan extends Model
      * @var array
      */
     protected $fillable = ['draft_id', 'offer_id', 'std_type', 'start_std', 'ref_std', 'tis_number', 'tis_book', 'tis_year', 'tis_name', 'tis_name_eng', 'method_id', 'ref_document', 'confirm_time', 'industry_target',
-     'assign_id', 'assign_date', 'status_id', 'plan_startdate', 'plan_enddate', 'confirm_by', 'confirm_at', 'created_by', 'updated_by','period','budget','confirm_detail','ref_budget','budget_by','remark','reason'];
+     'assign_id', 'assign_date', 'status_id', 'plan_startdate', 'plan_enddate', 'confirm_by', 'confirm_at', 'created_by', 'updated_by','period','budget','confirm_detail','ref_budget','budget_by','remark','reason','approve'];
 
     /*
       Sorting

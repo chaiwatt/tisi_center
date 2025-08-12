@@ -62,21 +62,40 @@ class StandardController extends Controller
     public function data_list(Request $request)
     {
         $roles =  !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : []; 
-        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles));  // ไม่ใช่ Admin หรือไม่ใช่ ผอ.
+        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles) && !in_array(44, $roles));  // ไม่ใช่ Admin หรือไม่ใช่ ผอ. ผก
 
         $model = str_slug('certifystandard', '-');
         $filter_search = $request->input('filter_search');
         $filter_state = $request->input('filter_state');
         $filter_status = $request->input('filter_status');
 
-        $query = Standard::query()->when($not_admin, function ($query){
-                                            return $query->where(function($query){
-                                                return $query->where('created_by', auth()->user()->getKey())
-                                                            ->orWhereHas('certify_standard_sendmail', function($query){
-                                                                return $query->where('user_by', auth()->user()->getKey());
-                                                            });
-                                            });
-                                    })
+                            // $query = Standard::query()
+
+                            //     ->when($not_admin, function ($query){
+                            //             return $query->where(function($query){
+                            //                 return $query->where('created_by', auth()->user()->getKey())
+                            //                             ->orWhereHas('certify_standard_sendmail', function($query){
+                            //                                 return $query->where('user_by', auth()->user()->getKey());
+                            //                             });
+                            //             });
+                            //     })
+                    
+
+
+                
+                                    $userId = auth()->id();
+
+                                    $query = Standard::query()
+                                        ->when($not_admin, function ($query) use ($userId) {
+                                            return $query->whereHas(
+                                                'set_standard_to.estandard_plan_to.estandard_offers_to.tisi_estandard_offers_asigns',
+                                                function ($subQuery) use ($userId) {
+                                                    $subQuery->where('user_id', $userId);
+                                                }
+                                            );
+                                        })
+
+
                                     ->when($filter_search, function ($query, $filter_search) {
                                         $search_full = str_replace(' ', '', $filter_search);
                                         $query->where(function ($query2) use ($search_full) {
@@ -90,8 +109,8 @@ class StandardController extends Controller
                                      ->when($filter_status, function ($query, $filter_status) {
                                         $query->where('status_id', $filter_status);
                                     });
-
-
+// dd($query->latest()->skip(2)->first());
+//         dd($query->latest()->first());
         return Datatables::of($query)->addIndexColumn()
                                         ->addColumn('checkbox', function ($item) {
                                             return '<input type="checkbox" name="item_checkbox[]" class="item_checkbox"  value="' . $item->id . '">';

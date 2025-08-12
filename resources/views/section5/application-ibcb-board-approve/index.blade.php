@@ -1,3 +1,4 @@
+{{-- ApplicationIbcbBoardApproveController --}}
 @extends('layouts.master')
 
 @push('css')

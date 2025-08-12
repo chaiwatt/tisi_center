@@ -150,11 +150,49 @@ class MeetingStandardsController extends Controller
      */
     public function create()
     {
+
+      
+
+                    // if(!empty($meetingstandard) && $meetingstandard->status_id >= 4){
+                         
+                    //     $standards =  App\Models\Certify\SetStandards::pluck('projectid', 'id');
+                    // }else{
+                    //     $standards =  App\Models\Certify\SetStandards::whereIn('status_id',[2,3])
+                    //     ->orWhereIn('status_sub_appointment_id',[2,3])
+                    //     ->pluck('projectid', 'id');
+                    // //    dd($standards);
+                    // }
+
+                      
+                // $standards = SetStandards::with('estandard_plan_to') // โหลด relationship มาด้วย
+                //         ->whereIn('status_id', [2, 3])
+                //         ->orWhereIn('status_sub_appointment_id', [2, 3])
+                //         ->get();
+
+                $standards = SetStandards::with('estandard_plan_to')
+                    // กรอง SetStandards ที่ความสัมพันธ์ estandard_plan_to มีอยู่ และ...
+                    ->whereHas('estandard_plan_to', function ($query) {
+                        // ...ในตาราง TisiEstandardDraftPlan นั้น คอลัมน์ approve ต้องไม่เป็น null
+                        $query->whereNotNull('approve');
+                    })
+                    // และ ต้องมี status ตรงตามเงื่อนไข (จัดกลุ่ม orWhere ให้ถูกต้อง)
+                    ->where(function ($query) {
+                        $query->whereIn('status_id', [2, 3])
+                            ->orWhereIn('status_sub_appointment_id', [2, 3]);
+                    })
+                    ->get();
+                                        
+                    // foreach ($standards as $standard) {
+                    //     $tisName = isset($standard->estandard_plan_to) ? $standard->estandard_plan_to->tis_name : null;
+                    // }
+                        // dd($standards);
+
+
         // dd("create meeting");
         $model = str_slug('meetingstandards','-');
         if(auth()->user()->can('add-'.$model)) {
             $setstandard_meeting_types = [new CertifySetstandardMeetingType];
-            return view('certify.meeting-standards.create', compact('setstandard_meeting_types'));
+            return view('certify.meeting-standards.create', compact('setstandard_meeting_types','standards'));
         }
         abort(403);
 
