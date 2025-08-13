@@ -110,7 +110,7 @@
 </div>
 
 <div class="form-group required{{ $errors->has('meeting_detail') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('meeting_detail', 'รายละเอียดการประชุม :'.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+    {!! Html::decode(Form::label('meeting_detail', 'รายละเอียดการประชุม :', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
           {!! Form::textarea('meeting_detail', null, ['class' => 'form-control', 'rows'=>'2', 'required' => true]); !!}
     </div>
