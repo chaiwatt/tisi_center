@@ -126,7 +126,7 @@
                     "sub_menus":[
                         {
                             "title": "appointed-committee-lt",
-                            "display": "หนังสือเชิญประชุมเจ้าหน้าที่ ลท",
+                            "display": "เชิญประชุมเจ้าหน้าที่ ลท",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-committee-lt"
                         }
