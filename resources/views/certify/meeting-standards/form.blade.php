@@ -44,7 +44,7 @@
             <option value="">- เลือกประเภท -</option>
            
             <option value="1" {{ old('meeting_group') === '1' ? 'selected' : '' }}>คณะกำหนด</option>
-            <option value="2" {{ old('meeting_group') === '2' ? 'selected' : '' }}>คณะกรรมาธิการ</option>
+            <option value="2" {{ old('meeting_group') === '2' ? 'selected' : '' }}>คณะอนุกรรมการวิชาการ</option>
         </select>
         @if ($errors->has('meeting_group'))
             <p class="help-block">{{ $errors->first('meeting_group') }}</p>
