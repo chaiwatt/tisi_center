@@ -150,7 +150,7 @@
                 <tr>
                     <th class="text-center" width="2%">ลำดับ</th>
                     <th class="text-center" width="30%" hidden>วาระการประชุม</th>
-                    <th class="text-center" width="60%">Project ID</th>
+                    <th class="text-center" width="60%">มาตรฐาน</th>
                     <th class="text-center meetingstandard_remove" width="10%">
                           <button type="button" class="btn btn-success btn-sm "  id="addCostInput"><i class="icon-plus"></i>เพิ่ม</button>  
                     </th>
