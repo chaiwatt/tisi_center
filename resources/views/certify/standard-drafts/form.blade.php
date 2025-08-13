@@ -681,7 +681,7 @@
             $('#std_type_select').val( $('#std_type_select option').eq(standardTypes).val() ).trigger('change');
             
 
-            // console.log(objectve)
+            console.log(objectve)
 
             if (objectve === 'first_creation') {
                 $('.start_std_check[value="1"]').iCheck('check');
