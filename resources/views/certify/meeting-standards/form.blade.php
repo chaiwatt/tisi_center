@@ -35,6 +35,23 @@
 </style>
 @endpush
 
+ <div class="form-group {{ $errors->has('meeting_group') ? 'has-error' : '' }}">
+    <label for="meeting_group" class="col-md-3 control-label">
+        คณะประชุม : <span class="text-danger">*</span>
+    </label>
+    <div class="col-md-8">
+        <select name="meeting_group" id="meeting_group" class="form-control" required>
+            <option value="">- เลือกประเภท -</option>
+           
+            <option value="1" {{ old('meeting_group') === '1' ? 'selected' : '' }}>คณะกำหนด</option>
+            <option value="2" {{ old('meeting_group') === '2' ? 'selected' : '' }}>คณะกรรมาธิการ</option>
+        </select>
+        @if ($errors->has('meeting_group'))
+            <p class="help-block">{{ $errors->first('meeting_group') }}</p>
+        @endif
+    </div>
+</div>
+
 <div class="form-group {{ $errors->has('title') ? 'has-error' : ''}}">
     {!! Html::decode(Form::label('title', 'หัวข้อการประชุม'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
@@ -98,23 +115,7 @@
           {!! Form::textarea('meeting_detail', null, ['class' => 'form-control', 'rows'=>'2']); !!}
     </div>
 </div>
- 
- <div class="form-group {{ $errors->has('meeting_group') ? 'has-error' : '' }}">
-    <label for="meeting_group" class="col-md-3 control-label">
-        คณะประชุม : <span class="text-danger">*</span>
-    </label>
-    <div class="col-md-8">
-        <select name="meeting_group" id="meeting_group" class="form-control" required>
-            <option value="">- เลือกประเภท -</option>
-           
-            <option value="1" {{ old('meeting_group') === '1' ? 'selected' : '' }}>คณะกำหนด</option>
-            <option value="2" {{ old('meeting_group') === '2' ? 'selected' : '' }}>คณะกรรมาธิการ</option>
-        </select>
-        @if ($errors->has('meeting_group'))
-            <p class="help-block">{{ $errors->first('meeting_group') }}</p>
-        @endif
-    </div>
-</div>
+
 
 
 <div class="form-group {{ $errors->has('commitee_id') ? 'has-error' : ''}}">
