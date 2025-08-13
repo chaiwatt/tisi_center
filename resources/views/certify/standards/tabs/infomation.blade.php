@@ -15,6 +15,14 @@
     </div>
 </div>
 
+{{-- {{!empty($standard->status_id)}} --}}
+
+@php
+    if (!empty($standard->status_id)) {
+        dd($standard);
+    }
+@endphp
+
 <div class="form-group required {{ $errors->has('format_id') ? 'has-error' : ''}}">
     {!! HTML::decode(Form::label('format_id', 'รูปแบบ :', ['class' => 'col-md-3  control-label'])) !!}
     <div class="col-md-7">
