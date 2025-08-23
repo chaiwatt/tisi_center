@@ -1,3 +1,4 @@
+{{-- AuditorCBController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
@@ -82,6 +83,30 @@
             </label>
      
         </div>
+
+        <div class="form-group">
+                <label for="auditor" class="col-md-5 control-label">
+                    <span class="text-danger">*</span> แต่งตั้งคณะ : 
+                </label>
+
+
+                @if ($fkDone)
+                        <label  class="col-md-7 control-label" style="text-align: left">
+                                <a class="btn btn-info " type="button" id="fky" href="{{route('cb.doc-assessment-review-html',['id' => $certiCb->id])}}">
+                                        สร้าง
+                                </a>  
+                            </label>
+                    @else
+                        <label  class="col-md-7 control-label" style="text-align: left">
+                            <a class="btn btn-warning " type="button" id="fky" href="{{route('cb.doc-assessment-review-html',['id' => $certiCb->id])}}">
+                                    สร้าง
+                            </a>  
+                        </label>
+                @endif
+
+   
+         
+            </div>
         
 
             
@@ -350,9 +375,12 @@
             <div class="row" style="margin-top: 50px">
                 
                 <div class="col-md-offset-4 col-md-4">
-                    <a type="button" class="btn btn-info" href="{{route('cb.doc-review-html-template',['id' => $certiCb->id])}}" >
+                    @if ($fkDone)
+                        <a type="button" class="btn btn-info" href="{{route('cb.doc-review-html-template',['id' => $certiCb->id])}}" >
                          จัดทำรายงาน
                     </a>
+                    @endif
+                    
                     <button type="button" class="btn btn-primary" id="save_doc_review"  >
                          บันทึก
                     </button>

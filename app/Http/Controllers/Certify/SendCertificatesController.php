@@ -59,7 +59,7 @@ class SendCertificatesController extends Controller
 
     public function index(Request $request)
     {
-
+        
         $model = str_slug('sendcertificates','-');
         if(auth()->user()->can('view-'.$model)) {
             return view('certify.send-certificates.index');

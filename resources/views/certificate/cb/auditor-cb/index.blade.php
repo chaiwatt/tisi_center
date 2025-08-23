@@ -1,3 +1,4 @@
+{{-- Certificate\Cb\\AuditorCbController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -17,7 +18,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">แต่งตั้งคณะผู้ตรวจประเมิน (CB) </h3>
+                    <h3 class="box-title pull-left">แต่งตั้งคณะผู้ตรวจประเมิน (CB) ติดตาม </h3>
 
                     <div class="pull-right">
 
@@ -149,7 +150,7 @@
                 serverSide: true,
                 searching: false,
                 ajax: {
-                    url: '{!! url('/certificate/auditor-cbs/data_list') !!}',
+                    url: '{!! url('/certificate/tracking-cb/data_list') !!}',
                     data: function (d) {
                       
                         d.filter_search = $('#filter_search').val();

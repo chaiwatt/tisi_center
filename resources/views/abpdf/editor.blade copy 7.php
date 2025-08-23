@@ -936,7 +936,7 @@
 
                 editorContainer.querySelectorAll('.page').forEach(page => {
                     page.setAttribute('contenteditable', 'false');
-                    page.style.backgroundColor = '#f2f2f2';
+                    // page.style.backgroundColor = '#f2f2f2';
                     page.style.cursor = 'not-allowed';
                 });
 

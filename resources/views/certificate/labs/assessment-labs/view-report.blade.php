@@ -400,6 +400,7 @@
 
     <div class="wrapper">
         <div class="container">
+            <input type="hidden" id="certi_lab_id" value="{{$certi_lab->check->id}}">
             <div class="left-text">คำขอที่ {{$certi_lab->app_no}}</div>
             <div class="right-box">รายงานที่ 2</div>
         </div>
@@ -1148,10 +1149,14 @@
                 success: function(response) {
                    
 
-                    const baseUrl = "{{ url('/certify/save_assessment') }}";
+                    // const baseUrl = "{{ url('/certify/check_certificate') }}";
 
-                    window.location.href = `${baseUrl}/${notice.id}/assess_edit/${notice.app_certi_lab_id}`;
+                    // window.location.href = `${baseUrl}/${notice.id}/assess_edit/${notice.app_certi_lab_id}`;
                     // console.log('สำเร็จ:', `${baseUrl}/${notice.id}/assess_edit/${notice.app_certi_lab_id}`);
+                    const baseUrl = "{{ url('/certify/check_certificate') }}";
+                    window.location.href = `${baseUrl}/${$('#certi_lab_id').val()}/show`;
+
+                    
                 },
                 error: function(xhr, status, error) {
                     console.error('เกิดข้อผิดพลาด:', error);

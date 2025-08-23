@@ -546,7 +546,7 @@ class AuditorCBController extends Controller
 
         public function auditor_cb_doc_review($id)
         {
-   
+           
             $model = str_slug('auditorcb','-');
             if(auth()->user()->can('add-'.$model)) {
           
@@ -958,7 +958,7 @@ public function sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor)
   public function auditor_cb_doc_review_edit ($id)
   {
     $cbDocReviewAuditor = CbDocReviewAuditor::where('app_certi_cb_id',$id)->first();
-    // dd($cbDocReviewAuditor);
+    //  dd("โปรแกรมพาย ส้นตีน จัญไร");
 
     
     $model = str_slug('auditorcb','-');
@@ -972,6 +972,7 @@ public function sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor)
       //   $auditorcb->app_certi_cb_id = $request->certicb_id;
       //   $auditorcb->certi_cb_change =  true;
       // } 
+
     
         $app_no = [];
         //เจ้าหน้าที่ CB และไม่มีสิทธิ์ admin , ผอ , ผก , ลท.
@@ -991,13 +992,35 @@ public function sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor)
                                    ->pluck('app_no', 'id');
        }
        $certiCb = CertiCb::find($id);
+
+      $allMessageRecordTransactions = MessageRecordTransaction::where('board_auditor_id', $certiCb->id)
+                ->where('app_id', $certiCb->app_no)
+                ->where('certificate_type', 0)
+                ->where('job_type', "cb-doc-review-assessment")
+                ->get();
+
+      $messageRecordTransactions = MessageRecordTransaction::where('board_auditor_id', $certiCb->id)
+                ->where('app_id', $certiCb->app_no)
+                ->where('certificate_type', 0)
+                ->where('job_type', "cb-doc-review-assessment")
+                ->where('approval', 1)
+                ->get();
+        $fkDone = false;
+        if($allMessageRecordTransactions->count() > 0){
+          if($messageRecordTransactions->count() == $allMessageRecordTransactions->count()){
+             
+            $fkDone =true;
+          }
+        }
+
+        // dd($fkDone);
        
         return view('certify.cb.auditor_cb_doc_review.edit',[
             'certiCb' => $certiCb ,
             'app_no' => $app_no ,
             'cbDocReviewAuditor' => $cbDocReviewAuditor ,
             'doc_review_auditors' => json_decode($cbDocReviewAuditor->auditors, true),
-            // 'auditorcb' => $auditorcb,
+            'fkDone' => $fkDone,
             // 'auditors_status'=> $auditors_status,
         ]);
     }
@@ -1070,7 +1093,7 @@ public function sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor)
 
   public function CreateCbMessageRecord($id)
   {
-    
+
       // สำหรับ admin และเจ้าหน้าที่ lab
       if (!in_array(auth()->user()->role, [6, 7, 11, 28])) {
           abort(403);

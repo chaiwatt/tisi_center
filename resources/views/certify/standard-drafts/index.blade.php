@@ -155,9 +155,9 @@
                                 <th width="1%" class="text-center">#</th>
                                 <th width="1%" ><input type="checkbox" id="checkall"></th>
                                 <th width="10%" >ร่างแผนปี</th>
-                                {{-- <th width="30%" class="text-center">คณะกรรมการ</th> --}}
-                                <th width="20%" class="">คำขอ</th>
-                                <th width="15%" class="text-center">จำนวนร่างมาตรฐาน</th>
+                                <th width="15%" >คำขอ</th>
+                                {{-- <th width="20%" class="">คำขอ</th> --}}
+                                <th width="15%" >มาตรฐาน</th>
                                 <th width="20%" >มอบหมาย</th>
                                 <th width="14%" >ผู้บันทึก</th>
                                 <th width="14%" >สถานะ</th>
@@ -273,9 +273,39 @@
                     { data: 'DT_Row_Index', searchable: false, orderable: false},
                     { data: 'checkbox', searchable: false, orderable: false},
                     { data: 'draft_year', name: 'draft_year' },
-                    // { data: 'committee_group', name: 'committee_group' },
-                    { data: 'offer_details', name: 'offer_details' },
-                    { data: 'quantity', name: 'quantity' }, 
+                    // { data: 'refno', name: 'refno' },
+                    {
+                        data: 'refno',
+                        name: 'refno',
+                        render: function(data, type, row) {
+                            // 1. ตรวจสอบก่อนว่า 'data' (ค่า refno) มีค่า และเป็น string หรือไม่
+                            if (data && typeof data === 'string') {
+                                // 2. ถ้าขึ้นต้นด้วย 'Req' ให้แทนที่ด้วย 'SET'
+                                if (data.startsWith('Req')) {
+                                    return data.replace('Req', 'CSD');
+                                }
+                            }
+                            // 3. ถ้าไม่เข้าเงื่อนไขใดๆ ให้แสดงค่าเดิม
+                            return data;
+                        }
+                    },
+                    // { data: 'offer_details', name: 'offer_details' },
+                    // { data: 'std_name', name: 'std_name' }, 
+                    {
+                        data: 'std_name',
+                        name: 'std_name', // ยังคงมีประโยชน์สำหรับการเรียงลำดับฝั่ง Server
+                        render: function(data, type, row) {
+                            // 'row' คือ object ที่มีข้อมูลทั้งหมดของแถวนั้นๆ
+                            // เราจึงสามารถเข้าถึง row.std_name และ row.std_name_en ได้
+
+                            // ป้องกันการแสดงคำว่า "null" ถ้า field ใด field หนึ่งเป็นค่าว่าง
+                            const name = row.std_name || '';
+                            const name_en = row.std_name_en || '';
+
+                            // นำมาต่อกันโดยคั่นด้วย <br> เพื่อขึ้นบรรทัดใหม่
+                            return name + '<br>' + name_en;
+                        }
+                    },
                     { data: 'assign', name: 'assign' },
                     { data: 'created_name', name: 'created_name' },
                     { data: 'status_name', name: 'status_name' },

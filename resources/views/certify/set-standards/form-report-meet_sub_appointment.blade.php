@@ -64,7 +64,7 @@
                         <tr>
                             <td>
                                 <p>
-                                    ค่าใช้จ่ายในการประชุมทั้งหมด (บาท)
+                                    ค่าใช้จ่ายในการประชุมทั้งหมด (บาท) 
                                 </p>
                             </td>
                             <td  class="text-center">
@@ -107,16 +107,17 @@
     </div>
 </div> --}}
 
-<div class="form-group {{ $errors->has('detail') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('detail', 'รายละเอียด'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+<div class="form-group {{ $errors->has('detail') ? 'has-error' : ''}}" >
+    {!! Html::decode(Form::label('detail', 'รายละเอียด'.' : ', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-6">
-            {!! Form::textarea('detail', (!empty($setstandard_summeeting) ? $setstandard_summeeting->detail : ''), ['class' => 'form-control assessment_desc', 'rows'=>'2', 'required' => true]); !!}
+            {{-- {!! Form::textarea('detail', (!empty($setstandard_summeeting) ? $setstandard_summeeting->detail : ''), ['class' => 'form-control assessment_desc', 'rows'=>'2']); !!} --}}
+            {!! Form::textarea('detail', (!empty($setstandard_summeeting) ? $setstandard_summeeting->detail : '-'), ['class' => 'form-control assessment_desc', 'rows'=>'2']); !!}
     </div>
 </div>
  
 
 <div class="form-group {{ $errors->has('attach') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('attach', 'เอกสารที่เกี่ยวข้อง เช่น สาระการประชุมหรืออื่น ๆ'.' : ', ['class' => 'col-md-3 control-label'])) !!}
+    {!! Html::decode(Form::label('attach', 'เอกสารที่เกี่ยวข้อง<br> เช่น สาระการประชุมหรืออื่น ๆ'.' <span class="text-danger">*</span> : ', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-9  repeater-form-file4" >
         <div class="row" data-repeater-list="repeater-attach_step4">
             @php
@@ -147,7 +148,7 @@
                             <span class="input-group-text btn-file">
                                 <span class="fileinput-new">เลือกไฟล์</span>
                                 <span class="fileinput-exists">เปลี่ยน</span>
-                                <input type="file" name="attach_step4">
+                                <input type="file" name="attach_step4" >
                             </span>
                         </span>
                     </div>

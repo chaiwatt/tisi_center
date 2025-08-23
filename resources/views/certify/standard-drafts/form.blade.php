@@ -25,7 +25,7 @@
     $standard_types  = App\Models\Bcertify\Standardtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');//ข้อมูลประเภทมาตรฐาน
     $methods         = App\Models\Basic\Method::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');//วิธีการ
     $industry_targets= App\Models\Basic\IndustryTarget::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');//อุตสาหกรรมเป้าหมาย/บริการแห่งอนาคต
-    // $standard_offers = App\Models\Tis\EstandardOffers::selectRaw('*, CONCAT_WS(" : ", refno, title) AS titles')->whereNotNull('standard_name')->where('state',2)->get();//ความเห็นการกำหนดมาตรฐานการตรวจสอบและรับรอง
+    $standard_offers = App\Models\Tis\EstandardOffers::selectRaw('*, CONCAT_WS(" : ", refno, title) AS titles')->whereNotNull('standard_name')->where('state',2)->get();//ความเห็นการกำหนดมาตรฐานการตรวจสอบและรับรอง
     $assign_ids      = App\User::select(DB::raw("CONCAT(IF(reg_intital=1, 'นาย', IF(reg_intital=2, 'นางสาว', IF(reg_intital=3, 'นาง', ''))), '' , reg_fname, ' ', reg_lname) AS title"),'runrecno AS id')
                                 ->where('reg_subdepart', 1801)
                                ->orderbyRaw('CONVERT(title USING tis620)')
@@ -110,20 +110,23 @@
                                         </div>
                                     </div>
 
-
-                                    <div class="form-group {{ $errors->has('state') ? 'has-error' : ''}}">
-                                        {!! Html::decode(Form::label('state', 'ผู้จัดทำ'.' : ', ['class' => 'col-md-3 control-label'])) !!}
-                                        <div class="col-md-6 m-t-10">
-                                            {{ !empty($standarddraft->user_created->FullName) ?  $standarddraft->user_created->FullName : auth()->user()->FullName }}
+                                    <div class="form-group {{ $errors->has('tis_name') ? 'has-error' : ''}}">
+                                        {!! Html::decode(Form::label('tis_name', 'ชื่อมาตรฐาน'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+                                        <div class="col-md-9">
+                                            {!! Form::text('list[tis_name][]', $offers->tis_name, ['class' => 'form-control ', 'required' => true, 'id' => 'tis_name_input']) !!}
+                                            {!! $errors->first('tis_name', '<p class="help-block">:message</p>') !!}
                                         </div>
                                     </div>
 
-                                    <div class="form-group {{ $errors->has('state') ? 'has-error' : ''}}">
-                                        {!! Html::decode(Form::label('state', 'วันที่จัดทำ'.' : ', ['class' => 'col-md-3 control-label'])) !!}
-                                        <div class="col-md-6 m-t-10">
-                                            {{ !empty($standarddraft->user_created->FullName) ?  HP::DateTimeFullThai($standarddraft->created_at)  : HP::DateTimeFullThai(date('Y-m-d H:i:s')) }}
+                                    <div class="form-group {{ $errors->has('tis_name_eng') ? 'has-error' : ''}}">
+                                        {!! Html::decode(Form::label('tis_name_eng', 'ชื่อมาตรฐาน (eng)'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+                                        <div class="col-md-9">
+                                            {!! Form::text('list[tis_name_eng][]', $offers->tis_name_eng, ['class' => 'form-control ', 'required' => true,'id' => 'tis_name_eng_input']) !!}
+                                            {!! $errors->first('tis_name_eng', '<p class="help-block">:message</p>') !!}
                                         </div>
                                     </div>
+
+                       
 
 
 
@@ -213,25 +216,11 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group {{ $errors->has('tis_name') ? 'has-error' : ''}}">
-                                        {!! Html::decode(Form::label('tis_name', 'ชื่อมาตรฐาน'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
-                                        <div class="col-md-9">
-                                            {!! Form::text('list[tis_name][]', $offers->tis_name, ['class' => 'form-control ', 'required' => true, 'id' => 'tis_name_input']) !!}
-                                            {!! $errors->first('tis_name', '<p class="help-block">:message</p>') !!}
-                                        </div>
-                                    </div>
 
-                                    <div class="form-group {{ $errors->has('tis_name_eng') ? 'has-error' : ''}}">
-                                        {!! Html::decode(Form::label('tis_name_eng', 'ชื่อมาตรฐาน (eng)'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
-                                        <div class="col-md-9">
-                                            {!! Form::text('list[tis_name_eng][]', $offers->tis_name_eng, ['class' => 'form-control ', 'required' => true,'id' => 'tis_name_eng_input']) !!}
-                                            {!! $errors->first('tis_name_eng', '<p class="help-block">:message</p>') !!}
-                                        </div>
-                                    </div>
 {{-- @php
     dd($methods)
 @endphp --}}
-                                    <div class="form-group {{ $errors->has('method_id') ? 'has-error' : ''}}">
+                                    <div class="form-group {{ $errors->has('method_id') ? 'has-error' : ''}}" hidden>
                                         {!! Html::decode(Form::label('method_id', 'วิธีการ'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
                                         <div class="col-md-9">
                                             <select class="form-control" name="list[method_id][]" id="method_id_select" required>
@@ -432,6 +421,20 @@
                                         'required'=> true,
                                         'placeholder'=>'- เลือกสถานะ -']) !!}
                                             {!! $errors->first('status_id', '<p class="help-block">:message</p>') !!}
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group {{ $errors->has('state') ? 'has-error' : ''}}">
+                                        {!! Html::decode(Form::label('state', 'ผู้จัดทำ'.' : ', ['class' => 'col-md-3 control-label'])) !!}
+                                        <div class="col-md-6 m-t-10">
+                                            {{ !empty($standarddraft->user_created->FullName) ?  $standarddraft->user_created->FullName : auth()->user()->FullName }}
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group {{ $errors->has('state') ? 'has-error' : ''}}">
+                                        {!! Html::decode(Form::label('state', 'วันที่จัดทำ'.' : ', ['class' => 'col-md-3 control-label'])) !!}
+                                        <div class="col-md-6 m-t-10">
+                                            {{ !empty($standarddraft->user_created->FullName) ?  HP::DateTimeFullThai($standarddraft->created_at)  : HP::DateTimeFullThai(date('Y-m-d H:i:s')) }}
                                         </div>
                                     </div>
 
@@ -676,9 +679,12 @@
             var standardName      = selectedOption.data('standard_name');
             var standardNameEn    = selectedOption.data('standard_name_en');
             var proposerType      = selectedOption.data('proposer_type');
+
+            console.log(standardTypes)
             
             // --- โค้ดเดิมที่ทำงานกับ select, radio, และ text inputs ---
-            $('#std_type_select').val( $('#std_type_select option').eq(standardTypes).val() ).trigger('change');
+            // $('#std_type_select').val( $('#std_type_select option').eq(standardTypes).val() ).trigger('change');
+            $('#std_type_select').val(standardTypes).trigger('change');
             
 
             console.log(objectve)

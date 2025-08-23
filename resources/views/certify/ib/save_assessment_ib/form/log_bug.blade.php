@@ -72,8 +72,10 @@
                     {{ @$item2->details ?? null }}
                     <br>
                     @if($item2->status == 1) 
+                    
                       <label for="app_name"> <span> <i class="fa fa-check-square" style="font-size:20px;color:rgb(0, 255, 42)"></i></span> ผ่าน </label> 
                     @elseif(!is_null($item2->comment)) 
+                    
                     <label for="app_name"><span>  <i class="fa  fa-close" style="font-size:20px;color:rgb(255, 0, 0)"></i> {{  'ไม่ผ่าน:'.$item2->comment ?? null   }}</span> </label> 
                    @endif
                 </td>
@@ -81,8 +83,10 @@
                   <td>
                          @if($item2->status == 1) 
                                      @if($item2->file_status == 1)
+                                     
                                               <span> <i class="fa fa-check-square" style="font-size:20px;color:rgb(0, 255, 42)"></i> ผ่าน</span>  
                                      @elseif(isset($item2->file_comment))
+                                     
                                             @if(!is_null($item2->file_comment))
                                               <span> <i class="fa  fa-close" style="font-size:20px;color:rgb(255, 0, 0)"></i> ไม่ผ่าน </span> 
                                               {!!   " : ".$item2->file_comment ?? null  !!}

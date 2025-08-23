@@ -470,6 +470,44 @@ class HelperController extends Controller
         //     $admin_role->givePermissionTo($internalrequest_delete);
         // }
 
+
+        
+        // $appointed_lt_committee_add    = Permission::firstOrCreate(['name' => 'add-appointed-lt-committee']);
+        // $appointed_lt_committee_view   = Permission::firstOrCreate(['name' => 'view-appointed-lt-committee']);
+        // $appointed_lt_committee_edit   = Permission::firstOrCreate(['name' => 'edit-appointed-lt-committee']);
+        // $appointed_lt_committee_delete = Permission::firstOrCreate(['name' => 'delete-appointed-lt-committee']);
+
+        // if (!$admin->hasPermission($appointed_lt_committee_add)) {
+        //     $admin_role->givePermissionTo($appointed_lt_committee_add);
+        // }
+        // if (!$admin->hasPermission($appointed_lt_committee_view)) {
+        //     $admin_role->givePermissionTo($appointed_lt_committee_view);
+        // }
+        // if (!$admin->hasPermission($appointed_lt_committee_edit)) {
+        //     $admin_role->givePermissionTo($appointed_lt_committee_edit);
+        // }
+        // if (!$admin->hasPermission($appointed_lt_committee_delete)) {
+        //     $admin_role->givePermissionTo($appointed_lt_committee_delete);
+        // }
+
+
+        // $appointed_committee_sign_lt_add    = Permission::firstOrCreate(['name' => 'add-appointed-committee-sign-lt']);
+        // $appointed_committee_sign_lt_view   = Permission::firstOrCreate(['name' => 'view-appointed-committee-sign-lt']);
+        // $appointed_committee_sign_lt_edit   = Permission::firstOrCreate(['name' => 'edit-appointed-committee-sign-lt']);
+        // $appointed_committee_sign_lt_delete = Permission::firstOrCreate(['name' => 'delete-appointed-committee-sign-lt']);
+
+        // if (!$admin->hasPermission($appointed_committee_sign_lt_add)) {
+        //     $admin_role->givePermissionTo($appointed_committee_sign_lt_add);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_sign_lt_view)) {
+        //     $admin_role->givePermissionTo($appointed_committee_sign_lt_view);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_sign_lt_edit)) {
+        //     $admin_role->givePermissionTo($appointed_committee_sign_lt_edit);
+        // }
+        // if (!$admin->hasPermission($appointed_committee_sign_lt_delete)) {
+        //     $admin_role->givePermissionTo($appointed_committee_sign_lt_delete);
+        // }
         return "done";
 
     }

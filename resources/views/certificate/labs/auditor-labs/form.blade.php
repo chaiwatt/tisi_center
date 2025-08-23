@@ -1,3 +1,4 @@
+{{-- Certificate\Labs\\AuditorLabsController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
@@ -196,7 +197,7 @@
 
             
             @else        
-                <div class="form-group">
+                {{-- <div class="form-group">
                     <label for="select_user_id" class="col-md-5 control-label">
                         <span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย
                     </label>
@@ -208,7 +209,20 @@
                             @endforeach
                         </select>
                     </div>
+                </div> --}}
+
+            <div class="form-group"  hidden>
+                {!! HTML::decode(Form::label('select_user_id', '<span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย', ['class' => 'col-md-5 control-label'])) !!}
+                <div class="col-md-7">
+                    <select name="select_user_id" id="select_user_id" class="form-control" required>
+                        <option value="" selected>- ผู้ลงนามท้ายขอบข่าย -</option>
+                        @foreach ($firstSignerGroups as $id => $signer)
+                            <option value="{{ $signer->id }}" data-position="{{$signer->position}}" @if ($loop->first) selected @endif>{{ $signer->name }}</option>
+                        @endforeach
+                    </select>
+         
                 </div>
+            </div>
                 
                 <div class="form-group">
                     <label for="signer_1" class="col-md-5 control-label">

@@ -135,12 +135,19 @@ class TrackingLabsController extends Controller
 
         $app_certi_lab_id  = CheckExaminer::where('user_id',auth()->user()->runrecno)->select('app_certi_lab_id'); // เช็คเจ้าหน้าที่ LAB
 
+
+        // dd(CertificateExport::get()->sortByDesc('created_at')->first());
         // dd( $app_certi_lab_id->get() );
         // รายการใบรับรอง
+
+
+
+
         $certificate_exports = CertificateExport::LeftJoin((new CertiLab)->getTable()." AS certi_labs", 'certi_labs.id', '=', 'certificate_exports.certificate_for')
                                                 ->leftJoin((new Tracking)->getTable(), function($query) {
                                                     $query->on('app_certi_tracking.ref_id', 'certificate_exports.id')->where('app_certi_tracking.ref_table',(new CertificateExport)->getTable());
                                                 })
+
                                                 ->LeftJoin((new TrackingStatus)->getTable()." AS app_certi_tracking_status", 'app_certi_tracking_status.id', '=', 'app_certi_tracking.status_id')
                                                 //เงือนไขการแสดงข้อมูล
                                                 ->where( function($query) {
@@ -148,6 +155,11 @@ class TrackingLabsController extends Controller
                                                     $query->where('certificate_exports.status',4)
                                                     ->WhereNull('certificate_exports.status_revoke');
                                                 })
+
+
+                                                                   
+                                    
+
                                                 ->where( function($query) {
                                                     $query->whereNull('app_certi_tracking.id');
                                                 })
@@ -173,6 +185,9 @@ class TrackingLabsController extends Controller
                                                         $query->whereIn('certificate_exports.certificate_for',$app_certi_lab_id);
                                                     }
                                                 } )
+
+                                         
+
                                                 ->when($setting_config, function ($query) use ($from_filed, $condition_check, $warning_day, $check_first){
                                                     switch ( $from_filed ):
                                                         case "1": //วันที่ออกใบรับรอง
@@ -190,6 +205,7 @@ class TrackingLabsController extends Controller
                                                                             });
                                                                 });
                                                             }else{
+                                                                // ให้ลดวันที่ ลง 1 ปี 10 เดือน end_date  
                                                                 return  $query->whereHas('board_auditors', function($query)use ($condition_check, $warning_day){
                                                                             $query->whereHas('board_auditors_date', function($query) use ( $condition_check, $warning_day){
                                                                                 $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(end_date), INTERVAL '.$condition_check.' MONTH),CURDATE())'), '<=', $warning_day);
@@ -199,7 +215,12 @@ class TrackingLabsController extends Controller
                                                             break;
                                                     endswitch;
                                                 })
-                                                //filter
+
+                                                // ->orderBy('certificate_exports.created_at', 'desc') 
+                                                // ->first();
+                                                //    dd($certificate_exports);
+
+                                                // //filter
                                                 ->when($filter_search, function ($query, $filter_search){
                                                     $search_full = str_replace(' ', '', $filter_search );
                                                     $query->where( function($query) use($search_full) {

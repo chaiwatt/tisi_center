@@ -19,7 +19,15 @@
   {{-- {{ ($assessment->degree < 5) ? 'in' : '' }} --}}
 <div id="collapse" class="panel-collapse collapse ">
     <br>
+
+@php
+        $countSubmit = 0;
+@endphp
  @foreach($assessment->CertiCBHistorys as $key1 => $item1)
+
+ {{-- @php
+    dd($assessment );
+ @endphp --}}
 
  <div class="row form-group">
      <div class="col-md-12">
@@ -28,9 +36,25 @@
 
    <div class="container-fluid">
     @if(!is_null($item1->details_two))
+    
     @php 
         $details_two = json_decode($item1->details_two);
+        //  {{$details_two}}
     @endphp 
+
+    @php 
+        $details_two = json_decode($item1->details_two);
+
+        // --- โค้ดสำหรับตรวจสอบ ---
+        // ค้นหาใน $details_two ว่ามีรายการใดๆ ที่ 'comment' ไม่ใช่ค่าว่าง (null) หรือไม่
+        // ถ้าเจอแม้แต่รายการเดียว $found จะเป็น true
+        $found = !is_null(collect($details_two)->firstWhere('comment', '!=', null));
+
+        if ($found) {
+            $countSubmit++; // ถ้านับพบ ให้เพิ่มค่า counter แค่ 1 ครั้งต่อตาราง
+        }
+    @endphp
+   
     <table class="table color-bordered-table primary-bordered-table table-bordered">
         <thead>
             <tr>
@@ -53,10 +77,11 @@
         </thead>
         <tbody>
           @if (!is_null($details_two))
+            
             @foreach($details_two as $key2 => $item2)
-            @php
-             $type =   ['1'=>'ข้อบกพร่อง','2'=>'ข้อสังเกต'];
-            @endphp
+                @php
+                $type =   ['1'=>'ข้อบกพร่อง','2'=>'ข้อสังเกต'];
+                @endphp
             <tr>
                 <td class="text-center">{{ $key2+ 1 }}</td>
                 <td>
@@ -73,20 +98,23 @@
                 </td>
               
                 <td>
-                    {{ @$item2->details ?? null }}
                     <br>
                     @if($item2->status == 1) 
-                      <label for="app_name"> <span> <i class="fa fa-check-square" style="font-size:20px;color:rgb(0, 255, 42)"></i></span> ผ่าน </label> 
+                    aa
+                        <label for="app_name"> <span> <i class="fa fa-check-square" style="font-size:20px;color:rgb(0, 255, 42)"></i></span> ผ่าน </label> 
                     @elseif(!is_null($item2->comment)) 
-                    <label for="app_name"><span>  <i class="fa  fa-close" style="font-size:20px;color:rgb(255, 0, 0)"></i> {{  'ไม่ผ่าน:'.$item2->comment ?? null   }}</span> </label> 
+                    bb
+                        <label for="app_name"><span>  <i class="fa  fa-close" style="font-size:20px;color:rgb(255, 0, 0)"></i> {{  'ไม่ผ่าน:'.$item2->comment ?? null   }}</span> </label> 
                    @endif
                 </td>
                 @if($key1 > 0) 
                   <td>
                          @if($item2->status == 1) 
+                          cc
                                      @if($item2->file_status == 1)
                                               <span> <i class="fa fa-check-square" style="font-size:20px;color:rgb(0, 255, 42)"></i> ผ่าน</span>  
                                      @elseif(isset($item2->file_comment))
+                                       cc
                                             @if(!is_null($item2->file_comment))
                                               <span> <i class="fa  fa-close" style="font-size:20px;color:rgb(255, 0, 0)"></i> ไม่ผ่าน </span> 
                                               {!!   " : ".$item2->file_comment ?? null  !!}
@@ -109,8 +137,12 @@
             </tr>
             @endforeach 
           @endif
+
+          
         </tbody>
+
     </table>
+      {{$countSubmit-1}}
     @endif
 
     @if(!is_null($item1->details_three)) 

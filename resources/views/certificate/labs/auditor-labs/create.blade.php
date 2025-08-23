@@ -1,3 +1,4 @@
+{{-- Certificate\Labs\\AuditorLabsController --}}
 @extends('layouts.master')
 
 @section('content')

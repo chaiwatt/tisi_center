@@ -50,6 +50,7 @@ class AuditorCbController extends Controller
 
     public function data_list(Request $request)
     { 
+     
       $roles =  !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : []; 
  
       $model = str_slug('auditorcb', '-');

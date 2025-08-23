@@ -219,16 +219,16 @@
                             {{-- <table class="table table-striped" id="myTable">
                                 <thead>
                                 <tr>
-                                    <th width="1%" class="text-center">#</th>
+                                    <th width="1%" >#</th>
                                     <th  width="1%" ><input type="checkbox" id="checkall"></th>
-                                    <th width="10%" class="text-center">รหัสโครงการ</th>
-                                    <th width="25%" class="text-center">ชื่อมาตรฐาน</th>
-                                    <th width="15%" class="text-center">ประเภท</th>
-                                    <th width="10%" class="text-center">วิธีการ</th>
-                                    <th width="10%" class="text-center">บรรจุแผนปี</th>
-                                    <th width="10%" class="text-center">ระยะเวลาจัดทำ</th>
-                                    <th width="15%" class="text-center">สถานะ</th>
-                                    <th width="10%" class="text-center">จัดการ</th>
+                                    <th width="10%" >รหัสโครงการ</th>
+                                    <th width="25%" >ชื่อมาตรฐาน</th>
+                                    <th width="15%" >ประเภท</th>
+                                    <th width="10%" >วิธีการ</th>
+                                    <th width="10%" >บรรจุแผนปี</th>
+                                    <th width="10%" >ระยะเวลาจัดทำ</th>
+                                    <th width="15%" >สถานะ</th>
+                                    <th width="10%" >จัดการ</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -238,118 +238,128 @@
                              <table class="table table-striped" id="myTable">
                                 <thead>
                                     <tr>
-                                        <th width="1%" class="text-center">#</th>
+                                        <th width="1%" >#</th>
                                         {{-- <th width="1%"></th> --}}
                                         {{-- <th width="15%" >รหัสโครงการ</th> --}}
+                                           <th width="10%" >บรรจุแผนปี</th>
+                                           <th width="10%" >คำขอ</th>
                                         <th width="20%" >ชื่อมาตรฐาน</th>
-                                        <th width="10%" >ประเภท</th>
-                                        <th width="10%" class="text-center">วิธีการ</th>
-                                        <th width="10%" class="text-center">บรรจุแผนปี</th>
-                                        <th width="10%" class="text-center">ระยะเวลาจัดทำ</th>
+                                        <th width="20%" >ประเภทข้อเสนอ</th>
+                                        {{-- <th width="10%" >วิธีการ</th> --}}
+                                     
+                                        <th width="10%" >ระยะเวลาจัดทำ</th>
                                         <th width="10%" >สถานะ</th>
-                                        <th width="20%" class="text-center">จัดการ</th>
+                                        <th width="20%" style="text-align: right">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($setStandards as $index => $item)
+                                    @php
+                                        $filteredStandards = $setStandards->filter(function ($item) {
+                                            // ใช้ optional() เพื่อให้โค้ดไม่ error
+                                            // ถ้า estandard_plan_to หรือ estandard_offers_to เป็น null
+                                            return !empty(optional($item->estandard_plan_to)->estandard_offers_to->proposer_type);
+                                        });
+                                    @endphp
+
+                           
+                            
+
+                                    @foreach($filteredStandards as $index => $item)
                                         <tr>
-                                            <td class="text-center">{{ $setStandards->firstItem() + $index }}</td>
-                                            {{-- <td>
-                                                @if($item->state == 99)
-                                                    <input type="checkbox" name="item_checkbox[]" class="item_checkbox" value="{{ $item->id }}">
-                                                @else
-                                                    <!-- Empty checkbox cell if state is not 99 -->
+                                            <td >{{ $setStandards->firstItem() + $index }}</td>
+                                             <td >{{ $item->TisYear ?? '' }}</td>
+                                             <td >{{ str_replace('Req', 'CSD', $item->estandard_plan_to->estandard_offers_to->refno ?? '') }}</td>
+                                            <td >{{ $item->estandard_plan_to->estandard_offers_to->standard_name ?? '' }} <br> {{ $item->estandard_plan_to->estandard_offers_to->standard_name_en ?? '' }}</td>
+                                            <td >@switch($item->estandard_plan_to->estandard_offers_to->proposer_type ?? '')
+                                                @case('sdo_advanced')
+                                                    SDO ขั้นสูง
+                                                        @break
+
+                                                    @case('sdo_basic_or_non_sdo')
+                                                        SDO ขั้นต้น หรือหน่วยงานที่ไม่ใช่ SDO
+                                                        @break
+                                                @endswitch
+                                                
+                                                @if(!empty($item->estandard_plan_to->estandard_offers_to->proposer_type))
+                                                    {{-- {{ $item->estandard_plan_to->estandard_offers_to->proposer_type }} --}}
                                                 @endif
-                                            </td> --}}
-                                            {{-- <td >{{ $item->projectid ?? 'อยู่ระหว่างกำหนดมาตรฐาน' }}</td> --}}
-                                            <td >{{ $item->TisName ?? '' }}</td>
-                                            <td >{{ $item->StdTypeName ?? '' }}</td>
-                                            <td class="text-center">{{ $item->estandard_plan_to->method_to->title ?? '' }}</td>
-                                            <td class="text-center">{{ $item->TisYear ?? '' }}</td>
-                                            <td class="text-center">{{ $item->Period ? $item->Period . ' เดือน' : '' }}</td>
+                                            </td>
+                                           
+                                            <td >{{ $item->Period ? $item->Period . ' เดือน' : '' }}</td>
                                             <td >{{ $item->StatusText ?? '' }}</td>
-                                            <td class="text-center">
+                                            <td style="text-align: right">
                                                 
               
 
                                                 <div style="display: inline-flex; align-items: center; gap: 5px;">
           
-                                                    <a href="{{ url('/certify/set-standards/' . $item->id) }}" title="View setstandard" class="btn btn-info btn-xs" style="display: inline-block;">
-                                                        <i class="fa fa-eye"></i>
-                                                    </a>
+                                                    @if ($item->estandard_plan_to->estandard_offers_to->proposer_type == "sdo_advanced")
 
-                                                    @if ($item->estandard_plan_to->method_to->id == 1 || $item->estandard_plan_to->method_to->id == 2)
-                                                    
-                                                            {{-- <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                <i class="fa fa-pencil-square-o"></i>
-                                                            </a> --}}
-                                                            {{-- @php
-                                                                dd($item);
-                                                            @endphp --}}
 
                                                             @if ($item->mainAppointmentMeetingApproved->count() == 0)
-                                                                <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
                                                                     <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                                                 </a>
                                                             @else  
-
-                                                              <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                <i class="fa fa-pencil-square-o"></i>
-                                                            </a>
-                                                               
-                                                        @endif
-                                                               
-
-                                                    @elseif($item->estandard_plan_to->method_to->id == 3)
-                                               
-                                                        @if ($item->subAppointmentMeetingApproved->count() == 0)
-                                                                <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
-                                                                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="เห็นชอบมติคณะประชุม" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                    <i class="fa fa-pencil-square-o"></i>
                                                                 </a>
-                                                            @else  
-                                                                <a href="{{url('/certify/set-standards/'.$item->id.'/edit_sub_appointment')}}" title="Edit setstandard" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                                                                </a>
-                                                        @endif
+                                                            @endif
                                                                
 
-                                                      
 
-                                                            @if ($item->status_sub_appointment_id == 5)
+                                                    {{-- @elseif($item->estandard_plan_to->method_to->id == 3) --}}
+                                                    @elseif($item->estandard_plan_to->estandard_offers_to->proposer_type == "sdo_basic_or_non_sdo")
+                                                        @if(!auth()->user()->roles->contains('id', 64))
+                                                            @if ($item->subAppointmentMeetingApproved->count() == 0)
+                                                                    <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุม" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                        <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                    </a>
+                                                                @else  
+                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit_sub_appointment')}}" title="หนังสือเชิญประชุมและนัดหมายประชุม" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                                    </a>
+                                                            @endif
+                                                        @endif            
+
+                                              
+                                                        @if ($item->status_sub_appointment_id == 5)
+                                                            @if(!auth()->user()->roles->contains('id', 64))
                                                                 <a href="javascript:void(0)" 
-                                                                        title="Edit setstandard" 
+                                                                        title="เห็นชอบมติการประชุม" 
                                                                         class="btn {{ $item->agreement_status != null ? 'btn-info' : 'btn-warning' }} btn-xs btn-agreement" 
                                                                         style="display: inline-block;" 
                                                                         
                                                                         data-id="{{$item->id}}">
-                                                                      <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
                                                                 </a>
-                                                                {{-- @php
-                                                                    dd($item->agreement_status);
-                                                                @endphp --}}
-                                                                @if ($item->agreement_status == 1)
-                                                                    <a href="javascript:void(0)" data-id="{{$item->id}}"  class="btn {{ $item->standard_circular_doc_status != null ? 'btn-info' : 'btn-warning' }} btn-xs  btn-standard-circular-doc" style="display: inline-block;">
+                                                            @endif
+                                                            
+
+                                                            @if ($item->agreement_status == 1)
+
+                                                                @if(!auth()->user()->roles->contains('id', 64))
+                                                                    <a href="javascript:void(0)" data-id="{{$item->id}}" title="เวียนมาตรฐาน"  class="btn {{ $item->standard_circular_doc_status != null ? 'btn-info' : 'btn-warning' }} btn-xs  btn-standard-circular-doc" style="display: inline-block;">
                                                                         <i class="fa fa-refresh" aria-hidden="true"></i>
                                                                     </a>
-                                                                    
-                                                                    @if ($item->standard_circular_doc_status != null)
-                                              {{-- {{$item->mainAppointmentMeetingApproved }} --}}
-                                                                         @if ($item->mainAppointmentMeetingApproved->count() == 0)
-                                                                                <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="Edit setstandard" class="btn btn-warning btn-xs" style="display: inline-block;">
-                                                                                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                                                                                </a>
-                                                                        @else  
-                                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="Edit setstandard" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                                <i class="fa fa-pencil-square-o"></i>
-                                                                            </a>
-
-                                                                        @endif
-                                                                    @endif
-
-                                                                    
                                                                 @endif
                                                                 
-                                                              @endif
+                                                                
+                                                                @if(auth()->user()->roles->contains('id', 64))  
+                                                                    @if ($item->standard_circular_doc_status != null)
+                                                                        @if ($item->mainAppointmentMeetingApproved->count() == 0)
+                                                                            <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                                <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                            </a>
+                                                                        @else  
+                                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                            </a>
+                                                                        @endif
+                                                                    @endif
+                                                                @endif         
+                                                            @endif 
+                                                        @endif
                                                           
                                                       
 
@@ -371,7 +381,7 @@
                                     </span>
                                 </div>
                                 <div>
-                                    {{ $setStandards->links() }}
+                                    {{-- {{ $setStandards->links() }} --}}
                                 </div>
                             </div>
 

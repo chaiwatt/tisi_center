@@ -332,13 +332,13 @@
 
                     @if ($assessmentType == 0) 
                             <div style="text-indent: 137px;margin-top:10px;line-height:34px">
-                                รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้เชี่ยวชาญ
+                                รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px"  > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน ผู้ตรวจประเมิน และผู้เชี่ยวชาญ
                                 เพื่อดำเนินการตรวจประเมินสถานประกอบการ ของ {{$data->name_standard}} {{$data->date_range}} ดังนี้
                             </div>
 
                         @elseif($assessmentType == 1)
                             <div style="text-indent: 137px;margin-top:10px;line-height:34px">
-                                รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px" required > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน
+                                รต.<input type="text" class="input-no-border" id="body_text2" name="body_text2" value="" style="width:30px"  > สก. ได้สรรหาคณะผู้ตรวจประเมินประกอบด้วย หัวหน้าผู้ตรวจประเมิน และผู้ตรวจประเมิน
                                 เพื่อดำเนินการตรวจประเมินสถานประกอบการ ของ {{$data->name_standard}} {{$data->date_range}} ดังนี้
                             </div>
                     @endif
@@ -427,14 +427,14 @@ $(document).ready(function() {
         var errorField = null; // ตัวแปรเก็บฟิลด์ที่พบว่าเป็นข้อผิดพลาด
 
         // ตรวจสอบแต่ละฟิลด์
-        $('#header_text1, #header_text2, #header_text3, #header_text4, #body_text1, #body_text2').each(function() {
-            if ($(this).val().trim() === "") {
-                isValid = false; // ถ้าพบฟิลด์ที่ว่าง
-                if (!errorField) { // ถ้าไม่มีฟิลด์ผิดพลาดที่ถูกเก็บไว้
-                    errorField = $(this); // เก็บฟิลด์แรกที่พบข้อผิดพลาด
-                }
-            }
-        });
+        // $('#header_text1, #header_text2, #header_text3, #header_text4, #body_text1, #body_text2').each(function() {
+        //     if ($(this).val().trim() === "") {
+        //         isValid = false; // ถ้าพบฟิลด์ที่ว่าง
+        //         if (!errorField) { // ถ้าไม่มีฟิลด์ผิดพลาดที่ถูกเก็บไว้
+        //             errorField = $(this); // เก็บฟิลด์แรกที่พบข้อผิดพลาด
+        //         }
+        //     }
+        // });
 
         if (!isValid) {
             // แสดง alert เมื่อพบข้อผิดพลาด

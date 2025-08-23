@@ -442,7 +442,7 @@
                     },
                     {
                         "title": "lab_scope_review",
-                        "display": "ลงนามท้ายขอบข่าย",
+                        "display": "ลงนามกำกับย่อ",
                         "icon": "mdi mdi-file-document-box",
                         "url": "\/certify\/lab-scope-review"
                     },

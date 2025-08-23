@@ -170,16 +170,14 @@ class MeetingStandardsController extends Controller
                 //         ->get();
 
                 $standards = SetStandards::with('estandard_plan_to')
-                    // กรอง SetStandards ที่ความสัมพันธ์ estandard_plan_to มีอยู่ และ...
                     ->whereHas('estandard_plan_to', function ($query) {
-                        // ...ในตาราง TisiEstandardDraftPlan นั้น คอลัมน์ approve ต้องไม่เป็น null
                         $query->whereNotNull('approve');
                     })
-                    // และ ต้องมี status ตรงตามเงื่อนไข (จัดกลุ่ม orWhere ให้ถูกต้อง)
                     ->where(function ($query) {
                         $query->whereIn('status_id', [2, 3])
                             ->orWhereIn('status_sub_appointment_id', [2, 3]);
                     })
+                    ->doesntHave('standards')
                     ->get();
                                         
                     // foreach ($standards as $standard) {

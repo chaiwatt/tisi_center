@@ -1,3 +1,4 @@
+{{-- SaveAssessmentCBController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
@@ -258,6 +259,8 @@
                 </div>
 
             </div>
+            
+
 
 
 
@@ -343,6 +346,37 @@
                     @endif --}}
                 </div>
             </div>
+
+
+            {{-- <div class="col-md-12">
+                <label class="col-md-2 "><span class="text-danger">*</span> รายงานการตรวจประเมิน : </label>
+                <div class="col-md-7">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="fileinput fileinput-new input-group " data-provides="fileinput">
+                                    <div class="form-control" data-trigger="fileinput">
+                                        <i class="glyphicon glyphicon-file fileinput-exists"></i>
+                                        <span class="fileinput-filename"></span>
+                                    </div>
+                                    <span class="input-group-addon btn btn-default btn-file">
+                                        <span class="fileinput-new">เลือกไฟล์</span>
+                                        <span class="fileinput-exists">เปลี่ยน</span>
+                                        <input type="file"  name="file_report[]" class="check_max_size_file">
+                                    </span>
+                                    <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">ลบ</a>
+                                </div>
+                                {!! $errors->first('attachs', '<p class="help-block">:message</p>') !!}
+                            </div>
+                            <div class="col-md-2 text-left">
+                                <button type="button" class="btn btn-sm btn-success attach_remove" id="attach_add_report">
+                                    <i class="icon-plus"></i>&nbsp;เพิ่ม
+                                </button>
+                                <div class="button_remove_report"></div>
+                            </div> 
+                    </div>
+                </div>
+            </div> --}}
+
         </div>
     </div>
 </div>      

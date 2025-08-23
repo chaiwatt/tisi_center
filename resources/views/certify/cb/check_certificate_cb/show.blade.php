@@ -428,6 +428,10 @@
                                 </div>
                             </div>
                         </div>
+
+
+             
+
                     {{-- @else 
                         <a  class="form_group btn btn-warning" href="{{ url("certify/save_assessment-cb")}}" >
                             ผลการตรวจประเมิน 
@@ -442,9 +446,29 @@
 
                     {{-- ทบทวน --}}
                     {{-- {{$certi_cb->fullyApproveReport()}} --}}
+
                    
                     {{-- @if( $certi_cb->status >= 11  && count($certi_cb->CertiCBSaveAssessmentMany) > 0   && $certi_cb->CertiCBSaveAssessmentStatus == "statusInfo" && $boardAuditor->isAllFinalReportSigned()) --}}
                     @if( $certi_cb->status >= 11  && count($certi_cb->CertiCBSaveAssessmentMany) > 0   && $certi_cb->CertiCBSaveAssessmentStatus == "statusInfo" )
+
+                         {{-- <a type="button" class="form_group btn btn-warning"  href="{{route('cb.summary-report-html-template',['id' => $certi_cb->id])}}">
+                             สรุปรายงานการตรวจ
+                        </a> --}}
+
+                          <a type="button" class="form_group btn {{ $certi_cb->isAllSummaryReportSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('cb.summary-report-html-template',['id' => $certi_cb->id])}}">
+                                สรุปรายงานการตรวจ
+                            </a>
+
+                                @if ($certi_cb->isAllSummaryReportSigned())
+                                     <a type="button" class="form_group btn {{ $certi_cb->isAllTangTongSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('cb.doc-tangtung-tobtoun-html',['id' => $certi_cb->id])}}">
+                                        แต่งตั้งคณะทบทวน
+                                    </a>
+                                @endif
+
+                            {{-- <a type="button" class="form_group btn btn-warning"  href="{{route('cb.doc-tangtung-tobtoun-html',['id' => $certi_cb->id])}}">
+                                แต่งตั้งคณะทบทวน
+                            </a> --}}
+                   
                         @php 
                             $review =  $certi_cb->CertiCBReviewTo;
                             $review_btn =  '';
@@ -457,6 +481,24 @@
                                 $review_icon =  '<i class="fa fa-check-square-o"></i>';
                             }
                         @endphp
+
+                        {{-- @if ($certi_cb->isAllTobTounReportSigned())
+ssss
+                        @endif --}}
+
+                          <a type="button" class="form_group btn btn-warning" href="{{route('cb.doc-result-review-html',['id' => $certi_cb->id])}}">
+                                        รายงานทบทวนฯ
+                                    </a>
+
+                           {{-- @if ($certi_cb->isAllTobTounReportSigned())
+                                    <a type="button" class="form_group btn {{ $certi_cb->isAllTangTungTobtounSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('cb.doc-result-review-html',['id' => $certi_cb->id])}}">
+                                        รายงานทบทวนฯ
+                                    </a>
+                            @endif --}}
+
+                            {{-- <a type="button" class="form_group btn {{$review_btn}}" href="{{route('cb.doc-result-review-html',['id' => $certi_cb->id])}}" >
+                                {!! $review_icon !!} รายงานทบทวนฯ
+                            </a> --}}
 
                         {{-- @if ($certi_cb->fullyApproveReport()) --}}
                             <button type="button" class="form_group btn {{$review_btn}}"  data-toggle="modal" data-target="#ReviewModal">

@@ -253,20 +253,26 @@
     <div class="row">
         <!-- คอลัมน์ที่ 1 (ครึ่งหนึ่งของหน้าจอสำหรับขนาดกลางขึ้นไป) -->
         <div class="col-md-6">
-            <div class="form-group required {{ $errors->has('title') ? 'has-error' : ''}}">
-                <!-- Label ไม่มี col-md-X -->
+            {{-- <div class="form-group  {{ $errors->has('title') ? 'has-error' : ''}}" hidden >
                 <label for="title" class="control-label">
                     ชื่อเรื่อง : 
                 </label>
                 <div>
-                    <!-- Div ครอบ input ไม่มี col-md-X -->
-                    <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $yourModelInstance->title ?? '') }}" required>
+                    <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $yourModelInstance->title ?? '') }}" >
                     {!! $errors->first('title', '<p class="help-block">:message</p>') !!}
                 </div>
+            </div> --}}
+
+           
+            <div class="form-group required{{ $errors->has('standard_name') ? 'has-error' : ''}}">
+                <label for="standard_name" class="control-label">ชื่อมาตรฐาน (ไทย):</label>
+                <div>
+                    <input class="form-control" placeholder="ชื่อมาตรฐาน (ไทย)" name="standard_name" type="text" id="standard_name" required>
+                    @if ($errors->has('standard_name'))
+                        <p class="help-block">{{ $errors->first('standard_name') }}</p>
+                    @endif
+                </div>
             </div>
-
-            {{-- {!! Form::select('province_id', App\Models\Basic\Province::pluck('PROVINCE_NAME', 'PROVINCE_ID'), null, ['class' => 'form-control', 'placeholder'=>'- เลือกจังหวัด -', 'required' => 'required']) !!} --}}
-
             <div class="form-group required {{ $errors->has('std_type') ? ' has-error' : '' }}">
                 <label for="std_type" class="control-label">ประเภทมาตรฐาน :</label>
                 <div>
@@ -320,15 +326,7 @@
             </div>
         </div>
 
-            <div class="form-group required{{ $errors->has('standard_name_en') ? 'has-error' : ''}}">
-                <label for="standard_name_en" class="control-label">ชื่อมาตรฐาน(Eng) :</label>
-                <div>
-                    <input class="form-control" placeholder="ชื่อมาตรฐาน" name="standard_name_en" type="text" id="standard_name_en" required>
-                    @if ($errors->has('standard_name_en'))
-                        <p class="help-block">{{ $errors->first('standard_name_en') }}</p>
-                    @endif
-                </div>
-            </div>
+    
 
 
 
@@ -347,20 +345,28 @@
 
 
 
-            <div class="form-group required{{ $errors->has('title_eng') ? 'has-error' : ''}}">
+            {{-- <div class="form-group {{ $errors->has('title_eng') ? 'has-error' : ''}}" hidden>
                 {!! Form::label('title_eng', 'ชื่อเรื่อง (Eng)'.' : ', ['class' => 'control-label']) !!}
                 <div>
-                    {!! Form::text('title_eng', null, ('required' == 'required') ? ['class' => 'form-control', 'required' => 'required'] : ['class' => 'form-control']) !!}
+                    {!! Form::text('title_eng', null, ('required' == 'required') ? ['class' => 'form-control'] : ['class' => 'form-control']) !!}
                     {!! $errors->first('title_eng', '<p class="help-block">:message</p>') !!}
                 </div>
-            </div>
+            </div> --}}
 
          </div>
 
 
         <!-- คอลัมน์ที่ 2 (ครึ่งหนึ่งของหน้าจอสำหรับขนาดกลางขึ้นไป) -->
         <div class="col-md-6">
-
+        <div class="form-group required{{ $errors->has('standard_name_en') ? 'has-error' : ''}}">
+                <label for="standard_name_en" class="control-label">ชื่อมาตรฐาน(Eng) :</label>
+                <div>
+                    <input class="form-control" placeholder="ชื่อมาตรฐาน(Eng)" name="standard_name_en" type="text" id="standard_name_en" required>
+                    @if ($errors->has('standard_name_en'))
+                        <p class="help-block">{{ $errors->first('standard_name_en') }}</p>
+                    @endif
+                </div>
+            </div>
 
             <div class="form-group required{{ $errors->has('objectve') ? ' has-error' : '' }}">
                 <label for="objectve" class="control-label">จุดประสงค์และเหตุผลในการจัดทำ :</label>
@@ -399,15 +405,7 @@
                 @endif
             </div>
 
-            <div class="form-group required{{ $errors->has('standard_name') ? 'has-error' : ''}}">
-                <label for="standard_name" class="control-label">ชื่อมาตรฐาน :</label>
-                <div>
-                    <input class="form-control" placeholder="ชื่อมาตรฐาน" name="standard_name" type="text" id="standard_name" required>
-                    @if ($errors->has('standard_name'))
-                        <p class="help-block">{{ $errors->first('standard_name') }}</p>
-                    @endif
-                </div>
-            </div>
+        
 
             <div class="form-group {{ $errors->has('national_strategy') ? 'has-error' : ''}}">
                 <label for="national_strategy" class="control-label" style="text-align: left">แผนยุทธศาสตร์ชาติ 20 ปี/แผนพัฒนาเศรษฐกิจและสังคมแห่งชาติ ฉบับที่ 13 (ถ้ามี) :</label>

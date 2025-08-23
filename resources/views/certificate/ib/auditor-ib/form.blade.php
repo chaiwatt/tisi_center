@@ -1,3 +1,4 @@
+{{-- AuditorIbController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
@@ -162,6 +163,19 @@
                         </div>
                     </div>
                 @else
+                    <div class="form-group">
+                        <label for="assessment_type" class="col-md-5 control-label">
+                            ประเภทการตรวจประเมิน
+                        </label>
+                        <div class="col-md-7">
+                            <select name="assessment_type" id="assessment_type" class="form-control" >
+                                <option value="" selected>- เลือกประเภทการตรวจประเมิน -</option>
+                                <option value="0">ขั้นตอนที่ 1</option>
+                                <option value="1">ขั้นตอนที่ 2</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         {!! HTML::decode(Form::label('select_user_id', '<span class="text-danger">*</span> ผู้ลงนามท้ายขอบข่าย', ['class' => 'col-md-5 control-label'])) !!}
                         <div class="col-md-7">

@@ -1,3 +1,4 @@
+{{-- TrackingLabsController --}}
 @extends('layouts.master')
 
 @push('css')

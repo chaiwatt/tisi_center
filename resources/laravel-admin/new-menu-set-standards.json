@@ -92,18 +92,24 @@
                             "display": "ประกาศราชกิจจานุเบกษา",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/gazette"
+                        }
+                    ]
+                },
+                {
+                    "title": "set_std_basic",
+                    "display": "เครื่องมือ",
+                    "sub_menus":[
+                        {
+                            "title": "appointed-academic-sub-committee",
+                            "display": "หนังสือเชิญประชุม",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/appointed-academic-sub-committee"
                         },
                         {
                             "title": "meetingstandards",
                             "display": "นัดหมายการประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/meeting-standards"
-                        },
-                        {
-                            "title": "appointed-academic-sub-committee",
-                            "display": "หนังสือเชิญประชุม",
-                            "icon": "mdi mdi-chevron-double-right",
-                            "url": "\/certify\/appointed-academic-sub-committee"
                         },
                         {
                             "title": "appointed-committee",
@@ -113,15 +119,27 @@
                         }
                     ]
                 },
-                {
+                  {
                     "title": "set_std_basic",
-                    "display": "เครื่องมือ",
+                    "display": "เครื่องมือ (ลท.)",
                     "sub_menus":[
                         {
+                            "title": "appointed-lt-committee",
+                            "display": "หนังสือเชิญประชุม",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/appointed-lt-committee"
+                        },
+                        {
                             "title": "appointed-committee-lt",
-                            "display": "ประชุมเจ้าหน้าที่ ลท",
+                            "display": "นัดหมายการประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-committee-lt"
+                        },
+                        {
+                            "title": "appointed-committee-sign-lt",
+                            "display": "ลงนามหนังสือเชิญประชุม",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/appointed-committee-sign-lt"
                         }
                     ]
                 },

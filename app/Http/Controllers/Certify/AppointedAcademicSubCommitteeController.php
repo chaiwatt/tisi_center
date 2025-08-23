@@ -16,7 +16,7 @@ class AppointedAcademicSubCommitteeController extends Controller
 {
     public function index(Request $request)
     {
-        
+        // dd('ok');
         $model = str_slug('appointed-academic-sub-committee','-');
         if(auth()->user()->can('view-'.$model)) {
 
@@ -28,8 +28,13 @@ class AppointedAcademicSubCommitteeController extends Controller
             //     ->with('setStandards') // Eager load เพื่อลด query
             //     ->get();
 
-            $meetingInvitations = MeetingInvitation::whereIn('status',[1,2])
+            // $meetingInvitations = MeetingInvitation::whereIn('status',[1,2])
+            //     ->with('setStandards') // Eager load เพื่อลด query
+            //     ->get();
+
+                    $meetingInvitations = MeetingInvitation::whereIn('status',[1,2,3])
                 ->with('setStandards') // Eager load เพื่อลด query
+                ->orderBy('id','desc')
                 ->get();
                 
                 
@@ -48,15 +53,23 @@ class AppointedAcademicSubCommitteeController extends Controller
        
         $model = str_slug('appointed-academic-sub-committee','-');
         $singers = Signer::all();
-        $setStandards = SetStandards::whereHas('estandard_plan_to', function ($query) {
-                    $query->whereNotNull('approve');
-                })
-                // ->where(function ($query) { // <-- จัดกลุ่มเงื่อนไขเดิมด้วย Closure
-                //     $query->where('status_id', 0)
-                //         ->orWhere('status_sub_appointment_id', 0);
-                // })
-                ->orderBy('id', 'desc')
-                ->get();
+        // $setStandards = SetStandards::whereHas('estandard_plan_to', function ($query) {
+        //             $query->whereNotNull('approve');
+        //         })
+
+        //         ->orderBy('id', 'desc')
+        //         ->get();
+
+
+        $setStandards = SetStandards::query()
+            // เงื่อนไขแรก: ต้องมี estandard_plan_to ที่ approve แล้ว
+            ->whereHas('estandard_plan_to', function ($query) {
+                $query->whereNotNull('approve');
+            })
+            // เงื่อนไขที่สอง: และต้องไม่มีข้อมูลเชื่อมไปที่ตาราง Standard
+            ->doesntHave('standards') // <-- เพิ่มส่วนนี้
+            ->orderBy('id', 'desc')
+            ->get();
 
         // $setStandards = SetStandards::whereHas('estandard_plan_to') // <-- ตรวจสอบแค่ว่ามี relation อยู่หรือไม่
         //     ->where(function ($query) {
@@ -77,7 +90,7 @@ class AppointedAcademicSubCommitteeController extends Controller
 
     public function store(Request $request)
     {
-        
+
         $validatedData = $request->validate([
             'doc_type' => 'required|in:1,2', // ต้องระบุและต้องเป็น 1 หรือ 2
             'header' => 'required|string|max:255', // ต้องระบุและไม่เกิน 255 ตัวอักษร
@@ -97,6 +110,8 @@ class AppointedAcademicSubCommitteeController extends Controller
             
             'action' => 'required|in:save,submit' // ตรวจสอบค่า action
         ]);
+
+        // dd($request->file('image_file'),$request->file('google_form_qr'));
         $model = str_slug('appointed-academic-sub-committee','-');
 
         if(auth()->user()->can('add-'.$model)) {
@@ -361,7 +376,24 @@ public function view($id)
         $meetingInvitation = MeetingInvitation::with(['setStandards', 'committeeSpecials', 'signer'])->findOrFail($id);
         $setStandards = SetStandards::where('projectid', null)->get();
         $signers = Signer::all();
-        return view('certify.appointed-academic-sub-committee.view', compact('meetingInvitation', 'setStandards', 'signers'));
+
+        $attachFile = AttachFile::where('ref_table', 'meeting_invitations')
+            ->where('ref_id', $meetingInvitation->id)
+            ->where('section', 'order_book')
+            ->latest() // เพิ่มบรรทัดนี้เพื่อเรียงจากล่าสุด
+            ->first();
+        $order_book_url =null;
+        if($attachFile != null){
+            $config = HP::getConfig();
+            $url  =   !empty($config->url_center) ? $config->url_center : url('');
+            $order_book_url = $url . 'funtions/get-view/' . $attachFile->url . '/' .$attachFile->filename ;
+
+        }
+
+
+      
+        // dd( $order_book_url);
+        return view('certify.appointed-academic-sub-committee.view', compact('meetingInvitation', 'setStandards', 'signers','order_book_url'));
     }
     abort(403);
 }

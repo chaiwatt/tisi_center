@@ -254,73 +254,58 @@ class SaveAssessmentIbController extends Controller
             }
              if($assessment->bug_report == 2){
 
-              
+                // $assessment_type = $assessment->CertiIBAuditorsTo->assessment_type;
+                // $report_type = "";
+                // if($assessment_type == 0)
+                // {
+                //     $report_type = "ib_final_report_process_one";
+                // }else{
+                //     $report_type = "ib_final_report_process_two";
+                // }
 
-                $assessment_type = $assessment->CertiIBAuditorsTo->assessment_type;
-                $report_type = "";
-                if($assessment_type == 0)
-                {
-                    $report_type = "ib_final_report_process_one";
-                }else{
-                    $report_type = "ib_final_report_process_two";
-                }
-
-
-                //   $ibReportInfo = IbReportInfo::where('ib_assessment_id',$assessment->id)->first();
-                $report = IbReportTemplate::where('ib_assessment_id',$assessment->id)
-                                        ->where('report_type',$report_type)
-                                        ->first();
+                // $report = IbReportTemplate::where('ib_assessment_id',$assessment->id)
+                //                         ->where('report_type',$report_type)
+                //                         ->first();
 
 
-                if($report == null){
-                        $report = new IbReportTemplate();
-                        $report->ib_assessment_id = $assessment->id;
-                        $report->report_type = $report_type;
-                        $report->save();
-                }
+                // if($report == null){
+                //         $report = new IbReportTemplate();
+                //         $report->ib_assessment_id = $assessment->id;
+                //         $report->report_type = $report_type;
+                //         $report->save();
+                // }
 
-             
+                // $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                //         ->whereNotNull('signer_id')
+                //         ->where('certificate_type',1)
+                //         ->where('report_type',1)
+                //         ->get();
 
-                $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
-                        ->whereNotNull('signer_id')
-                        ->where('certificate_type',1)
-                        ->where('report_type',1)
-                        ->get();
-
-                        //  dd($request->all(),$check->count(),$request->previousUrl);
-
-                if($check->count() != 0 )
-                {
+                // if($check->count() != 0 )
+                // {
                    
-                    $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$report->id)
-                            ->whereNotNull('signer_id')
-                            ->where('certificate_type',1)
-                            ->where('report_type',1)
-                            ->where('approval',0)
-                            ->get();   
-                        if($signAssessmentReportTransactions->count() == 0){
-                            // $pdfService = new CreateIbAssessmentReportPdf($report->id,"ia");
-                            // $pdfContent = $pdfService->generateIbAssessmentReportPdf();
-                        }else{
-                            // return redirect('certify/check_certificate-ib')->with('message', 'เรียบร้อยแล้ว!');
-                            return redirect('certify/check_certificate-ib/'.$CertiIb->token)->with('message', 'เรียบร้อยแล้ว!');
-
-                            // certify/check_certificate-ib/LFEdscNPicAEkEnW
-                        }  
-                }
-                else
-                {
+                //     $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                //             ->whereNotNull('signer_id')
+                //             ->where('certificate_type',1)
+                //             ->where('report_type',1)
+                //             ->where('approval',0)
+                //             ->get();   
+                //         if($signAssessmentReportTransactions->count() == 0){
+                //         }else{
+                //             return redirect('certify/check_certificate-ib/'.$CertiIb->token)->with('message', 'เรียบร้อยแล้ว!');
+                //         }  
+                // }
+                // else
+                // {
                      
-                    // dd($report);
-                    $templateType = "ib_final_report_process_one";
-                    // dd($templateType,$CertiIb->id,$assessment->id);
-                    return view('abpdf.editor',[
-                        'templateType' => $report_type,
-                        'ibId' => $CertiIb->id,
-                        'assessmentId' => $assessment->id,
-                    ]);
-                    // return redirect()->route('save_assessment.ib_report_create',['id' => $assessment->id]);
-                }
+                //     // dd($report);
+                //     $templateType = "ib_final_report_process_one";
+                //     return view('abpdf.editor',[
+                //         'templateType' => $report_type,
+                //         'ibId' => $CertiIb->id,
+                //         'assessmentId' => $assessment->id,
+                //     ]);
+                // }
 
                 // dd();
                 // รายงาน Scope
@@ -426,6 +411,63 @@ class SaveAssessmentIbController extends Controller
                 $this->set_history($assessment);
                 $this->set_mail_past($assessment,$CertiIb);  
             }
+
+            if($assessment->bug_report == 2){
+                $assessment_type = $assessment->CertiIBAuditorsTo->assessment_type;
+                $report_type = "";
+                if($assessment_type == 0)
+                {
+                    $report_type = "ib_final_report_process_one";
+                }else{
+                    $report_type = "ib_final_report_process_two";
+                }
+
+                $report = IbReportTemplate::where('ib_assessment_id',$assessment->id)
+                                        ->where('report_type',$report_type)
+                                        ->first();
+
+
+                if($report == null){
+                        $report = new IbReportTemplate();
+                        $report->ib_assessment_id = $assessment->id;
+                        $report->report_type = $report_type;
+                        $report->save();
+                }
+
+                $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                        ->whereNotNull('signer_id')
+                        ->where('certificate_type',1)
+                        ->where('report_type',1)
+                        ->get();
+
+                if($check->count() != 0 )
+                {
+                   
+                    $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                            ->whereNotNull('signer_id')
+                            ->where('certificate_type',1)
+                            ->where('report_type',1)
+                            ->where('approval',0)
+                            ->get();   
+                        if($signAssessmentReportTransactions->count() == 0){
+                        }else{
+                            return redirect('certify/check_certificate-ib/'.$CertiIb->token)->with('message', 'เรียบร้อยแล้ว!');
+                        }  
+                }
+                else
+                {
+                     
+                    // dd($report);
+                    $templateType = "ib_final_report_process_one";
+                    return view('abpdf.editor',[
+                        'templateType' => $report_type,
+                        'ibId' => $CertiIb->id,
+                        'assessmentId' => $assessment->id,
+                    ]);
+                }
+            }
+
+
             if($request->previousUrl){
                 return redirect("$request->previousUrl")->with('message', 'เรียบร้อยแล้ว!');
             }else{

@@ -50,7 +50,7 @@ class StandardController extends Controller
 
     public function index(Request $request)
     {
-     
+       
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('view-'.$model)) {
             return view('certify.standards.index');
@@ -61,6 +61,7 @@ class StandardController extends Controller
 
     public function data_list(Request $request)
     {
+        // dd("ok");
         $roles =  !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : []; 
         $not_admin = (!in_array(1, $roles) && !in_array(25, $roles) && !in_array(44, $roles));  // ไม่ใช่ Admin หรือไม่ใช่ ผอ. ผก
 
@@ -85,17 +86,46 @@ class StandardController extends Controller
                 
                                     $userId = auth()->id();
 
+                                    // $query = Standard::query()
+                                    //     ->when($not_admin, function ($query) use ($userId) {
+                                    //         return $query->whereHas(
+                                    //             'set_standard_to.estandard_plan_to.estandard_offers_to.tisi_estandard_offers_asigns',
+                                    //             function ($subQuery) use ($userId) {
+                                    //                 $subQuery->where('user_id', $userId);
+                                    //             }
+                                    //         );
+                                    //     })
+
+                                    // ->when($filter_search, function ($query, $filter_search) {
+                                    //     $search_full = str_replace(' ', '', $filter_search);
+                                    //     $query->where(function ($query2) use ($search_full) {
+                                    //         $query2->Where(DB::raw("REPLACE(std_no,' ','')"), 'LIKE', "%" . $search_full . "%")
+                                    //             ->OrWhere(DB::raw("REPLACE(std_title,' ','')"), 'LIKE', "%" . $search_full . "%");
+                                    //     });
+                                    // })
+                                    // ->when($filter_state, function ($query, $filter_state) {
+                                    //     $query->where('publish_state', $filter_state);
+                                    // })  
+                                    //  ->when($filter_status, function ($query, $filter_status) {
+                                    //     $query->where('status_id', $filter_status);
+                                    // });
+
                                     $query = Standard::query()
-                                        ->when($not_admin, function ($query) use ($userId) {
-                                            return $query->whereHas(
-                                                'set_standard_to.estandard_plan_to.estandard_offers_to.tisi_estandard_offers_asigns',
-                                                function ($subQuery) use ($userId) {
-                                                    $subQuery->where('user_id', $userId);
-                                                }
-                                            );
-                                        })
+                                    // --- ส่วนที่เพิ่มเข้ามา ---
+                                    ->whereHas('set_standard_to.estandard_plan_to.estandard_offers_to', function ($q) {
+                                        $q->whereNotNull('standard_name')
+                                        ->where('standard_name', '!=', '');
+                                    })
+                                    // --- จบส่วนที่เพิ่มเข้ามา ---
 
-
+                                    ->when($not_admin, function ($query) use ($userId) {
+                                        return $query->whereHas(
+                                            'set_standard_to.estandard_plan_to.estandard_offers_to.tisi_estandard_offers_asigns',
+                                            function ($subQuery) use ($userId) {
+                                                $subQuery->where('user_id', $userId);
+                                            }
+                                        );
+                                    })
                                     ->when($filter_search, function ($query, $filter_search) {
                                         $search_full = str_replace(' ', '', $filter_search);
                                         $query->where(function ($query2) use ($search_full) {
@@ -105,10 +135,12 @@ class StandardController extends Controller
                                     })
                                     ->when($filter_state, function ($query, $filter_state) {
                                         $query->where('publish_state', $filter_state);
-                                    })  
-                                     ->when($filter_status, function ($query, $filter_status) {
+                                    })
+                                    ->when($filter_status, function ($query, $filter_status) {
                                         $query->where('status_id', $filter_status);
                                     });
+
+
 // dd($query->latest()->skip(2)->first());
 //         dd($query->latest()->first());
         return Datatables::of($query)->addIndexColumn()
@@ -127,30 +159,27 @@ class StandardController extends Controller
                                         ->addColumn('isbn_no', function ($item) use($not_admin){
                                             $btn = '';
                                             $standard_sendmail = StandardSendmail::where('std_id',$item->id)->pluck('user_by')->toArray();
-                                            //    dd($item);
-                                            if ((count($standard_sendmail) > 0 && in_array(auth()->user()->getKey(),$standard_sendmail )) || !$not_admin) {//เห็นเฉพาะคนที่เลือก
-
+                                               
+                                            // if ((count($standard_sendmail) > 0 && in_array(auth()->user()->getKey(),$standard_sendmail )) || !$not_admin) {//เห็นเฉพาะคนที่เลือก
                                                 if ($item->status_id >= 5 && !empty($item->isbn_no)) {
                                                     $btn = '<a class="btn_edit_isbn" data-id="'.($item->id).'"title="'.'ผู้บันทึก:'. (!empty($item->CreatedName) ? $item->CreatedName : '').' เวลา:'.(!empty($item->updated_at) ? HP::DateTimeThaiAndTime($item->updated_at) : '').'"> '.$item->isbn_no.'</a> ';
                                                 }else if ($item->status_id == 5) {
-                                                    // dd($item);
                                                     $btn = '
                                                     <button type="button" class="btn btn-warning btn-xs waves-effect waves-light btn_request_isbn" data-id="'.($item->id).'"> <i class="fa fa-tag" aria-hidden="true"></i></button>
                                                     <button type="button" class="btn btn-warning btn-xs waves-effect waves-light btn_edit_isbn" data-id="'.($item->id).'" title="'.'ผู้บันทึก:'.(!empty($item->CreatedName) ? $item->CreatedName : '').' เวลา:'.(!empty($item->updated_at) ? HP::DateTimeThaiAndTime($item->updated_at) : '').'"> <i class="fa fa-pencil-square-o"></i></button> ';
-                                                    // ตรวจสอบจำนวน isbnRequests
-                                                    // $requestIsbnClass = $item->isbnRequests->count() > 0 ? 'btn-info' : 'btn-warning';
-                                                    // $btn = '
-                                                    //     <button type="button" class="btn ' . $requestIsbnClass . ' btn-xs waves-effect waves-light btn_request_isbn" data-id="' . ($item->id) . '"  data-isbn_req_count="' .  $item->isbnRequests->count() . '">
-                                                    //         <i class="fa fa-tag" aria-hidden="true"></i>
-                                                    //     </button>
-                                                    //     <button type="button" class="btn btn-warning btn-xs waves-effect waves-light btn_edit_isbn" data-id="' . ($item->id) . '" title="' . 'ผู้บันทึก:' . (!empty($item->CreatedName) ? $item->CreatedName : '') . ' เวลา:' . (!empty($item->updated_at) ? HP::DateTimeThaiAndTime($item->updated_at) : '') . '">
-                                                    //         <i class="fa fa-pencil-square-o"></i>
-                                                    //     </button>';
+                                                    $requestIsbnClass = $item->isbnRequests->count() > 0 ? 'btn-info' : 'btn-warning';
+                                                    $btn = '
+                                                        <button type="button" class="btn ' . $requestIsbnClass . ' btn-xs waves-effect waves-light btn_request_isbn" data-id="' . ($item->id) . '"  data-isbn_req_count="' .  $item->isbnRequests->count() . '">
+                                                            <i class="fa fa-tag" aria-hidden="true"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-warning btn-xs waves-effect waves-light btn_edit_isbn" data-id="' . ($item->id) . '" title="' . 'ผู้บันทึก:' . (!empty($item->CreatedName) ? $item->CreatedName : '') . ' เวลา:' . (!empty($item->updated_at) ? HP::DateTimeThaiAndTime($item->updated_at) : '') . '">
+                                                            <i class="fa fa-pencil-square-o"></i>
+                                                        </button>';
                                                 }else if ($item->status_id == 4) {
                                                     $btn = '<button type="button" class="btn btn-light btn-xs waves-effect waves-light" data-id="'.($item->id).'"> <i class="fa fa-pencil-square-o  text-white"></i></button> ';
                                                 }
                                               
-                                            }
+                                            // }
                                             return $btn;
                                         })
                                         ->addColumn('status_id', function ($item) {
@@ -272,6 +301,7 @@ class StandardController extends Controller
      */
     public function show($id)
     {
+       
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('view-'.$model)) {
             $standard = Standard::findOrFail($id);
@@ -328,7 +358,7 @@ class StandardController extends Controller
 
     public function edit($id)
     {
-        // dd("od");
+       
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('edit-'.$model)) {
             $standard = Standard::findOrFail($id);
@@ -570,13 +600,19 @@ class StandardController extends Controller
                     $url      = url('certify/standards/');
                 }
 
-                $ics_id   = !empty($requestData['ics'])?$requestData['ics']:[];
-                $user_by  = !empty($requestData['user_by'])?$requestData['user_by']:[];
+                // $ics_id   = !empty($requestData['ics'])?$requestData['ics']:[];
+                // $user_by  = !empty($requestData['user_by'])?$requestData['user_by']:[];
 
-                if(!empty($ics_id) && count($ics_id) > 0){
-                    $this->save_ics($standard, $ics_id);
+                // if(!empty($ics_id) && count($ics_id) > 0){
+                //     $this->save_ics($standard, $ics_id);
 
-                }
+                // }
+
+
+                $input['std_id']    = $standard->id;
+                $input['ics_id']    = $request->ics;
+                $input['created_by']     = auth()->user()->getKey();
+                StandardIcs::create($input);
 
                 if((!empty($user_by) && count($user_by) > 0) && $standard->status_id == 5){
                     $this->save_sendmail($standard, $user_by);

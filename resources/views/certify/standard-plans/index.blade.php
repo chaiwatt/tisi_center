@@ -148,15 +148,17 @@
                             <table class="table table-striped" id="myTable">
                             <thead>
                             <tr>
-                                <th width="1%" class="text-center">#</th>
+                                <th width="1%" >#</th>
                                 {{-- <th  width="1%" ><input type="checkbox" id="checkall"></th> --}}
-                                <th width="10%" class="text-center">ร่างแผนปี</th>
-                                <th width="20%" class="text-center">ประเภทมาตรฐาน</th>
-                                <th  width="15%" class="text-center">ชื่อมาตรฐาน</th>
-                                <th width="10%" class="text-center">วิธีการ</th>
-                                <th width="15%" class="text-center">ช่วงเวลาดำเนินการ</th>
-                                <th width="15%" class="text-center">สถานะ</th>
-                                <th width="10%" class="text-center">จัดการ</th>
+                                <th width="10%" >ร่างแผนปี</th>
+                                <th width="20%" >คำขอ</th>
+                                 <th  width="15%" >ชื่อมาตรฐาน</th>
+                                <th width="20%" >ประเภทมาตรฐาน</th>
+                               
+                                {{-- <th width="10%" >วิธีการ</th> --}}
+                                <th width="15%" >ช่วงเวลาดำเนินการ</th>
+                                <th width="15%" >สถานะ</th>
+                                <th width="10%" >จัดการ</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -232,9 +234,40 @@
                     { data: 'DT_Row_Index', searchable: false, orderable: false},
                     // { data: 'checkbox', searchable: false, orderable: false},
                     { data: 'draft_year', name: 'draft_year' },
+                    {
+                        data: 'refno',
+                        name: 'refno',
+                        render: function(data, type, row) {
+                            // 1. ตรวจสอบก่อนว่า 'data' (ค่า refno) มีค่า และเป็น string หรือไม่
+                            if (data && typeof data === 'string') {
+                                // 2. ถ้าขึ้นต้นด้วย 'Req' ให้แทนที่ด้วย 'SET'
+                                if (data.startsWith('Req')) {
+                                    return data.replace('Req', 'CSD');
+                                }
+                            }
+                            // 3. ถ้าไม่เข้าเงื่อนไขใดๆ ให้แสดงค่าเดิม
+                            return data;
+                        }
+                    },
+
+                    {
+                        data: 'std_name',
+                        name: 'std_name', // ยังคงมีประโยชน์สำหรับการเรียงลำดับฝั่ง Server
+                        render: function(data, type, row) {
+                            // 'row' คือ object ที่มีข้อมูลทั้งหมดของแถวนั้นๆ
+                            // เราจึงสามารถเข้าถึง row.std_name และ row.std_name_en ได้
+
+                            // ป้องกันการแสดงคำว่า "null" ถ้า field ใด field หนึ่งเป็นค่าว่าง
+                            const name = row.std_name || '';
+                            const name_en = row.std_name_en || '';
+
+                            // นำมาต่อกันโดยคั่นด้วย <br> เพื่อขึ้นบรรทัดใหม่
+                            return name + '<br>' + name_en;
+                        }
+                    },
                     { data: 'standard_type', name: 'standard_type' },
-                    { data: 'tis_name', name: 'tis_name' }, 
-                    { data: 'method', name: 'method' },
+                    // { data: 'tis_name', name: 'tis_name' }, 
+                    // { data: 'method', name: 'method' },
                     { data: 'plan_date', name: 'plan_date' },
                     { data: 'status', name: 'status' },
                     { data: 'action', name: 'action' },

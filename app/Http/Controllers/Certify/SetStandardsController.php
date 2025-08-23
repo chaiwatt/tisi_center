@@ -51,7 +51,14 @@ public function index(Request $request)
     {
         
         $roles = !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : [];
-        $not_admin = (!in_array(1, $roles) && !in_array(25, $roles) && !in_array(44, $roles) ); // ไม่ใช่ Admin หรือไม่ใช่ ผอ. ผก
+        // $not_admin = (!in_array(1, $roles) && !in_array(25, $roles) && !in_array(44, $roles) );
+
+        // 1. กำหนดว่า role ไหนบ้างที่เป็น admin
+        // 64 คือ ลท ที่มาสร้างหนังสือประชุมและนัดหมายการประชุม
+        $admin_roles = [1, 25, 44, 64];
+
+        // 3. ถ้าต้องการตัวแปร $not_admin ก็แค่กลับค่า
+        $not_admin = empty(array_intersect($roles, $admin_roles));
 
         $filter_search = $request->input('filter_search');
         $filter_year = $request->input('filter_year');
@@ -62,6 +69,8 @@ public function index(Request $request)
         $query = SetStandards::query()->with([
             'estandard_plan_to'
         ])
+
+        
         ->when($not_admin, function ($query) {
             return $query->where(function ($query) {
                 return $query->whereHas('estandard_plan_to', function ($query) {
@@ -72,6 +81,7 @@ public function index(Request $request)
                 });
             });
         })
+
         ->when($filter_search, function ($query, $filter_search) {
             $search_full = str_replace(' ', '', $filter_search);
             $query->where(function ($query2) use ($search_full) {
@@ -100,8 +110,11 @@ public function index(Request $request)
                 $query->where('status_id', $filter_status);
             }
         })
-        ->orderBy('id', 'DESC'); // Reverse order by id
 
+       
+        ->orderBy('id', 'DESC'); 
+
+        //  dd( $query->get());
         $model = str_slug('setstandard', '-');
         if (auth()->user()->can('view-'.$model)) {
             return view('certify.set-standards.index', [

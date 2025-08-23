@@ -99,6 +99,18 @@
                             "display": "ประกาศราชกิจจานุเบกษา",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/gazette"
+                        }
+                    ]
+                },
+                {
+                    "title": "set_std_basic",
+                    "display": "เครื่องมือ",
+                    "sub_menus":[
+                        {
+                            "title": "appointed-committee-lt",
+                            "display": "เชิญประชุมเจ้าหน้าที่ ลท",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/appointed-committee-lt"
                         },
                         {
                             "title": "meetingstandards",
@@ -117,18 +129,6 @@
                             "display": "ลงนามหนังสือเชิญประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-committee"
-                        }
-                    ]
-                },
-                {
-                    "title": "set_std_basic",
-                    "display": "เครื่องมือ",
-                    "sub_menus":[
-                        {
-                            "title": "appointed-committee-lt",
-                            "display": "เชิญประชุมเจ้าหน้าที่ ลท",
-                            "icon": "mdi mdi-chevron-double-right",
-                            "url": "\/certify\/appointed-committee-lt"
                         }
                     ]
                 },

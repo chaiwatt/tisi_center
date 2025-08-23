@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">หนังสือเชิญประชุม</h3>
+                    <h3 class="box-title pull-left">หนังสือเชิญประชุม รม</h3>
                     @can('view-' . str_slug('appointed-academic-sub-committee'))
                         <a class="btn btn-success pull-right" href="{{ url('/certify/appointed-academic-sub-committee') }}">
                             <i class="icon-arrow-left-circle"></i> กลับ
@@ -90,12 +90,50 @@
                                 </p>
                             </div>
                         </div>
+                        @if ($order_book_url != "")
+                            <div class="form-group">
+                                <label class="col-md-3 control-label">หนังสือเชิญประชุม:</label>
+                                <div class="col-md-8">
+                                    <p class="form-control-static">
+                                        <a href="{{$order_book_url}}" target="_blank">หนังสือเชิญประชุม</a>
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
 
-                        <div class="form-group">
+
+                        
+
+                        {{-- <div class="form-group">
                             <label class="col-md-3 control-label">QR ระเบียบวาระการประชุม:</label>
                             <div class="col-md-8">
                                 @if ($meetingInvitation->qr_file_path)
                                     <p>ไฟล์: <a href="{{ url($meetingInvitation->qr_file_path) }}" target="_blank">ดูไฟล์</a></p>
+                                @else
+                                    <p>ไม่มีไฟล์ QR</p>
+                                @endif
+                            </div>
+                        </div> --}}
+
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">QR ระเบียบวาระการประชุม:</label>
+                            <div class="col-md-8">
+                                {{-- {{$meetingInvitation}} --}}
+                                @if ($meetingInvitation->qr_file_path)
+                                    <img src="{{ url($meetingInvitation->qr_file_path) }}" alt="" style="width: 100px">
+                                    {{-- <p>ไฟล์: <a href="{{ url($meetingInvitation->qr_file_path) }}" target="_blank">ดูไฟล์</a></p> --}}
+                                @else
+                                    <p>ไม่มีไฟล์ QR</p>
+                                @endif
+                            </div>
+                        </div>
+                          <div class="form-group">
+                            <label class="col-md-3 control-label">QR กูเกิลฟอร์ม:</label>
+                            <div class="col-md-8">
+                                {{-- {{$meetingInvitation}} --}}
+                                @if ($meetingInvitation->google_form_qr)
+                                    <img src="{{ url($meetingInvitation->google_form_qr) }}" alt="" style="width: 100px">
+                                    {{-- <p>ไฟล์: <a href="{{ url($meetingInvitation->qr_file_path) }}" target="_blank">ดูไฟล์</a></p> --}}
                                 @else
                                     <p>ไม่มีไฟล์ QR</p>
                                 @endif

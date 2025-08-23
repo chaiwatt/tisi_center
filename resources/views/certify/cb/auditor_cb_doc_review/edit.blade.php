@@ -1,3 +1,4 @@
+{{-- AuditorCBController --}}
 @extends('layouts.master')
 
 @section('content')

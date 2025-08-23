@@ -368,6 +368,7 @@ Route::group(['prefix' => 'certify'], function () {
 
 
         Route::post('/api/request-edit-scope','Certify\SaveAssessmentController@apiRequestEditScope')->name('save_assessment.api.request_edit_scope');
+        Route::post('/api/request-admin-group-scope-sign','Certify\SaveAssessmentController@requestAdminGroupScopeSign')->name('save_assessment.api.request_admin_group_scope_sign');
         
     });
 
@@ -442,17 +443,42 @@ Route::group(['prefix' => 'certify'], function () {
     Route::post('/download-ib-template','IbPdfGeneratorController@loadIbTemplate')->name('download-ib-template');
     Route::post('/save-ib-template','IbPdfGeneratorController@saveHtml')->name('ib.save-html-template');
 
+
+    
+
     Route::get('/doc-review-ib-template/{id}','IbPdfGeneratorController@docReviewHtml')->name('ib.doc-review-html-template');
     Route::post('/save-doc-review-ib-template','IbPdfGeneratorController@saveDocReviewHtml')->name('ib.save-doc-review-html-template');
     Route::post('/download-doc-review-ib-template','IbPdfGeneratorController@loadIbDocReviewTemplate')->name('ib.download-doc-review-html-template');
     Route::post('/ib-default-download-doc-review-html-template','IbPdfGeneratorController@loadDefaultIbDocReviewTemplate')->name('ib.default-download-doc-review-html-template');
 
 
+    Route::get('/summary-report-ib-template/{id}','IbPdfGeneratorController@summaryReportHtml')->name('ib.summary-report-html-template');
+    Route::post('/save-summary-report-ib-template','IbPdfGeneratorController@savesummaryReportHtml')->name('ib.save-summary-report-html-template');
+    Route::post('/download-summary-report-ib-template','IbPdfGeneratorController@loadIbSummaryReportTemplate')->name('ib.download-summary-report-html-template');
+    Route::post('/ib-default-download-summary-report-html-template','IbPdfGeneratorController@loadDefaultSummaryReportHtmlTemplate')->name('ib.default-download-summary-report-html-template');
 
 
     Route::get('/show-ib-editor/{templateType}/{assessmentId}','IbPdfGeneratorController@showEditor')->name('ib.editor.show');
-
     Route::get('/ib-generate-pdf-from-db','IbPdfGeneratorController@generatePdfFromDb')->name('ib.generate-pdf-from-db');
+
+
+    Route::get('/ib-doc-assessment-review-html/{id}','IbPdfGeneratorController@docAssessmentReviewHtml')->name('ib.doc-assessment-review-html');
+    Route::post('/save-ib-doc-assessment-review-html','IbPdfGeneratorController@saveAssessmentReviewHtml')->name('ib.save-assessment-review-html-template');
+    Route::post('/download-ib-doc-assessment-review-html','IbPdfGeneratorController@downloadAssessmentReviewHtml')->name('ib.download-assessment-review-html-template');
+    Route::post('/ib-default-download-doc-assessment-review-html','IbPdfGeneratorController@downloadDefaultDocAssessmentReviewHtml')->name('ib.default-download-assessment-review-html-template');
+
+
+    Route::get('/ib-tangtung-tobtoun-html/{id}','IbPdfGeneratorController@tangtungTobtounReviewHtml')->name('ib.tangtung-tobtoun-html');
+    Route::post('/save-ib-tangtung-tobtoun-html','IbPdfGeneratorController@saveTangtungTobtounHtml')->name('ib.save-tangtung-tobtoun-template');
+    Route::post('/download-ib-tangtung-tobtoun-html','IbPdfGeneratorController@downloadTangtungTobtounHtml')->name('ib.download-tangtung-tobtoun-template');
+    Route::post('/ib-default-download-tangtung-tobtoun-html','IbPdfGeneratorController@downloadDefaultTangtungTobtounHtml')->name('ib.default-download-tangtung-tobtoun-template');
+
+
+
+    Route::get('/ib-doc-result-review-html/{id}','IbPdfGeneratorController@docResultReviewHtml')->name('ib.doc-result-review-html');
+    Route::post('/save-ib-doc-result-review-html','IbPdfGeneratorController@saveResultReviewHtml')->name('ib.save-result-review-html-template');
+    Route::post('/download-ib-doc-result-review-html','IbPdfGeneratorController@downloadResultReviewHtml')->name('ib.download-result-review-html-template');
+    Route::post('/ib-default-download-doc-result-review-html','IbPdfGeneratorController@downloadDefaultDocResultReviewHtml')->name('ib.default-download-result-review-html-template');
 
 
     Route::put('/checkcertificateib/update-state', 'Certify\IB\CheckCertificateIBController@update_state');
@@ -520,6 +546,11 @@ Route::group(['prefix' => 'certify'], function () {
 
     
     Route::resource('/save_assessment-ib', 'Certify\IB\\SaveAssessmentIbController');
+
+
+
+
+
 
     Route::get('/save_assessment-ib/create/{id?}','Certify\IB\\SaveAssessmentIbController@create')->name('save_ib_assessment.create');
     Route::post('/save_assessment-ib/store/{id?}','Certify\IB\\SaveAssessmentIbController@store')->name('save_ib_assessment.store');
@@ -607,6 +638,22 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('/show-cb-editor/{templateType}/{assessmentId}','CbPdfGeneratorController@showEditor')->name('cb.editor.show');
 
 
+   Route::get('/cb-doc-assessment-review-html/{id}','CbPdfGeneratorController@docAssessmentReviewHtml')->name('cb.doc-assessment-review-html');
+    Route::post('/save-cb-doc-assessment-review-html','CbPdfGeneratorController@saveAssessmentReviewHtml')->name('cb.save-assessment-review-html-template');
+    Route::post('/download-cb-doc-assessment-review-html','CbPdfGeneratorController@downloadAssessmentReviewHtml')->name('cb.download-assessment-review-html-template');
+    Route::post('/cb-default-download-doc-assessment-review-html','CbPdfGeneratorController@downloadDefaultDocAssessmentReviewHtml')->name('cb.default-download-assessment-review-html-template');
+
+   Route::get('/cb-tangtung-tobtoun-html/{id}','CbPdfGeneratorController@tangtungTobtounReviewHtml')->name('cb.doc-tangtung-tobtoun-html');
+    Route::post('/save-cb-tangtung-tobtoun-html','CbPdfGeneratorController@saveTangtungTobtounHtml')->name('cb.save-tangtung-tobtoun-template');
+    Route::post('/download-cb-tangtung-tobtoun-html','CbPdfGeneratorController@downloadTangtungTobtounHtml')->name('cb.download-tangtung-tobtoun-template');
+    Route::post('/cb-default-download-tangtung-tobtoun-html','CbPdfGeneratorController@downloadDefaultTangtungTobtounHtml')->name('cb.default-download-tangtung-tobtoun-template');
+
+
+    Route::get('/cb-doc-result-review-html/{id}','CbPdfGeneratorController@docResultReviewHtml')->name('cb.doc-result-review-html');
+    Route::post('/save-cb-doc-result-review-html','CbPdfGeneratorController@saveResultReviewHtml')->name('cb.save-doc-result-review-template');
+    Route::post('/download-cb-doc-result-review-html','CbPdfGeneratorController@downloadResultReviewHtml')->name('cb.download-doc-result-review-template');
+    Route::post('/cb-default-download-doc-result-review-html','CbPdfGeneratorController@downloadDefaultDocResultReviewHtml')->name('cb.default-download-doc-result-review-template');
+
 
     Route::get('/doc-review-cb-template/{id}','CbPdfGeneratorController@docReviewHtml')->name('cb.doc-review-html-template');
     Route::post('/save-doc-review-cb-template','CbPdfGeneratorController@saveDocReviewHtml')->name('cb.save-doc-review-html-template');
@@ -614,7 +661,10 @@ Route::group(['prefix' => 'certify'], function () {
     Route::post('/cb-default-download-doc-review-html-template','CbPdfGeneratorController@loadDefaultCbDocReviewTemplate')->name('cb.default-download-doc-review-html-template');
 
     
-
+    Route::get('/summary-report-cb-template/{id}','CbPdfGeneratorController@summaryReportHtml')->name('cb.summary-report-html-template');
+    Route::post('/save-summary-report-cb-template','CbPdfGeneratorController@savesummaryReportHtml')->name('cb.save-summary-report-html-template');
+    Route::post('/download-summary-report-cb-template','CbPdfGeneratorController@loadCbSummaryReportHtmlTemplate')->name('cb.download-summary-report-html-template');
+    Route::post('/cb-default-download-summary-report-html-template','CbPdfGeneratorController@loadDefaultSummaryReportHtmlTemplate')->name('cb.default-download-summary-report-html-template');
 
 
 
@@ -933,6 +983,11 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('certify/meeting-standards/data_list', 'Certify\\MeetingStandardsController@data_list');
     Route::resource('certify/meeting-standards', 'Certify\\MeetingStandardsController');
 
+
+
+
+
+
     Route::get('certify/appointed-committee-lt', 'Certify\\AppointedCommitteeLtController@index')->name('certify.meeting-standards.lt.index');
     Route::get('certify/appointed-committee-lt/create', 'Certify\\AppointedCommitteeLtController@create')->name('certify.meeting-standards.lt.create');
     Route::post('certify/appointed-committee-lt/store', 'Certify\\AppointedCommitteeLtController@store')->name('certify.meeting-standards.lt.store');
@@ -959,6 +1014,15 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('certify/gazette/get_json_by_standard/{std_type_id?}', 'Certify\\GazetteController@get_json_by_standard');
     Route::resource('certify/gazette', 'Certify\\GazetteController');
 
+
+    Route::get('certify/appointed-lt-committee', 'Certify\\AppointedLtCommitteeController@index')->name('certify.appointed-lt-committee');
+    Route::get('certify/appointed-lt-committee/create', 'Certify\\AppointedLtCommitteeController@create')->name('certify.appointed-lt-committee.create');
+    Route::post('certify/appointed-lt-committee/store', 'Certify\\AppointedLtCommitteeController@store')->name('certify.appointed-lt-committee.store');
+    Route::get('certify/appointed-lt-committee/{id?}/edit', 'Certify\\AppointedLtCommitteeController@edit')->name('certify.appointed-lt-committee.edit');
+    Route::put('certify/appointed-lt-committee/update/{id?}', 'Certify\\AppointedLtCommitteeController@update')->name('certify.appointed-lt-committee.update');
+    Route::get('certify/appointed-lt-committee/{id}/view', 'Certify\\AppointedLtCommitteeController@view')->name('certify.appointed-lt-committee.view');
+    
+
     // http://127.0.0.1:8081/certify/appointed-academic-sub-committee
 
     Route::get('certify/appointed-academic-sub-committee', 'Certify\\AppointedAcademicSubCommitteeController@index')->name('certify.appointed-academic-sub-committee');
@@ -974,6 +1038,8 @@ Route::group(['prefix' => 'certify'], function () {
     Route::post('certify/appointed-committee/sign-document', 'Certify\\AppointedCommitteeController@signDocument')->name('certify.appointed-committee.sign-document');
 
     
+    Route::get('certify/appointed-committee-sign-lt', 'Certify\\AppointedLtSignCommitteeController@index')->name('certify.appointed-lt-sign-committee');
+    Route::post('certify/appointed-committee-sign-lt/sign-document', 'Certify\\AppointedLtSignCommitteeController@signDocument')->name('certify.appointed-lt-sign-committee.sign-document');
 
 
    });

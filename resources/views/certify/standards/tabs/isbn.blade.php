@@ -1,5 +1,5 @@
 @php
-    $Step2StatusIDArr  = [ '5'=> 'แจ้งระบุเลข ISBN', '6'=> 'ดำเนินการ และเสนอผู้มีอำนาจลงนาม' ];
+    $Step2StatusIDArr  = [ '5'=> 'ส่งคำขอ ISBN', '6'=> 'ดำเนินการ และเสนอผู้มีอำนาจลงนาม' ];
     $StepStatus2       =  isset($standard) && in_array( $standard->status_id, [ 5,6]  )?$standard->status_id:( isset($standard) && $standard->status_id > 6?6:null );
 @endphp
 

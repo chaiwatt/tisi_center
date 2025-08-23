@@ -5,6 +5,7 @@ namespace App\Models\Certify;
 use App\User;
 use App\AttachFile;
 use App\Models\Basic\Method;
+use App\Models\Certify\Standard;
 use Kyslik\ColumnSortable\Sortable;
 use App\Certificate\MeetingInvitation;
 use Illuminate\Database\Eloquent\Model;
@@ -163,5 +164,10 @@ class SetStandards extends Model
         return $this->belongsToMany(MeetingInvitation::class, 'meeting_invitation_setstandards', 'setstandard_id', 'meeting_invitation_id')
                     ->where('meeting_invitations.status', 3)
                     ->where('meeting_invitations.type', 1);
+    }
+
+    public function standards()
+    {
+        return $this->hasMany(Standard::class, 'setstandard_id');
     }
 }

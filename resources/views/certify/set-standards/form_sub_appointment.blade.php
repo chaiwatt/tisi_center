@@ -204,6 +204,7 @@
         <div class="white-box">
             <div class="row">
                 <div class="col-md-12">
+                    
                     @include ('certify.set-standards.form-plan-time_sub_appointment')
               </div>
          </div>
@@ -236,13 +237,15 @@
 {{-- {{$meetingstandards}} --}}
 @if (!empty($setstandard->condition) && $setstandard->condition == 'form_edit')
         @if (in_array($setstandard->status_sub_appointment_id,[2,3]))
+        
         <div class="form-group">
             <div class="col-md-offset-4 col-md-4">
                 {{-- <button class="btn btn-success " type="submit" @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_update" value="1">
                     <i class="fa fa-paper-plane"></i> อัพเดทข้อมูล
                 </button> --}}
+                {{-- <button class="btn btn-primary " type="submit"     @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_save" value="1"> --}}
                 <button class="btn btn-primary " type="submit"     @if(!empty($meetingstandards) &&  count($meetingstandards->where('status',1)) == 0) disabled @endif name="is_save" value="1">
-                    <i class="fa fa-paper-plane"></i> บันทึก 
+                    <i class="fa fa-paper-plane"></i> บันทึก  
                 </button>
                 <a class="btn btn-default" href="{{ url('/certify/set-standards') }}">
                     <i class="fa fa-rotate-left"></i> ยกเลิก

@@ -59,6 +59,8 @@ class TisiEstandardDraft extends Model
          return $this->hasMany(TisiEstandardDraftPlan::class, 'draft_id');
      }
 
+
+
     public function getCommitteeTitleAttribute() {
         return $this->TisiEstandardDraftCommitteeMany->pluck('CommitteeName')->implode(', ');
     }

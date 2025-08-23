@@ -143,7 +143,7 @@
                                 </div>
                             </div>
 
-                            @if ($find_notice->report_status == 1)
+                            {{-- @if ($find_notice->report_status == 1) --}}
                                 <div class="form-group">
                                     <div class="col-md-12">
                                         <label class="col-md-3 text-right"><span class="text-danger">*</span> รายงานการตรวจประเมิน: </label>
@@ -163,7 +163,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endif
+                            {{-- @endif --}}
 
 
                             <div class="form-group">

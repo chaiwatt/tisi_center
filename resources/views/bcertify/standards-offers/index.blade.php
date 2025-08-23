@@ -152,7 +152,7 @@
                                 <th  width="1%" ><input type="checkbox" id="checkall"></th>
                                 <th width="10%" class="text-center">รหัสความเห็น</th>
                                 <th width="10%" class="text-center">วันที่เสนอ</th>
-                                <th  width="15%" class="text-center">ชื่อเรื่อง</th>
+                                <th  width="15%" class="text-center">มาตรฐาน</th>
                                 <th width="15%" class="text-center">จุดประสงค์และเหตุผล</th>
                                 <th width="15%" class="text-center">ผู้เสนอความเห็น</th>
                                 {{-- <th  width="15%" class="text-center">ประเภทมาตรฐาน</th> --}}
@@ -232,10 +232,53 @@
                     { data: 'checkbox', searchable: false, orderable: false},
                     { data: 'refno', name: 'refno' },
                     { data: 'created_at', name: 'created_at' },
-                    { data: 'title', name: 'title' },
-                    { data: 'objectve', name: 'objectve' },
+                     {
+                            // data ไม่ต้องระบุ เพราะเราจะสร้างข้อมูลเองจาก row
+                            data: null, 
+                            // name ยังคงสำคัญ เพื่อให้ server-side search/order ทำงานได้
+                            name: 'standard_name', 
+                            render: function (data, type, row) {
+                                // ใช้เครื่องหมาย + เพื่อต่อ string ใน JavaScript
+                                // ✨ ตรวจสอบค่า null หรือ undefined ก่อนเพื่อความปลอดภัย
+                                const name = row.standard_name || '';
+                                const name_en = row.standard_name_en || '';
+                                return name + '<br>' + name_en;
+                            }
+                        },
+                    { 
+                        data: 'objectve', 
+                        name: 'objectve',
+                        render: function(data, type, row) {
+                            // 'data' คือค่าของ objectve ในแถวนั้นๆ 
+                            // เช่น 'first_creation' หรือ 'standard_revision'
+                            
+                            // ใช้ switch case เพื่อความสะอาดของโค้ด
+                            switch (data) {
+                                case 'first_creation':
+                                    return 'จัดทำครั้งแรก';
+                                case 'standard_revision':
+                                    return 'ปรับปรุงมาตรฐาน';
+                                default:
+                                    // หากมีค่าอื่นๆ ที่ไม่ตรงกับ case ไหนเลย ให้แสดงค่าเดิม
+                                    return data;
+                            }
+                        }
+                    },
                     { data: 'name', name: 'name' },
-                    { data: 'state', name: 'state' },
+                    // { data: 'state', name: 'state' },
+                    { 
+                        data: 'state_id', 
+                        name: 'state_id',
+                        render: function(data, type, row) {
+                            const stateMapping = {
+                                '1': 'เสนอความเห็น',
+                                '2': 'รับคำขอ',
+                                '3': 'ไม่สมควรบรรจุในแผน',
+                                '4': 'จัดทำแผน'
+                            };
+                            return stateMapping[data] || data;
+                        }
+                    },
                     { data: 'asigns', name: 'asigns' },
                     { data: 'action', name: 'action' },
                 ],
@@ -293,6 +336,67 @@
 
             // var selectedIds = [];
 
+            // $("#button_export_excel").click(function() {
+            //     if (table.$('.item_checkbox:checked').length > 0) {
+                    
+            //         var exportData = [];
+            //         table.$('.item_checkbox:checked').each(function() {
+            //             var rowData = table.row($(this).closest('tr')).data();
+            //             if (rowData) {
+            //                 // เราต้องการข้อมูล "ประเภท" (สมมติว่าเก็บอยู่ในฟิลด์ชื่อ 'type' หรือฟิลด์อื่น)
+            //                 // จากรูปภาพของคุณ ผมจะเดาว่าข้อมูลประเภทคือฟิลด์ 'c' ที่คุณให้มา
+            //                 // ถ้าฟิลด์ประเภทชื่ออื่น ให้แก้ตรง `type: rowData.c`
+            //                 var dataObject = {
+            //                     iso_number:         rowData.iso_number,
+            //                     standard_name:      rowData.standard_name,
+            //                     standard_name_en:   rowData.standard_name_en,
+            //                     national_strategy:  rowData.national_strategy,
+            //                     type:               'c', // << สมมติว่านี่คือข้อมูลประเภทที่ได้มา
+            //                     reason:             rowData.reason
+            //                 };
+            //                 exportData.push(dataObject);
+            //             }
+            //         });
+
+            //         // ================================================================
+            //         // ===== ส่วนของการสร้างและดาวน์โหลด Excel ที่เพิ่มเข้ามา =====
+            //         // ================================================================
+
+            //         // 1. สร้างตัวแปรสำหรับแปลงค่า "ประเภท" ให้เป็นข้อความเต็ม
+            //         const typeMapping = {
+            //             'P': 'P-ผลิตภัณฑ์',
+            //             'M': 'M-วิธีทดสอบ',
+            //             'B': 'B-มาตรฐาน',
+            //             'S': 'S-ระบบ',
+            //             'C': 'C-ข้อแนะนำ'
+            //         };
+
+            //         // 2. แปลงข้อมูล (Transform) ให้ตรงกับหัวคอลัมน์ Excel ที่ต้องการ
+            //         const transformedData = exportData.map(item => ({
+            //             'เลขมาตรฐาน ISO': item.iso_number,
+            //             'ชื่อมาตรฐาน': item.standard_name,
+            //             'ชื่อมาตรฐานภาษาอังกฤษ': item.standard_name_en,
+            //             'แผนยุทธศาสตร์ชาติ 20ปี/แผนพัฒนาเศรษฐกิจและสังคมแห่งชาติ ฉบับที่ 13 (ถ้ามี)': item.national_strategy,
+            //             'ประเภท': typeMapping[item.type] || item.type, // แปลงค่า C -> C-ข้อแนะนำ
+            //             'กำหนดใหม่/ทบทวน': '', // << ตั้งให้เป็นค่าว่างเสมอตามที่คุณต้องการ
+            //             'เหตุผล': item.reason
+            //         }));
+
+            //         // 3. สร้าง Worksheet จากข้อมูลที่แปลงแล้ว
+            //         const worksheet = XLSX.utils.json_to_sheet(transformedData);
+
+            //         // 4. สร้าง Workbook ใหม่ และเพิ่ม Worksheet เข้าไป
+            //         const workbook = XLSX.utils.book_new();
+            //         XLSX.utils.book_append_sheet(workbook, worksheet, "StandardsOffers"); // ตั้งชื่อชีต
+
+            //         // 5. สั่งให้เบราว์เซอร์ดาวน์โหลดไฟล์ Excel
+            //         XLSX.writeFile(workbook, "Exported_Standards_Offers.xlsx"); // ตั้งชื่อไฟล์
+
+            //     } else {
+            //         alert("กรุณาเลือกรายการที่ต้องการส่งออกอย่างน้อย 1 รายการ");
+            //     }
+            // });
+
             $("#button_export_excel").click(function() {
                 if (table.$('.item_checkbox:checked').length > 0) {
                     
@@ -300,16 +404,15 @@
                     table.$('.item_checkbox:checked').each(function() {
                         var rowData = table.row($(this).closest('tr')).data();
                         if (rowData) {
-                            // เราต้องการข้อมูล "ประเภท" (สมมติว่าเก็บอยู่ในฟิลด์ชื่อ 'type' หรือฟิลด์อื่น)
-                            // จากรูปภาพของคุณ ผมจะเดาว่าข้อมูลประเภทคือฟิลด์ 'c' ที่คุณให้มา
-                            // ถ้าฟิลด์ประเภทชื่ออื่น ให้แก้ตรง `type: rowData.c`
                             var dataObject = {
-                                iso_number:         rowData.iso_number,
-                                standard_name:      rowData.standard_name,
-                                standard_name_en:   rowData.standard_name_en,
-                                national_strategy:  rowData.national_strategy,
-                                type:               'c', // << สมมติว่านี่คือข้อมูลประเภทที่ได้มา
-                                reason:             rowData.reason
+                                iso_number:       rowData.iso_number,
+                                standard_name:    rowData.standard_name,
+                                standard_name_en: rowData.standard_name_en,
+                                national_strategy:rowData.national_strategy,
+                                type:             rowData.c, // << แก้ไขตามชื่อฟิลด์ประเภทของคุณ
+                                reason:           rowData.reason,
+                                // ✨ 1. เพิ่มการดึงข้อมูล objectve เข้ามาใน object ที่จะใช้ export
+                                objectve:         rowData.objectve 
                             };
                             exportData.push(dataObject);
                         }
@@ -319,7 +422,6 @@
                     // ===== ส่วนของการสร้างและดาวน์โหลด Excel ที่เพิ่มเข้ามา =====
                     // ================================================================
 
-                    // 1. สร้างตัวแปรสำหรับแปลงค่า "ประเภท" ให้เป็นข้อความเต็ม
                     const typeMapping = {
                         'P': 'P-ผลิตภัณฑ์',
                         'M': 'M-วิธีทดสอบ',
@@ -328,32 +430,51 @@
                         'C': 'C-ข้อแนะนำ'
                     };
 
-                    // 2. แปลงข้อมูล (Transform) ให้ตรงกับหัวคอลัมน์ Excel ที่ต้องการ
                     const transformedData = exportData.map(item => ({
                         'เลขมาตรฐาน ISO': item.iso_number,
                         'ชื่อมาตรฐาน': item.standard_name,
                         'ชื่อมาตรฐานภาษาอังกฤษ': item.standard_name_en,
                         'แผนยุทธศาสตร์ชาติ 20ปี/แผนพัฒนาเศรษฐกิจและสังคมแห่งชาติ ฉบับที่ 13 (ถ้ามี)': item.national_strategy,
-                        'ประเภท': typeMapping[item.type] || item.type, // แปลงค่า C -> C-ข้อแนะนำ
-                        'กำหนดใหม่/ทบทวน': '', // << ตั้งให้เป็นค่าว่างเสมอตามที่คุณต้องการ
+                        'ประเภท': typeMapping[item.type] || item.type,
+                        // ✨ 2. ตรวจสอบค่า item.objectve เพื่อกำหนดค่าในคอลัมน์นี้
+                        'กำหนดใหม่/ทบทวน': item.objectve === 'first_creation' ? 'กำหนดใหม่' : (item.objectve === 'standard_revision' ? 'ทบทวน' : ''),
                         'เหตุผล': item.reason
                     }));
 
-                    // 3. สร้าง Worksheet จากข้อมูลที่แปลงแล้ว
                     const worksheet = XLSX.utils.json_to_sheet(transformedData);
 
-                    // 4. สร้าง Workbook ใหม่ และเพิ่ม Worksheet เข้าไป
-                    const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, worksheet, "StandardsOffers"); // ตั้งชื่อชีต
+                    // ✨ 3. ส่วนของการคำนวณและตั้งค่าความกว้างคอลัมน์อัตโนมัติ
+                    const objectMaxLength = [];
+                    // วนลูปผ่านข้อมูลเพื่อหาความยาวสูงสุดของแต่ละคอลัมน์
+                    transformedData.forEach(row => {
+                        Object.values(row).forEach((value, colIndex) => {
+                            // ถ้าค่าไม่ใช่ null หรือ undefined
+                            if (value != null) {
+                                const cellLength = value.toString().length;
+                                objectMaxLength[colIndex] = Math.max(objectMaxLength[colIndex] || 0, cellLength);
+                            }
+                        });
+                    });
+                    
+                    // วนลูปผ่านหัวข้อตารางเพื่อหาความยาวสูงสุด
+                    Object.keys(transformedData[0]).forEach((header, colIndex) => {
+                        const headerLength = header.toString().length;
+                        objectMaxLength[colIndex] = Math.max(objectMaxLength[colIndex] || 0, headerLength);
+                    });
 
-                    // 5. สั่งให้เบราว์เซอร์ดาวน์โหลดไฟล์ Excel
-                    XLSX.writeFile(workbook, "Exported_Standards_Offers.xlsx"); // ตั้งชื่อไฟล์
+                    // แปลงค่าความยาวที่ได้เป็น format ที่ library ต้องการ {wch: width}
+                    worksheet["!cols"] = objectMaxLength.map(width => ({ wch: width + 2 })); // +2 เพื่อให้มี padding เล็กน้อย
+
+
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "StandardsOffers");
+
+                    XLSX.writeFile(workbook, "Exported_Standards_Offers.xlsx");
 
                 } else {
                     alert("กรุณาเลือกรายการที่ต้องการส่งออกอย่างน้อย 1 รายการ");
                 }
             });
-
 
             $('#add_items').on('click',function () {
                  let row =$('#assign').val();

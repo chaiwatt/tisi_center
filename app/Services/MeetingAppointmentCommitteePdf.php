@@ -147,9 +147,9 @@ class MeetingAppointmentCommitteePdf
         $mpdf->WriteHTML($body, 2);
         $mpdf->SetHTMLFooter($footer);
 
-        $title = "message_record.pdf";
+        // $title = "message_record.pdf";
 
-        $mpdf->Output($title, "I");  
+        // $mpdf->Output($title, "I");  
      
         $tempFilePath = tempnam(sys_get_temp_dir(), 'pdf_') . '.pdf';
         $mpdf->Output($tempFilePath, \Mpdf\Output\Destination::FILE);

@@ -62,19 +62,19 @@
     </div>
 </div>
 
-<div class="form-group required{{ $errors->has('std_page') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('std_page') ? 'has-error' : ''}}" hidden>
     {!! Form::label('std_page', 'จำนวนหน้า:', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-4">
-        {!! Form::text('std_page', null, ['class' => 'form-control', 'required' => 'required'] ) !!}
+        {!! Form::text('std_page', null, ['class' => 'form-control'] ) !!}
         {!! $errors->first('std_page', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('std_price') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('std_price') ? 'has-error' : ''}}" hidden>
     {!! Form::label('std_price', 'ราคา:', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-4">
         <div class="input-group">
-            {!! Form::text('std_price', null, ('' == 'required') ? ['class' => 'form-control amount text-right', 'required' => 'required'] : ['class' => 'form-control amount text-right']) !!}
+            {!! Form::text('std_price', null, ('' == 'required') ? ['class' => 'form-control amount text-right'] : ['class' => 'form-control amount text-right']) !!}
             {!! $errors->first('std_price', '<p class="help-block">:message</p>') !!}
             <span class="input-group-addon">บาท</i></span>
         </div>

@@ -53,7 +53,7 @@
 </div>
 
 <div class="form-group {{ $errors->has('title') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('title', 'หัวข้อการประชุม'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+    {!! Html::decode(Form::label('title', 'การประชุมครั้งที่'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
         {!! Form::text('title',null, ['class' => 'form-control ', 'required' => true]) !!}
         {!! $errors->first('title', '<p class="help-block">:message</p>') !!}
@@ -109,10 +109,10 @@
     </div>
 </div>
 
-<div class="form-group required{{ $errors->has('meeting_detail') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('meeting_detail') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('meeting_detail', 'รายละเอียดการประชุม :', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
-          {!! Form::textarea('meeting_detail', null, ['class' => 'form-control', 'rows'=>'2', 'required' => true]); !!}
+          {!! Form::textarea('meeting_detail', null, ['class' => 'form-control', 'rows'=>'2']); !!}
     </div>
 </div>
 
@@ -143,7 +143,7 @@
 
 
 <div class="form-group {{ $errors->has('detail') ? 'has-error' : ''}}">
-{!! Html::decode(Form::label('detail', '<span class="select-label">วาระการประชุม :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
+{!! Html::decode(Form::label('detail', '<span class="select-label">มาตรฐาน :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
     <div class="col-md-9">
         <table class="table color-bordered-table primary-bordered-table">
             <thead>

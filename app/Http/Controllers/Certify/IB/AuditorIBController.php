@@ -882,6 +882,31 @@ public function auditor_ib_doc_review_edit ($id)
         $auditorib = new CertiIBAuditors;
         $auditors_status = [new CertiIBAuditorsStatus];
         $certiIb = CertiIb::find($id);
+
+
+      $allMessageRecordTransactions = MessageRecordTransaction::where('board_auditor_id', $certiIb->id)
+                ->where('app_id', $certiIb->app_no)
+                ->where('certificate_type', 1)
+                ->where('job_type', "ib-doc-review-assessment")
+                ->get();
+
+      $messageRecordTransactions = MessageRecordTransaction::where('board_auditor_id', $certiIb->id)
+                ->where('app_id', $certiIb->app_no)
+                ->where('certificate_type', 1)
+                ->where('job_type', "ib-doc-review-assessment")
+                ->where('approval', 1)
+                ->get();
+        $fkDone = false;
+        if($allMessageRecordTransactions->count() > 0){
+          if($messageRecordTransactions->count() == $allMessageRecordTransactions->count()){
+             
+            $fkDone =true;
+          }
+        }
+
+        // dd( $allMessageRecordTransactions->count(),$messageRecordTransactions->count());
+
+
         $ibDocReviewAuditor = IbDocReviewAuditor::where('app_certi_ib_id',$id)->first();
         return view('certify.ib.auditor_ib_doc_review.edit',['app_no' => $app_no,
                                                      'auditorib' => $auditorib,
@@ -890,6 +915,7 @@ public function auditor_ib_doc_review_edit ($id)
                                                     'certiIb' => $certiIb,
                                                     'ibDocReviewAuditor' => $ibDocReviewAuditor ,
                                                     'doc_review_auditors' => json_decode($ibDocReviewAuditor->auditors, true),
+                                                    'fkDone' => $fkDone
                                                     ]);
     }
     abort(403);

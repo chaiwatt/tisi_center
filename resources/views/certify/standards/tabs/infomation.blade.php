@@ -17,11 +17,11 @@
 
 {{-- {{!empty($standard->status_id)}} --}}
 
-@php
+{{-- @php
     if (!empty($standard->status_id)) {
         dd($standard);
     }
-@endphp
+@endphp --}}
 
 <div class="form-group required {{ $errors->has('format_id') ? 'has-error' : ''}}">
     {!! HTML::decode(Form::label('format_id', 'รูปแบบ :', ['class' => 'col-md-3  control-label'])) !!}
@@ -39,7 +39,7 @@
     </div>
 </div>
 
-<div class="form-group required {{ $errors->has('std_no') ? 'has-error' : ''}}">
+{{-- <div class="form-group required {{ $errors->has('std_no') ? 'has-error' : ''}}">
     {!! Form::label('std_no', 'เลขมาตรฐาน:', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-2">
         {!! Form::text('std_no', null, ('required' == 'required') ? ['class' => 'form-control', 'required' => 'required', 'placeholder' => 'ระบุเลขมาตรฐาน'] : ['class' => 'form-control', 'placeholder' => 'ระบุเลขมาตรฐาน']) !!}
@@ -61,17 +61,55 @@
         {!! Form::text('std_title', null, ('required' == 'required') ? ['class' => 'form-control', 'required' => 'required'] : ['class' => 'form-control']) !!}
         {!! $errors->first('std_title', '<p class="help-block">:message</p>') !!}
     </div>
+</div> --}}
+
+{{-- {{$standard->set_standard_to->estandard_plan_to->estandard_offers_to->id}} --}}
+
+@php
+    $offer = $standard->set_standard_to->estandard_plan_to->estandard_offers_to;
+@endphp
+
+<div class="form-group required {{ $errors->has('std_no') ? 'has-error' : ''}}">
+    <label for="std_no" class="col-md-3 control-label">เลขมาตรฐาน:</label>
+    <div class="col-md-2">
+        <input type="text" name="std_no" id="std_no" class="form-control" required="required" placeholder="ระบุเลขมาตรฐาน" value="{{ $offer->iso_number }}">
+        @if($errors->has('std_no'))<p class="help-block">{{ $errors->first('std_no') }}</p>@endif
+    </div>
+    <div class="col-md-2">
+        <input type="text" name="std_book" id="std_book" class="form-control" placeholder="เล่ม" value="{{ old('std_book') }}">
+        @if($errors->has('std_book'))<p class="help-block">{{ $errors->first('std_book') }}</p>@endif
+    </div>
+    <div class="col-md-2">
+              {!! Form::select('std_year', HP::Years(), null, ('required' == 'required') ? ['class' => 'form-control', 'required' => 'required', 'placeholder' => '-เลือกปีมาตรฐาน-'] : ['class' => 'form-control', 'placeholder' => '-เลือกปีมาตรฐาน-']) !!}
+        {!! $errors->first('std_year', '<p class="help-block">:message</p>') !!}
+    </div>
 </div>
 
-<div class="form-group required {{ $errors->has('std_title_en') ? 'has-error' : ''}}">
+<div class="form-group required {{ $errors->has('std_title') ? 'has-error' : ''}}">
+    <label for="std_title" class="col-md-3 control-label">ชื่อมาตรฐาน:</label>
+    <div class="col-md-7">
+        <input type="text" name="std_title" id="std_title" class="form-control" required="required" value="{{ $offer->standard_name }}">
+        @if($errors->has('std_title'))<p class="help-block">{{ $errors->first('std_title') }}</p>@endif
+    </div>
+</div>
+
+{{-- <div class="form-group required {{ $errors->has('std_title_en') ? 'has-error' : ''}}">
     {!! Form::label('std_title_en', 'ชื่อมาตรฐาน (eng):', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-7">
         {!! Form::text('std_title_en', null, ('required' == 'required') ? ['class' => 'form-control', 'required' => 'required'] : ['class' => 'form-control']) !!}
         {!! $errors->first('std_title_en', '<p class="help-block">:message</p>') !!}
     </div>
+</div> --}}
+
+<div class="form-group required {{ $errors->has('std_title_en') ? 'has-error' : ''}}">
+    <label for="std_title_en" class="col-md-3 control-label">ชื่อมาตรฐาน (eng):</label>
+    <div class="col-md-7">
+        <input type="text" name="std_title_en" id="std_title_en" class="form-control" required="required" value="{{ $offer->standard_name_en }}">
+        @if($errors->has('std_title_en'))<p class="help-block">{{ $errors->first('std_title_en') }}</p>@endif
+    </div>
 </div>
 
-<div class="form-group required {{ $errors->has('method_id') ? 'has-error' : ''}}">
+<div class="form-group required {{ $errors->has('method_id') ? 'has-error' : ''}}" hidden>
     {!! Form::label('method_id', 'วิธีการ:', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-7">
         {!! Form::select('method_id', $OpMethod , null, ('required' == 'required') ? ['class' => 'form-control', 'required' => 'required', 'placeholder' => '-เลือกวิธีการ-'] : ['class' => 'form-control', 'placeholder' => '-เลือกวิธีการ-']) !!}
@@ -95,11 +133,19 @@
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('confirm_time') ? 'has-error' : ''}}">
+{{-- <div class="form-group {{ $errors->has('confirm_time') ? 'has-error' : ''}}">
     {!! Html::decode(Form::label('confirm_time', 'คณะกรรมการเห็นในการประชุมครั้งที่'.' : ', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-7">
         {!! Form::text('confirm_time', null ,  ['class' => 'form-control']) !!}
         {!! $errors->first('confirm_time', '<p class="help-block">:message</p>') !!}
+    </div>
+</div> --}}
+
+<div class="form-group {{ $errors->has('confirm_time') ? 'has-error' : ''}}" hidden>
+    <label for="confirm_time" class="col-md-3 control-label">คณะกรรมการเห็นในการประชุมครั้งที่ :</label>
+    <div class="col-md-7">
+        <input type="text" name="confirm_time" id="confirm_time" class="form-control" value="{{ old('confirm_time') }}">
+        @if($errors->has('confirm_time'))<p class="help-block">{{ $errors->first('confirm_time') }}</p>@endif
     </div>
 </div>
 
@@ -114,12 +160,16 @@
 <div class="form-group {{ $errors->has('ics') ? 'has-error' : ''}}">
     {!! Form::label('ics', 'ICS :', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-7">
-        {!! Form::select('ics[]', $OpIcs, !empty($standard_ics)?$standard_ics:null, ['class' => 'select2-multiple', 'multiple'=>'multiple', 'id'=>'ics', 'data-placeholder'=>'- เลือก ICS -']) !!}
-        {!! $errors->first('ics', '<p class="help-block">:message</p>') !!}
+        {{-- {!! Form::select('ics[]', $OpIcs, !empty($standard_ics)?$standard_ics:null, ['class' => 'select2-multiple', 'multiple'=>'multiple', 'id'=>'ics', 'data-placeholder'=>'- เลือก ICS -']) !!}
+        {!! $errors->first('ics', '<p class="help-block">:message</p>') !!} --}}
+
+        <textarea class="form-control" rows="4" name="ics" cols="50" id="ics"></textarea>
     </div>
 </div>
 
-<div class="form-group required {{ $errors->has('std_force') ? 'has-error' : ''}}">
+
+
+{{-- <div class="form-group required {{ $errors->has('std_force') ? 'has-error' : ''}}">
     {!! HTML::decode(Form::label('std_force', 'สถานะมาตรฐาน :', ['class' => 'col-md-3  control-label'])) !!}
     <div class="col-md-7">
         <label>{!! Form::radio('std_force', 'ท',null, ['class'=> "check", 'data-radio'=>'iradio_square-green' ,'required'=>'required']) !!} ทั่วไป &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;</label>
@@ -141,7 +191,36 @@
         {!! Form::textarea('std_abstract_en', null, ('required' == 'required') ? ['class' => 'form-control', 'required' => 'required', 'rows'=> '2'] : ['class' => 'form-control', 'rows'=> '2']) !!}
         {!! $errors->first('std_abstract_en', '<p class="help-block">:message</p>') !!}
     </div>
+</div> --}}
+
+<div class="form-group {{ $errors->has('std_force') ? 'has-error' : ''}}" hidden>
+    <label class="col-md-3 control-label">สถานะมาตรฐาน :</label>
+    <div class="col-md-7">
+        <label>
+            <input type="radio" name="std_force" value="ท" class="check" data-radio="iradio_square-green" {{ old('std_force') == 'ท' ? 'checked' : '' }}> ทั่วไป &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+        </label>
+        <label>
+            <input type="radio" name="std_force" value="บ" class="check" data-radio="iradio_square-green" {{ old('std_force') == 'บ' ? 'checked' : '' }}> บังคับ &nbsp;&nbsp;
+        </label>
+    </div>
 </div>
+
+<div class="form-group {{ $errors->has('std_abstract') ? 'has-error' : ''}}" hidden>
+    <label for="std_abstract" class="col-md-3 control-label">บทคัดย่อ (TH):</label>
+    <div class="col-md-7">
+        <textarea name="std_abstract" id="std_abstract" class="form-control" rows="2">{{ old('std_abstract') }}</textarea>
+        @if($errors->has('std_abstract'))<p class="help-block">{{ $errors->first('std_abstract') }}</p>@endif
+    </div>
+</div>
+
+<div class="form-group {{ $errors->has('std_abstract_en') ? 'has-error' : ''}}" hidden>
+    <label for="std_abstract_en" class="col-md-3 control-label">บทคัดย่อ (EN):</label>
+    <div class="col-md-7">
+        <textarea name="std_abstract_en" id="std_abstract_en" class="form-control" rows="2">{{ old('std_abstract_en') }}</textarea>
+        @if($errors->has('std_abstract_en'))<p class="help-block">{{ $errors->first('std_abstract_en') }}</p>@endif
+    </div>
+</div>
+
 {!! Form::hidden('id', null ,  ['class' => 'form-control', 'id' => 'id']) !!}
 
 {!! Form::hidden('step_tap', null ,  ['class' => 'form-control', 'id' => 'step_tap']) !!}

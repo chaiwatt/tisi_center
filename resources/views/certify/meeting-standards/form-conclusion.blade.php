@@ -96,7 +96,7 @@
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('meeting_detail') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('meeting_detail') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('meeting_detail', 'รายละเอียดการประชุม :', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
           {!! Form::textarea('meeting_detail', !empty($meetingstandard_commitees->meeting_detail)?$meetingstandard_commitees->meeting_detail:$meetingstandard->meeting_detail, ['class' => 'form-control', 'rows'=>'2']); !!}

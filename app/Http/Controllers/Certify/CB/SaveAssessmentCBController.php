@@ -287,63 +287,54 @@ class SaveAssessmentCBController extends Controller
 
             if($assessment->bug_report == 2){
 
-                $assessment_type = $assessment->CertiCBAuditorsTo->assessment_type;
-                $report_type = "";
-                if($assessment_type == 0)
-                {
-                    $report_type = "cb_final_report_process_one";
-                }else{
-                    $report_type = "cb_final_report_process_two";
-                }
+                // $assessment_type = $assessment->CertiCBAuditorsTo->assessment_type;
+                // $report_type = "";
+                // if($assessment_type == 0)
+                // {
+                //     $report_type = "cb_final_report_process_one";
+                // }else{
+                //     $report_type = "cb_final_report_process_two";
+                // }
 
-                $report = CbReportTemplate::where('cb_assessment_id',$assessment->id)
-                                        ->where('report_type',$report_type )
-                                        ->first();
+                // $report = CbReportTemplate::where('cb_assessment_id',$assessment->id)
+                //                         ->where('report_type',$report_type )
+                //                         ->first();
 
-                if($report == null){
-                        $report = new CbReportTemplate();
-                        $report->cb_assessment_id = $assessment->id;
-                        $report->report_type = $report_type;
-                        $report->save();
-                }
+                // if($report == null){
+                //         $report = new CbReportTemplate();
+                //         $report->cb_assessment_id = $assessment->id;
+                //         $report->report_type = $report_type;
+                //         $report->save();
+                // }
 
                 
-                $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
-                        ->whereNotNull('signer_id')
-                        ->where('certificate_type',0)
-                        ->where('report_type',1)
-                        ->get();
+                // $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                //         ->whereNotNull('signer_id')
+                //         ->where('certificate_type',0)
+                //         ->where('report_type',1)
+                //         ->get();
 
-
-                if($check->count() != 0 )
-                {
-                    $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$report->id)
-                            ->whereNotNull('signer_id')
-                            ->where('certificate_type',0)
-                            ->where('report_type',1)
-                            ->where('approval',0)
-                            ->get();   
-                        if($signAssessmentReportTransactions->count() == 0){
-                            // $pdfService = new CreateIbAssessmentReportPdf($report->id,"ia");
-                            // $pdfContent = $pdfService->generateIbAssessmentReportPdf();
-                        }else{
-                            // return redirect()->back()->with('error', 'อยู่ระหว่างจัดทำรายงานและลงนาม');
-                            return redirect('certify/check_certificate-cb/'.$CertiCb->token.'/show/'.$CertiCb->id)->with('message', 'เรียบร้อยแล้ว!');
-                            // http://127.0.0.1:8081/certify/check_certificate-cb/M4jIlxFThsfY50Pz/show/269
-                        }  
-                }
-                else
-                {
-
-                // $templateType = "cb_final_report_process_one";
-
-                return view('cbpdf.editor',[
-                    'templateType' => $report_type,
-                    'cbId' => $CertiCb->id,
-                    'assessmentId' => $assessment->id,
-                ]);
-                    // return redirect()->route('save_assessment.ib_report_create',['id' => $assessment->id]);
-                }
+                // if($check->count() != 0 )
+                // {
+                //     $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                //             ->whereNotNull('signer_id')
+                //             ->where('certificate_type',0)
+                //             ->where('report_type',1)
+                //             ->where('approval',0)
+                //             ->get();   
+                //         if($signAssessmentReportTransactions->count() == 0){
+                //         }else{
+                //             return redirect('certify/check_certificate-cb/'.$CertiCb->token.'/show/'.$CertiCb->id)->with('message', 'เรียบร้อยแล้ว!');
+                //         }  
+                // }
+                // else
+                // {
+                //     return view('cbpdf.editor',[
+                //         'templateType' => $report_type,
+                //         'cbId' => $CertiCb->id,
+                //         'assessmentId' => $assessment->id,
+                //     ]);
+                // }
 
                 // รายงาน Scope
                 if($request->file_scope  && $request->hasFile('file_scope')){
@@ -429,7 +420,56 @@ class SaveAssessmentCBController extends Controller
                 $this->set_mail_past($assessment,$CertiCb);
             }
 
-            
+            if($assessment->bug_report == 2){
+                $assessment_type = $assessment->CertiCBAuditorsTo->assessment_type;
+                $report_type = "";
+                if($assessment_type == 0)
+                {
+                    $report_type = "cb_final_report_process_one";
+                }else{
+                    $report_type = "cb_final_report_process_two";
+                }
+
+                $report = CbReportTemplate::where('cb_assessment_id',$assessment->id)
+                                        ->where('report_type',$report_type )
+                                        ->first();
+
+                if($report == null){
+                        $report = new CbReportTemplate();
+                        $report->cb_assessment_id = $assessment->id;
+                        $report->report_type = $report_type;
+                        $report->save();
+                }
+
+                
+                $check =  SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                        ->whereNotNull('signer_id')
+                        ->where('certificate_type',0)
+                        ->where('report_type',1)
+                        ->get();
+
+                if($check->count() != 0 )
+                {
+                    $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                            ->whereNotNull('signer_id')
+                            ->where('certificate_type',0)
+                            ->where('report_type',1)
+                            ->where('approval',0)
+                            ->get();   
+                        if($signAssessmentReportTransactions->count() == 0){
+                        }else{
+                            return redirect('certify/check_certificate-cb/'.$CertiCb->token.'/show/'.$CertiCb->id)->with('message', 'เรียบร้อยแล้ว!');
+                        }  
+                }
+                else
+                {
+                    return view('cbpdf.editor',[
+                        'templateType' => $report_type,
+                        'cbId' => $CertiCb->id,
+                        'assessmentId' => $assessment->id,
+                    ]);
+                }
+            }
 
             if($request->previousUrl){
                 return redirect("$request->previousUrl")->with('message', 'เรียบร้อยแล้ว!');

@@ -1,3 +1,4 @@
+{{-- App\Http\Controllers\Certify\StandardController --}}
 @push('css')
     <link href="{{ asset('plugins/components/bootstrap-wizard/css/bootstrap-wizard.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />

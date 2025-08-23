@@ -334,6 +334,7 @@ class CreateLabScopePdf
 
     public function genTestPdf($id)
     {
+        
         $labScopeTransaction = LabScopeTransaction::where('app_certi_lab_id', $id)->where('lab_type', 'main')->first();
         $certiLab = CertiLab::find($id);
     
@@ -360,9 +361,12 @@ class CreateLabScopePdf
         $pdfContents = [];
         $mpdfArray = [];
         $siteType = "single";
+              
         foreach ($labTypes as $key => $labType) {
+             
             // ตรวจสอบว่า labType มีข้อมูลหรือไม่
             if (is_array($labType) && count($labType) > 0) {
+                
                 // คำนวณ index จาก key (เช่น pl_2_1_info -> index = 0)
                 $index = (int) str_replace(['pl_2_', '_info'], '', $key) - 1;
     
@@ -383,6 +387,8 @@ class CreateLabScopePdf
                         'BI' => "DejaVuSerif-BoldItalic.ttf",
                     ],
                 ];
+
+         
     
                 $mpdf = new Mpdf([
                     'PDFA' => $type == 'F' ? true : false,

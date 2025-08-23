@@ -8,14 +8,16 @@ use App\User;
 use stdClass;
 use Mpdf\Mpdf;
 use HP_API_PID;
+use App\RoleUser;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use App\CertificateExport;
 
+use App\CertificateExport;
 use App\IpaymentCompanycode;
 use Illuminate\Http\Request;
 use Smalot\PdfParser\Parser;
 use App\Helpers\EpaymentDemo;
+use App\Models\Besurv\Signer;
 use App\Mail\CertifyAuditFees;
 use App\Mail\Lab\CertifyPayIn1;
 use App\Mail\Lab\CertifyReport;
@@ -1495,6 +1497,39 @@ class CheckCertificateLabController extends Controller
         $Cost      = Cost::where('app_certi_lab_id',$cc->app_certi_lab_id)->orderByDesc('id')->first();
         $certi_lab = CertiLab::where('id',$cc->app_certi_lab_id)->first();
 
+        
+        // $targetRoleId = 22;
+        // $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+        // $adminGroups = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$certi_lab->subgroup)->get();
+
+        // $adminGroups = [];
+        // if(count($groupAdminUsers) != 0){
+        //         $allReg13Ids = [];
+        //         foreach ($groupAdminUsers as $groupAdminUser) {
+        //         $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+        //         $allReg13Ids[] = $reg13Id;
+        //     }
+
+        //     $adminGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+        // }
+
+                    $targetRoleId = 22;
+            $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$certi_lab->subgroup)->get();
+
+            // dd($certi_lab->id);
+
+            $adminGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $adminGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }
+ 
 
         if($certi_lab->status  ==  7 &&  !empty($certi_lab->certi_auditors_many->where('status','1'))  &&  count($certi_lab->certi_auditors_many->where('status','1')) > 0){
             foreach($certi_lab->certi_auditors_many->where('status','1') as $auditor){
@@ -1559,7 +1594,7 @@ class CheckCertificateLabController extends Controller
     //    dd($copiedScopes);
 
 
-        return view('certify.check_certificate_lab.detail', compact('cc', 'Cost', 'find_cost_assessment','assessment', 'history', 'feewaiver',  'certi_lab','status_cancel','copiedScopes' ))  ;
+        return view('certify.check_certificate_lab.detail', compact('cc', 'Cost', 'find_cost_assessment','assessment', 'history', 'feewaiver',  'certi_lab','status_cancel','copiedScopes','adminGroups' ))  ;
     }
 
 

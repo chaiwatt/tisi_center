@@ -101,6 +101,7 @@
 
                         <!-- START  status 9 -->  
                         {{-- @if($certi_ib->status >= 9) --}}
+                        
                         @if($certi_ib->status >= 9 && ( $doneDocAuditorAssigment == null || $doneDocAuditorAssigment == 2 ))
                             @if(count($certi_ib->CertiIBAuditorsManyBy) > 0) 
                                 @php 
@@ -442,10 +443,21 @@
                                 </div>
                             </div>
 
+                  
 
                         {{-- ทบทวน --}}
                         {{-- @if( $certi_ib->status >= 11 && count($certi_ib->CertiIBSaveAssessmentMany) > 0   && $certi_ib->CertiIBSaveAssessmentStatus == "statusInfo" && $boardAuditor->isAllFinalReportSigned()) --}}
                         @if( $certi_ib->status >= 11 && count($certi_ib->CertiIBSaveAssessmentMany) > 0   && $certi_ib->CertiIBSaveAssessmentStatus == "statusInfo")
+
+                           <a type="button" class="form_group btn {{ $certi_ib->isAllSummaryReportSigned() ? 'btn-info' : 'btn-warning' }}" href="{{ route('ib.summary-report-html-template', ['id' => $certi_ib->id]) }}">
+                                สรุปรายงานการตรวจ
+                            </a>
+
+                            @if ($certi_ib->isAllSummaryReportSigned())
+                                     <a type="button" class="form_group btn {{ $certi_ib->isAllTangTongSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('ib.tangtung-tobtoun-html',['id' => $certi_ib->id])}}">
+                                        แต่งตั้งคณะทบทวน
+                                    </a>
+                            @endif
 
                             @php 
                                 $review =  $certi_ib->CertiIBReviewTo;
@@ -461,6 +473,12 @@
                                 }
                             @endphp
 
+                            @if ($certi_ib->isAllTobTounReportSigned())
+                                    <a type="button" class="form_group btn {{ $certi_ib->isAllTangTungTobtounSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('ib.doc-result-review-html',['id' => $certi_ib->id])}}">
+                                        รายงานทบทวนฯ
+                                    </a>
+                            @endif
+                           
                             <button type="button" class="form_group btn {{$review_btn}}"  data-toggle="modal" data-target="#ReviewModal">
                                 {!! $review_icon !!} ทบทวนฯ
                             </button>

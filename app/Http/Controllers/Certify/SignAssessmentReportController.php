@@ -330,9 +330,51 @@ class SignAssessmentReportController extends Controller
                 'success' => true,
                 'message' => 'ลงนามเอกสารเรียบร้อยแล้ว'
             ]);
-        }else{
-           
+        }
+        if($currentTransaction->template == "ib_result_review_template" || $currentTransaction->template == "cb_result_review_template" )
+        {
+            if (!$currentTransaction) {
+                return response()->json(['success' => false, 'message' => 'ไม่พบรายการที่ต้องการลงนาม']);
+            }
 
+            if ($currentTransaction->approval == 1) {
+                return response()->json(['success' => false, 'message' => 'เอกสารนี้ได้ถูกลงนามไปแล้ว']);
+            }
+
+             // 2. ตรวจสอบลำดับการลงนาม
+            $nextPendingTransaction = SignAssessmentReportTransaction::where('report_info_id', $currentTransaction->report_info_id)
+                ->whereIn('template', ['ib_result_review_template', 'cb_result_review_template'])
+                ->where('certificate_type', $currentTransaction->certificate_type)
+                ->where('report_type', $currentTransaction->report_type)
+                ->where('approval', 0)
+                ->where('signer_order', '<', $currentTransaction->signer_order)
+                ->where('signer_id', '!=', $currentTransaction->signer_id)
+                
+                ->orderBy('signer_order', 'asc')
+                ->first();
+
+            // หากพบว่ามี "คนอื่น" ที่ต้องลงนามก่อนหน้า
+            if ($nextPendingTransaction) {
+            
+                $signer = Signer::find($nextPendingTransaction->signer_id);
+                $signerName = $signer ? $signer->name : 'ผู้ลงนามลำดับก่อนหน้า';
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'กรุณารอการลงนามจาก: ' . $signerName
+                ]);
+            }
+
+            $currentTransaction->update(['approval' => 1]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'ลงนามเอกสารเรียบร้อยแล้ว'
+            ]);
+        }
+        else
+            {
+           
             if (!$currentTransaction) {
                 return response()->json(['success' => false, 'message' => 'ไม่พบรายการที่ต้องการลงนาม']);
             }
@@ -373,7 +415,10 @@ class SignAssessmentReportController extends Controller
             // ... ส่วนที่เหลือของโค้ดเหมือนเดิม ...
             // 4. ตรวจสอบว่าลงนามครบทุกคนแล้วหรือยัง
             $remainingApprovals = SignAssessmentReportTransaction::where('report_info_id', $currentTransaction->report_info_id)
-                ->whereNotIn('template', ['ib_doc_review_template', 'cb_doc_review_template'])
+                ->where(function ($query) {
+                    $query->whereNotIn('template', ['ib_doc_review_template', 'cb_doc_review_template'])
+                        ->orWhereNull('template');
+                })
                 ->where('certificate_type', $currentTransaction->certificate_type)
                 ->where('report_type', $currentTransaction->report_type)
                 ->whereNotNull('signer_id')

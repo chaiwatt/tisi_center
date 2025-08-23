@@ -1,5 +1,9 @@
 
 
+{{-- @php
+    $appCertiLab = $export_lab->applications;
+    dd($appCertiLab);
+@endphp --}}
 <div class="white-box" id="box-readonly">
     <div class="row">
         <div class="col-sm-12">
@@ -91,7 +95,9 @@
             </div>
 
             <div class="row {{ $errors->has('address_no') ? 'has-error' : ''}}">
-
+                {{-- @php
+                    dd($appCertiLab);
+                @endphp --}}
                 <div class="col-md-6">
                     {!! HTML::decode(Form::label('address_no', ' ตั้งอยู่เลขที่'.':'.'<br/><span class=" font_size">(Address)</span>', ['class' => 'col-md-6 control-label  label-height'])) !!}
                     <div class="col-md-6  form-group">
@@ -140,7 +146,7 @@
                     {!! HTML::decode(Form::label('address_soi', ' ตรอก/ซอย'.':'.'<br/><span class=" font_size">(Trok/Sol)</span>', ['class' => 'col-md-6 control-label  label-height'])) !!}
                     <div class="col-md-6  form-group">
                         <div class="  input-group">
-                            {!! Form::text('address_soi',  !empty($export_lab->address_soi) ?$export_lab->address_soi:null, ['class' => 'form-control','id'=>'village_no','required' => false]) !!}
+                            {!! Form::text('address_soi',  !empty($export_lab->address_soi) ? ' '.$export_lab->address_soi:null, ['class' => 'form-control','id'=>'village_no','required' => false]) !!}
                             <span class="input-group-addon bg-secondary "> TH </span>
                         </div>
                         {!! $errors->first('address_soi', '<p class="help-block">:message</p>') !!}
@@ -148,18 +154,19 @@
                     {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-6 control-label  label-height'])) !!}
                     <div class="col-md-6  form-group">
                           <div class="  input-group">
-                            {!! Form::text('address_soi_en',  !empty($export_lab->address_soi_en) ?$export_lab->address_soi_en:null, ['class' => 'form-control','id'=>'address_soi_en','required' => false]) !!}
+                            {!! Form::text('address_soi_en',  !empty($export_lab->address_soi_en) ? ' '.$export_lab->address_soi_en:null, ['class' => 'form-control','id'=>'address_soi_en','required' => false]) !!}
                             <span class="input-group-addon bg-secondary "> EN </span>
                           </div>
                         {!! $errors->first('address_soi_en', '<p class="help-block">:message</p>') !!}
                     </div>
                 </div>
                 <div class="col-md-6">
+                    {{-- {{$export_lab}} --}}
                     <div class="row">
                         {!! HTML::decode(Form::label('address_road', ' ถนน'.':'.'<br/><span class=" font_size">(Street/Road)</span>', ['class' => 'col-md-4 control-label  label-height'])) !!}
                         <div class="col-md-6  form-group">
                             <div class="  input-group">
-                                {!! Form::text('address_road', !empty($export_lab->address_road) ?$export_lab->address_road:null, ['class' => 'form-control','id'=>'road','required' => false]) !!}
+                                {!! Form::text('address_road', !empty($export_lab->address_road) ?$export_lab->address_road :null, ['class' => 'form-control','id'=>'road','required' => false]) !!}
                                 <span class="input-group-addon bg-secondary "> TH </span>
                             </div>
                             {!! $errors->first('address_road', '<p class="help-block">:message</p>') !!}
@@ -169,7 +176,7 @@
                         {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-4 control-label  label-height'])) !!}
                         <div class="col-md-6  form-group">
                             <div class="  input-group">
-                                {!! Form::text('address_road_en', !empty($export_lab->address_road_en) ?$export_lab->address_road_en:null, ['class' => 'form-control','id'=>'address_road_en','required' => false]) !!}
+                                {!! Form::text('address_road_en', !empty($export_lab->address_road_en) ?$export_lab->address_road_en.' Road':null, ['class' => 'form-control','id'=>'address_road_en','required' => false]) !!}
                                 <span class="input-group-addon bg-secondary "> EN </span>
                             </div>
                             {!! $errors->first('address_road_en', '<p class="help-block">:message</p>') !!}

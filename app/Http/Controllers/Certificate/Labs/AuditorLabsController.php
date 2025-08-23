@@ -6,6 +6,7 @@ use DB;
 use HP;
 use App\User;
 use stdClass;
+use App\RoleUser;
 use App\CertificateExport;
 use Illuminate\Http\Request;
 use App\Models\Besurv\Signer;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Certificate\Tracking;
 use Illuminate\Support\Facades\Mail; 
 use App\Models\Bcertify\StatusAuditor;
+use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Certificate\TrackingHistory;
 use App\Models\Certificate\TrackingAuditors;
 use App\Models\Certificate\TrackingPayInOne;
@@ -145,12 +147,32 @@ class AuditorLabsController extends Controller
               $tracking = '';
           }
  
-   
+  
           $auditors_status = [new TrackingAuditorsStatus];
           $signers = Signer::all();
 
+            $certiLab = $tracking->certificate_export_to->CertiLabTo;
+
+         $targetRoleId = 22;
+            $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$certiLab->subgroup)->get();
+
+
+            $firstSignerGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }
+
+
+
             // ดึง reg_13ID จาก User ที่ reg_subdepart เป็น 1804, 1805, 1806
-            $reg_13_ids = User::whereIn('reg_subdepart', [1804, 1805, 1806])
+            $reg_13_ids = User::whereIn('reg_subdepart', [$certiLab->subgroup])
                 ->pluck('reg_13ID')
                 ->map(function ($reg_13_id) {
                     return str_replace('-', '', $reg_13_id); // ลบขีด เช่น 3-5406-00200-10-8 -> 3540600200108
@@ -163,7 +185,7 @@ class AuditorLabsController extends Controller
 
                 
         //   dd($select_users);
-          return view('certificate.labs.auditor-labs.create', compact('tracking','auditors_status','signers','select_users'));
+          return view('certificate.labs.auditor-labs.create', compact('tracking','auditors_status','signers','select_users','firstSignerGroups'));
         }
         abort(403);
 

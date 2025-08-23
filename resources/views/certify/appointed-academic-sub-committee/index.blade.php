@@ -1,4 +1,5 @@
 {{-- work on Certify\\SendCertificatesController --}}
+{{-- AppointedAcademicSubCommitteeController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -17,7 +18,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">หนังสือเชิญประชุม</h3>
+                    <h3 class="box-title pull-left">หนังสือเชิญประชุม รม</h3>
 
                     <div class="pull-right">
                         <a class="btn btn-success btn-sm waves-effect waves-light" href="{{ url('/certify/appointed-academic-sub-committee/create') }}">
@@ -84,7 +85,7 @@
                             <thead>
                                 <tr>
                                     <th width="1%" class="text-center">#</th>
-                                    <th width="15%" class="text-center">ชื่อมาตรฐาน</th>
+                                    <th width="15%" >เรื่อง</th>
                                     <th width="10%" class="text-center">สถานะ</th>
                                     <th width="15%" class="text-center">จัดการ</th>
                                 </tr>
@@ -93,8 +94,8 @@
                                 @foreach ($meetingInvitations as $meetingInvitation)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                        <td class="text-center">
-                                            {{ $meetingInvitation->setStandards->isNotEmpty() ? $meetingInvitation->setStandards->pluck('TisName')->filter()->implode(', ') : '-' }}
+                                        <td>
+                                            {{ $meetingInvitation->subject}}
                                         </td>
                                         <td class="text-center">
                                             @if ($meetingInvitation->status == 1)

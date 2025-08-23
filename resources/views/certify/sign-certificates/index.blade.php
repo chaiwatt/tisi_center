@@ -1,3 +1,4 @@
+{{-- SignCertificatesController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -537,6 +538,7 @@
                         $.LoadingOverlay("hide");
                         console.log(data)
                         $('#Ref_otp').val(data.Ref_otp);
+                        $('#otp').val(data.otp);
                         $('#span_time').show();
                           clearInterval(funky);
                             var duration = 60 * 3;

@@ -403,6 +403,7 @@
             <div class="left-text">คำขอที่ {{$certi_lab->app_no}}</div>
             <div class="right-box">รายงานที่ 1</div>
         </div>
+        <input type="hidden" id="certi_lab_id" value="{{$certi_lab->check->id}}">
         <div class="header">
             รายงานการตรวจประเมินความสามารถของห้องปฏิบัติการทดสอบ/สอบเทียบ<br>
             ตามมาตรฐานเลขที่ มอก. 17025-2561
@@ -3249,10 +3250,10 @@
                 success: function(response) {
                     console.log('สำเร็จ:', response);
                     // window.location.href = "{{ route('save_assessment.index') }}";
-                    const baseUrl = "{{ url('/certify/save_assessment/create') }}";
+                    const baseUrl = "{{ url('/certify/check_certificate') }}";
                     // http://127.0.0.1:8081/certify/save_assessment/create/1856
 
-                    window.location.href = `${baseUrl}/${boardAuditor.id}`;
+                    window.location.href = `${baseUrl}/${$('#certi_lab_id').val()}/show`;
                 },
                 error: function(xhr, status, error) {
                     console.error('เกิดข้อผิดพลาด:', error);

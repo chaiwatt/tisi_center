@@ -912,7 +912,7 @@
                 // ล็อกแต่ละหน้าและเพิ่มสไตล์เพื่อให้เห็นชัดเจนว่าถูกล็อก
                 editorContainer.querySelectorAll('.page').forEach(page => {
                     page.setAttribute('contenteditable', 'false');
-                    page.style.backgroundColor = '#f2f2f2'; // สีพื้นหลังเทาอ่อน
+                    // page.style.backgroundColor = '#f2f2f2'; 
                     page.style.cursor = 'not-allowed';     // เปลี่ยน cursor
                 });
 

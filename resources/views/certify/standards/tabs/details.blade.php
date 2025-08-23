@@ -92,15 +92,15 @@
     </div>
 </div>
 
-<div class="form-group required{{ $errors->has('std_page') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('std_page') ? 'has-error' : ''}}" hidden>
     {!! Form::label('std_page', 'จำนวนหน้า:', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-4">
-        {!! Form::text('std_page', null, ['class' => 'form-control', 'required' => 'required'] ) !!}
+        {!! Form::text('std_page', null, ['class' => 'form-control'] ) !!}
         {!! $errors->first('std_page', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('std_price') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('std_price') ? 'has-error' : ''}}" hidden>
     {!! Form::label('std_price', 'ราคา:', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-4">
         <div class="input-group">
@@ -111,7 +111,7 @@
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('remark') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('remark') ? 'has-error' : ''}}" hidden>
     {!! Form::label('remark', 'หมายเหตุ : ', ['class' => " control-label col-md-3"]) !!}
     <div class="col-md-7">
         {!! Form::textarea('remark', null, ['class' => 'form-control', 'rows' => 4]) !!}

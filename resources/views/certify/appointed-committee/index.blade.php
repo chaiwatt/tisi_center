@@ -18,7 +18,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">ลงนามหนังสือเชิญประชุม</h3>
+                    <h3 class="box-title pull-left">ลงนามหนังสือเชิญประชุม มร</h3>
 
                     <div class="pull-right">
                         {{-- <a class="btn btn-success btn-sm waves-effect waves-light" href="{{ url('/certify/appointed-academic-sub-committee/create') }}">
@@ -234,7 +234,7 @@
             $(document).on('click', '#signDocument', function() {
                     var meetinginvitation_id = $('#meetinginvitation_id').val().trim(); // ดึง data-id จากปุ่ม
                     var csrfToken = $('meta[name="csrf-token"]').attr('content');
-                    
+                    // alert("here");
                     // แสดงข้อความระหว่างที่รอกระบวนการ
                     $.LoadingOverlay("show", {
                         image: "",

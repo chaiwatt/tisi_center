@@ -54,6 +54,7 @@ class LogesignauresController extends Controller
 
     public function index(Request $request)
     {
+        
         $model = str_slug('cerreport-logesignaures','-');
         if(auth()->user()->can('view-'.$model)) {
             return view('cerreport.logesignaures.index');

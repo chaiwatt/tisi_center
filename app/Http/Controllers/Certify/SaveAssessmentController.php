@@ -240,7 +240,7 @@ class SaveAssessmentController extends Controller
        
         $auditor = BoardAuditor::findOrFail($request->auditor_id);
         $notice = Notice::where('app_certi_assessment_id',$auditor->assessment_to->id)->first();
-        // dd($notice);
+       
         return $this->storeNoticeAndNoticeItem($request);
         // if($notice === null){
         //     return $this->storeNoticeAndNoticeItem($request);
@@ -327,51 +327,39 @@ class SaveAssessmentController extends Controller
              if($n->report_status == 2){ 
 
                 
-                  $labReportInfo = LabReportInfo::where('app_certi_lab_notice_id',$n->id)->first();
+                //   $labReportInfo = LabReportInfo::where('app_certi_lab_notice_id',$n->id)->first();
 
-                  if($labReportInfo == null){
-                        $labReportInfo = new LabReportInfo();
-                        $labReportInfo->app_certi_lab_notice_id = $n->id;
-                        $labReportInfo->save();
-                  }
+                //   if($labReportInfo == null){
+                //         $labReportInfo = new LabReportInfo();
+                //         $labReportInfo->app_certi_lab_notice_id = $n->id;
+                //         $labReportInfo->save();
+                //   }
 
-                  $check =  SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
-                                ->whereNotNull('signer_id')
-                                ->where('certificate_type',2)
-                                ->where('report_type',1)
-                                ->get();
-                if($check->count() != 0 )
-                {
-                    $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
-                                ->whereNotNull('signer_id')
-                                ->where('certificate_type',2)
-                                ->where('report_type',1)
-                                ->where('approval',0)
-                                ->get();           
+                //   $check =  SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
+                //                 ->whereNotNull('signer_id')
+                //                 ->where('certificate_type',2)
+                //                 ->where('report_type',1)
+                //                 ->get();
+                // if($check->count() != 0 )
+                // {
+                //     $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
+                //                 ->whereNotNull('signer_id')
+                //                 ->where('certificate_type',2)
+                //                 ->where('report_type',1)
+                //                 ->where('approval',0)
+                //                 ->get();           
 
-                    if($signAssessmentReportTransactions->count() == 0){
-                        $pdfService = new CreateLabAssessmentReportPdf($labReportInfo->id,"ia");
-                        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
-                    }else{
-                           return redirect()->back()->with('error', 'อยู่ระหว่างจัดทำรายงานและลงนาม');
-                    }   
-                }else{
-                    return redirect()->route('save_assessment.view_lab_info',['id' => $n->id]);
-                }
+                //     if($signAssessmentReportTransactions->count() == 0){
+                //         $pdfService = new CreateLabAssessmentReportPdf($labReportInfo->id,"ia");
+                //         $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+                //     }else{
+                //            return redirect()->back()->with('error', 'อยู่ระหว่างจัดทำรายงานและลงนาม');
+                //     }   
+                // }else{
+                //     return redirect()->route('save_assessment.view_lab_info',['id' => $n->id]);
+                // }
 
-                // ไม่มีข้อบกพร่อง
-                // if($request->file_scope  && $request->hasFile('file_scope')){    // รายงาน Scope
-                //     foreach ($request->file_scope as $key => $itme) {
-                //         if(!is_null($itme)){
-                //             $list  = new  stdClass;
-                //             $list->attachs =   $this->store_File($itme,$app->app_no) ;
-                //             $list->attachs_client_name =  HP::ConvertCertifyFileName($itme->getClientOriginalName());
-                //             $scope[] = $list;
-                //         }
-                //     }
-                //     $n->file_scope = json_encode($scope);
-                //  }
-
+   
             
             }else{
                 if($request->attachs  && $request->hasFile('attachs')){   //  ไฟล์แนบ
@@ -622,8 +610,6 @@ class SaveAssessmentController extends Controller
 
 
 
-
-
             if($n->report_status == 1){
                 $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
                 ->where('certificate_type',2)
@@ -640,6 +626,40 @@ class SaveAssessmentController extends Controller
             }else if($n->report_status == 2){
 
                 // http://127.0.0.1:8081/certify/check_certificate/2027/show
+
+
+                $labReportInfo = LabReportInfo::where('app_certi_lab_notice_id',$n->id)->first();
+
+                  if($labReportInfo == null){
+                        $labReportInfo = new LabReportInfo();
+                        $labReportInfo->app_certi_lab_notice_id = $n->id;
+                        $labReportInfo->save();
+                  }
+
+                  $check =  SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
+                                ->whereNotNull('signer_id')
+                                ->where('certificate_type',2)
+                                ->where('report_type',1)
+                                ->get();
+                if($check->count() != 0 )
+                {
+                    $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id',$labReportInfo->id)
+                                ->whereNotNull('signer_id')
+                                ->where('certificate_type',2)
+                                ->where('report_type',1)
+                                ->where('approval',0)
+                                ->get();           
+
+                    if($signAssessmentReportTransactions->count() == 0){
+                        $pdfService = new CreateLabAssessmentReportPdf($labReportInfo->id,"ia");
+                        $pdfContent = $pdfService->generateLabAssessmentReportPdf();
+                    }else{
+                           return redirect()->back()->with('error', 'อยู่ระหว่างจัดทำรายงานและลงนาม');
+                    }   
+                }else{
+                    // dd("ok");
+                    return redirect()->route('save_assessment.view_lab_info',['id' => $n->id]);
+                }
 
                 return redirect('/certify/check_certificate/' . $app->check->id . '/show')->with('flash_message', 'สร้างเรียบร้อยแล้ว');
     
@@ -3490,5 +3510,19 @@ class SaveAssessmentController extends Controller
             if(is_null($mail) && !empty($log_email)){
                 HP::getUpdateCertifyLogEmail($log_email->id);
             }
+        }
+
+
+        public function requestAdminGroupScopeSign(Request $request)
+        {
+            // dd($request->all());
+            CertiLab::find($request->app_certi_lab_id)->update([
+                'scope_view_signer_id' => $request->signer_id
+            ]);
+
+             return response()->json([
+                 'message' => 'Data updated successfully',
+                 'data' => CertiLab::find($request->app_certi_lab_id)
+             ]);
         }
 }

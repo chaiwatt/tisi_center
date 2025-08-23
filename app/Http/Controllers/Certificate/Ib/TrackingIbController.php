@@ -125,6 +125,8 @@ class TrackingIbController extends Controller
                                                         $query->whereNull('app_certi_tracking.id');
                                                     })
 
+
+// dd($app_certi_ib_export->get()->last(),$app_certi_ib_export->get()->last()->applications);  
                                       
 
                                                     ->where( function($query)  use($userLogIn, $roles, $app_certi_ib_id ) {
@@ -143,9 +145,7 @@ class TrackingIbController extends Controller
                                                     })
 
 
-                                            //                       ->get();
-                                            // dd($app_certi_ib_export);
-
+                
                                                     ->when($setting_config, function ($query) use ($from_filed, $condition_check, $warning_day, $check_first){
                                                         switch ( $from_filed ):
                                                             case "1": //วันที่ออกใบรับรอง
@@ -156,6 +156,7 @@ class TrackingIbController extends Controller
                                                                 }
                                                                 break;
                                                             case "3": //วันที่ตรวจล่าสุด
+                                                                
                                                                 if($check_first == 1){//ตรวจติดตามครั้งแรก 6 เดือน
                                                                     return  $query->whereHas('app_certi_ib_auditors', function($query)use ($warning_day){
                                                                                 $query->whereHas('app_certi_ib_auditors_date', function($query) use ($warning_day){
@@ -163,6 +164,7 @@ class TrackingIbController extends Controller
                                                                                 });
                                                                     });
                                                                 }else{
+                                                                   
                                                                     return  $query->whereHas('app_certi_ib_auditors', function($query)use ($condition_check, $warning_day){
                                                                                 $query->whereHas('app_certi_ib_auditors_date', function($query) use ( $condition_check, $warning_day){
                                                                                     $query->Where(DB::raw('DATEDIFF(DATE_ADD(DATE(end_date), INTERVAL '.$condition_check.' MONTH),CURDATE())'), '<=', $warning_day);
@@ -172,7 +174,10 @@ class TrackingIbController extends Controller
                                                                 break;
                                                         endswitch;
                                                     })
-                                                   //filter
+
+                                                    // dd($app_certi_ib_export->get()->last());
+
+                                                 
                                                    ->when($filter_search, function ($query, $filter_search){
                                                        $search_full = str_replace(' ', '', $filter_search );
                                                        $query->where( function($query) use($search_full) {
@@ -223,7 +228,9 @@ class TrackingIbController extends Controller
                                                            DB::raw('app_certi_ib.id                              AS app_certi_ib_id'),
                                                            DB::raw('app_certi_ib.name_unit                       AS name_unit')
                                                        );
-// dd($app_certi_ib_export->get());
+
+        // dd($app_certi_ib_export->get()->last(),$app_certi_ib_export->get()->last()->applications);                                               
+
         $app_certi_tracking = Tracking::LeftJoin((new CertiIBExport)->getTable()." AS app_certi_ib_export", 'app_certi_ib_export.id', '=', 'app_certi_tracking.ref_id')
                                         ->LeftJoin((new CertiIb)->getTable()." AS app_certi_ib", 'app_certi_ib.id', '=', 'app_certi_ib_export.app_certi_ib_id')
                                         ->LeftJoin((new TrackingStatus)->getTable()." AS app_certi_tracking_status", 'app_certi_tracking_status.id', '=', 'app_certi_tracking.status_id')

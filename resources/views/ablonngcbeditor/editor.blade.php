@@ -140,6 +140,29 @@
         <div class="context-menu-item" id="merge-cells">รวมเซลล์</div>
         <div class="context-menu-item" id="unmerge-cells">ยกเลิกการรวมเซลล์</div>
     </div>
+    {{-- <div id="signature-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); align-items: center; justify-content: center;">
+        <div style="background-color: #fefefe; padding: 20px; border: 1px solid #888; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-family: sans-serif;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e5e5; padding-bottom: 10px; margin-bottom: 20px;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #333;">เลือกผู้ลงนาม</h3>
+                <button id="close-signature-modal" style="border: none; background: none; font-size: 28px; cursor: pointer; color: #aaa; line-height: 1;">&times;</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label for="signature-select" style="display: block; margin-bottom: 8px; font-size: 14px; color: #555;">รายชื่อ:</label>
+                    <select id="signature-select" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: white; font-size: 14px;"></select>
+                </div>
+                <div>
+                    <label for="signer-position-input" style="display: block; margin-bottom: 8px; font-size: 14px; color: #555;">ตำแหน่ง:</label>
+                    <input type="text" id="signer-position-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px;">
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; border-top: 1px solid #e5e5e5; padding-top: 15px;">
+                <button id="cancel-signature-btn" style="background-color: #777; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px; font-size: 14px;">ยกเลิก</button>
+                <button id="confirm-signature-btn" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">ยืนยัน</button>
+            </div>
+        </div>
+    </div> --}}
+
     <div id="signature-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); align-items: center; justify-content: center;">
         <div style="background-color: #fefefe; padding: 20px; border: 1px solid #888; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-family: sans-serif;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e5e5; padding-bottom: 10px; margin-bottom: 20px;">
@@ -150,6 +173,21 @@
                 <div style="margin-bottom: 15px;">
                     <label for="signature-select" style="display: block; margin-bottom: 8px; font-size: 14px; color: #555;">รายชื่อ:</label>
                     <select id="signature-select" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: white; font-size: 14px;"></select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="signer-sequence-select" style="display: block; margin-bottom: 8px; font-size: 14px; color: #555;">ลำดับ:</label>
+                    <select id="signer-sequence-select" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: white; font-size: 14px;">
+                        <option value="1">ลำดับที่ 1</option>
+                        <option value="2">ลำดับที่ 2</option>
+                        <option value="3">ลำดับที่ 3</option>
+                        <option value="4">ลำดับที่ 4</option>
+                        <option value="5">ลำดับที่ 5</option>
+                        <option value="6">ลำดับที่ 6</option>
+                        <option value="7">ลำดับที่ 7</option>
+                        <option value="8">ลำดับที่ 8</option>
+                        <option value="9">ลำดับที่ 9</option>
+                        <option value="10">ลำดับที่ 10</option>
+                    </select>
                 </div>
                 <div>
                     <label for="signer-position-input" style="display: block; margin-bottom: 8px; font-size: 14px; color: #555;">ตำแหน่ง:</label>
@@ -874,7 +912,7 @@
             loadTemplateBtn.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
-                
+                // alert('aha');
                 fetch("{{ route('cb.download-doc-review-html-template') }}", {
                     method: 'POST',
                     headers: {
@@ -907,15 +945,17 @@
                     editor.querySelectorAll('table').forEach(makeTableResizable);
                     editor.focus();
 
-                    if (data.status === 'final') {
-                        lockEditor();
-                    } else {
-                        initializeSignatureBlocks();
-                    }
+                    // if (data.status === 'final') {
+                    //     lockEditor();
+                    // } else {
+                    //     initializeSignatureBlocks();
+                    // }
+
+                    initializeSignatureBlocks();
                 })
                 .catch(error => {
                     console.error('Load Template Error:', error);
-                    showCustomAlert(error.message);
+                    // showCustomAlert(error.message);
                 })
                 .finally(() => {
                     loadingIndicator.style.display = 'none';
@@ -955,11 +995,12 @@
                     editor.querySelectorAll('table').forEach(makeTableResizable);
                     editor.focus();
 
-                    if (data.status === 'final') {
-                        lockEditor();
-                    } else {
-                        initializeSignatureBlocks();
-                    }
+                    // if (data.status === 'final') {
+                    //     lockEditor();
+                    // } else {
+                    //     initializeSignatureBlocks();
+                    // }
+                    initializeSignatureBlocks();
                 })
                 .catch(error => {
                     console.error('Load Default Template Error:', error);
@@ -973,9 +1014,9 @@
 
 
             
-            if (initialStatus === 'final') {
-                lockEditor();
-            }
+            // if (initialStatus === 'final') {
+            //     lockEditor();
+            // }
 
             function openSignatureModal() {
                 const modal = document.getElementById('signature-modal');
@@ -1009,6 +1050,7 @@
             document.getElementById('confirm-signature-btn').addEventListener('click', () => {
                 const selectedId = $('#signature-select').val();
                 const newPosition = $('#signer-position-input').val();
+                const selectedSequence = $('#signer-sequence-select').val(); 
                 
                 if (selectedId && activeSignatureBlock) {
                     const selectedSigner = signersData.find(s => s.id == selectedId);
@@ -1016,6 +1058,7 @@
                         activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
                         activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
                         activeSignatureBlock.setAttribute('data-signer-position', newPosition);
+                        activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
 
                         const imgElement = activeSignatureBlock.parentElement.querySelector('img');
                         const pElements = activeSignatureBlock.querySelectorAll('p');
@@ -1062,7 +1105,8 @@
                         signersArray.push({
                             id: block.getAttribute('data-signer-id'),
                             name: block.getAttribute('data-signer-name') || '',
-                            position: block.getAttribute('data-signer-position') || ''
+                            position: block.getAttribute('data-signer-position') || '',
+                            sequence: block.getAttribute('data-signer-sequence') || '1' 
                         });
                     }
                 });

@@ -137,7 +137,7 @@
                                     
 
                                     <td> 
-                                           {{ $offer->title }} {{ $offer->title_eng }}
+                                           {{ $offer->standard_name }} {{ $offer->standard_name_en }}
                                     </td>
 
                                     <td> 

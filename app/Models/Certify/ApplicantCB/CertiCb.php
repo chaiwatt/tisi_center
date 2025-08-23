@@ -21,6 +21,7 @@ use App\Models\Sso\User AS SSO_User;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Bcertify\CertificationBranch;
 use App\Models\Certificate\CbDocReviewAuditor;
+use App\Models\Certify\MessageRecordTransaction;
 use App\Models\Certify\ApplicantCB\CertiCBExport;
 use App\Models\Certify\ApplicantCB\CertiCBStatus;
 use App\Models\Certify\CertiEmailLt;  //E-mail ลท.
@@ -766,6 +767,75 @@ public function app_certi_cb_export()
     }
         
 
+    public function isAllSummaryReportSigned()
+    {
+        $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('app_id',$this->app_no)
+                                        ->where('template','cb_summary_report_template')
+                                        ->get();
+        $signeds = SignAssessmentReportTransaction::where('app_id',$this->app_no)
+                                        ->where('template','cb_summary_report_template')
+                                        ->where('approval',1)
+                                        ->get();  
 
+        // dd($signAssessmentReportTransactions->count(), $signeds->count()) ;                               
+        if($signAssessmentReportTransactions->count() != 0)
+        {
+            if($signAssessmentReportTransactions->count() == $signeds->count()){
+                return true;
+            } else{
+                return false;
+            }
+        }else{
+            return false;
+        }                              
+                                        
+    }
+
+    public function isAllTangTongSigned()
+    {
+        $messageRecordTransactions = MessageRecordTransaction::where('app_id',$this->app_no)
+                                        ->where('job_type','cb-tangtung-tobtoun')
+                                        ->get();
+        $signeds = MessageRecordTransaction::where('app_id',$this->app_no)
+                                        ->where('job_type','cb-tangtung-tobtoun')
+                                        ->where('approval',1)
+                                        ->get();  
+                            
+        if($messageRecordTransactions->count() != 0)
+        {
+            if($messageRecordTransactions->count() == $signeds->count()){
+                return true;
+            } else{
+                return false;
+            }
+        }else{
+            return false;
+        }                              
+                                        
+    }
+
+    public function isAllTobTounReportSigned()
+    {
+        $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('app_id',$this->app_no)
+                                        ->where('template','cb-tangtung-tobtoun')
+                                        ->get();
+        $signeds = SignAssessmentReportTransaction::where('app_id',$this->app_no)
+                                        ->where('template','cb-tangtung-tobtoun')
+                                        ->where('approval',1)
+                                        ->get();   
+                                        
+        // dd($signAssessmentReportTransactions->count() , $signeds->count())                                ;
+        if($signAssessmentReportTransactions->count() != 0)
+        {
+            if($signAssessmentReportTransactions->count() == $signeds->count()){
+                return true;
+            } else{
+                return false;
+            }
+        }else{
+            return false;
+        }                              
+                                        
+    }
     
 }

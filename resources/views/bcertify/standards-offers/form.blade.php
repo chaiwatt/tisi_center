@@ -11,14 +11,37 @@
 @endpush
 
 <b>รายละเอียดมาตรฐาน</b>
-<div class="form-group {{ $errors->has('title') ? 'has-error' : ''}}">
+
+<div class="form-group">
+    <label class="col-md-3 control-label">ชื่อมาตรฐาน :</label>
+    <div class="col-md-9">
+        <input class="form-control" type="text" value="{{ $estandardoffers->standard_name ?? '' }}" readonly>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">ชื่อมาตรฐาน (Eng) :</label>
+    <div class="col-md-9">
+        <input class="form-control" type="text" value="{{ $estandardoffers->standard_name_en ?? '' }}" readonly>
+    </div>
+</div>
+
+
+<div class="form-group">
+    <label class="col-md-3 control-label">เลขมาตรฐาน ISO :</label>
+    <div class="col-md-9">
+        <input class="form-control" type="text" value="{{ $estandardoffers->iso_number ?? '' }}" readonly>
+    </div>
+</div>
+
+<div class="form-group {{ $errors->has('title') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('title', 'ชื่อเรื่อง'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-9">
         {!! Form::text('title', null,  ['class' => 'form-control','disabled'=>true]) !!}
         {!! $errors->first('title', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
-<div class="form-group {{ $errors->has('title_eng') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('title_eng') ? 'has-error' : ''}}" hidden>
     {!! Form::label('title_eng', 'ชื่อเรื่อง (Eng)'.' : ', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-9">
         {!! Form::text('title_eng', null,  ['class' => 'form-control','disabled'=>true]) !!}
@@ -91,26 +114,8 @@
     </div>
 </div>
 
-<div class="form-group">
-    <label class="col-md-3 control-label">ชื่อมาตรฐาน :</label>
-    <div class="col-md-9">
-        <input class="form-control" type="text" value="{{ $estandardoffers->standard_name ?? '' }}" readonly>
-    </div>
-</div>
 
-<div class="form-group">
-    <label class="col-md-3 control-label">ชื่อมาตรฐาน (Eng) :</label>
-    <div class="col-md-9">
-        <input class="form-control" type="text" value="{{ $estandardoffers->standard_name_en ?? '' }}" readonly>
-    </div>
-</div>
 
-<div class="form-group">
-    <label class="col-md-3 control-label">เลขมาตรฐาน ISO :</label>
-    <div class="col-md-9">
-        <input class="form-control" type="text" value="{{ $estandardoffers->iso_number ?? '' }}" readonly>
-    </div>
-</div>
 
 <div class="form-group">
     <label class="col-md-3 control-label">แผนยุทธศาสตร์ชาติฯ (ถ้ามี) :</label>
@@ -146,7 +151,7 @@
           @forelse ($estandardoffers->getAttachments() as $attach)
                 {{-- วนลูปแสดงผลทีละไฟล์ --}}
                 <div>
-                    {!! !empty($attach->caption) ? $attach->caption . ':' : '' !!}
+                    {{-- {!! !empty($attach->caption) ? $attach->caption . ':' : '' !!} --}}
                     <a href="{{ url('funtions/get-view/' . $attach->url . '/' . (!empty($attach->filename) ? $attach->filename : basename($attach->url))) }}"
                     target="_blank"
                     title="{!! !empty($attach->filename) ? $attach->filename : 'ไฟล์แนบ' !!}">
@@ -220,7 +225,7 @@
         {!! Form::select('state',
          [
 
-            '1' => 'เสนอความเห็น',
+            '1' => 'อยู่ระหว่างดำเนินการ',
             '2' => 'รับคำขอ',
             '3' => 'ยกเลิกคำขอ',
             '0' => 'ขอเอกสารเพิ่มเติม',

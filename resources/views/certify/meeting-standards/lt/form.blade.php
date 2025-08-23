@@ -34,7 +34,7 @@
 </style>
 @endpush
 <div class="form-group {{ $errors->has('title') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('title', 'หัวข้อการประชุม'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+    {!! Html::decode(Form::label('title', 'การประชุมครั้งที่'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
         {!! Form::text('title', $meetingstandard->title ?? null, ['class' => 'form-control ', 'required' => true]) !!}
         {!! $errors->first('title', '<p class="help-block">:message</p>') !!}
@@ -92,10 +92,10 @@
 </div>
 
 {{-- รายละเอียดการประชุม --}}
-<div class="form-group required{{ $errors->has('meeting_detail') ? 'has-error' : ''}}">
-    <label for="meeting_detail" class="col-md-3 control-label">รายละเอียดการประชุม : <span class="text-danger">*</span></label>
+<div class="form-group {{ $errors->has('meeting_detail') ? 'has-error' : ''}}" hidden>
+    <label for="meeting_detail" class="col-md-3 control-label">รายละเอียดการประชุม : </label>
     <div class="col-md-8">
-        <textarea name="meeting_detail" id="meeting_detail" class="form-control" rows="2" required>{{ $meetingstandard->meeting_detail ?? old('meeting_detail') }}</textarea>
+        <textarea name="meeting_detail" id="meeting_detail" class="form-control" rows="2" >{{ $meetingstandard->meeting_detail ?? old('meeting_detail') }}</textarea>
     </div>
 </div>
  

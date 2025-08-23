@@ -239,9 +239,8 @@ class BoardAuditorController extends Controller
             
             $targetRoleId = 22;
             $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
-            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$user->reg_subdepart)->get();
+            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$selectedCertiLab->subgroup)->get();
 
-//   dd($groupAdminUsers,$user->reg_subdepart,$userRunrecnos);
 
             $firstSignerGroups = [];
             if(count($groupAdminUsers) != 0){
@@ -436,9 +435,9 @@ class BoardAuditorController extends Controller
             // dd($request->all());   
             try {
 
-                CertiLab::where('id',$request->app_certi_lab_id)->orderby('id','desc')->first()->update([
-                    'scope_view_signer_id' => $request->select_user_id
-                ]);
+                // CertiLab::where('id',$request->app_certi_lab_id)->orderby('id','desc')->first()->update([
+                //     'scope_view_signer_id' => $request->select_user_id
+                // ]);
                 $app = CertiLab::where('id',$request->app_certi_lab_id)->orderby('id','desc')->first();
 
  

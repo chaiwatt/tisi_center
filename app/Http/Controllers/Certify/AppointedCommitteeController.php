@@ -47,11 +47,15 @@ class AppointedCommitteeController extends Controller
 
     public function signDocument(Request $request)
     {
+
+        // dd($request->all());
        $meetingInvitation = MeetingInvitation::find($request->id);
 
 
+
        $setStandards = $meetingInvitation->setStandards;
-    //    dd($setStandards->count());
+
+      
 
        foreach($setStandards as $setStandard)
        {

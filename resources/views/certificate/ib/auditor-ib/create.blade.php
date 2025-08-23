@@ -1,3 +1,4 @@
+{{-- AuditorIbController --}}
 @extends('layouts.master')
 
 @section('content')

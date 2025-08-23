@@ -28,7 +28,6 @@
         $exported = $cc->applicant->certificate_export;
     @endphp
     @if ($exported != null)
-    
         @if ($exported->CertiLabTo != null)
             <span class="text-success">(คำขอหลัก)</span>
         @endif
@@ -119,18 +118,18 @@
 
                 <div class="dropdown-menu" role="menu" >
                                     
-                    @if(in_array($applicant->status,[9,7]))  
+                    {{-- @if(in_array($applicant->status,[9,7]))   --}}
                         <form action="{{ url('/certify/auditor/create')}}" method="POST" style="display:inline"> 
                             {{ csrf_field() }}
                             {!! Form::hidden('app_certi_lab_id', (!empty($applicant->id) ? $applicant->id  : null) , ['id' => 'app_certi_lab_id', 'class' => 'form-control', 'placeholder'=>'' ]); !!}
                             <button class="btn btn-warning" type="submit"   style="width:750px;text-align: left"> 
-                                <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ (เพิ่มเติม)
+                                <i class="fa fa-plus"></i>    แต่งตั้งคณะฯ
 
                             </button>
                             <input hidden type="text" name="current_url" value="{{ request()->fullUrl() }}">
                             <input hidden type="text" name="current_route" value="{{ request()->route()->getName() }}" readonly> 
                         </form>
-                   @endif
+                   {{-- @endif --}}
                      
                     @foreach($applicant->certi_auditors_many as $key => $item)
                         @php 
@@ -363,7 +362,7 @@
     <div class="btn-group form_group">
         <div class="btn-group">
             <button type="button" class="btn {{$assessment_btn}} dropdown-toggle" data-toggle="dropdown">
-                {!! $assessment_icon  !!} ผลการตรวจประเมิน <span class="caret"></span>
+                {!! $assessment_icon  !!} ผลการตรวจประเมิน<span class="caret"></span>
             </button>
             <div class="dropdown-menu" role="menu" >
 
@@ -555,30 +554,51 @@
             
         @endif
     @else 
-    {{-- {{$applicant->report_to}} --}}
+ 
+
+
         @if ($applicant->report_to->ability_confirm !== null)
+            @include ('certify.check_certificate_lab.modal_scope_review')
+            @php
+                $btnClass = $applicant->scope_view_signer_id == null
+                    ? 'btn-warning'
+                    : ($applicant->scope_view_status == null ? 'btn-success' : 'btn-info');
+            @endphp
+
             <div class="btn-group form_group">
-                <form action="{{ url('/certify/certificate-export-lab/create')}}" method="POST" style="display:inline"  > 
-                    {{ csrf_field() }}
-                    {!! Form::hidden('app_token', (!empty($applicant->token) ? $applicant->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
-                    @if ($applicant->scope_view_signer_id == null)
-                        <button class="btn btn-warning" type="submit" >
-                            ออกใบรับรอง
-                        </button>
-                    @else
-                        {{-- @if ($applicant->scope_view_status !== null) --}}
-                            <button class="btn btn-warning" type="submit" >
-                                ออกใบรับรอง 
-                            </button>
-                        {{-- @else
-                        <span class="text-warning">รอยืนยันขอบข่าย</span>
-                        @endif --}}
-                    @endif
-                </form>
+                <button class="btn {{ $btnClass }}" data-toggle="modal" data-target="#exampleModalScopeReview">
+                    ตรวจสอบขอบข่าย
+                </button>
             </div>
+          
+
+            @if ($applicant->scope_view_status !== null)
+                <div class="btn-group form_group">
+                    <form action="{{ url('/certify/certificate-export-lab/create')}}" method="POST" style="display:inline"  > 
+                        {{ csrf_field() }}
+                        {!! Form::hidden('app_token', (!empty($applicant->token) ? $applicant->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
+                        @if ($applicant->scope_view_signer_id == null)
+                            <button class="btn btn-warning" type="submit" >
+                                ออกใบรับรอง
+                            </button>
+                        @else
+                            @if ($applicant->scope_view_status !== null)
+                                <button class="btn btn-warning" type="submit">
+                                    ออกใบรับรอง
+                                </button>
+                            @endif
+                        @endif
+                    </form>
+                </div>
+            @endif
+
+
+
+
         @else
         <span class="text-warning">รอยืนยันความสามารถ</span>
         @endif
+
     @endif
 @else
    

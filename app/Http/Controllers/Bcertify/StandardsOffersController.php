@@ -87,17 +87,23 @@ public function data_list(Request $request)
                                                     })->where('ordering', 1)
                                                     ->get();
         $bc_standard_type_ids = $bc_standard_type_assign->pluck('bc_standard_type_id')->toArray();
-        $orderings = $bc_standard_type_assign->pluck('ordering')->toArray();
 
+        // dd($bc_standard_type_ids);
+        $orderings = $bc_standard_type_assign->pluck('ordering')->toArray();
+        // ->latest()->first()
         $query = EstandardOffers::query()
+        
                                 ->with([
                                     'tisi_estandard_offers_asigns'
                                 ])
+
+                                // dd($query);
+
                                 ->where(function ($query) use($bc_standard_type_ids, $orderings){
                                     if(in_array(1, $orderings)){
-                                        $query->where(function ($query) use($bc_standard_type_ids){
-                                            $query->whereIn('std_type', $bc_standard_type_ids)->orWhereNull('std_type');
-                                        });
+                                        // $query->where(function ($query) use($bc_standard_type_ids){
+                                        //     $query->whereIn('std_type', $bc_standard_type_ids)->orWhereNull('std_type');
+                                        // });
                                         if((in_array(2, $orderings) || in_array(3, $orderings))){
                                             $query->orWhereHas('tisi_estandard_offers_asigns', function ($query){
                                                 $query->where('user_id', auth()->id());
@@ -109,6 +115,10 @@ public function data_list(Request $request)
                                         });
                                     }
                                 })
+                                // ->latest()->first();
+
+                                // dd($query);
+
                                 ->when($filter_search, function ($query, $filter_search){
                                     $search_full = str_replace(' ', '', $filter_search );
                                         $query->where(function ($query2) use($search_full) {
@@ -164,6 +174,14 @@ public function data_list(Request $request)
                             })
                             ->addColumn('state', function ($item) {
                                 return  $item->StateTitle . " (ID:".$item->state.")";
+                            })
+                            ->addColumn('state_id', function ($item) {
+                                if($item->state == 0){
+                                    return  "ขอเอกสารเพิ่ม";
+                                }else{
+                                    return  $item->state;
+                                }
+                                
                             })
                             ->addColumn('asigns', function ($item) {
                                 // dd($item);

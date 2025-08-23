@@ -106,7 +106,28 @@ class StandardPlansController extends Controller
                             })
                             ->addColumn('standard_type', function ($item) {
                                 return   !empty($item->standard_type_to->title)? $item->standard_type_to->title:'';
+                            })->addColumn('std_name', function ($item) {
+  
+                                  if ($item->estandard_offers_to) {
+                                        return $item->estandard_offers_to->standard_name; 
+                                    }
+                                    return '';
                             })
+                            
+                            ->addColumn('std_name_en', function ($item) {
+                         
+                                  if ($item->estandard_offers_to) {
+                                        return $item->estandard_offers_to->standard_name_en; 
+                                    }
+                                    return '';
+                            })
+                              ->addColumn('refno', function ($item) {
+                                  if ($item->estandard_offers_to) {
+                                        return $item->estandard_offers_to->refno; 
+                                    }
+                                    return '';
+                            })
+                            
                             ->addColumn('method', function ($item) {
                                 return   !empty($item->method_to->title)? $item->method_to->title:'';
                             })
@@ -245,10 +266,12 @@ class StandardPlansController extends Controller
 //  
             if($standardplan->status_id == 3 && is_null($set_standards)){  // นำส่งแผน
               
-                  $standards            = new  SetStandards;
-                  $standards->plan_id   = $standardplan->id;
-                  $standards->projectid =  self::get_projectid();
+                $standards            = new  SetStandards;
+                $standards->plan_id   = $standardplan->id;
+                $standards->projectid =  self::get_projectid();
                 $standards->created_by  =  auth()->user()->getKey();
+
+                
                 if($standardOffer->proposer_type == "sdo_basic_or_non_sdo"){
                     $standards->status_id = 0; 
                 }else{

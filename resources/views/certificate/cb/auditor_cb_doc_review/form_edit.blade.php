@@ -117,7 +117,18 @@
         </div>
         
         
-
+            {{-- <div class="form-group">
+                <label for="auditor" class="col-md-5 control-label">
+                    <span class="text-danger">*</span> แต่งตั้งคณะ : 
+                </label>
+                <label  class="col-md-7 control-label" style="text-align: left">
+                      <a class="btn btn-warning " type="button" id="fky" href="{{route('cb.doc-assessment-review-html',['id' => $certiCb->id])}}">
+                            สร้าง
+                      </a>  
+                </label>
+         
+            </div> --}}
+            
 
 
             

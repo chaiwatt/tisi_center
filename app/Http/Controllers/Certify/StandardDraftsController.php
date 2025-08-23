@@ -46,6 +46,7 @@ class StandardDraftsController extends Controller
 
     public function data_list(Request $request)
     {
+        // dd("ok");
         // This now correctly uses the authenticated user from the session.
         $roles =  !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : [];
         $not_admin = (!in_array(1, $roles) && !in_array(25, $roles) && !in_array(44, $roles));  // ไม่ใช่ Admin หรือไม่ใช่ ผอ. ผก
@@ -123,6 +124,36 @@ class StandardDraftsController extends Controller
                 } else {
                     return '<input type="checkbox" name="item_checkbox[]" class="item_checkbox"  value="' . $item->id . '">';
                 }
+            })
+            ->addColumn('refno', function ($item) {
+                $tisiEstandardDraftPlan = TisiEstandardDraftPlan::where('draft_id', $item->id)
+                                                            ->first();
+
+                if ($tisiEstandardDraftPlan && $tisiEstandardDraftPlan->estandard_offers_to) {
+                    
+                    return $tisiEstandardDraftPlan->estandard_offers_to->refno; 
+                }
+                return '';
+            })
+            ->addColumn('std_name', function ($item) {
+                $tisiEstandardDraftPlan = TisiEstandardDraftPlan::where('draft_id', $item->id)
+                                                            ->first();
+
+                if ($tisiEstandardDraftPlan && $tisiEstandardDraftPlan->estandard_offers_to) {
+                    
+                    return $tisiEstandardDraftPlan->estandard_offers_to->standard_name; 
+                }
+                return '';
+            })
+            ->addColumn('std_name_en', function ($item) {
+                $tisiEstandardDraftPlan = TisiEstandardDraftPlan::where('draft_id', $item->id)
+                                                            ->first();
+
+                if ($tisiEstandardDraftPlan && $tisiEstandardDraftPlan->estandard_offers_to) {
+                    
+                    return $tisiEstandardDraftPlan->estandard_offers_to->standard_name_en; 
+                }
+                return '';
             })
             ->addColumn('offer_details', function ($item) {
                 $firstPlan = $item->TisiEstandardDraftPlanMany->first();
@@ -389,6 +420,7 @@ class StandardDraftsController extends Controller
      */
     public function show($id)
     {
+       
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('view-'.$model)) {
             $standarddraft = TisiEstandardDraft::findOrFail($id);
@@ -401,6 +433,7 @@ class StandardDraftsController extends Controller
 
             $estandard_draft_plans = $standarddraft->TisiEstandardDraftPlanMany;//รายการมาตรฐาน
             $estandard_draft_plans = count($estandard_draft_plans) > 0 ? $estandard_draft_plans : collect([new TisiEstandardDraftPlan]) ;
+            
             return view('certify.standard-drafts.show',compact('standarddraft', 'estandard_draft_plans'));
         }
         abort(403);

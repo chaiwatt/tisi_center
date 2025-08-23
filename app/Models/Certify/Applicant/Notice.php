@@ -134,4 +134,6 @@ class Notice extends Model
         $labReportTwoInfo = LabReportTwoInfo::where('app_certi_lab_notice_id',$this->id)->first();
         return $labReportTwoInfo;
     }
+
+
 }

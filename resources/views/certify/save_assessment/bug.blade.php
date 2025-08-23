@@ -9,6 +9,7 @@
                 <th class="text-center" width="2%">ลำดับ</th>
                 <th class="text-center" width="10%">รายงานที่</th>
                 <th class="text-center" width="18%">ผลการประเมินที่พบ</th>
+                <th class="text-center" width="20%" >สาเหตุ</th>
                 <th class="text-center" width="20%" >แนวทางการแก้ไข</th>
                 <th class="text-center" width="12%" >ผลการประเมิน</th>
                 <th class="text-center" width="13%" >หลักฐาน</th>
@@ -38,6 +39,9 @@
                         </td>
                         <td style="padding: 0px;">
                             <textarea name="notice[]" class="form-control non-editable notice auto-expand" style="border-left: none; border-right: 1px solid #ccc;">{{ $item->remark ?? null }}</textarea>
+                        </td>
+                        <td style="padding: 0px;">
+                            <textarea name="user_cause[]" class="form-control non-editable auto-expand" style="border-left: none; border-right: 1px solid #ccc;">{{ $item->user_cause ?? null }}</textarea>
                         </td>
                         <td style="padding: 0px;">
                             <textarea name="details[]" class="form-control non-editable auto-expand" style="border-left: none; border-right: 1px solid #ccc;">{{ $item->details ?? null }}</textarea>

@@ -99,12 +99,13 @@ public function index(Request $request)
                 $query->where('status_id', $filter_status);
             }
         })
-        ->orderBy('id', 'DESC'); // Reverse order by id
+        
+        ->orderBy('id', 'DESC');
 
         $model = str_slug('setstandard', '-');
         if (auth()->user()->can('view-'.$model)) {
             return view('certify.set-standards.index', [
-                'setStandards' => $query->paginate(10) // Paginate with 10 records per page
+                'setStandards' => $query->get() // Paginate with 10 records per page
             ]);
         }
         abort(403);
@@ -265,6 +266,38 @@ public function index(Request $request)
                             ->addColumn('status', function ($item) {
                                 return   !empty($item->StatusText) ? $item->StatusText : '';
                             })
+
+            ->addColumn('refno', function ($item) {
+                $tisiEstandardDraftPlan = TisiEstandardDraftPlan::find($item->plan_id);
+
+                if ($tisiEstandardDraftPlan && $tisiEstandardDraftPlan->estandard_offers_to) {
+                    
+                    return $tisiEstandardDraftPlan->estandard_offers_to->refno; 
+                }
+                return '';
+            })
+            ->addColumn('std_name', function ($item) {
+                $tisiEstandardDraftPlan = TisiEstandardDraftPlan::find($item->plan_id);
+
+                if ($tisiEstandardDraftPlan && $tisiEstandardDraftPlan->estandard_offers_to) {
+                    
+                    return $tisiEstandardDraftPlan->estandard_offers_to->standard_name; 
+                }
+                return '';
+            })
+            ->addColumn('std_name_en', function ($item) {
+                $tisiEstandardDraftPlan = TisiEstandardDraftPlan::find($item->plan_id);
+
+                if ($tisiEstandardDraftPlan && $tisiEstandardDraftPlan->estandard_offers_to) {
+                    
+                    return $tisiEstandardDraftPlan->estandard_offers_to->standard_name_en; 
+                }
+                return '';
+            })
+
+
+
+
                             ->addColumn('action', function ($item) use($model) {
                                 if($item->state == 99){
                                     return HP::buttonAction( $item->id, 'certify/set-standards','Certify\\SetStandardsController@destroy', 'setstandard',true,true,true);

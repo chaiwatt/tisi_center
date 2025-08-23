@@ -11,11 +11,12 @@ use Response;
 use stdClass;
 use Exception;
 use Mpdf\Mpdf;
+use App\RoleUser;
 use Carbon\Carbon;
 use App\Http\Requests;
 use App\LabHtmlTemplate;
-use Mpdf\HTMLParserMode;
 
+use Mpdf\HTMLParserMode;
 use App\CertificateExport;
 use Illuminate\Http\Request;
 use App\Models\Besurv\Signer;
@@ -203,8 +204,15 @@ class CertificateExportLABController extends Controller
 
                 }
             }
-// dd('ok');
-            return view('certify.certificate_export_lab.create',['app_no'=> $app_no, 'app_token' => $app_token,'attach_path'=> $this->attach_path]);
+// dd('สารเลว เขียนได้เหี้ยมาก');
+// dd($requests);
+        $appCertiLab =   CertiLab::where('token', $app_token)->first();
+            return view('certify.certificate_export_lab.create',[
+                'app_no'=> $app_no, 
+                'app_token' => $app_token,
+                'attach_path'=> $this->attach_path,
+                'appCertiLab' => $appCertiLab
+            ]);
         }
         abort(403);
 
@@ -238,7 +246,7 @@ class CertificateExportLABController extends Controller
     {
         // $certi_lab = CertiLab::findOrFail($request->app_certi_lab_id);
         // $export_lab = CertificateExport::where('request_number', $certi_lab->app_no)->first();
-        // dd($export_lab);
+        // dd($request->all());
 
     
        
@@ -347,7 +355,6 @@ class CertificateExportLABController extends Controller
                         $export_lab = CertificateExport::create($requestData);
                     }
 
-                  
 
                     if( isset($requestData['detail']) ){
 
@@ -406,7 +413,6 @@ class CertificateExportLABController extends Controller
                     $this->save_certilab_export_mapreq($certi_lab->id,$export_lab->id);
 
  
-
                     $lab_ability = "test";
                     if($certi_lab->lab_type == "4")
                     {
@@ -415,17 +421,12 @@ class CertificateExportLABController extends Controller
 
                     $ssoUser = DB::table('sso_users')->where('username', $certi_lab->tax_id)->first();  
                   
-                    // $this->save_certilab_export_mapreq($certi_lab->id,$export_lab->id);
-//  dd($ssoUser->id);
-
                     $labHtmlTemplate = LabHtmlTemplate::where('user_id', $ssoUser->id)
                         ->where('according_formula',$certi_lab->standard_id)
                         ->where('purpose',$certi_lab->purpose_type)
                         ->where('lab_ability',$lab_ability)
                         ->where('app_certi_lab_id',$certi_lab->id)
                         ->first();
-
-                   
 
                     $this->exportScopePdf($certi_lab->id,$labHtmlTemplate);
                  
@@ -562,31 +563,58 @@ class CertificateExportLABController extends Controller
 $selectedCertiLab = CertiLab::find($id);
 
           
-           $subGroup = $selectedCertiLab->subgroup;
+        //    $subGroup = $selectedCertiLab->subgroup;
+
+
+
           
 
-            $appCertiMail = CertiEmailLt::where('certi',$subGroup)->where('roles',1)->pluck('admin_group_email')->toArray();
+            // $appCertiMail = CertiEmailLt::where('certi',$subGroup)->where('roles',1)->pluck('admin_group_email')->toArray();
 
        
 
        
-            //   $groupAdminUsers = User::whereIn('reg_email',$appCertiMail)->get();
+            // //   $groupAdminUsers = User::whereIn('reg_email',$appCertiMail)->get();
 
-               $groupAdminUsers = DB::table('user_register')->where('reg_email', $appCertiMail)->get();    
+            //    $groupAdminUsers = DB::table('user_register')->where('reg_email', $appCertiMail)->get();    
 
-                //    dd($groupAdminUsers);
-            $firstSignerGroups = [];
-            if(count($groupAdminUsers) != 0){
-                 $allReg13Ids = [];
-                 foreach ($groupAdminUsers as $groupAdminUser) {
-                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
-                    $allReg13Ids[] = $reg13Id;
+            //     //    dd($groupAdminUsers);
+            // $firstSignerGroups = [];
+            // if(count($groupAdminUsers) != 0){
+            //      $allReg13Ids = [];
+            //      foreach ($groupAdminUsers as $groupAdminUser) {
+            //         $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+            //         $allReg13Ids[] = $reg13Id;
+            //     }
+
+            //     $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            // }
+
+            $attach1 = null;
+            if($selectedCertiLab->scope_view_signer_id == null )
+            {
+                $targetRoleId = 22;
+                $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+                $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$selectedCertiLab->subgroup)->get();
+
+                $firstSignerGroups = [];
+                if(count($groupAdminUsers) != 0){
+                    $allReg13Ids = [];
+                    foreach ($groupAdminUsers as $groupAdminUser) {
+                        $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                        $allReg13Ids[] = $reg13Id;
+                    }
+
+                    $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
                 }
 
-                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+                $attach1 = !empty($firstSignerGroups->first()->AttachFileAttachTo) ? $firstSignerGroups->first()->AttachFileAttachTo : null;
+            }else{
+                   $signer = Signer::find($selectedCertiLab->scope_view_signer_id);
+                    $attach1 = !empty($signer->AttachFileAttachTo) ? $signer->AttachFileAttachTo : null;
             }
 
-$attach1 = !empty($firstSignerGroups->first()->AttachFileAttachTo) ? $firstSignerGroups->first()->AttachFileAttachTo : null;
+   
 
   $sign_url1 = $this->getSignature($attach1);
 
@@ -600,7 +628,7 @@ $footerHtml = '
     </div>
 
     <div style="display: inline-block; width: 15%;float:right;width:25%">
-            <img src="' . $sign_url1 . '" style="height:40px;">
+            <img src="' . $sign_url1 . '" style="height:30px;">
     </div>
 
     <div width="100%" style="display:inline;text-align:center">

@@ -34,11 +34,10 @@
                             <label for="doc_type" class="col-md-3 control-label">ประเภท:</label>
                             <div class="col-md-8">
                                 <select name="doc_type" id="doc_type" class="select2 form-control" data-placeholder="- เลือกประเภท -">
-                                    <option></option> <!-- placeholder -->
-                                    
+                                    <option></option>
                                     <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด</option>
                                     <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }}>เชิญประชุมอนุกรรมการวิชาการ</option>
-                                    {{-- <option value="3" {{ old('doc_type') == '3' ? 'selected' : '' }}>เชิญประชุม เจ้าหน้าที่ ลท.</option> --}}
+                                    {{-- <option value="3" {{ old('doc_type') == '3' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด (ลท.)</option> --}}
                                 </select>
                                 @if ($errors->has('doc_type'))
                                     <p class="help-block">{{ $errors->first('doc_type') }}</p>

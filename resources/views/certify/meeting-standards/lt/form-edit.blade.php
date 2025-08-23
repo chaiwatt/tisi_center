@@ -92,7 +92,7 @@
 </div>
 
 {{-- รายละเอียดการประชุม --}}
-<div class="form-group {{ $errors->has('meeting_detail') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('meeting_detail') ? 'has-error' : ''}}" hidden>
     <label for="meeting_detail" class="col-md-3 control-label">รายละเอียดการประชุม :</label>
     <div class="col-md-8">
         <textarea name="meeting_detail" id="meeting_detail" class="form-control" rows="2">{{ $meetingstandard->meeting_detail ?? old('meeting_detail') }}</textarea>

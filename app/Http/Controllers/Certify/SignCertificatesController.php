@@ -355,6 +355,7 @@ class SignCertificatesController extends Controller
                             return response()->json([
                                                     'message' =>  true,
                                                     'Ref_otp' =>  $otp_sign->Ref_otp,
+                                                    'otp' =>  $otp_sign->otp,
                                                 ]);
                             exit;
                         }
