@@ -1560,7 +1560,11 @@ class CheckCertificateLabController extends Controller
                 $app_no =  $app_no.'-'.$appno[1].'-'.$appno[2];
             }
         }
-        $history   = CertificateHistory::where('app_no',$cc->applicant->app_no)->orwhere('app_no',$app_no)->orderByDesc('id')->get();
+        // dd($cc->applicant->app_no,$app_no);
+        $history   = CertificateHistory::where('app_no',$cc->applicant->app_no)
+                                    // ->orwhere('app_no',$app_no)
+                                    ->orderByDesc('id')
+                                    ->get();
         $feewaiver = Feewaiver::where('certify',1)->first();
 
         $TBApp = ( new CertiLab )->getTable();
