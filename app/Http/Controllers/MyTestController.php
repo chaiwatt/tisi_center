@@ -6,8 +6,10 @@ use HP;
 
 use Storage;
 
+use App\Role;
 use stdClass;
 use Mpdf\Mpdf;
+use App\RoleUser;
 use Carbon\Carbon;
 use App\AttachFile;
 use App\IbHtmlTemplate;
@@ -4409,6 +4411,13 @@ $mpdf->SetHTMLFooter($footerHtml);
                         // 'assessmentId' => $assessment->id,
                     ]);
 
+  }
+
+  public function getRoleName()
+  {
+    $roleUser = Role::find(22);
+    dd($roleUser);
+    
   }
 
 

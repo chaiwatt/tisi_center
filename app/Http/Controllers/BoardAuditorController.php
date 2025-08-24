@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use HP;
+use App\Role;
 use App\User;
 use stdClass;
 use Exception;
@@ -16,17 +17,17 @@ use Smalot\PdfParser\Parser;
 use App\Models\Besurv\Signer;
 use Illuminate\Http\Response;
 use App\Mail\Lab\MailBoardAuditor;
-use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Certify\BoardAuditor;
 use App\Models\Certify\CertiEmailLt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
+
+
 use Illuminate\Support\Facades\Route;
-
-
 use App\Models\Bcertify\StatusAuditor;
 use App\Models\Certify\Applicant\Cost;
 use Illuminate\Support\Facades\Storage;
@@ -41,8 +42,8 @@ use App\Models\Certify\CertificateHistory;
 use App\Models\Bcertify\AuditorInformation;
 use App\Models\Certify\BoardAuditorHistory;
 use App\Services\CreateLabMessageRecordPdf;
-use App\Models\Certify\Applicant\Assessment;
 
+use App\Models\Certify\Applicant\Assessment;
 use App\Models\Certify\Applicant\CostDetails;
 use App\Models\Certify\Applicant\CheckExaminer;
 use App\Models\Certify\BoardAuditorInformation;
@@ -236,8 +237,9 @@ class BoardAuditorController extends Controller
             $user =  auth()->user();
 
 
-            
-            $targetRoleId = 22;
+            // ผู้อำนวยการกลุ่ม สก. (LAB) 22
+            $role = Role::where('name','ผู้อำนวยการกลุ่ม สก. (LAB)')->first();
+            $targetRoleId = $role->id;
             $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
             $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$selectedCertiLab->subgroup)->get();
 

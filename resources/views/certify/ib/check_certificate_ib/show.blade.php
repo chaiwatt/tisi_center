@@ -208,8 +208,12 @@
                         <!-- END  status 9 --> 
                     @endif
 
+                    @php
+                        $payinRoleId = App\Role::where('name', 'เจ้าหน้าที่ออก payin eacc')->value('id');
+                    @endphp
+
                     <!-- START  admin , ผอ , ผก , เจ้าหน้าที่ ลท. -->
-                    @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId) ||  in_array("65",auth()->user()->RoleListId) )    
+                    @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId) ||  in_array($payinRoleId,auth()->user()->RoleListId) )    
 
                         <!-- Button trigger modal     แนบใบ Pay-in ครั้งที่ 1 -->
                         @if(count($certi_ib->CertiIBPayInOneMany) > 0)
@@ -526,8 +530,11 @@
 
                     @endif
 
+                    @php
+                        $payinRoleId = App\Role::where('name', 'เจ้าหน้าที่ออก payin eacc')->value('id');
+                    @endphp
                     <!-- START  admin , ผอ , ผก , เจ้าหน้าที่ ลท. -->
-                    @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId) ||  in_array("65",auth()->user()->RoleListId) )  
+                    @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId) ||  in_array($payinRoleId,auth()->user()->RoleListId) )  
 
                         @if($certi_ib->status >= 14)
 

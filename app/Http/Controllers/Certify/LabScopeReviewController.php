@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Certify;
 
 use HP;
+use App\Role;
 use App\User;
 use stdClass;
 use Mpdf\Mpdf;
@@ -334,7 +335,10 @@ $selectedCertiLab = CertiLab::find($id);
             // }
 
             // $user =  auth()->user();
-          $targetRoleId = 22;
+        //   $targetRoleId = 22;
+                   // ผู้อำนวยการกลุ่ม สก. (LAB) 22
+            $role = Role::where('name','ผู้อำนวยการกลุ่ม สก. (LAB)')->first();
+            $targetRoleId = $role->id;
             $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
             $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$selectedCertiLab->subgroup)->get();
 

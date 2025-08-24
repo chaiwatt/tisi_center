@@ -64,7 +64,7 @@ Route::get('/ib-ms-pdf','MyTestController@ibMessageRecordPdf');
 
 Route::get('/long-ib-editor','MyTestController@longIbEditor');
 
-
+Route::get('/get-role-name','MyTestController@getRoleName');
 
 Route::get('/create-tracking-message-record','MyTestController@CreateTrackingLabMessageRecord');
 Route::get('/create-message-record','MyTestController@CreateLabMessageRecord');

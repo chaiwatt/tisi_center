@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Certify;
 
 use DB;
 use HP;
+use App\Role;
+
+
 use App\Http\Requests;
-
-
 use Illuminate\Http\Request;
 use App\Models\Tis\SetStandard;
 use App\Models\Certify\Standard;
 use Yajra\Datatables\Datatables;
-use App\Http\Controllers\Controller;
 
+use App\Http\Controllers\Controller;
 use App\Models\Certify\SetStandards;
 use App\Models\Tis\TisiEstandardDraft;
 use App\Models\Certify\MeetingStandard;
@@ -55,7 +56,9 @@ public function index(Request $request)
 
         // 1. กำหนดว่า role ไหนบ้างที่เป็น admin
         // 64 คือ ลท ที่มาสร้างหนังสือประชุมและนัดหมายการประชุม
-        $admin_roles = [1, 25, 44, 64];
+        // ลท สำหรับ e-standard
+        $role = Role::where('name','ลท สำหรับ e-standard')->first();
+        $admin_roles = [1, 25, 44, $role->id];
 
         // 3. ถ้าต้องการตัวแปร $not_admin ก็แค่กลับค่า
         $not_admin = empty(array_intersect($roles, $admin_roles));

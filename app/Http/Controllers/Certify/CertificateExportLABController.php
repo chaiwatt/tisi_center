@@ -6,6 +6,7 @@ use HP;
 use PDF;
 use File;
 use QrCode;
+use App\Role;
 use App\User;
 use Response;
 use stdClass;
@@ -14,8 +15,8 @@ use Mpdf\Mpdf;
 use App\RoleUser;
 use Carbon\Carbon;
 use App\Http\Requests;
-use App\LabHtmlTemplate;
 
+use App\LabHtmlTemplate;
 use Mpdf\HTMLParserMode;
 use App\CertificateExport;
 use Illuminate\Http\Request;
@@ -593,7 +594,10 @@ $selectedCertiLab = CertiLab::find($id);
             $attach1 = null;
             if($selectedCertiLab->scope_view_signer_id == null )
             {
-                $targetRoleId = 22;
+                // $targetRoleId = 22;
+                           // ผู้อำนวยการกลุ่ม สก. (LAB) 22
+                $role = Role::where('name','ผู้อำนวยการกลุ่ม สก. (LAB)')->first();
+                $targetRoleId = $role->id;
                 $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
                 $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$selectedCertiLab->subgroup)->get();
 

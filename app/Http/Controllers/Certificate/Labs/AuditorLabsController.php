@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Certificate\Labs;
 
 use DB;
 use HP;
+use App\Role;
 use App\User;
 use stdClass;
 use App\RoleUser;
@@ -153,7 +154,10 @@ class AuditorLabsController extends Controller
 
             $certiLab = $tracking->certificate_export_to->CertiLabTo;
 
-         $targetRoleId = 22;
+        //  $targetRoleId = 22;
+            // ผู้อำนวยการกลุ่ม สก. (LAB) 22
+            $role = Role::where('name','ผู้อำนวยการกลุ่ม สก. (LAB)')->first();
+            $targetRoleId = $role->id;
             $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
             $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$certiLab->subgroup)->get();
 
