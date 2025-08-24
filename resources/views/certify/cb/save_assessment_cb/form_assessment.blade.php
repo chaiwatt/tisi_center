@@ -197,7 +197,7 @@
                                         <label class="col-md-4 text-right"><span class="text-danger">*</span>รายงานการตรวจประเมิน : </label>
                                         <div class="col-md-8">
 {{-- @php
-    dd($assessment->CertiCBAuditorsTo->assessment_type);
+    dd($assessment);
 @endphp --}}
                                             @if ($assessment->CertiCBAuditorsTo->assessment_type == 0)
                                                 <a href="{{ url('/certify/show-cb-editor/cb_final_report_process_one/' . $assessment->id) }}"

@@ -149,7 +149,7 @@
         </div>
     </div> --}}
 
-       <div id="signature-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); align-items: center; justify-content: center;">
+    <div id="signature-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); align-items: center; justify-content: center;">
         <div style="background-color: #fefefe; padding: 20px; border: 1px solid #888; width: 90%; max-width: 450px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-family: sans-serif;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e5e5; padding-bottom: 10px; margin-bottom: 20px;">
                 <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #333;">เลือกผู้ลงนาม</h3>
@@ -1190,10 +1190,57 @@
             document.getElementById('cancel-signature-btn').addEventListener('click', () => {
                 document.getElementById('signature-modal').style.display = 'none';
             });
+
+            // document.getElementById('confirm-signature-btn').addEventListener('click', () => {
+            //     const selectedId = $('#signature-select').val();
+            //     const newPosition = $('#signer-position-input').val();
+            //     const selectedSequence = $('#signer-sequence-select').val();
+            //     activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
+                
+            //     if (selectedId && activeSignatureBlock) {
+            //         const selectedSigner = signersData.find(s => s.id == selectedId);
+            //         if (selectedSigner) {
+            //             activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
+            //             activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
+            //             activeSignatureBlock.setAttribute('data-signer-position', newPosition);
+
+            //             const imgElement = activeSignatureBlock.parentElement.querySelector('img');
+            //             const pElements = activeSignatureBlock.querySelectorAll('p');
+                        
+            //             if (imgElement) {
+            //                 imgElement.src = selectedSigner.signature_img_path; 
+            //                 imgElement.alt = `ลายเซ็นต์ ${selectedSigner.name}`;
+            //             }
+            //             if (pElements.length > 0) pElements[0].textContent = `(${selectedSigner.name})`;
+            //             if (pElements.length > 1 && newPosition) pElements[1].textContent = newPosition;
+            //         }
+            //     }
+            //     document.getElementById('signature-modal').style.display = 'none';
+            // });
+
             document.getElementById('confirm-signature-btn').addEventListener('click', () => {
                 const selectedId = $('#signature-select').val();
                 const newPosition = $('#signer-position-input').val();
                 const selectedSequence = $('#signer-sequence-select').val();
+
+                // --- เริ่ม: โค้ดตรวจสอบลำดับซ้ำ ---
+                const allSignatureBlocks = editor.querySelectorAll('td > div[style*="border-top"]');
+                for (const block of allSignatureBlocks) {
+                    // ไม่ต้องตรวจสอบกับบล็อกที่กำลังแก้ไขอยู่
+                    if (block === activeSignatureBlock) {
+                        continue;
+                    }
+
+                    const existingSequence = block.getAttribute('data-signer-sequence');
+                    // ถ้าลำดับที่เลือก (selectedSequence) ตรงกับลำดับที่มีอยู่แล้ว (existingSequence)
+                    if (existingSequence && existingSequence === selectedSequence) {
+                        alert('ลำดับนี้ถูกใช้ไปแล้ว กรุณาเลือกลำดับอื่น');
+                        return; // หยุดการทำงานทันที
+                    }
+                }
+                // --- จบ: โค้ดตรวจสอบลำดับซ้ำ ---
+
+                // ถ้าไม่ซ้ำ โค้ดด้านล่างนี้จะทำงานตามปกติ
                 activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
                 
                 if (selectedId && activeSignatureBlock) {

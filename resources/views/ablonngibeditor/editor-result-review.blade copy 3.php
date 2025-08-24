@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>eDocument Editor</title>
+    <title>Document Editor</title>
     {{-- Make sure this CSS file is adjusted to not have A4 page styling --}}
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -26,6 +26,44 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
             outline: none;
         }
+
+        /* --- START: Corrected Table Styles for Borders, Fixed Layout, and Resizing --- */
+        #document-editor table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* This is key for fixed width columns */
+        }
+
+        /* --- START: Added override for nested tables used as icons/bullets --- */
+        #document-editor table[style*="inline-block"] {
+            width: auto;
+            table-layout: auto;
+        }
+        /* --- END: Added override --- */
+
+        #document-editor .table-bordered,
+        #document-editor .table-bordered th,
+        #document-editor .table-bordered td {
+            border: 1px solid black; /* This ensures borders are visible */
+        }
+
+        #document-editor td, 
+        #document-editor th {
+            padding: 8px;
+            position: relative; /* Required for positioning the column resizer */
+            word-wrap: break-word; /* Prevents long text from overflowing */
+        }
+
+        .col-resizer {
+            position: absolute;
+            top: 0;
+            right: -2px; /* Position over the right border */
+            width: 5px; /* Draggable area */
+            height: 100%;
+            cursor: col-resize;
+            z-index: 10;
+        }
+        /* --- END: Corrected Table Styles --- */
     </style>
 </head>
 <body>
@@ -80,7 +118,7 @@
             {{-- <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
                 <i class="fa-regular fa-file-pdf"></i>
             </button> --}}
-             <button class="toolbar-button" id="load-default-template-btn" title="Load Default Template">
+            <button class="toolbar-button" id="load-default-template-btn" title="Load Default Template">
                 <i class="fa-solid fa-file-arrow-down"></i>
             </button>
             <div id="loading-indicator" style="display: none;">
@@ -200,8 +238,6 @@
             </div>
         </div>
     </div>
-
-
 
     <script>
         const templateType = @json($templateType ?? null);
@@ -370,30 +406,52 @@
                 document.documentElement.removeEventListener('mouseup', stopDrag, false);
             }
 
-            // Table insertion logic remains the same
+            // Table insertion logic
             const tableModal = document.getElementById('table-modal');
             const insertTableBtn = document.getElementById('insert-table-btn');
             const closeTableModalBtn = document.getElementById('close-table-modal');
             const cancelTableBtn = document.getElementById('cancel-table-btn');
             const createTableBtn = document.getElementById('create-table-btn');
+            
             const showTableModal = () => {
                 const selection = window.getSelection();
-                if (selection.rangeCount > 0) {
+                // Save the range only if the editor or one of its children has focus.
+                if (editor.contains(document.activeElement) && selection.rangeCount > 0) {
                     savedRange = selection.getRangeAt(0).cloneRange();
+                } else {
+                    // If editor is not focused, we'll handle it on create.
+                    savedRange = null; 
                 }
                 tableModal.style.display = 'flex';
             };
+
             const hideTableModal = () => {
                 tableModal.style.display = 'none';
             };
+
             insertTableBtn.addEventListener('click', showTableModal);
             closeTableModalBtn.addEventListener('click', hideTableModal);
             cancelTableBtn.addEventListener('click', hideTableModal);
+            
             createTableBtn.addEventListener('click', () => {
                 const rows = parseInt(document.getElementById('table-rows').value, 10);
                 const cols = parseInt(document.getElementById('table-cols').value, 10);
                 const hasBorders = document.getElementById('table-border-checkbox').checked;
-                if (rows > 0 && cols > 0 && savedRange) {
+
+                // If savedRange is null (because the editor wasn't focused when the modal opened),
+                // create a new range at the end of the editor as a fallback.
+                if (!savedRange) {
+                    editor.focus();
+                    const selection = window.getSelection();
+                    const range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false); // false collapses to the end
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    savedRange = range;
+                }
+
+                if (rows > 0 && cols > 0) {
                     const table = document.createElement('table');
                     if (hasBorders) {
                         table.className = 'table-bordered';
@@ -408,8 +466,11 @@
                         tbody.appendChild(tr);
                     }
                     table.appendChild(tbody);
+                    
                     const p = document.createElement('p');
                     p.appendChild(document.createElement('br'));
+                    
+                    // This inserts the table at the cursor, and then the paragraph before the table.
                     savedRange.insertNode(p);
                     savedRange.insertNode(table);
                     
@@ -783,18 +844,29 @@
                 }
                 hideContextMenu();
             });
+            
+            // --- START: Corrected JavaScript for Table Resizing ---
             function makeTableResizable(table) {
                 const colgroup = table.querySelector('colgroup') || document.createElement('colgroup');
                 const firstRow = table.querySelector('tr');
                 if (!firstRow) return;
 
+                // Clear existing colgroup to rebuild it
                 while (colgroup.firstChild) {
                     colgroup.removeChild(colgroup.firstChild);
                 }
 
+                // Clear existing resizers
+                const existingResizers = table.querySelectorAll('.col-resizer');
+                existingResizers.forEach(resizer => resizer.remove());
+
                 const cols = Array.from(firstRow.children);
-                cols.forEach(() => {
+                const tableWidth = table.offsetWidth;
+                
+                cols.forEach((colCell, index) => {
                     const col = document.createElement('col');
+                    // Set initial width based on current cell width to respect existing layout
+                    col.style.width = (colCell.offsetWidth / tableWidth * 100) + '%';
                     colgroup.appendChild(col);
                 });
                 
@@ -802,17 +874,15 @@
                     table.prepend(colgroup);
                 }
 
-                cols.forEach((colCell, index) => {
-                    if (index === cols.length - 1) return;
-                    
-                    const oldResizer = colCell.querySelector('.col-resizer');
-                    if (oldResizer) oldResizer.remove();
-
-                    const resizer = document.createElement('div');
-                    resizer.className = 'col-resizer';
-                    colCell.appendChild(resizer);
-                    
-                    resizer.addEventListener('mousedown', initColResize);
+                // Add resizers to the cells of the first row
+                const firstRowCells = table.querySelector('tr').children;
+                Array.from(firstRowCells).forEach((colCell, index) => {
+                    if (index < firstRowCells.length - 1) {
+                        const resizer = document.createElement('div');
+                        resizer.className = 'col-resizer';
+                        colCell.appendChild(resizer);
+                        resizer.addEventListener('mousedown', initColResize);
+                    }
                 });
             }
 
@@ -866,6 +936,7 @@
                 document.removeEventListener('mousemove', doColResize);
                 document.removeEventListener('mouseup', stopColResize);
             }
+            // --- END: Corrected JavaScript for Table Resizing ---
 
             // MODIFIED: Selector changed from '.page table' to '#document-editor table'
             document.querySelectorAll('#document-editor table').forEach(makeTableResizable);
@@ -886,7 +957,7 @@
                     el.style.display = 'none';
                 });
 
-                editor.querySelectorAll('.select-signer-btn').forEach(btn => btn.style.display = 'none');
+                editor.querySelectorAll('.select-signer-btn').forEach(btn => btn.remove());
             }
 
             function initializeSignatureBlocks() {
@@ -913,8 +984,8 @@
             loadTemplateBtn.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
-                // alert('fk');
-                fetch("{{ route('ib.download-summary-report-html-template') }}", {
+                
+                fetch("{{ route('ib.download-result-review-html-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -971,7 +1042,7 @@
                 loadingIndicator.style.display = 'inline-block';
                 loadDefaultTemplateBtn.disabled = true;
                 
-                fetch("{{ route('ib.default-download-summary-report-html-template') }}", {
+                fetch("{{ route('ib.default-download-result-review-html-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1058,7 +1129,7 @@
             //             activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
             //             activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
             //             activeSignatureBlock.setAttribute('data-signer-position', newPosition);
-            //             activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
+            //              activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
 
             //             const imgElement = activeSignatureBlock.parentElement.querySelector('img');
             //             const pElements = activeSignatureBlock.querySelectorAll('p');
@@ -1175,7 +1246,7 @@
                 // console.log(htmlContentForSave);
                 // return;
 
-                fetch("{{ route('ib.save-summary-report-html-template') }}", {
+                fetch("{{ route('ib.save-result-review-html-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

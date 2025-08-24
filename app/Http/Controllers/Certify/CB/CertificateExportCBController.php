@@ -219,7 +219,6 @@ class CertificateExportCBController extends Controller
      */
     public function store(Request $request)
     {
-        //
        
         $model = str_slug('certificateexportcb','-');
         if(auth()->user()->can('add-'.$model)) {
@@ -286,7 +285,6 @@ class CertificateExportCBController extends Controller
                         $export_cb->update($requestData);
                     }
 
-                
                     // $certi_cb->update(['status'=> 18]); // ออกใบรับรอง และ ลงนาม
 
                     if( isset($requestData['detail']) ){
@@ -1496,7 +1494,7 @@ $footerHtml = '
     </div>
 
     <div style="display: inline-block; width: 15%;float:right;width:25%">
-     <img src="' . $sign_url1 . '" style="height:40px;">
+     <img src="' . $sign_url1 . '" style="height:30px;">
     </div>
 
     <div width="100%" style="display:inline;text-align:center">

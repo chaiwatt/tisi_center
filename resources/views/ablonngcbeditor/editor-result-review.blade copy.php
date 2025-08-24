@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>eDocument Editor</title>
+    <title>Document Editor</title>
     {{-- Make sure this CSS file is adjusted to not have A4 page styling --}}
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -80,7 +80,7 @@
             {{-- <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
                 <i class="fa-regular fa-file-pdf"></i>
             </button> --}}
-             <button class="toolbar-button" id="load-default-template-btn" title="Load Default Template">
+            <button class="toolbar-button" id="load-default-template-btn" title="Load Default Template">
                 <i class="fa-solid fa-file-arrow-down"></i>
             </button>
             <div id="loading-indicator" style="display: none;">
@@ -201,13 +201,11 @@
         </div>
     </div>
 
-
-
     <script>
         const templateType = @json($templateType ?? null);
         // const ibId = @json($ibId ?? null);
         // const assessmentId = @json($assessmentId ?? null);
-        const certiIbId = @json($certiIbId ?? null);
+        const certiCbId = @json($certiCbId ?? null);
         const initialStatus = @json($status ?? 'draft');
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -913,8 +911,8 @@
             loadTemplateBtn.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
-                // alert('fk');
-                fetch("{{ route('ib.download-summary-report-html-template') }}", {
+                // alert('aha');
+                fetch("{{ route('cb.download-doc-result-review-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -922,7 +920,7 @@
                     },
                     body: JSON.stringify({ 
                         templateType: templateType,
-                        certiIbId: certiIbId,
+                        certiCbId: certiCbId,
                     })
                 })
                 .then(response => {
@@ -955,7 +953,7 @@
                 })
                 .catch(error => {
                     console.error('Load Template Error:', error);
-                    showCustomAlert(error.message);
+                    // showCustomAlert(error.message);
                 })
                 .finally(() => {
                     loadingIndicator.style.display = 'none';
@@ -971,7 +969,7 @@
                 loadingIndicator.style.display = 'inline-block';
                 loadDefaultTemplateBtn.disabled = true;
                 
-                fetch("{{ route('ib.default-download-summary-report-html-template') }}", {
+                fetch("{{ route('cb.default-download-doc-result-review-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -979,7 +977,7 @@
                     },
                     body: JSON.stringify({ 
                         templateType: templateType,
-                        certiIbId: certiIbId,
+                        certiCbId: certiCbId,
                     })
                 })
                 .then(response => {
@@ -1047,57 +1045,10 @@
             document.getElementById('cancel-signature-btn').addEventListener('click', () => {
                 document.getElementById('signature-modal').style.display = 'none';
             });
-            // document.getElementById('confirm-signature-btn').addEventListener('click', () => {
-            //     const selectedId = $('#signature-select').val();
-            //     const newPosition = $('#signer-position-input').val();
-            //     const selectedSequence = $('#signer-sequence-select').val(); 
-                
-            //     if (selectedId && activeSignatureBlock) {
-            //         const selectedSigner = signersData.find(s => s.id == selectedId);
-            //         if (selectedSigner) {
-            //             activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
-            //             activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
-            //             activeSignatureBlock.setAttribute('data-signer-position', newPosition);
-            //             activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
-
-            //             const imgElement = activeSignatureBlock.parentElement.querySelector('img');
-            //             const pElements = activeSignatureBlock.querySelectorAll('p');
-                        
-            //             if (imgElement) {
-            //                 imgElement.src = selectedSigner.signature_img_path; 
-            //                 imgElement.alt = `ลายเซ็นต์ ${selectedSigner.name}`;
-            //             }
-            //             if (pElements.length > 0) pElements[0].textContent = `(${selectedSigner.name})`;
-            //             if (pElements.length > 1 && newPosition) pElements[1].textContent = newPosition;
-            //         }
-            //     }
-            //     document.getElementById('signature-modal').style.display = 'none';
-            // });
-
-                        document.getElementById('confirm-signature-btn').addEventListener('click', () => {
+            document.getElementById('confirm-signature-btn').addEventListener('click', () => {
                 const selectedId = $('#signature-select').val();
                 const newPosition = $('#signer-position-input').val();
-                const selectedSequence = $('#signer-sequence-select').val();
-
-                // --- เริ่ม: โค้ดตรวจสอบลำดับซ้ำ ---
-                const allSignatureBlocks = editor.querySelectorAll('td > div[style*="border-top"]');
-                for (const block of allSignatureBlocks) {
-                    // ไม่ต้องตรวจสอบกับบล็อกที่กำลังแก้ไขอยู่
-                    if (block === activeSignatureBlock) {
-                        continue;
-                    }
-
-                    const existingSequence = block.getAttribute('data-signer-sequence');
-                    // ถ้าลำดับที่เลือก (selectedSequence) ตรงกับลำดับที่มีอยู่แล้ว (existingSequence)
-                    if (existingSequence && existingSequence === selectedSequence) {
-                        alert('ลำดับนี้ถูกใช้ไปแล้ว กรุณาเลือกลำดับอื่น');
-                        return; // หยุดการทำงานทันที
-                    }
-                }
-                // --- จบ: โค้ดตรวจสอบลำดับซ้ำ ---
-
-                // ถ้าไม่ซ้ำ โค้ดด้านล่างนี้จะทำงานตามปกติ
-                activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
+                 const selectedSequence = $('#signer-sequence-select').val();
                 
                 if (selectedId && activeSignatureBlock) {
                     const selectedSigner = signersData.find(s => s.id == selectedId);
@@ -1105,6 +1056,7 @@
                         activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
                         activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
                         activeSignatureBlock.setAttribute('data-signer-position', newPosition);
+                         activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
 
                         const imgElement = activeSignatureBlock.parentElement.querySelector('img');
                         const pElements = activeSignatureBlock.querySelectorAll('p');
@@ -1119,7 +1071,6 @@
                 }
                 document.getElementById('signature-modal').style.display = 'none';
             });
-
 
 
             function saveData(status) {
@@ -1175,7 +1126,7 @@
                 // console.log(htmlContentForSave);
                 // return;
 
-                fetch("{{ route('ib.save-summary-report-html-template') }}", {
+                fetch("{{ route('cb.save-doc-result-review-template') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1183,7 +1134,7 @@
                     },
                     body: JSON.stringify({ 
                         html_content: htmlContentForSave,
-                        certiIbId: certiIbId,
+                        certiCbId: certiCbId,
                         templateType: templateType,
                         status: status,
                         signers: signersArray

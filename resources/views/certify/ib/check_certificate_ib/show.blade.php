@@ -209,7 +209,7 @@
                     @endif
 
                     <!-- START  admin , ผอ , ผก , เจ้าหน้าที่ ลท. -->
-                    @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId))    
+                    @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId) ||  in_array("65",auth()->user()->RoleListId) )    
 
                         <!-- Button trigger modal     แนบใบ Pay-in ครั้งที่ 1 -->
                         @if(count($certi_ib->CertiIBPayInOneMany) > 0)
@@ -473,15 +473,15 @@
                                 }
                             @endphp
 
-                            @if ($certi_ib->isAllTobTounReportSigned())
-                                    <a type="button" class="form_group btn {{ $certi_ib->isAllTangTungTobtounSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('ib.doc-result-review-html',['id' => $certi_ib->id])}}">
+                            @if ($certi_ib->isAllTangTongSigned())
+                                    <a type="button" class="form_group btn {{ $certi_ib->isAllTobTounReportSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('ib.doc-result-review-html',['id' => $certi_ib->id])}}">
                                         รายงานทบทวนฯ
                                     </a>
                             @endif
                            
-                            <button type="button" class="form_group btn {{$review_btn}}"  data-toggle="modal" data-target="#ReviewModal">
+                            {{-- <button type="button" class="form_group btn {{$review_btn}}"  data-toggle="modal" data-target="#ReviewModal">
                                 {!! $review_icon !!} ทบทวนฯ
-                            </button>
+                            </button> --}}
                             @include ('certify/ib/check_certificate_ib/modal.modalreview',['review' => $review,'certi_ib'=> $certi_ib])
                         @endif
 
@@ -505,18 +505,19 @@
 
                             @if( !is_null($report) )
                                 @if ($report->review_approve == null || $report->review_approve == "2")
-                                    <!-- Button trigger modal     	สรุปรายงานและเสนออนุกรรมการฯ  -->
-                                    <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReport">
-                                        {!! $report_icon !!} สรุปรายงาน
-                                    </button>
-                                    @include ('certify/ib/check_certificate_ib/modal.modalstatus17',['report' => $report ])
-                                    <!-- Button trigger modal    	สรุปรายงานและเสนออนุกรรมการฯ  -->
+                                    @if ($certi_ib->isAllTobTounReportSigned())
+                                        <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReport">
+                                            {!! $report_icon !!} สรุปรายงาน
+                                        </button>
+                                        @include ('certify/ib/check_certificate_ib/modal.modalstatus17',['report' => $report ])   
+                                    @endif
+
                                 @else
-                                    <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReviewResult">
+                                    {{-- <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReviewResult">
                                         {!! $report_icon !!} บันทึกผลทบทวน
                                     
                                     </button>
-                                    @include ('certify.ib.check_certificate_ib.modal.modal_review_result',['report' => $report ])
+                                    @include ('certify.ib.check_certificate_ib.modal.modal_review_result',['report' => $report ]) --}}
                                 @endif
 
                             @endif
@@ -526,7 +527,7 @@
                     @endif
 
                     <!-- START  admin , ผอ , ผก , เจ้าหน้าที่ ลท. -->
-                    @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId))  
+                    @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId) ||  in_array("65",auth()->user()->RoleListId) )  
 
                         @if($certi_ib->status >= 14)
 

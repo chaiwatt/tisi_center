@@ -1930,7 +1930,7 @@ class CheckCertificateLabController extends Controller
                     } 
               }
           }
-
+        // dd($export);
         return view('certify.check_certificate_lab.certificate_detail', compact('export','certi_lab','certilab_file_all' ));
     }
 

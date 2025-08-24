@@ -3,24 +3,27 @@
 namespace App\Http\Controllers;
 use HP;
 use DOMXPath;
+use stdClass;
 use DOMDocument;
 use Carbon\Carbon;
 use App\CbHtmlTemplate;
 use Illuminate\Http\Request;
 use App\Models\Besurv\Signer;
+use App\ApplicantCB\CbTobToun;
 use App\Certify\CbReportTemplate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\ApplicantCB\CbDocReviewAssessment;
-use App\ApplicantCB\CbTobToun;
 use App\Models\Certify\ApplicantCB\CertiCb;
 use App\Mail\CB\CBSignReportNotificationMail;
 use App\Certify\ApplicantIB\CbDocReviewReport;
 use App\Models\Certificate\CbDocReviewAuditor;
 use App\Models\Certify\MessageRecordTransaction;
+use App\Models\Certify\ApplicantCB\CertiCBReport;
 use App\Models\Certify\ApplicantCB\CertiCBAuditors;
+use App\Models\Certify\ApplicantCB\CertiCBAttachAll;
 use App\Models\Certify\ApplicantCB\CertiCBAuditorsDate;
 use App\Models\Certify\SignAssessmentReportTransaction;
 use App\Models\Certify\ApplicantCB\CertiCBSaveAssessment;
@@ -1066,7 +1069,7 @@ class CbPdfGeneratorController extends Controller
     public function saveHtml(Request $request)
     {
 
-        // dd($request->input('templateType'));
+        // dd($request->input('assessmentId'));
         // 1. ตรวจสอบข้อมูลที่ส่งมา
         $validator = Validator::make($request->all(), [
             'html_content' => 'required|string',
@@ -1115,31 +1118,22 @@ class CbPdfGeneratorController extends Controller
             // {
                 $report = CbReportTemplate::where('cb_assessment_id',$assessmentId)->where('report_type',$reportType)->first();
 
-                //  dd("signer",$signers,$reportType,$report);
-
-                //  if($reportType == "cb_final_report_process_one")
-                // {
-                //     $this->manageSinging($report,$signers,"cb_final_report_process_one",1);
-                // }else if($reportType == "cb_car_report_two_process_one")
-                // {
-                //     $this->manageSinging($report,$signers,"cb_car_report_two_process_one",2);
-                // }
 
                 if($reportType == "cb_final_report_process_one")
                 {
-                    $this->manageSinging($report,$signers,"cb_final_report_process_one",1);
+                    $this->manageSinging($report,$signers,"cb_final_report_process_one",1,$assessmentId);
                 }
                 else if($reportType == "cb_car_report_two_process_one")
                 {
-                    $this->manageSinging($report,$signers,"cb_car_report_two_process_one",2);
+                    $this->manageSinging($report,$signers,"cb_car_report_two_process_one",2,$assessmentId);
                 }
                 else if($reportType == "cb_final_report_process_two")
                 {
-                    $this->manageSinging($report,$signers,"cb_final_report_process_two",1);
+                    $this->manageSinging($report,$signers,"cb_final_report_process_two",1,$assessmentId);
                 }
                 else if($reportType == "cb_car_report_two_process_two")
                 {
-                    $this->manageSinging($report,$signers,"cb_car_report_two_process_two",2);
+                    $this->manageSinging($report,$signers,"cb_car_report_two_process_two",2,$assessmentId);
                 }
 
 
@@ -1170,7 +1164,7 @@ class CbPdfGeneratorController extends Controller
         }
     }
 
-    public function manageSinging($report,$signers,$template,$report_type)
+    public function manageSinging($report,$signers,$template,$report_type,$assessmentId)
     {
         $config = HP::getConfig();
         $url  =   !empty($config->url_center) ? $config->url_center : url('');
@@ -1196,7 +1190,7 @@ class CbPdfGeneratorController extends Controller
                     'signer_name' => $signer['name'],
                     'signer_position' => $signer['position'],
                     'signer_order' => $signer['sequence'],
-                    'view_url' => $url . '/certify/show-cb-editor/'. $template . '/' . $certiCb->id,
+                    'view_url' => $url . '/certify/show-cb-editor/'. $template . '/' . $assessmentId,
                     'certificate_type' => 0,
                     'report_type' => $report_type,
                     'template' => $template,
@@ -2605,7 +2599,7 @@ class CbPdfGeneratorController extends Controller
         $localTelephone = !empty($certi_cb->tel) ? $certi_cb->tel : '-';
         $localFax = !empty($certi_cb->tel_fax) ? $certi_cb->tel_fax : '-';
 
-
+    
         $cbHtmlTemplate = CbHtmlTemplate::where('app_certi_cb_id',$certi_cb->id)->first();
         $htmlPages = json_decode($cbHtmlTemplate->html_pages);
 
@@ -2629,26 +2623,57 @@ class CbPdfGeneratorController extends Controller
         // 1. สร้างตัวแปรว่างสำหรับเก็บ HTML ของตารางทั้งหมด
         $allDetailTable = '';
 
-        // 2. วนลูปในแต่ละหน้าของ HTML ที่มี
-        foreach ($htmlPages as $pageHtml) {
-            // 3. สร้าง DOMDocument เพื่อจัดการ HTML ของหน้านั้นๆ
-            $dom = new DOMDocument();
+        // // 2. วนลูปในแต่ละหน้าของ HTML ที่มี
+        // foreach ($htmlPages as $pageHtml) {
+        //     // 3. สร้าง DOMDocument เพื่อจัดการ HTML ของหน้านั้นๆ
+        //     $dom = new DOMDocument();
             
-            // เพิ่ม meta tag เพื่อบังคับให้ DOMDocument อ่านเป็น UTF-8 (สำคัญมากสำหรับภาษาไทย)
-            @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $pageHtml);
+        //     // เพิ่ม meta tag เพื่อบังคับให้ DOMDocument อ่านเป็น UTF-8 (สำคัญมากสำหรับภาษาไทย)
+        //     @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $pageHtml);
             
-            $xpath = new DOMXPath($dom);
+        //     $xpath = new DOMXPath($dom);
 
-            // 4. ค้นหา <table> ทั้งหมดที่มี class "detail-table"
-            $detailTables = $xpath->query('//table[contains(@class, "detail-table")]');
+        //     // 4. ค้นหา <table> ทั้งหมดที่มี class "detail-table"
+        //     $detailTables = $xpath->query('//table[contains(@class, "detail-table")]');
 
-            // 5. วนลูปตารางที่เจอในหน้านั้นๆ
-            foreach ($detailTables as $table) {
-                // 6. แปลง Node ของตารางกลับเป็น HTML String แล้วนำมาต่อท้ายตัวแปรหลัก
-                $allDetailTable .= $dom->saveHTML($table);
+        //     // 5. วนลูปตารางที่เจอในหน้านั้นๆ
+        //     foreach ($detailTables as $table) {
+        //         // 6. แปลง Node ของตารางกลับเป็น HTML String แล้วนำมาต่อท้ายตัวแปรหลัก
+        //         $allDetailTable .= $dom->saveHTML($table);
+        //     }
+        // }
+
+            // 2. Loop through each available HTML page
+            foreach ($htmlPages as $pageHtml) {
+                // 3. Create a DOMDocument to manage the HTML for that page
+                $dom = new DOMDocument();
+                
+                // Add a meta tag to force DOMDocument to read as UTF-8 (crucial for Thai language)
+                @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $pageHtml);
+                
+                $xpath = new DOMXPath($dom);
+
+                // 4. Find all <table> elements with the class "detail-table"
+                $detailTables = $xpath->query('//table[contains(@class, "detail-table")]');
+
+                // 5. Loop through the tables found on that page
+                foreach ($detailTables as $table) {
+                    // --- Added section to remove <th> ---
+                    // 5.1 Find all <th> elements within the current table
+                    $headers = $xpath->query('.//th', $table);
+                    
+                    // 5.2 Loop through and remove each <th>
+                    foreach ($headers as $th) {
+                        $th->parentNode->removeChild($th);
+                    }
+                    
+                    // 5.3 Set the table's style attribute to width: 100%
+                    $table->setAttribute('style', 'width: 100%;');
+                    
+                    // 6. Convert the modified table node back to an HTML string
+                    $allDetailTable .= $dom->saveHTML($table);
+                }
             }
-        }
-
 
 
                 // 1. ดึงข้อมูลตามที่คุณระบุ
@@ -2696,37 +2721,42 @@ class CbPdfGeneratorController extends Controller
 
 
         $cbDocReviewAuditor = CbDocReviewAuditor::where('app_certi_cb_id',$certi_cb->id)->first();
+        // dd($cbDocReviewAuditor);
       
         // 1. สร้างตัวแปรเริ่มต้น
         $auditorsHtmlString = '';
         $count = 1;
 
-        // 2. แปลงข้อมูล JSON ให้เป็น PHP Array
-        $auditorGroups = json_decode($cbDocReviewAuditor->auditors, true);
+        if($cbDocReviewAuditor !== null)
+        {
+            // 2. แปลงข้อมูล JSON ให้เป็น PHP Array
+            $auditorGroups = json_decode($cbDocReviewAuditor->auditors, true);
 
-        if (is_array($auditorGroups)) {
-            foreach ($auditorGroups as $group) {
-                // ตรวจสอบว่ามี key ที่ต้องการครบถ้วน
-                if (isset($group['temp_users']) && is_array($group['temp_users']) && isset($group['status'])) {
-                    
-                    // 5. ดึงชื่อสถานะ/ตำแหน่ง จาก Helper (เหมือนใน Blade)
-                    $statusTitle = '';
-                    $statusObject = HP::cbDocAuditorStatus($group['status']);
-                    if ($statusObject && isset($statusObject->title)) {
-                        $statusTitle = $statusObject->title;
-                    }
-
-                    // 6. วนลูปใน temp_users (เหมือน @foreach ที่สอง)
-                    foreach ($group['temp_users'] as $userName) {
-                        // 7. นำข้อมูลมาต่อกันเป็น HTML string
-                        $auditorsHtmlString .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {$count}) {$userName}  &nbsp;&nbsp;&nbsp;&nbsp;{$statusTitle}<br>";
+            if (is_array($auditorGroups)) {
+                foreach ($auditorGroups as $group) {
+                    // ตรวจสอบว่ามี key ที่ต้องการครบถ้วน
+                    if (isset($group['temp_users']) && is_array($group['temp_users']) && isset($group['status'])) {
                         
-                        // 8. เพิ่มค่าตัวนับ
-                        $count++;
+                        // 5. ดึงชื่อสถานะ/ตำแหน่ง จาก Helper (เหมือนใน Blade)
+                        $statusTitle = '';
+                        $statusObject = HP::cbDocAuditorStatus($group['status']);
+                        if ($statusObject && isset($statusObject->title)) {
+                            $statusTitle = $statusObject->title;
+                        }
+
+                        // 6. วนลูปใน temp_users (เหมือน @foreach ที่สอง)
+                        foreach ($group['temp_users'] as $userName) {
+                            // 7. นำข้อมูลมาต่อกันเป็น HTML string
+                            $auditorsHtmlString .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {$count}) {$userName}  &nbsp;&nbsp;&nbsp;&nbsp;{$statusTitle}<br>";
+                            
+                            // 8. เพิ่มค่าตัวนับ
+                            $count++;
+                        }
                     }
                 }
             }
         }
+
 
 
        $processString = '<b style="font-size: 22px">3. การตรวจประเมิน</b><br>
@@ -2754,11 +2784,11 @@ class CbPdfGeneratorController extends Controller
             if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
                 if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
                     // ถ้าเป็นวันเดียวกัน
-                    $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+                    $dateRange = HP::formatDateThai($boardAuditorDate->start_date);
                 } else {
                     // ถ้าเป็นคนละวัน
-                    $dateRange = "วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                                " - " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+                    $dateRange =  HP::formatDateThai($boardAuditorDate->start_date) . 
+                                " - " . HP::formatDateThai($boardAuditorDate->end_date);
                 }
             }
             
@@ -2778,15 +2808,7 @@ class CbPdfGeneratorController extends Controller
             // สมมติว่ามี $histories collection อยู่แล้ว
             $histories = $assessment->CertiCBHistorys;
 
-            // $countSubmit = $histories->filter(function ($history) {
-            //     if (empty($history->details_two)) {
-            //         return false;
-            //     }
-                
-            //     $details = json_decode($history->details_two);
-
-            //     return !is_null($details) && !is_null(collect($details)->firstWhere('comment', '!=', null));
-            // })->count();
+    
 
             $countSubmit = $histories->filter(function ($history) {
                 // ตรวจสอบเบื้องต้นว่ามีข้อมูลหรือไม่
@@ -2817,6 +2839,10 @@ class CbPdfGeneratorController extends Controller
                 return !is_null($found);
             })->count();
 
+                 if ($countSubmit > 0) {
+                $countSubmit  = $countSubmit -1;
+            }
+
             // สมมติว่ามี $assessment->CertiCBHistorys อยู่แล้ว
             $histories = $assessment->CertiCBHistorys;
             $firstDate = $histories->min('created_at');
@@ -2824,7 +2850,7 @@ class CbPdfGeneratorController extends Controller
             $fixDateRange = "";
             if($firstDate != "" && $lastDate != "")
             {
-               $fixDateRange = HP::formatDateThaiFullNumThai($firstDate) .' - '. HP::formatDateThaiFullNumThai($firstDate);
+               $fixDateRange = HP::formatDateThai($firstDate) .' - '. HP::formatDateThai($firstDate);
             }
 
             // dd($countSubmit, $firstDate,$lastDate );
@@ -2855,8 +2881,20 @@ class CbPdfGeneratorController extends Controller
                     }
                 }
             }
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
+
+            $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : ';
+            if ($bugCount > 0) {
+                
+                $processString .= 'จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
         
+            }else{
+                $processString .= '<br>';
+            }
+
+        
+
+
+            
         }
         $processString .= '<br>';
 
@@ -2880,11 +2918,11 @@ class CbPdfGeneratorController extends Controller
             if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
                 if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
                     // ถ้าเป็นวันเดียวกัน
-                    $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+                    $dateRange = "ในวันที่ " . HP::formatDateThai($boardAuditorDate->start_date);
                 } else {
                     // ถ้าเป็นคนละวัน
-                    $dateRange = "วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                                " - " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+                    $dateRange = "วันที่ " . HP::formatDateThai($boardAuditorDate->start_date) . 
+                                " - " . HP::formatDateThai($boardAuditorDate->end_date);
                 }
             }
             
@@ -2904,15 +2942,7 @@ class CbPdfGeneratorController extends Controller
             // สมมติว่ามี $histories collection อยู่แล้ว
             $histories = $assessment->CertiCBHistorys;
 
-            // $countSubmit = $histories->filter(function ($history) {
-            //     if (empty($history->details_two)) {
-            //         return false;
-            //     }
-                
-            //     $details = json_decode($history->details_two);
-
-            //     return !is_null($details) && !is_null(collect($details)->firstWhere('comment', '!=', null));
-            // })->count();
+      
 
             $countSubmit = $histories->filter(function ($history) {
                 // ตรวจสอบเบื้องต้นว่ามีข้อมูลหรือไม่
@@ -2943,6 +2973,10 @@ class CbPdfGeneratorController extends Controller
                 return !is_null($found);
             })->count();
 
+                 if ($countSubmit > 0) {
+                $countSubmit  = $countSubmit -1;
+            }
+
             // สมมติว่ามี $assessment->CertiCBHistorys อยู่แล้ว
             $histories = $assessment->CertiCBHistorys;
             $firstDate = $histories->min('created_at');
@@ -2950,8 +2984,9 @@ class CbPdfGeneratorController extends Controller
             $fixDateRange = "";
             if($firstDate != "" && $lastDate != "")
             {
-               $fixDateRange = HP::formatDateThaiFullNumThai($firstDate) .' - '. HP::formatDateThaiFullNumThai($firstDate);
+               $fixDateRange = HP::formatDateThai($firstDate) .' - '. HP::formatDateThai($firstDate);
             }
+  
 
             // dd($countSubmit, $firstDate,$lastDate );
 
@@ -2981,11 +3016,15 @@ class CbPdfGeneratorController extends Controller
                     }
                 }
             }
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>การตรวจติดตามผลการแก้ไขข้อบกพร่อง</b><br>';
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>วันที่ตรวจประเมิน </b>'.$dateRange.'<br>';
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>คณะผู้ตรวจประเมิน</b>ประกอบด้วย<br>';
-            $processString .= $auditorsHtmlString;
+            $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> :';
+
+            if ($bugCount > 0) {
+                $processString .= 'จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
+            }else{
+                 $processString .= '<br>';
+            }
+           
+            
         
         }
 
@@ -3065,7 +3104,7 @@ class CbPdfGeneratorController extends Controller
                 </table>
                 <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:10px">
                     <tr>
-                        <td style=" padding: 5px 8px; vertical-align: top;"><b>1.5 วันที่ยื่นคำขอ</b> :  '.HP::formatDateThaiFullNumThai($certi_cb->created_at).'</td>
+                        <td style=" padding: 5px 8px; vertical-align: top;"><b>1.5 วันที่ยื่นคำขอ</b> :  '.HP::formatDateThai($certi_cb->created_at).'</td>
                     </tr>
                 </table>
                 
@@ -3209,7 +3248,7 @@ class CbPdfGeneratorController extends Controller
                     'signer_name' => $signer['name'],
                     'signer_position' => $signer['position'],
                     'signer_order' => $signer['sequence'],
-                    'view_url' => $url . '/summary-report-cb-template/'.$certiCb->id ,
+                    'view_url' => $url . '/certify/summary-report-cb-template/'.$certiCb->id ,
                     'certificate_type' => 0,
                     'report_type' => 1,
                     'template' => $request->templateType,
@@ -3841,7 +3880,10 @@ class CbPdfGeneratorController extends Controller
                                             <td style="padding: 2px;">
                                                 <table style="display: inline-block; vertical-align: middle; margin-right: 4px; border-collapse: collapse;">
                                                     <tr>
-                                                        <td style="width: 12px; height: 12px; background-color: #7f7f7f;"></td>
+                                                        <td >
+                                                        <div style="width: 12px; height: 12px; background-color: #7f7f7f;"></div>
+
+                                                        </td>
                                                     </tr>
                                                 </table>
                                                 หัวข้อบังคับสำหรับการตรวจติดตามผลและต่ออายุ
@@ -3854,7 +3896,6 @@ class CbPdfGeneratorController extends Controller
                     </td>
                 </tr>
             </table>
-
 
 
              <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
@@ -3960,6 +4001,29 @@ class CbPdfGeneratorController extends Controller
         }
 
 
+        $certiCb->update(['review' => 2,'status' => 12]);  // สรุปรายงานและเสนออนุกรรมการฯ
+        $report = new CertiCBReport;  //สรุปรายงานและเสนออนุกรรมการฯ
+        $report->app_certi_cb_id =  $certiCb->id;
+        $report->review_approve = "2";
+        $report->save();
+
+        
+        $json = $this->copyScopeCbFromAttachement($report->app_certi_cb_id);
+        $copiedScopes = json_decode($json, true);
+
+        $tb = new CertiCBReport;
+        $certi_cb_attach_more = new CertiCBAttachAll();
+        $certi_cb_attach_more->app_certi_cb_id      = $report->app_certi_cb_id ?? null;
+        $certi_cb_attach_more->ref_id               = $report->id;
+        $certi_cb_attach_more->table_name           = $tb->getTable();
+        $certi_cb_attach_more->file_section         = '1';
+        $certi_cb_attach_more->file                 = $copiedScopes[0]['attachs'];
+        $certi_cb_attach_more->file_client_name     = $copiedScopes[0]['file_client_name'];
+        $certi_cb_attach_more->token                = str_random(16);
+        $certi_cb_attach_more->save();
+
+
+
         $redirectUrl = url('/certify/check_certificate-cb/' . $certiCb->token . '/show/' .$certiCb->id  );
         return response()->json([
             'success' => true,
@@ -3967,4 +4031,45 @@ class CbPdfGeneratorController extends Controller
             'redirect_url' => $redirectUrl // << ส่ง URL กลับไปด้วย
         ]);
     }
+
+    public function copyScopeCbFromAttachement($certiCbId)
+{
+    $copiedScoped = null;
+    $fileSection = null;
+
+    $app = CertiCb::find($certiCbId);
+
+    $latestRecord = CertiCBAttachAll::where('app_certi_cb_id', $certiCbId)
+    ->where('file_section', 3)
+    ->where('table_name', 'app_certi_cb')
+    ->orderBy('created_at', 'desc') // เรียงลำดับจากใหม่ไปเก่า
+    ->first();
+
+    $existingFilePath = 'files/applicants/check_files_cb/' . $latestRecord->file ;
+
+    // ตรวจสอบว่าไฟล์มีอยู่ใน FTP และดาวน์โหลดลงมา
+    if (HP::checkFileStorage($existingFilePath)) {
+        $localFilePath = HP::getFileStoragePath($existingFilePath); // ดึงไฟล์ลงมาที่เซิร์ฟเวอร์
+        $no  = str_replace("RQ-","",$app->app_no);
+        $no  = str_replace("-","_",$no);
+        $dlName = 'scope_'.basename($existingFilePath);
+        $attach_path  =  'files/applicants/check_files_cb/'.$no.'/';
+
+        if (file_exists($localFilePath)) {
+            $storagePath = Storage::putFileAs($attach_path, new \Illuminate\Http\File($localFilePath),  $dlName );
+            $filePath = $attach_path . $dlName;
+            if (Storage::disk('ftp')->exists($filePath)) {
+                $list  = new  stdClass;
+                $list->attachs =  $no.'/'.$dlName;
+                $list->file_client_name =  $dlName;
+                $scope[] = $list;
+                $copiedScoped = json_encode($scope);
+            } 
+            unlink($localFilePath);
+        }
+    }
+
+    return $copiedScoped;
+}
+
 }

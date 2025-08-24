@@ -199,7 +199,7 @@
                 @endif
 
                 <!-- START  admin , ผอ , ผก , เจ้าหน้าที่ ลท. -->
-                @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId))  
+                @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId) ||  in_array("65",auth()->user()->RoleListId))  
                 
                     <!-- Button trigger modal     แนบใบ Pay-in ครั้งที่ 1 -->
                     @if(count($certi_cb->CertiCBPayInOneMany) > 0)
@@ -486,27 +486,27 @@
 ssss
                         @endif --}}
 
-                          <a type="button" class="form_group btn btn-warning" href="{{route('cb.doc-result-review-html',['id' => $certi_cb->id])}}">
+                          {{-- <a type="button" class="form_group btn btn-warning" href="{{route('cb.doc-result-review-html',['id' => $certi_cb->id])}}">
                                         รายงานทบทวนฯ
-                                    </a>
+                                    </a> --}}
 
-                           {{-- @if ($certi_cb->isAllTobTounReportSigned())
-                                    <a type="button" class="form_group btn {{ $certi_cb->isAllTangTungTobtounSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('cb.doc-result-review-html',['id' => $certi_cb->id])}}">
+                           @if ($certi_cb->isAllTangTongSigned())
+                                    <a type="button" class="form_group btn {{ $certi_cb->isAllTobTounReportSigned() ? 'btn-info' : 'btn-warning' }}" href="{{route('cb.doc-result-review-html',['id' => $certi_cb->id])}}">
                                         รายงานทบทวนฯ
                                     </a>
-                            @endif --}}
+                            @endif 
 
                             {{-- <a type="button" class="form_group btn {{$review_btn}}" href="{{route('cb.doc-result-review-html',['id' => $certi_cb->id])}}" >
                                 {!! $review_icon !!} รายงานทบทวนฯ
                             </a> --}}
 
-                        {{-- @if ($certi_cb->fullyApproveReport()) --}}
-                            <button type="button" class="form_group btn {{$review_btn}}"  data-toggle="modal" data-target="#ReviewModal">
+                        {{-- @if ($certi_cb->fullyApproveReport())  --}}
+                            {{-- <button type="button" class="form_group btn {{$review_btn}}"  data-toggle="modal" data-target="#ReviewModal">
                                 {!! $review_icon !!} ทบทวนฯ
-                            </button>
-                        {{-- @else
-                        อนุมัติรายงานยังไม่ครบ
-                        @endif --}}
+                            </button> --}}
+                         {{-- @else
+                            อนุมัติรายงานยังไม่ครบ --}}
+                        {{-- @endif  --}}
 
 
 
@@ -536,16 +536,20 @@ ssss
                         @if( !is_null($report) )
                        
                             @if ($report->review_approve == null || $report->review_approve == "2")
-                                <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReport">
-                                    {!! $report_icon !!} สรุปรายงาน 
-                                </button>
-                                @include ('certify/cb/check_certificate_cb/modal.modalstatus17',['report' => $report ])
+
+                                @if ($certi_cb->isAllTobTounReportSigned())
+                                        <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReport">
+                                            {!! $report_icon !!} สรุปรายงาน 
+                                        </button>
+                                    @include ('certify/cb/check_certificate_cb/modal.modalstatus17',['report' => $report ])
+                                @endif
+
                             @else
-                                <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReviewResult">
+                                {{-- <button type="button" class="form_group btn {{$report_btn}}" data-toggle="modal" data-target="#exampleModalReviewResult">
                                     {!! $report_icon !!} บันทึกผลทบทวน
                                  
                                 </button>
-                                @include ('certify/cb/check_certificate_cb/modal.modal_review_result',['report' => $report ])
+                                @include ('certify/cb/check_certificate_cb/modal.modal_review_result',['report' => $report ]) --}}
                             @endif
 
                            
@@ -557,7 +561,7 @@ ssss
                 @endif
 
                 <!-- START  admin , ผอ , ผก , เจ้าหน้าที่ ลท. -->
-                @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId))   
+                @if(auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("26",auth()->user()->RoleListId) ||  in_array("65",auth()->user()->RoleListId) )   
 
                     @if($certi_cb->status >= 14)
 

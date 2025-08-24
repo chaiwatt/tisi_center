@@ -11,6 +11,10 @@
            </h4>
         </div>
   @if(!is_null($review))
+  {{-- {{$review}} --}}
+  {{-- @php
+      dd($review);
+  @endphp --}}
    {!! Form::open(['url' => 'certify/check_certificate-ib/update_review/'.$review->id,
     'class' => 'form-horizontal', 
     'files' => true,

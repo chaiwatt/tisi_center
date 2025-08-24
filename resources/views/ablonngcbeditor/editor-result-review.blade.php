@@ -26,6 +26,44 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
             outline: none;
         }
+
+        /* --- START: Added Table Styles for Borders, Fixed Layout, and Resizing --- */
+        #document-editor table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* This is key for fixed width columns */
+        }
+
+        /* --- START: Added override for nested tables used as icons/bullets --- */
+        #document-editor table[style*="inline-block"] {
+            width: auto;
+            table-layout: auto;
+        }
+        /* --- END: Added override --- */
+
+        #document-editor .table-bordered,
+        #document-editor .table-bordered th,
+        #document-editor .table-bordered td {
+            border: 1px solid black; /* This ensures borders are visible */
+        }
+
+        #document-editor td, 
+        #document-editor th {
+            padding: 8px;
+            position: relative; /* Required for positioning the column resizer */
+            word-wrap: break-word; /* Prevents long text from overflowing */
+        }
+
+        .col-resizer {
+            position: absolute;
+            top: 0;
+            right: -2px; /* Position over the right border */
+            width: 5px; /* Draggable area */
+            height: 100%;
+            cursor: col-resize;
+            z-index: 10;
+        }
+        /* --- END: Added Table Styles --- */
     </style>
 </head>
 <body>
@@ -781,18 +819,29 @@
                 }
                 hideContextMenu();
             });
+            
+            // --- START: Updated makeTableResizable Function ---
             function makeTableResizable(table) {
                 const colgroup = table.querySelector('colgroup') || document.createElement('colgroup');
                 const firstRow = table.querySelector('tr');
                 if (!firstRow) return;
 
+                // Clear existing colgroup to rebuild it
                 while (colgroup.firstChild) {
                     colgroup.removeChild(colgroup.firstChild);
                 }
 
+                // Clear existing resizers
+                const existingResizers = table.querySelectorAll('.col-resizer');
+                existingResizers.forEach(resizer => resizer.remove());
+
                 const cols = Array.from(firstRow.children);
-                cols.forEach(() => {
+                const tableWidth = table.offsetWidth;
+                
+                cols.forEach((colCell, index) => {
                     const col = document.createElement('col');
+                    // Set initial width based on current cell width to respect existing layout
+                    col.style.width = (colCell.offsetWidth / tableWidth * 100) + '%';
                     colgroup.appendChild(col);
                 });
                 
@@ -800,19 +849,18 @@
                     table.prepend(colgroup);
                 }
 
-                cols.forEach((colCell, index) => {
-                    if (index === cols.length - 1) return;
-                    
-                    const oldResizer = colCell.querySelector('.col-resizer');
-                    if (oldResizer) oldResizer.remove();
-
-                    const resizer = document.createElement('div');
-                    resizer.className = 'col-resizer';
-                    colCell.appendChild(resizer);
-                    
-                    resizer.addEventListener('mousedown', initColResize);
+                // Add resizers to the cells of the first row
+                const firstRowCells = table.querySelector('tr').children;
+                Array.from(firstRowCells).forEach((colCell, index) => {
+                    if (index < firstRowCells.length - 1) {
+                        const resizer = document.createElement('div');
+                        resizer.className = 'col-resizer';
+                        colCell.appendChild(resizer);
+                        resizer.addEventListener('mousedown', initColResize);
+                    }
                 });
             }
+            // --- END: Updated makeTableResizable Function ---
 
             let currentResizer;
             let resizeStartX;
@@ -884,7 +932,7 @@
                     el.style.display = 'none';
                 });
 
-                editor.querySelectorAll('.select-signer-btn').forEach(btn => btn.style.display = 'none');
+                editor.querySelectorAll('.select-signer-btn').forEach(btn => btn.remove());
             }
 
             function initializeSignatureBlocks() {
@@ -1260,4 +1308,4 @@
         });
     </script>
 </body>
-</html>
+</ht

@@ -5,10 +5,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Document Editor</title>
+    <title>ADocument Editor</title>
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+
+    <style>
+        /* ปรับสไตล์ของ Select2 ให้เหมือน input ทั่วไป
+        */
+
+        /* ปรับกรอบนอกให้เหมือนช่องอื่น */
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #ccc !important; 
+            border-radius: 6px !important;
+            height: 40px !important; /* ปรับความสูงให้เท่ากับช่องอื่น */
+        }
+
+        /* ปรับฟอนต์และข้อความข้างใน (ส่วนที่สำคัญที่สุด) */
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            font-size: 14px;      /* << กำหนดขนาดฟอนต์ */
+            font-weight: normal;  /* << กำหนดความหนาฟอนต์เป็นปกติ */
+            color: #555;         /* ปรับสีฟอนต์ให้เหมือนช่องอื่น */
+            padding-top: 5px;     /* จัดตำแหน่งข้อความแนวตั้ง (อาจต้องปรับค่า) */
+            padding-left: 10px;   /* ระยะห่างด้านซ้าย */
+        }
+
+        /* ปรับลูกศรชี้ลง */
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 6px !important;
+        }
+
+        /* ปรับความกว้างของช่องค้นหาใน dropdown */
+        .select2-container--default.select2-container--open .select2-search--dropdown .select2-search__field {
+            width: 100% !important; /* ทำให้กว้างเต็มพื้นที่ dropdown */
+            box-sizing: border-box; /* รวม padding และ border ในขนาด */
+        }
+    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 </head>
 <body>
 
@@ -177,6 +216,10 @@
             const loadingIndicator = document.getElementById('loading-indicator');
             let activeSignatureBlock = null; 
             let signersData = []; 
+
+            // $('#signature-select').select2({
+            //     dropdownParent: $('#signature-modal')
+            // });
             
             // ... (โค้ดส่วน formatButtons และอื่นๆ ไม่เปลี่ยนแปลง)
             const formatButtons = [
@@ -1105,10 +1148,58 @@
             document.getElementById('cancel-signature-btn').addEventListener('click', () => {
                 document.getElementById('signature-modal').style.display = 'none';
             });
+
+            // document.getElementById('confirm-signature-btn').addEventListener('click', () => {
+            //     const selectedId = $('#signature-select').val();
+            //     const newPosition = $('#signer-position-input').val();
+            //     const selectedSequence = $('#signer-sequence-select').val(); 
+                
+            //     if (selectedId && activeSignatureBlock) {
+            //         const selectedSigner = signersData.find(s => s.id == selectedId);
+            //         if (selectedSigner) {
+            //             activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
+            //             activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
+            //             activeSignatureBlock.setAttribute('data-signer-position', newPosition);
+            //             activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
+
+            //             const imgElement = activeSignatureBlock.parentElement.querySelector('img');
+            //             const pElements = activeSignatureBlock.querySelectorAll('p');
+                        
+            //             if (imgElement) {
+            //                 imgElement.src = selectedSigner.signature_img_path; 
+            //                 imgElement.alt = `ลายเซ็นต์ ${selectedSigner.name}`;
+            //             }
+            //             if (pElements.length > 0) pElements[0].textContent = `(${selectedSigner.name})`;
+            //             if (pElements.length > 1 && newPosition) pElements[1].textContent = newPosition;
+            //         }
+            //     }
+            //     document.getElementById('signature-modal').style.display = 'none';
+            // });
+
             document.getElementById('confirm-signature-btn').addEventListener('click', () => {
                 const selectedId = $('#signature-select').val();
                 const newPosition = $('#signer-position-input').val();
-                const selectedSequence = $('#signer-sequence-select').val(); 
+                const selectedSequence = $('#signer-sequence-select').val();
+
+                // --- เริ่ม: โค้ดตรวจสอบลำดับซ้ำ ---
+                const allSignatureBlocks = editor.querySelectorAll('td > div[style*="border-top"]');
+                for (const block of allSignatureBlocks) {
+                    // ไม่ต้องตรวจสอบกับบล็อกที่กำลังแก้ไขอยู่
+                    if (block === activeSignatureBlock) {
+                        continue;
+                    }
+
+                    const existingSequence = block.getAttribute('data-signer-sequence');
+                    // ถ้าลำดับที่เลือก (selectedSequence) ตรงกับลำดับที่มีอยู่แล้ว (existingSequence)
+                    if (existingSequence && existingSequence === selectedSequence) {
+                        alert('ลำดับนี้ถูกใช้ไปแล้ว กรุณาเลือกลำดับอื่น');
+                        return; // หยุดการทำงานทันที
+                    }
+                }
+                // --- จบ: โค้ดตรวจสอบลำดับซ้ำ ---
+
+                // ถ้าไม่ซ้ำ โค้ดด้านล่างนี้จะทำงานตามปกติ
+                activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
                 
                 if (selectedId && activeSignatureBlock) {
                     const selectedSigner = signersData.find(s => s.id == selectedId);
@@ -1116,7 +1207,6 @@
                         activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
                         activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
                         activeSignatureBlock.setAttribute('data-signer-position', newPosition);
-                        activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
 
                         const imgElement = activeSignatureBlock.parentElement.querySelector('img');
                         const pElements = activeSignatureBlock.querySelectorAll('p');

@@ -104,7 +104,10 @@
         <!-- .row -->
         <div class="row">
             <div class="col-sm-12">
+                    <button type="button" class="btn btn-primary" id="microservice_simulation" > รัน Micro Service 🐆
+                </button>
                 <div class="white-box">
+                    
                     <h3 class="box-title pull-left">ระบบตรวจสอบคำขอหน่วยรับรอง (CB)</h3>
 
 
@@ -764,6 +767,19 @@
             });
             
 
+        });
+
+          $('#microservice_simulation').click(function() {
+            $.ajax({
+                type: 'GET',
+                url: "{{ url('run-all-schedule') }}",
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(xhr, status, error) {
+                    alert('เกิดข้อผิดพลาด: ' + xhr.responseText);
+                }
+            });
         });
 
     </script>

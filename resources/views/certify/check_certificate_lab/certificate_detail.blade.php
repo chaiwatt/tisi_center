@@ -1,3 +1,4 @@
+{{-- CertificateExportLABController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -58,9 +59,18 @@
           <label class="col-md-3 text-right control-label">วันที่ได้รับการรับรองครั้งแรก : </label> 
           <p class="col-md-8 border-dot-bottom"> {!! !empty($export->certificate_date_start)?  HP::DateThai($export->certificate_date_start) :'-'  !!} </p>
    </div>
+   @php
+    $latestUpdate = null;
+    if ($certilab_file_all and $certilab_file_all->count() > 0){
+        $latestFile = $certilab_file_all->sortByDesc('id')->first();
+        $latestUpdate = HP::DateThai($latestFile->start_date) ;
+        // dd($latestFile->start_date);
+    }
+        
+    @endphp
    <div class="col-sm-12">
           <label class="col-md-3 text-right control-label">วันที่ได้รับการรับรองล่าสุด : </label> 
-          <p class="col-md-8 border-dot-bottom"> {!! !empty($export->certificate_date_end)?   HP::DateThai($export->certificate_date_end) :'-'  !!} </p>
+          <p class="col-md-8 border-dot-bottom"> {!! !empty($latestUpdate)?   $latestUpdate :'-'  !!} </p>
    </div>
    <div class="col-sm-12">
           <label class="col-md-3 text-right control-label">สถานะของห้องปฏิบัติการ : </label> 
@@ -112,6 +122,11 @@
                             {{-- <th width="7%" class="text-center" width="100px">จัดการ</th> --}}
                         </tr>
                     </thead>
+                    {{-- @php
+                        $latestFile = $certilab_file_all->sortByDesc('id')->first();
+                        dd($latestFile->start_date);
+                    @endphp --}}
+
                     <tbody data-repeater-list="detail">
                         @if ($certilab_file_all and $certilab_file_all->count() > 0)
                             @foreach ($certilab_file_all as $key => $certilab_file)
@@ -126,8 +141,6 @@
                                                 $purpose = '';
                                                 if(!empty($certilab_file->app_no)){
                                                     $purpose_id =   App\Models\Certify\Applicant\CertiLab::where('app_no',$certilab_file->app_no)->value('purpose_type');
-                                                    // {{$certilab_file->CertiLabTo}}
-                                                    // if(!empty($purpose_id) &&  array_key_exists($purpose_id,$purposes)  ){
                                                     if($certilab_file->ref_table == "app_certi_tracking")
                                                     {
                                                         $purpose = '<p class="text-muted"><i>ตรวจติดตาม</i></p>';

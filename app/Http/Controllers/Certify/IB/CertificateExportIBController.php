@@ -1456,7 +1456,7 @@ $footerHtml = '
     </div>
 
     <div style="display: inline-block; width: 15%;float:right;width:25%">
-   <img src="' . $sign_url1 . '" style="height:40px;">
+   <img src="' . $sign_url1 . '" style="height:30px;">
     </div>
 
     <div width="100%" style="display:inline;text-align:center">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use HP;
 use Storage;
 use DOMXPath;
+use stdClass;
 use DOMDocument;
 use Carbon\Carbon;
 use App\IbHtmlTemplate;
@@ -24,6 +25,8 @@ use App\Mail\IB\IBSignReportNotificationMail;
 use App\Certify\ApplicantIB\IbDocReviewReport;
 use App\Models\Certificate\IbDocReviewAuditor;
 use App\Models\Certify\MessageRecordTransaction;
+use App\Models\Certify\ApplicantIB\CertiIBReport;
+use App\Models\Certify\ApplicantIB\CertiIBReview;
 use App\Models\Certify\ApplicantIB\CertiIbHistory;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Models\Certify\ApplicantIB\CertiIBAttachAll;
@@ -1109,19 +1112,19 @@ class IbPdfGeneratorController extends Controller
                 
                 if($reportType == "ib_final_report_process_one")
                 {
-                    $this->manageSinging($report,$signers,"ib_final_report_process_one",1);
+                    $this->manageSinging($report,$signers,"ib_final_report_process_one",1,$assessmentId);
                 }
                 else if($reportType == "ib_car_report_two_process_one")
                 {
-                    $this->manageSinging($report,$signers,"ib_car_report_two_process_one",2);
+                    $this->manageSinging($report,$signers,"ib_car_report_two_process_one",2,$assessmentId);
                 }
                 else if($reportType == "ib_final_report_process_two")
                 {
-                    $this->manageSinging($report,$signers,"ib_final_report_process_two",1);
+                    $this->manageSinging($report,$signers,"ib_final_report_process_two",1,$assessmentId);
                 }
                 else if($reportType == "ib_car_report_two_process_two")
                 {
-                    $this->manageSinging($report,$signers,"ib_car_report_two_process_two",2);
+                    $this->manageSinging($report,$signers,"ib_car_report_two_process_two",2,$assessmentId);
                 }
 
                 if($status == "final")
@@ -1146,7 +1149,7 @@ class IbPdfGeneratorController extends Controller
         }
     }
 
-    public function manageSinging($report,$signers,$template,$report_type)
+    public function manageSinging($report,$signers,$template,$report_type,$assessmentId)
     {
         $config = HP::getConfig();
         $url  =   !empty($config->url_center) ? $config->url_center : url('');
@@ -1174,7 +1177,7 @@ class IbPdfGeneratorController extends Controller
                 'signer_name' => $signer['name'],
                 'signer_position' => $signer['position'],
                 'signer_order' => $signer['sequence'],
-                'view_url' => $url . '/certify/show-ib-editor/'. $template . '/' . $certiCb->id,
+                'view_url' => $url . '/certify/show-ib-editor/'. $template . '/' . $assessmentId,
                 'certificate_type' => 1,
                 'report_type' => $report_type,
                 'template' => $template,
@@ -2164,6 +2167,30 @@ public function docResultReviewHtml($id)
         }
 
 
+        // CertiIBReview::where('app_certi_ib_id',$certiIbId)->first();
+
+        $certiIb->update(['review' => 2,'status' => 12]);  // สรุปรายงานและเสนออนุกรรมการฯ
+        $report = new CertiIBReport;  //สรุปรายงานและเสนออนุกรรมการฯ
+        $report->app_certi_ib_id =  $certiIb->id;
+        $report->review_approve = "2";
+        $report->save();
+
+        $json = $this->copyScopeIbFromAttachement($report->app_certi_ib_id);
+        $copiedScopes = json_decode($json, true);
+
+        $tb = new CertiIBReport;
+        $certi_ib_attach_more = new CertiIBAttachAll();
+        $certi_ib_attach_more->app_certi_ib_id      = $report->app_certi_ib_id ?? null;
+        $certi_ib_attach_more->ref_id               = $report->id;
+        $certi_ib_attach_more->table_name           = $tb->getTable();
+        $certi_ib_attach_more->file_section         = '1';
+        $certi_ib_attach_more->file                 = $copiedScopes[0]['attachs'];
+        $certi_ib_attach_more->file_client_name     = $copiedScopes[0]['file_client_name'];
+        $certi_ib_attach_more->token                = str_random(16);
+        $certi_ib_attach_more->save();
+
+
+
         // http://127.0.0.1:8081/certify/check_certificate-ib/ARnM37bCYdQI5sJ9
         $redirectUrl = url('/certify/check_certificate-ib/' . $certiIb->token);
         return response()->json([
@@ -2172,6 +2199,47 @@ public function docResultReviewHtml($id)
             'redirect_url' => $redirectUrl // << ส่ง URL กลับไปด้วย
         ]);
     }
+
+        public function copyScopeIbFromAttachement($certiIbId)
+    {
+        $copiedScoped = null;
+        $fileSection = null;
+    
+        $app = CertiIb::find($certiIbId);
+    
+        $latestRecord = CertiIBAttachAll::where('app_certi_ib_id', $certiIbId)
+        ->where('file_section', 3)
+        ->where('table_name', 'app_certi_ib')
+        ->orderBy('created_at', 'desc') // เรียงลำดับจากใหม่ไปเก่า
+        ->first();
+    
+        $existingFilePath = 'files/applicants/check_files_ib/' . $latestRecord->file ;
+    
+        // ตรวจสอบว่าไฟล์มีอยู่ใน FTP และดาวน์โหลดลงมา
+        if (HP::checkFileStorage($existingFilePath)) {
+            $localFilePath = HP::getFileStoragePath($existingFilePath); // ดึงไฟล์ลงมาที่เซิร์ฟเวอร์
+            $no  = str_replace("RQ-","",$app->app_no);
+            $no  = str_replace("-","_",$no);
+            $dlName = 'scope_'.basename($existingFilePath);
+            $attach_path  =  'files/applicants/check_files_ib/'.$no.'/';
+    
+            if (file_exists($localFilePath)) {
+                $storagePath = Storage::putFileAs($attach_path, new \Illuminate\Http\File($localFilePath),  $dlName );
+                $filePath = $attach_path . $dlName;
+                if (Storage::disk('ftp')->exists($filePath)) {
+                    $list  = new  stdClass;
+                    $list->attachs =  $no.'/'.$dlName;
+                    $list->file_client_name =  $dlName;
+                    $scope[] = $list;
+                    $copiedScoped = json_encode($scope);
+                } 
+                unlink($localFilePath);
+            }
+        }
+    
+        return $copiedScoped;
+    }
+
 
     public function downloadResultReviewHtml(Request $request)
     {
@@ -2387,7 +2455,10 @@ public function docResultReviewHtml($id)
                                             <td style="padding: 2px;">
                                                 <table style="display: inline-block; vertical-align: middle; margin-right: 4px; border-collapse: collapse;">
                                                     <tr>
-                                                        <td style="width: 12px; height: 12px; background-color: #7f7f7f;"></td>
+                                                        <td >
+                                                        <div style="width: 12px; height: 12px; background-color: #7f7f7f;"></div>
+
+                                                        </td>
                                                     </tr>
                                                 </table>
                                                 หัวข้อบังคับสำหรับการตรวจติดตามผลและต่ออายุ
@@ -2402,6 +2473,11 @@ public function docResultReviewHtml($id)
             </table>
 
 
+
+
+            
+
+            
 
              <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
                     <tbody>
@@ -3145,25 +3221,58 @@ $certiIb = CertiIb::find($request->ibId);
         // 1. สร้างตัวแปรว่างสำหรับเก็บ HTML ของตารางทั้งหมด
         $allDetailTable = '';
 
-        // 2. วนลูปในแต่ละหน้าของ HTML ที่มี
+        // // 2. วนลูปในแต่ละหน้าของ HTML ที่มี
+        // foreach ($htmlPages as $pageHtml) {
+        //     // 3. สร้าง DOMDocument เพื่อจัดการ HTML ของหน้านั้นๆ
+        //     $dom = new DOMDocument();
+            
+        //     // เพิ่ม meta tag เพื่อบังคับให้ DOMDocument อ่านเป็น UTF-8 (สำคัญมากสำหรับภาษาไทย)
+        //     @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $pageHtml);
+            
+        //     $xpath = new DOMXPath($dom);
+
+        //     // 4. ค้นหา <table> ทั้งหมดที่มี class "detail-table"
+        //     $detailTables = $xpath->query('//table[contains(@class, "detail-table")]');
+
+        //     // 5. วนลูปตารางที่เจอในหน้านั้นๆ
+        //     foreach ($detailTables as $table) {
+        //         // 6. แปลง Node ของตารางกลับเป็น HTML String แล้วนำมาต่อท้ายตัวแปรหลัก
+        //         $allDetailTable .= $dom->saveHTML($table);
+        //     }
+        // }
+
+        // 2. Loop through each available HTML page
         foreach ($htmlPages as $pageHtml) {
-            // 3. สร้าง DOMDocument เพื่อจัดการ HTML ของหน้านั้นๆ
+            // 3. Create a DOMDocument to manage the HTML for that page
             $dom = new DOMDocument();
             
-            // เพิ่ม meta tag เพื่อบังคับให้ DOMDocument อ่านเป็น UTF-8 (สำคัญมากสำหรับภาษาไทย)
+            // Add a meta tag to force DOMDocument to read as UTF-8 (crucial for Thai language)
             @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $pageHtml);
             
             $xpath = new DOMXPath($dom);
 
-            // 4. ค้นหา <table> ทั้งหมดที่มี class "detail-table"
+            // 4. Find all <table> elements with the class "detail-table"
             $detailTables = $xpath->query('//table[contains(@class, "detail-table")]');
 
-            // 5. วนลูปตารางที่เจอในหน้านั้นๆ
+            // 5. Loop through the tables found on that page
             foreach ($detailTables as $table) {
-                // 6. แปลง Node ของตารางกลับเป็น HTML String แล้วนำมาต่อท้ายตัวแปรหลัก
+                // --- Added section to remove <th> ---
+                // 5.1 Find all <th> elements within the current table
+                $headers = $xpath->query('.//th', $table);
+                
+                // 5.2 Loop through and remove each <th>
+                foreach ($headers as $th) {
+                    $th->parentNode->removeChild($th);
+                }
+                
+                // 5.3 Set the table's style attribute to width: 100%
+                $table->setAttribute('style', 'width: 100%;');
+                
+                // 6. Convert the modified table node back to an HTML string
                 $allDetailTable .= $dom->saveHTML($table);
             }
         }
+            $allDetailTable .= "<br>";
 
 
 
@@ -3217,32 +3326,37 @@ $certiIb = CertiIb::find($request->ibId);
         $auditorsHtmlString = '';
         $count = 1;
 
-        // 2. แปลงข้อมูล JSON ให้เป็น PHP Array
-        $auditorGroups = json_decode($ibDocReviewAuditor->auditors, true);
+        if($ibDocReviewAuditor != null)
+        {
+            // 2. แปลงข้อมูล JSON ให้เป็น PHP Array
+            $auditorGroups = json_decode($ibDocReviewAuditor->auditors, true);
 
-        if (is_array($auditorGroups)) {
-            foreach ($auditorGroups as $group) {
-                // ตรวจสอบว่ามี key ที่ต้องการครบถ้วน
-                if (isset($group['temp_users']) && is_array($group['temp_users']) && isset($group['status'])) {
-                    
-                    // 5. ดึงชื่อสถานะ/ตำแหน่ง จาก Helper (เหมือนใน Blade)
-                    $statusTitle = '';
-                    $statusObject = HP::cbDocAuditorStatus($group['status']);
-                    if ($statusObject && isset($statusObject->title)) {
-                        $statusTitle = $statusObject->title;
-                    }
-
-                    // 6. วนลูปใน temp_users (เหมือน @foreach ที่สอง)
-                    foreach ($group['temp_users'] as $userName) {
-                        // 7. นำข้อมูลมาต่อกันเป็น HTML string
-                        $auditorsHtmlString .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {$count}) {$userName}  &nbsp;&nbsp;&nbsp;&nbsp;{$statusTitle}<br>";
+            if (is_array($auditorGroups)) {
+                foreach ($auditorGroups as $group) {
+                    // ตรวจสอบว่ามี key ที่ต้องการครบถ้วน
+                    if (isset($group['temp_users']) && is_array($group['temp_users']) && isset($group['status'])) {
                         
-                        // 8. เพิ่มค่าตัวนับ
-                        $count++;
+                        // 5. ดึงชื่อสถานะ/ตำแหน่ง จาก Helper (เหมือนใน Blade)
+                        $statusTitle = '';
+                        $statusObject = HP::cbDocAuditorStatus($group['status']);
+                        if ($statusObject && isset($statusObject->title)) {
+                            $statusTitle = $statusObject->title;
+                        }
+
+                        // 6. วนลูปใน temp_users (เหมือน @foreach ที่สอง)
+                        foreach ($group['temp_users'] as $userName) {
+                            // 7. นำข้อมูลมาต่อกันเป็น HTML string
+                            $auditorsHtmlString .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {$count}) {$userName}  &nbsp;&nbsp;&nbsp;&nbsp;{$statusTitle}<br>";
+                            
+                            // 8. เพิ่มค่าตัวนับ
+                            $count++;
+                        }
                     }
                 }
             }
+
         }
+
 
 
        $processString = '<b style="font-size: 22px">3. การตรวจประเมิน</b><br>
@@ -3271,11 +3385,11 @@ $certiIb = CertiIb::find($request->ibId);
             if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
                 if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
                     // ถ้าเป็นวันเดียวกัน
-                    $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+                    $dateRange = "ในวันที่ " . HP::formatDateThai($boardAuditorDate->start_date);
                 } else {
                     // ถ้าเป็นคนละวัน
-                    $dateRange = "วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                                " - " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+                    $dateRange = "วันที่ " . HP::formatDateThai($boardAuditorDate->start_date) . 
+                                " - " . HP::formatDateThai($boardAuditorDate->end_date);
                 }
             }
        
@@ -3297,17 +3411,7 @@ $certiIb = CertiIb::find($request->ibId);
             // สมมติว่ามี $histories collection อยู่แล้ว
             $histories = CertiIbHistory::where('auditors_id',$processOneAuditor->id)->where('system',7)->get();
             $fixDateRange = "";
-            // if( $histories->count() != 0)
-            // {
-            // $countSubmit = $histories->filter(function ($history) {
-            //     if (empty($history->details_two)) {
-            //         return false;
-            //     }
-                
-            //     $details = json_decode($history->details_two);
-
-            //     return !is_null($details) && !is_null(collect($details)->firstWhere('comment', '!=', null));
-            // })->count();
+      
 
 
             $countSubmit = $histories->filter(function ($history) {
@@ -3339,12 +3443,17 @@ $certiIb = CertiIb::find($request->ibId);
                 return !is_null($found);
             })->count();
 
+            if ($countSubmit > 0) {
+                $countSubmit  = $countSubmit -1;
+            }
+
+
             $firstDate = $histories->min('created_at');
             $lastDate = $histories->max('created_at');
             
             if($firstDate != "" && $lastDate != "")
             {
-                $fixDateRange = HP::formatDateThaiFullNumThai($firstDate) .' - '. HP::formatDateThaiFullNumThai($firstDate);
+                $fixDateRange = HP::formatDateThai($firstDate) .' - '. HP::formatDateThai($firstDate);
             }
             // }
 
@@ -3355,6 +3464,7 @@ $certiIb = CertiIb::find($request->ibId);
                 // dd($certiIBSaveAssessmentBug);
 
             $bugCount = $certiIBSaveAssessmentBug->count();
+           
 
             $noBugChecked = '';
             $hasBugChecked = '';
@@ -3378,7 +3488,18 @@ $certiIb = CertiIb::find($request->ibId);
                     }
                 }
             }
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
+
+            // $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
+
+            $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : ';
+            if ($bugCount > 0) {
+                
+                $processString .= 'จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
+        
+            }else{
+                $processString .= '<br>';
+            }
+
             
 
              $processString .= '<br>';
@@ -3406,11 +3527,11 @@ $certiIb = CertiIb::find($request->ibId);
             if (!empty($boardAuditorDate->start_date) && !empty($boardAuditorDate->end_date)) {
                 if ($boardAuditorDate->start_date == $boardAuditorDate->end_date) {
                     // ถ้าเป็นวันเดียวกัน
-                    $dateRange = "ในวันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date);
+                    $dateRange = "ในวันที่ " . HP::formatDateThai($boardAuditorDate->start_date);
                 } else {
                     // ถ้าเป็นคนละวัน
-                    $dateRange = "วันที่ " . HP::formatDateThaiFullNumThai($boardAuditorDate->start_date) . 
-                                " - " . HP::formatDateThaiFullNumThai($boardAuditorDate->end_date);
+                    $dateRange = "วันที่ " . HP::formatDateThai($boardAuditorDate->start_date) . 
+                                " - " . HP::formatDateThai($boardAuditorDate->end_date);
                 }
             }
        
@@ -3434,19 +3555,9 @@ $certiIb = CertiIb::find($request->ibId);
 
             $histories = $assessment->CertiIBHistorys;
             $fixDateRange = "";
-            // if( $histories->count() != 0)
-            // {
-                // $countSubmit = $histories->filter(function ($history) {
-                //     if (empty($history->details_two)) {
-                //         return false;
-                //     }
-                    
-                //     $details = json_decode($history->details_two);
+   
 
-                //     return !is_null($details) && !is_null(collect($details)->firstWhere('comment', '!=', null));
-                // })->count();
-
-                            $countSubmit = $histories->filter(function ($history) {
+                $countSubmit = $histories->filter(function ($history) {
                 // ตรวจสอบเบื้องต้นว่ามีข้อมูลหรือไม่
                 if (empty($history->details_two)) {
                     return false;
@@ -3475,6 +3586,10 @@ $certiIb = CertiIb::find($request->ibId);
                 return !is_null($found);
             })->count();
 
+            if ($countSubmit > 0) {
+                $countSubmit  = $countSubmit -1;
+            }
+
                 // dd();
 
                 $firstDate = $histories->min('created_at');
@@ -3482,7 +3597,7 @@ $certiIb = CertiIb::find($request->ibId);
                
                 if($firstDate != "" && $lastDate != "")
                 {
-                    $fixDateRange = HP::formatDateThaiFullNumThai($firstDate) .' - '. HP::formatDateThaiFullNumThai($firstDate);
+                    $fixDateRange = HP::formatDateThai($firstDate) .' - '. HP::formatDateThai($firstDate);
                 }
             // }
 
@@ -3493,6 +3608,7 @@ $certiIb = CertiIb::find($request->ibId);
                 // dd($certiIBSaveAssessmentBug);
 
             $bugCount = $certiIBSaveAssessmentBug->count();
+     
 
             $noBugChecked = '';
             $hasBugChecked = '';
@@ -3514,11 +3630,16 @@ $certiIb = CertiIb::find($request->ibId);
                     }
                 }
             }
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>การตรวจติดตามผลการแก้ไขข้อบกพร่อง</b><br>';
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>วันที่ตรวจประเมิน </b>'.$dateRange.'<br>';
-            $processString .= '&nbsp;&nbsp;&nbsp;<b>คณะผู้ตรวจประเมิน</b>ประกอบด้วย<br>';
-            $processString .= $auditorsHtmlString;
+            // $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
+
+            $processString .= '&nbsp;&nbsp;&nbsp;<b>การดำเนินการแก้ไขข้อบกพร่อง (ถ้ามี)</b> : ';
+            if ($bugCount > 0) {
+                
+                $processString .= 'จากการตรวจประเมินข้างต้น หน่วยรับรองได้เสนอแนวทางการแก้ไขข้อบกพร่องต่อสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม '.$countSubmit.' ครั้ง ระหว่างวันที่ '.$fixDateRange.' และคณะผู้ตรวจประเมินได้ทวนสอบและยอมรับแนวทางการแก้ไขข้อบกพร่อง ระหว่างวันที่ '.$fixDateRange.' เห็นว่ามีความเพียงพอในการนัดหมายเพื่อตรวจติดตามผลการแก้ไขข้อบกพร่องต่อไป<br>';
+        
+            }else{
+                $processString .= '<br>';
+            }
 
              $processString .= '<br>';
 
@@ -3593,7 +3714,7 @@ $certiIb = CertiIb::find($request->ibId);
                 </table>
                 <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px;margin-left:10px">
                     <tr>
-                        <td style=" padding: 5px 8px; vertical-align: top;"><b>1.5 วันที่ยื่นคำขอ</b> :  '.HP::formatDateThaiFullNumThai($certi_ib->created_at).'</td>
+                        <td style=" padding: 5px 8px; vertical-align: top;"><b>1.5 วันที่ยื่นคำขอ</b> :  '.HP::formatDateThai($certi_ib->created_at).'</td>
                     </tr>
                 </table>
                 

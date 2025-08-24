@@ -1160,19 +1160,64 @@
             });
 
             // ======================= MODIFIED THIS BLOCK =======================
-            document.getElementById('confirm-signature-btn').addEventListener('click', () => {
+            // document.getElementById('confirm-signature-btn').addEventListener('click', () => {
+            //     const selectedId = $('#signature-select').val();
+            //     const newPosition = $('#signer-position-input').val();
+            //     const selectedSequence = $('#signer-sequence-select').val(); // ดึงค่าลำดับ
+                
+            //     if (selectedId && activeSignatureBlock) {
+            //         const selectedSigner = signersData.find(s => s.id == selectedId);
+            //         if (selectedSigner) {
+            //             // บันทึกลำดับเป็น data attribute
+            //             activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
+            //             activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
+            //             activeSignatureBlock.setAttribute('data-signer-position', newPosition);
+            //             activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
+
+            //             const imgElement = activeSignatureBlock.parentElement.querySelector('img');
+            //             const pElements = activeSignatureBlock.querySelectorAll('p');
+                        
+            //             if (imgElement) {
+            //                 imgElement.src = selectedSigner.signature_img_path; 
+            //                 imgElement.alt = `ลายเซ็นต์ ${selectedSigner.name}`;
+            //             }
+            //             if (pElements.length > 0) pElements[0].textContent = `(${selectedSigner.name})`;
+            //             if (pElements.length > 1 && newPosition) pElements[1].textContent = newPosition;
+            //         }
+            //     }
+            //     document.getElementById('signature-modal').style.display = 'none';
+            // });
+                        document.getElementById('confirm-signature-btn').addEventListener('click', () => {
                 const selectedId = $('#signature-select').val();
                 const newPosition = $('#signer-position-input').val();
-                const selectedSequence = $('#signer-sequence-select').val(); // ดึงค่าลำดับ
+                const selectedSequence = $('#signer-sequence-select').val();
+
+                // --- เริ่ม: โค้ดตรวจสอบลำดับซ้ำ ---
+                const allSignatureBlocks = editor.querySelectorAll('td > div[style*="border-top"]');
+                for (const block of allSignatureBlocks) {
+                    // ไม่ต้องตรวจสอบกับบล็อกที่กำลังแก้ไขอยู่
+                    if (block === activeSignatureBlock) {
+                        continue;
+                    }
+
+                    const existingSequence = block.getAttribute('data-signer-sequence');
+                    // ถ้าลำดับที่เลือก (selectedSequence) ตรงกับลำดับที่มีอยู่แล้ว (existingSequence)
+                    if (existingSequence && existingSequence === selectedSequence) {
+                        alert('ลำดับนี้ถูกใช้ไปแล้ว กรุณาเลือกลำดับอื่น');
+                        return; // หยุดการทำงานทันที
+                    }
+                }
+                // --- จบ: โค้ดตรวจสอบลำดับซ้ำ ---
+
+                // ถ้าไม่ซ้ำ โค้ดด้านล่างนี้จะทำงานตามปกติ
+                activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
                 
                 if (selectedId && activeSignatureBlock) {
                     const selectedSigner = signersData.find(s => s.id == selectedId);
                     if (selectedSigner) {
-                        // บันทึกลำดับเป็น data attribute
                         activeSignatureBlock.setAttribute('data-signer-id', selectedSigner.id);
                         activeSignatureBlock.setAttribute('data-signer-name', selectedSigner.name);
                         activeSignatureBlock.setAttribute('data-signer-position', newPosition);
-                        activeSignatureBlock.setAttribute('data-signer-sequence', selectedSequence);
 
                         const imgElement = activeSignatureBlock.parentElement.querySelector('img');
                         const pElements = activeSignatureBlock.querySelectorAll('p');

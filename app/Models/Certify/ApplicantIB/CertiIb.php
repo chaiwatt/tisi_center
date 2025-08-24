@@ -695,12 +695,14 @@ public function basic_district() {
     public function isAllTobTounReportSigned()
     {
         $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('app_id',$this->app_no)
-                                        ->where('template','ib-tangtung-tobtoun')
+                                        ->where('template','ib_result_review_template')
                                         ->get();
         $signeds = SignAssessmentReportTransaction::where('app_id',$this->app_no)
-                                        ->where('template','ib-tangtung-tobtoun')
+                                        ->where('template','ib_result_review_template')
                                         ->where('approval',1)
-                                        ->get();                               
+                                        ->get();       
+                                        
+        // dd($signAssessmentReportTransactions->count() , $signeds->count())                                ;
         if($signAssessmentReportTransactions->count() != 0)
         {
             if($signAssessmentReportTransactions->count() == $signeds->count()){

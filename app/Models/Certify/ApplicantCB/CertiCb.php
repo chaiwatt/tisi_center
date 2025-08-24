@@ -817,10 +817,10 @@ public function app_certi_cb_export()
     public function isAllTobTounReportSigned()
     {
         $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('app_id',$this->app_no)
-                                        ->where('template','cb-tangtung-tobtoun')
+                                        ->where('template','cb_result_review_template')
                                         ->get();
         $signeds = SignAssessmentReportTransaction::where('app_id',$this->app_no)
-                                        ->where('template','cb-tangtung-tobtoun')
+                                        ->where('template','cb_result_review_template')
                                         ->where('approval',1)
                                         ->get();   
                                         

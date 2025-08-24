@@ -173,7 +173,7 @@
                     {!! Form::text('laboratory_name', null,  ['class' => 'form-control', 'id'=>'laboratory_name','readonly'=>true])!!}
                 </div>
             </div>
-            {{-- <div class="col-md-6">
+            <div class="col-md-6">
                 <label class="col-md-4 text-right"><span class="text-danger">*</span> วันที่ทำรายงาน : </label>
                 <div class="col-md-8">
                      <div class="input-group">     
@@ -184,7 +184,7 @@
                         <span class="input-group-addon"><i class="icon-calender"></i></span>
                     </div>
                 </div>
-            </div> --}}
+            </div>
             {{-- {{$assessment}} --}}
             {{-- @php
                 dd($assessment)
