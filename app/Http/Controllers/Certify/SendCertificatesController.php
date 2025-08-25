@@ -493,6 +493,8 @@ class SendCertificatesController extends Controller
         
         $certificate_type = $request->input('certificate_type');
         $signer = Signer::findOrFail($request->id);
+
+        // dd($signer);
       
         if(!is_null($signer))
         {
@@ -513,7 +515,10 @@ class SendCertificatesController extends Controller
                     foreach($export as $key => $item){
                    
                         if(!empty($item->CertiLabTo)){
-                            $send_cer_list =   SendCertificateLists::select('id','sign_status')->where('certificate_id',$item->id)->where('certificate_tb',$table)->first();   
+                            $send_cer_list =   SendCertificateLists::select('id','sign_status')
+                            ->where('certificate_id',$item->id)
+                            ->where('certificate_tb',$table)
+                            ->first();   
                             // dd($send_cer_list,$send_cer_list->sign_status,$item->id);
                             if( is_null($send_cer_list) || ( !is_null($send_cer_list)  &&  $send_cer_list->sign_status == 4 ) ){
                                 $lab                    = $item->CertiLabTo;
@@ -556,7 +561,8 @@ class SendCertificatesController extends Controller
                                                                     ->where('certificate_tb',$table)
                                                                     ->first();   
 
-                            if( is_null($send_cer_list) || ( !is_null($send_cer_list)  &&  $send_cer_list->sign_status == 4 ) ){
+                            // if( is_null($send_cer_list) || ( !is_null($send_cer_list)  &&  $send_cer_list->sign_status == 4 ) ){
+                            if($send_cer_list == null || $send_cer_list->cert_export_to == null || ( $send_cer_list != null  &&  $send_cer_list->sign_status == 4 ) ){
                                 $ib                     = $item->CertiIBCostTo;
                                 $list                   = (object)[];
                                 $list->id               =  $item->id; 
@@ -584,35 +590,58 @@ class SendCertificatesController extends Controller
                 $signer->certificate_type    = 1;
                 $table              =  (new CertiCBExport)->getTable();
                 $export             =  CertiCBExport::where('sign_id',$signer->id)->whereIn('status',[2])->get();  
-                // dd($export->count());
+
+
+                $latestExport = $export->last();
+
+//  $send_cer_list =   SendCertificateLists::where('certificate_id',$latestExport->id)
+//                             ->where('certificate_tb',$table)
+//                             ->first();  
+
+                            // dd( $latestExport);
+
+                
                 if(count($export) > 0){
-                    // foreach($export as $key => $item){    
-                    //     if(!empty($item->CertiCbTo)  ){
-                    //         $send_cer_list =   SendCertificateLists::select('id','sign_status')->where('certificate_id',$item->id)->where('certificate_tb',$table)->first();  
-                    //         // 
-                    //         if( is_null($send_cer_list) || ( !is_null($send_cer_list)  &&  $send_cer_list->sign_status == 4 ) ){
-                    //             $cb                     = $item->CertiCbTo;
-                    //             $list                   = (object)[];
-                    //             $list->id               =  $item->id; 
-                    //             $list->checkbox         = '<input type="checkbox" name="lists[id][]" class="item_checkbox"  value="'. $item->id .'">'; 
-                    //             $list->name             =  $cb->name  ??  '';
-                    //             $list->tax_id           =  $cb->tax_id   ??  '';
-                    //             $list->room             =  $item->name_standard   ??  '';
-                    //             $list->cer_link         = '<a class="btn btn-link" href="'.( url('/certify/check_certificate-cb/' . $cb->token)).'" target="_blank">  '.($cb->app_no ?? '').' </a>';  
-                    //             $list->purpose_type     =  array_key_exists($cb->standard_change,$purpose_type) ? $purpose_type[$cb->standard_change] : null; 
-                    //             $list->accereditatio_no =   $item->accereditatio_no   ??  '';
-                    //             $list->cer_pdf          =  '<a class="btn btn-link" href="'.(url('certify/send-certificates/view-pdf/'.$item->id.'/1')).'" target="_blank"> <i class="fa fa-file-pdf-o" style="color:red"></i> </a>';  
-                    //             $certilab_file          = CertiCBFileAll::select('attach_pdf','attach_pdf_client_name')->where('app_certi_cb_id',$cb->id)->where('state',1)->first();   
-                    //             if(!is_null($certilab_file)){
-                    //                 $list->cer_file     =   ' <a href="'.(url('certify/check/file_cb_client/'.$certilab_file->attach_pdf.'/'.( !empty($certilab_file->attach_pdf_client_name) ? $certilab_file->attach_pdf_client_name :  basename($certilab_file->attach_pdf)  ))).'" target="_blank"> <i class="fa fa-paperclip" aria-hidden="true"></i> </a>';
-                    //             }else{
-                    //                 $list->cer_file     =  '';
-                    //             }
-                    //             $datas[]                = $list;  
-                    //             Log::info();
-                    //          }
-                    //     }
-                    // }
+                    foreach($export as $key => $item){    
+                        if(!empty($item->CertiCbTo)  ){
+                            // dd($latestExport,$item);
+                            // $certiCb = CertiCb::find($item->app_certi_cb_id);
+
+                            $send_cer_list =   SendCertificateLists::select('id','sign_status')
+                            ->where('certificate_id',$item->id)
+                            ->where('certificate_tb',$table)
+                            ->first();  
+
+
+
+                            // if($item->id == 92)
+                            // {
+                            //     dd($send_cer_list->cert_export_to,$export );
+                            // }
+                            
+                            if($send_cer_list == null || $send_cer_list->cert_export_to == null || ( $send_cer_list != null  &&  $send_cer_list->sign_status == 4 ) ){
+                                $cb                     = $item->CertiCbTo;
+                                $list                   = (object)[];
+                                $list->id               =  $item->id; 
+                                $list->checkbox         = '<input type="checkbox" name="lists[id][]" class="item_checkbox"  value="'. $item->id .'">'; 
+                                $list->name             =  $cb->name  ??  '';
+                                $list->tax_id           =  $cb->tax_id   ??  '';
+                                $list->room             =  $item->name_standard   ??  '';
+                                $list->cer_link         = '<a class="btn btn-link" href="'.( url('/certify/check_certificate-cb/' . $cb->token)).'" target="_blank">  '.($cb->app_no ?? '').' </a>';  
+                                $list->purpose_type     =  array_key_exists($cb->standard_change,$purpose_type) ? $purpose_type[$cb->standard_change] : null; 
+                                $list->accereditatio_no =   $item->accereditatio_no   ??  '';
+                                $list->cer_pdf          =  '<a class="btn btn-link" href="'.(url('certify/send-certificates/view-pdf/'.$item->id.'/1')).'" target="_blank"> <i class="fa fa-file-pdf-o" style="color:red"></i> </a>';  
+                                $certilab_file          = CertiCBFileAll::select('attach_pdf','attach_pdf_client_name')->where('app_certi_cb_id',$cb->id)->where('state',1)->first();   
+                                if(!is_null($certilab_file)){
+                                    $list->cer_file     =   ' <a href="'.(url('certify/check/file_cb_client/'.$certilab_file->attach_pdf.'/'.( !empty($certilab_file->attach_pdf_client_name) ? $certilab_file->attach_pdf_client_name :  basename($certilab_file->attach_pdf)  ))).'" target="_blank"> <i class="fa fa-paperclip" aria-hidden="true"></i> </a>';
+                                }else{
+                                    $list->cer_file     =  '';
+                                }
+                                $datas[]                = $list;  
+                                // Log::info();
+                             }
+                        }
+                    }
                         // $id_array = [];
                         // foreach($export as $key => $item){
                         //     if(!empty($item->CertiCbTo)){
@@ -632,54 +661,55 @@ class SendCertificatesController extends Controller
                         // dd($id_array);
 
 
-                    foreach($export as $key => $item){
-                        if(!empty($item->CertiCbTo)){
-                            // $send_cer_list = SendCertificateLists::select('id','sign_status')
-                            //                                     ->where('certificate_id',$item->id)
-                            //                                     ->where('certificate_tb',$table)
-                            //                                     ->first();
-                            $send_cer_list = SendCertificateLists::where('certificate_id',$item->id)
-                                                                ->where('certificate_tb',$table)
-                                                                ->first();                                    
+                    // foreach($export as $key => $item){
+                    //     if(!empty($item->CertiCbTo)){
+                    //         // $send_cer_list = SendCertificateLists::select('id','sign_status')
+                    //         //                                     ->where('certificate_id',$item->id)
+                    //         //                                     ->where('certificate_tb',$table)
+                    //         //                                     ->first();
+                    //         $send_cer_list = SendCertificateLists::where('certificate_id',$item->id)
+                    //                                             ->where('certificate_tb',$table)
+                    //                                             ->first();                                    
 
-                            // dd($item,$send_cer_list );
-                            // เงื่อนไข: ใบรับรองยังไม่เคยถูกส่ง หรือถูกยกเลิกการส่ง (สถานะ 4)
-                            if(is_null($send_cer_list) || (!is_null($send_cer_list) && $send_cer_list->sign_status == 4)){
+                    //         // dd($item,$send_cer_list );
+                    //         // เงื่อนไข: ใบรับรองยังไม่เคยถูกส่ง หรือถูกยกเลิกการส่ง (สถานะ 4)
+                    //         if(is_null($send_cer_list) || (!is_null($send_cer_list) && $send_cer_list->sign_status == 4)){
                                 
-                                $cb = $item->CertiCbTo;
-                                $list = (object)[];
-                                $list->id = $item->id;
-                                $list->checkbox = '<input type="checkbox" name="lists[id][]" class="item_checkbox" value="'. $item->id .'">';
-                                $list->name = $cb->name ?? '';
-                                $list->tax_id = $cb->tax_id ?? '';
-                                $list->room = $item->name_standard ?? '';
-                                $list->cer_link = '<a class="btn btn-link" href="'.(url('/certify/check_certificate-cb/' . $cb->token)).'" target="_blank"> '.($cb->app_no ?? '').' </a>';
-                                $list->purpose_type = array_key_exists($cb->standard_change,$purpose_type) ? $purpose_type[$cb->standard_change] : null;
-                                $list->accereditatio_no = $item->accereditatio_no ?? '';
-                                $list->cer_pdf = '<a class="btn btn-link" href="'.(url('certify/send-certificates/view-pdf/'.$item->id.'/1')).'" target="_blank"> <i class="fa fa-file-pdf-o" style="color:red"></i> </a>';
-                                $certilab_file = CertiCBFileAll::select('attach_pdf','attach_pdf_client_name')->where('app_certi_cb_id',$cb->id)->where('state',1)->first();
-                                if(!is_null($certilab_file)){
-                                    $list->cer_file = ' <a href="'.(url('certify/check/file_cb_client/'.$certilab_file->attach_pdf.'/'.( !empty($certilab_file->attach_pdf_client_name) ? $certilab_file->attach_pdf_client_name : basename($certilab_file->attach_pdf) ))).'" target="_blank"> <i class="fa fa-paperclip" aria-hidden="true"></i> </a>';
-                                }else{
-                                    $list->cer_file = '';
-                                }
-                                $datas[] = $list;
+                    //             $cb = $item->CertiCbTo;
+                    //             $list = (object)[];
+                    //             $list->id = $item->id;
+                    //             $list->checkbox = '<input type="checkbox" name="lists[id][]" class="item_checkbox" value="'. $item->id .'">';
+                    //             $list->name = $cb->name ?? '';
+                    //             $list->tax_id = $cb->tax_id ?? '';
+                    //             $list->room = $item->name_standard ?? '';
+                    //             $list->cer_link = '<a class="btn btn-link" href="'.(url('/certify/check_certificate-cb/' . $cb->token)).'" target="_blank"> '.($cb->app_no ?? '').' </a>';
+                    //             $list->purpose_type = array_key_exists($cb->standard_change,$purpose_type) ? $purpose_type[$cb->standard_change] : null;
+                    //             $list->accereditatio_no = $item->accereditatio_no ?? '';
+                    //             $list->cer_pdf = '<a class="btn btn-link" href="'.(url('certify/send-certificates/view-pdf/'.$item->id.'/1')).'" target="_blank"> <i class="fa fa-file-pdf-o" style="color:red"></i> </a>';
+                    //             $certilab_file = CertiCBFileAll::select('attach_pdf','attach_pdf_client_name')->where('app_certi_cb_id',$cb->id)->where('state',1)->first();
+                    //             if(!is_null($certilab_file)){
+                    //                 $list->cer_file = ' <a href="'.(url('certify/check/file_cb_client/'.$certilab_file->attach_pdf.'/'.( !empty($certilab_file->attach_pdf_client_name) ? $certilab_file->attach_pdf_client_name : basename($certilab_file->attach_pdf) ))).'" target="_blank"> <i class="fa fa-paperclip" aria-hidden="true"></i> </a>';
+                    //             }else{
+                    //                 $list->cer_file = '';
+                    //             }
+                    //             $datas[] = $list;
 
-                                // --- Log Info ---
-                                // บันทึกข้อมูลสำคัญลง log file
-                                Log::info('Adding certificate to send list.', [
-                                    'certificate_id' => $item->id,
-                                    'certificate_table' => $table,
-                                    'condition_met' => is_null($send_cer_list) ? 'Not yet sent' : 'Status was 4 (rejected)',
-                                    'app_no' => $cb->app_no ?? 'N/A',
-                                    'cb_name' => $cb->name ?? 'N/A'
-                                ]);
-                                // ------------------
-                            }
-                        }
-                    }
+                    //             // --- Log Info ---
+                    //             // บันทึกข้อมูลสำคัญลง log file
+                    //             Log::info('Adding certificate to send list.', [
+                    //                 'certificate_id' => $item->id,
+                    //                 'certificate_table' => $table,
+                    //                 'condition_met' => is_null($send_cer_list) ? 'Not yet sent' : 'Status was 4 (rejected)',
+                    //                 'app_no' => $cb->app_no ?? 'N/A',
+                    //                 'cb_name' => $cb->name ?? 'N/A'
+                    //             ]);
+                    //             // ------------------
+                    //         }
+                    //     }
+                    // }
 
                 }
+
             }else{
                 
                 $signer->certify            =  'ห้องปฏิบัติการ';

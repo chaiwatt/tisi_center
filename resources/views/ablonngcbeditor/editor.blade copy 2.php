@@ -831,7 +831,7 @@
             function lockEditor() {
                 // MODIFIED: Lock the single editor div
                 editor.setAttribute('contenteditable', 'false');
-                editor.style.backgroundColor = '#f2f2f2';
+                // editor.style.backgroundColor = '#f2f2f2';
                 editor.style.cursor = 'not-allowed';
 
                 const toolbar = document.getElementById('toolbar');

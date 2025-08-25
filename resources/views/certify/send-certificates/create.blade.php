@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">ระบบนำส่งใบรับรองระบบงาน</h3>
+                    <h3 class="box-title pull-left">ระบบนำส่งใบรับรองระบบงาน check</h3>
                     @can('view-'.str_slug('sendcertificates'))
                         <a class="btn btn-success pull-right" href="{{url('/certify/send-certificates')}}">
                             <i class="icon-arrow-left-circle"></i> กลับ
