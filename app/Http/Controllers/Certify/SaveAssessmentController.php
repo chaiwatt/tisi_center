@@ -3140,7 +3140,7 @@ class SaveAssessmentController extends Controller
 
         public function viewLabReportTwoInfo($id)
         {
-            // dd('ok');
+           
             $notice = Notice::find($id);
             $labReportInfo = LabReportTwoInfo::where('app_certi_lab_notice_id',$notice->id)->first();
             // $notice = $labReportInfo->notice;
@@ -3269,7 +3269,7 @@ class SaveAssessmentController extends Controller
             $group = SignerGroup::where('name', 'lab')->first();
             $signerIdsJsonString = $group->signer_ids;
             $defaultSignerIds = json_decode($signerIdsJsonString, true);
-
+        //   dd("ok");
             return view('certificate.labs.assessment-labs.view-report', [
                 'labReportInfo' => $labReportInfo,
                 'data' => $data,
