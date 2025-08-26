@@ -235,6 +235,10 @@
                                 </tbody>
                             </table> --}}
 
+                            @php
+                                $role = App\Role::where('name', 'ลท สำหรับ e-standard')->first();
+                            @endphp
+
                              <table class="table table-striped" id="myTable">
                                 <thead>
                                     <tr>
@@ -310,7 +314,7 @@
 
                                                     {{-- @elseif($item->estandard_plan_to->method_to->id == 3) --}}
                                                     @elseif($item->estandard_plan_to->estandard_offers_to->proposer_type == "sdo_basic_or_non_sdo")
-                                                        @if(!auth()->user()->roles->contains('id', 64))
+                                                        @if(!auth()->user()->roles->contains('id', $role->id))
                                                             @if ($item->subAppointmentMeetingApproved->count() == 0)
                                                                     <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุม" class="btn btn-warning btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-envelope-o" aria-hidden="true"></i>
@@ -324,7 +328,7 @@
 
                                               
                                                         @if ($item->status_sub_appointment_id == 5)
-                                                            @if(!auth()->user()->roles->contains('id', 64))
+                                                            @if(!auth()->user()->roles->contains('id', $role->id))
                                                                 <a href="javascript:void(0)" 
                                                                         title="เห็นชอบมติการประชุม" 
                                                                         class="btn {{ $item->agreement_status != null ? 'btn-info' : 'btn-warning' }} btn-xs btn-agreement" 
@@ -338,14 +342,14 @@
 
                                                             @if ($item->agreement_status == 1)
 
-                                                                @if(!auth()->user()->roles->contains('id', 64))
+                                                                @if(!auth()->user()->roles->contains('id', $role->id))
                                                                     <a href="javascript:void(0)" data-id="{{$item->id}}" title="เวียนมาตรฐาน"  class="btn {{ $item->standard_circular_doc_status != null ? 'btn-info' : 'btn-warning' }} btn-xs  btn-standard-circular-doc" style="display: inline-block;">
                                                                         <i class="fa fa-refresh" aria-hidden="true"></i>
                                                                     </a>
                                                                 @endif
                                                                 
                                                                 
-                                                                @if(auth()->user()->roles->contains('id', 64))  
+                                                                @if(auth()->user()->roles->contains('id', $role->id))  
                                                                     @if ($item->standard_circular_doc_status != null)
                                                                         @if ($item->mainAppointmentMeetingApproved->count() == 0)
                                                                             <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
