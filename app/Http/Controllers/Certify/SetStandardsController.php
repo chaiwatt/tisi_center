@@ -58,7 +58,7 @@ public function index(Request $request)
         // 64 คือ ลท ที่มาสร้างหนังสือประชุมและนัดหมายการประชุม
         // ลท สำหรับ e-standard
         $role = Role::where('name','ลท สำหรับ e-standard')->first();
-        $admin_roles = [1, 25, 44, 64, 67];
+        $admin_roles = [1, 25, 44, $role->id];
 
         // 3. ถ้าต้องการตัวแปร $not_admin ก็แค่กลับค่า
         $not_admin = empty(array_intersect($roles, $admin_roles));
