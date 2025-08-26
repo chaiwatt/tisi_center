@@ -154,7 +154,7 @@
                 <button type="button" class="btn btn-primary" id="microservice_simulation" > รัน Micro Service 🐆
                 </button>
                 <div class="white-box">
-                    <h3 class="box-title pull-left">ระบบตรวจสอบคำขอใบรับรองห้องปฏิบัติการ (LAB)</h3>
+                    <h3 class="box-title pull-left">ระบบตรวจสอบคำขอใบรับรองห้องปฏิบัติการ (LAB)ff</h3>
 
                     <div class="pull-right">
                         {{-- {{$select_users}} --}}
