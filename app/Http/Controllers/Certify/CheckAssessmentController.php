@@ -303,6 +303,9 @@ class CheckAssessmentController extends Controller
         $previousUrl = app('url')->previous();
         $certi_lab = $certilab;
         $certi_information = Information::where('app_certi_lab_id',$certi_lab->id)->first();
+
+        dd($certi_information);
+
         $certi_lab_info = CertiLabInfo::where('app_certi_lab_id',$certi_lab->id)->first();
         if(is_null($certi_lab_info)){
             $certi_lab_info = new CertiLabInfo;
