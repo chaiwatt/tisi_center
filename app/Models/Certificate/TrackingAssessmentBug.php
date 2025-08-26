@@ -27,7 +27,8 @@ class TrackingAssessmentBug extends Model
      'file_comment',
       'reporter_id',
       'owner_id',
-      'cause'
+      'cause',
+      'user_cause'
                        
     ];
  

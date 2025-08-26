@@ -31,7 +31,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (LAB) #{{ $assessment->id }} {{$assessment->degree}} {{$assessment->bug_report}}</h3>
+                    <h3 class="box-title pull-left">บันทึกผลการตรวจประเมิน (LAB) #{{ $assessment->id }} </h3>
                     @can('view-'.str_slug('assessmentlabs'))
                         <a class="btn btn-success pull-right" href="{{ app('url')->previous()  }}">
                             <i class="icon-arrow-left-circle" aria-hidden="true"></i> กลับ

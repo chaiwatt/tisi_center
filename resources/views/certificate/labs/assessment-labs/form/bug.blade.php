@@ -6,10 +6,11 @@
             <tr>
                 <th class="text-center" width="2%">ลำดับ</th>
                 <th class="text-center" width="10%">รายงานที่</th>
-                <th class="text-center" width="18%">ผลการประเมินที่พบ</th>
+                <th class="text-center" width="18%">รายละเอียดข้อบกพร่อง</th>
+                <th class="text-center" width="20%" >สาเหตุ</th>
                 <th class="text-center" width="20%" >แนวทางการแก้ไข</th>
-                <th class="text-center" width="12%" >ผลการประเมิน</th>
-                <th class="text-center" width="13%" >หลักฐาน</th>
+                <th class="text-center" width="10%" >ผลการประเมิน</th>
+                <th class="text-center" width="8%" >หลักฐาน</th>
             </tr>
             </thead>
             <tbody  id="table_body">
@@ -76,6 +77,12 @@
                     </td>
                     <td style="padding: 0px;">
                         <textarea name="notice[]" class="form-control notice auto-expand" rows="5" style="border-left: none; border-right: 1px solid #ccc;" disabled>{{ $item->remark ?? '' }}</textarea>
+                    </td>
+                    {{-- @php
+                       dd($item) ;
+                    @endphp --}}
+                    <td style="padding: 0px;">
+                        <textarea name="user_cause" class="form-control auto-expand" rows="5" style="border-left: none; border-right: 1px solid #ccc;" disabled>{{ $item->user_cause ?? '' }}</textarea>
                     </td>
                     <td style="padding: 0px;">
                         <textarea name="details" class="form-control auto-expand" rows="5" style="border-left: none; border-right: 1px solid #ccc;" disabled>{{ $item->details ?? '' }}</textarea>
