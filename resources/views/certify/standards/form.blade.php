@@ -293,7 +293,7 @@
                         if (obj.msg == "success") {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'บันทึกสำเร็จ !',
+                                title: 'บันทึกสำเร็จ!',
                                 showConfirmButton: false,
                                 timer: 1500
                             });
@@ -347,7 +347,7 @@
         }
 
         function submit_form(status) {
-
+            
             var url = "{!! url('certify/standards/cover_pdf') !!}"
                 url += "?std_no=" + $('#std_no').val();
                 url += "&std_title=" + $('#std_title').val();

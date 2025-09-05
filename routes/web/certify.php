@@ -982,6 +982,7 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('certify/meeting-standards/conclusion/{id?}', 'Certify\\MeetingStandardsController@conclusion');
     Route::get('certify/meeting-standards/data_list', 'Certify\\MeetingStandardsController@data_list');
     Route::resource('certify/meeting-standards', 'Certify\\MeetingStandardsController');
+    Route::get('certify/meeting-standards/create/{id?}', 'Certify\\MeetingStandardsController@create')->name('certify.meeting-standards.create');
 
 
 
@@ -994,7 +995,15 @@ Route::group(['prefix' => 'certify'], function () {
 
     Route::get('certify/appointed-committee-lt/show/{id}', 'Certify\\AppointedCommitteeLtController@show')->name('certify.meeting-standards.lt.show');
     Route::post('certify/appointed-committee-lt/update/{id}', 'Certify\\AppointedCommitteeLtController@update')->name('certify.meeting-standards.lt.update');
-    
+
+    Route::get('certify/appointed-committee-lt/plan-list', 'Certify\\AppointedCommitteeLtController@getPlanList')->name('certify.meeting-standards.lt.plan-list');
+    Route::get('certify/appointed-committee-lt/std-list', 'Certify\\AppointedCommitteeLtController@getStdList')->name('certify.meeting-standards.lt.std-list');
+
+
+     Route::get('certify/appointed-committee-lt/conclusion/{id?}', 'Certify\\AppointedCommitteeLtController@conclusion')->name('certify.meeting-standards.lt.conclusion');
+
+
+    // conclusion-std.blade
     
     Route::get('certify/report/standard-status/data_list', 'Certify\\ReportStandardStatusController@data_list');
     Route::resource('certify/report/standard-status', 'Certify\\ReportStandardStatusController');
@@ -1021,12 +1030,16 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('certify/appointed-lt-committee/{id?}/edit', 'Certify\\AppointedLtCommitteeController@edit')->name('certify.appointed-lt-committee.edit');
     Route::put('certify/appointed-lt-committee/update/{id?}', 'Certify\\AppointedLtCommitteeController@update')->name('certify.appointed-lt-committee.update');
     Route::get('certify/appointed-lt-committee/{id}/view', 'Certify\\AppointedLtCommitteeController@view')->name('certify.appointed-lt-committee.view');
-    
 
+    Route::get('certify/appointed-lt-committee/get-request-list', 'Certify\\AppointedLtCommitteeController@getRequestList')->name('certify.appointed-lt-committee.get_request_list');
+
+
+    Route::get('certify/set-standard-lt', 'Certify\\SetStandardLtController@index')->name('certify.set-standard-lt');
+    
     // http://127.0.0.1:8081/certify/appointed-academic-sub-committee
 
     Route::get('certify/appointed-academic-sub-committee', 'Certify\\AppointedAcademicSubCommitteeController@index')->name('certify.appointed-academic-sub-committee');
-    Route::get('certify/appointed-academic-sub-committee/create', 'Certify\\AppointedAcademicSubCommitteeController@create')->name('certify.appointed-academic-sub-committee.create');
+    Route::get('certify/appointed-academic-sub-committee/create/{id?}', 'Certify\\AppointedAcademicSubCommitteeController@create')->name('certify.appointed-academic-sub-committee.create');
     Route::post('certify/appointed-academic-sub-committee/store', 'Certify\\AppointedAcademicSubCommitteeController@store')->name('certify.appointed-academic-sub-committee.store');
     Route::get('certify/appointed-academic-sub-committee/{id?}/edit', 'Certify\\AppointedAcademicSubCommitteeController@edit')->name('certify.appointed-academic-sub-committee.edit');
     Route::put('certify/appointed-academic-sub-committee/update/{id?}', 'Certify\\AppointedAcademicSubCommitteeController@update')->name('certify.appointed-academic-sub-committee.update');

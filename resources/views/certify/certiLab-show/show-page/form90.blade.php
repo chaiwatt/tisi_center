@@ -23,7 +23,7 @@
                     <div class="col-md-11 col-md-offset-1">
                         <div class="row">
                             <div class="col-md-12 text-left">
-                                {{-- @foreach($certi_lab_attach_all61 as $data)
+                                @foreach($certi_lab_attach_all61->reverse() as $data)
                                     @if ($data->file)
                                         <div class="col-md-12 form-group">
                                             <a href="{{url('certify/check/file_client/'.$data->file.'/'.( !is_null($data->file_client_name) ? $data->file_client_name :  basename($data->file)  ))}}" target="_blank">
@@ -32,9 +32,9 @@
                                             </a>
                                         </div>
                                     @endif
-                                @endforeach --}}
+                                @endforeach
 
-                                @php
+                                {{-- @php
                                     $latestFile = $certi_lab_attach_all61->sortByDesc('created_at')->first(); // สมมติว่าใช้ 'created_at' แทนวันที่
                                 @endphp
 
@@ -45,7 +45,7 @@
                                             {{ !empty($latestFile->file_client_name) ? $latestFile->file_client_name : basename($latestFile->file) }}
                                         </a>
                                     </div>
-                                @endif
+                                @endif --}}
 
                             </div>
                         </div>

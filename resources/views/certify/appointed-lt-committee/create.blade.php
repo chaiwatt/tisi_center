@@ -1,4 +1,5 @@
 {{-- AppointedAcademicSubCommitteeController --}}
+{{-- AppointedLtCommitteeController --}}
 @extends('layouts.master')
 
 @section('content')
@@ -6,7 +7,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">หนังสือเชิญประชุม มาตรฐาน</h3>
+                    <h3 class="box-title pull-left">หนังสือเชิญประชุม ลท</h3>
                     @can('view-'.str_slug('standarddrafts'))
                         <a class="btn btn-success pull-right" href="{{url('/certify/standard-drafts')}}">
                             <i class="icon-arrow-left-circle"></i> กลับ
@@ -30,20 +31,19 @@
                     <form action="{{ url('/certify/appointed-lt-committee/store') }}" method="POST" class="form-horizontal" enctype="multipart/form-data">
                         @csrf
 
-                        {{-- <div class="form-group {{ $errors->has('doc_type') ? 'has-error' : '' }}">
+                        <div class="form-group {{ $errors->has('doc_type') ? 'has-error' : '' }}">
                             <label for="doc_type" class="col-md-3 control-label">ประเภท:</label>
                             <div class="col-md-8">
                                 <select name="doc_type" id="doc_type" class="select2 form-control" data-placeholder="- เลือกประเภท -">
                                     <option></option>
-                                    <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด</option>
-                                    <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }}>เชิญประชุมอนุกรรมการวิชาการ</option>
-                                    <option value="3" {{ old('doc_type') == '3' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด (ลท.)</option>
+                                    <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>พิจารณาคำขอ</option>
+                                    <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }}>พิจารณามาตรฐาน</option>
                                 </select>
                                 @if ($errors->has('doc_type'))
                                     <p class="help-block">{{ $errors->first('doc_type') }}</p>
                                 @endif
                             </div>
-                        </div> --}}
+                        </div>
 
                  
 
@@ -99,7 +99,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group {{ $errors->has('set_standard') ? 'has-error' : '' }}">
+                        {{-- <div class="form-group {{ $errors->has('set_standard') ? 'has-error' : '' }}">
                             <label for="set_standard" class="col-md-3 control-label">มาตรฐาน / คำขอ :</label>
                             <div class="col-md-8">
                                 <select name="set_standard[]" id="set_standard" class="select2-multiple" multiple data-placeholder="- เลือกมาตรฐาน -">
@@ -109,6 +109,19 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                @if($errors->has('set_standard'))
+                                    <p class="help-block">{{ $errors->first('set_standard') }}</p>
+                                @endif
+                            </div>
+                        </div> --}}
+
+                        <div class="form-group {{ $errors->has('set_standard') ? 'has-error' : '' }}">
+                            <label for="set_standard" class="col-md-3 control-label">มาตรฐาน / คำขอ :</label>
+                            <div class="col-md-8">
+                                
+                                <select name="set_standard[]" id="set_standard" class="select2-multiple" multiple data-placeholder="- เลือกมาตรฐาน -">
+                                    </select>
+
                                 @if($errors->has('set_standard'))
                                     <p class="help-block">{{ $errors->first('set_standard') }}</p>
                                 @endif
@@ -204,6 +217,48 @@
                                 placeholder: "- เลือกผู้ลงนาม -",
                                 allowClear: true
                             });
+
+                            // jQuery คลิกที่ปุ่มและทำการดึงข้อมูลผ่าน AJAX
+                            // $(document).on('change', '#doc_type', function() {
+                            //     var doc_type_id = $(this).val(); // ดึง data-id จากปุ่ม
+
+                            //     $.ajax({
+                            //         url: "{{ route('certify.appointed-lt-committee.get_request_list') }}", // URL ของ route
+                            //         type: 'GET',
+                            //         data: { doc_type_id: doc_type_id },
+                            //         success: function(response) {
+                            //             console.log (response) 
+                            //         }
+                            //     });
+                            // });
+
+                            $(document).on('change', '#doc_type', function() {
+                                var doc_type_id = $(this).val();
+                                var setStandardSelect = $('#set_standard'); // เก็บตัวแปร select ไว้
+                                if (!doc_type_id) {
+                                    setStandardSelect.empty().trigger('change'); // ถ้าไม่มีค่า ให้ล้าง select
+                                    return;
+                                }
+                                // console.log(doc_type_id);
+                                $.ajax({
+                                    url: "{{ route('certify.appointed-lt-committee.get_request_list') }}",
+                                    type: 'GET',
+                                    data: { doc_type_id: doc_type_id },
+                                    success: function(response) {
+                                        setStandardSelect.empty();
+                                        $.each(response, function(index, item) {
+                                            var newOption = new Option(item.text, item.id, false, false);
+                                            setStandardSelect.append(newOption);
+                                        });
+                                        setStandardSelect.trigger('change');
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error("AJAX Error: " + status + error);
+                                    }
+                                });
+                            });
+
+
                         </script>
                     @endpush
                 </div>

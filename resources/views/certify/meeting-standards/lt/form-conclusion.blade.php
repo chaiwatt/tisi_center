@@ -276,13 +276,13 @@
                             1
                         </td>
                         <td>
-{{-- 
-                            @php
-                                dd($item);
+
+                            {{-- @php
+                                dd($setstandard_title);
                             @endphp --}}
 
-
-                          (ID:{{$item->setstandard_to->id}})  {{$item->setstandard_to->estandard_plan_to->tis_name}}
+                            
+                          {{ str_replace('Req', 'CSD', $item->setstandard_to->estandard_plan_to->estandard_offers_to->refno) }}  {{$item->setstandard_to->estandard_plan_to->tis_name}}
                                 {{-- {!!  !empty($item->setstandard_to->projectid)  &&  !empty($item->meetingtype_to->title) ?  '<p>'.$item->setstandard_to->projectid.' <span class="text-danger">('.$item->meetingtype_to->title.')</span></p>' : null !!} --}}
                                 <input type="hidden" name="meeting[setstandard_title][]"  class="setstandard_title"
                                  value="{!! $item->setstandard_to->projectid ?? null !!}" 
@@ -313,7 +313,7 @@
                       @foreach($meeting_types as  $item)
                             <tr>
                                 <td  class="text-center">
-                                    1 
+                                    1
                                 </td>
                                 <td>
                                     {!! Form::text('meeting[expense_other][]',  !empty($item->expense_other) ?   $item->expense_other  : null, ['class' => 'form-control expense_other', 'placeholder'=>'ค่าใช้จ่ายอื่นๆ (ถ้ามี)']) !!}
@@ -347,6 +347,47 @@
         </div>
     </div> 
 </div>
+
+<div class="form-group required{{ $errors->has('attach') ? 'has-error' : ''}}">
+    {!! Html::decode(Form::label('attach', 'รายงานการประชุมหรืออื่น ๆ', ['class' => 'col-md-3 control-label'])) !!}
+    <div class="col-md-9  repeater-form-file4" >
+        <div class="row" data-repeater-list="repeater-attach_step4">
+            <div class="form-group repeater_form_file4" data-repeater-item>
+                <div class="col-md-4">
+                    {!! Form::text('file_attach_step4_documents', null,['class' => 'form-control']) !!}
+                </div>
+                <div class="col-md-5">
+                    <div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                        <div class="form-control" data-trigger="fileinput">
+                            <span class="fileinput-filename"></span>
+                        </div>
+                        <span class="input-group-addon btn btn-default btn-file">
+                            <span class="input-group-text fileinput-exists" data-dismiss="fileinput">ลบ</span>
+                            <span class="input-group-text btn-file">
+                                <span class="fileinput-new">เลือกไฟล์</span>
+                                <span class="fileinput-exists">เปลี่ยน</span>
+                                <input type="file" name="attach_step4" required>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+       </div>
+    </div>
+</div>  
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <div class="form-group  {{ $errors->has('title') ? 'has-error' : ''}}">
     {!! Form::label('title', 'ผู้บันทึก'.' :', ['class' => 'col-md-3 control-label']) !!}

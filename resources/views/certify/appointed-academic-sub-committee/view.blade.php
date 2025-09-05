@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">หนังสือเชิญประชุม รม</h3>
+                    <h3 class="box-title pull-left">หนังสือเชิญประชุม มร</h3>
                     @can('view-' . str_slug('appointed-academic-sub-committee'))
                         <a class="btn btn-success pull-right" href="{{ url('/certify/appointed-academic-sub-committee') }}">
                             <i class="icon-arrow-left-circle"></i> กลับ
@@ -32,7 +32,7 @@
                             <label class="col-md-3 control-label">ประเภท:</label>
                             <div class="col-md-8">
                                 <p class="form-control-static">
-                                    {{ $meetingInvitation->type == 1 ? 'เชิญประชุมอนุกรรมการวิชาการ' : 'เชิญประชุมคณะกำหนด' }}
+                                    {{ $meetingInvitation->type == 2 ? 'เชิญประชุมอนุกรรมการวิชาการ' : 'เชิญประชุมคณะกำหนด' }}
                                 </p>
                             </div>
                         </div>

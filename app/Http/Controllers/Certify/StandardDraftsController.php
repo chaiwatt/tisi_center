@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\Certify;
 
+use DB;
+use HP;
+use Storage;
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Bcertify\Reason;
+use Yajra\Datatables\Datatables;
 use App\Models\Tis\EstandardOffers;
+use App\Http\Controllers\Controller;
 use App\Models\Tis\TisiEstandardDraft;
+use App\Models\Tis\EstandardOffersAsign;
+use App\Models\Tis\TisiEstandardDraftPlan;
 use App\Models\Tis\TisiEstandardDraftBoard;
 use App\Models\Tis\TisiEstandardDraftCommittee;
-use App\Models\Tis\TisiEstandardDraftPlan;
-use Illuminate\Http\Request;
-use Yajra\Datatables\Datatables;
-use HP;
-use DB;
-use Storage;
-use App\Models\Bcertify\Reason;
+
 class StandardDraftsController extends Controller
 {
 
@@ -336,13 +338,39 @@ class StandardDraftsController extends Controller
     // ->whereNotNull('standard_name')
     // ->where('state',2)->get();
 
+    // dd($standard_offers);
+
+       $userId = auth()->user()->runrecno;
+
+
+
+
+        // $standard_offers = DB::table('tisi_estandard_offers')
+        //     ->selectRaw('tisi_estandard_offers.*, CONCAT_WS(" : ", tisi_estandard_offers.refno, tisi_estandard_offers.title) AS titles')
+        //     ->leftJoin('tisi_estandard_draft_plan', 'tisi_estandard_offers.id', '=', 'tisi_estandard_draft_plan.offer_id')
+        //     ->whereNull('tisi_estandard_draft_plan.id') // <-- จุดสำคัญ: เลือกเฉพาะรายการที่ไม่มีคู่ในตาราง draft_plans
+        //     ->whereNotNull('tisi_estandard_offers.standard_name')
+        //     ->where('tisi_estandard_offers.state', 2)
+        //     ->get();
+
+        $userId = auth()->user()->runrecno;
+
         $standard_offers = DB::table('tisi_estandard_offers')
+            // --- ส่วนที่เพิ่มเข้ามาเพื่อกรอง user ---
+            ->join('tisi_estandard_offers_asign', 'tisi_estandard_offers.id', '=', 'tisi_estandard_offers_asign.comment_id')
+            ->where('tisi_estandard_offers_asign.user_id', $userId)
+            // --- จบส่วนที่เพิ่มเข้ามา ---
+
+            // ส่วน Query เดิมของคุณยังอยู่ครบถ้วน
             ->selectRaw('tisi_estandard_offers.*, CONCAT_WS(" : ", tisi_estandard_offers.refno, tisi_estandard_offers.title) AS titles')
             ->leftJoin('tisi_estandard_draft_plan', 'tisi_estandard_offers.id', '=', 'tisi_estandard_draft_plan.offer_id')
-            ->whereNull('tisi_estandard_draft_plan.id') // <-- จุดสำคัญ: เลือกเฉพาะรายการที่ไม่มีคู่ในตาราง draft_plans
+            ->whereNull('tisi_estandard_draft_plan.id')
             ->whereNotNull('tisi_estandard_offers.standard_name')
             ->where('tisi_estandard_offers.state', 2)
             ->get();
+
+
+        // dd($standard_offers);
 
         $model = str_slug('standarddrafts','-');
         if(auth()->user()->can('add-'.$model)) {

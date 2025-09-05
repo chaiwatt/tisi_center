@@ -76,7 +76,7 @@
         @if($errors->has('std_no'))<p class="help-block">{{ $errors->first('std_no') }}</p>@endif
     </div>
     <div class="col-md-2">
-        <input type="text" name="std_book" id="std_book" class="form-control" placeholder="เล่ม" value="{{ old('std_book') }}">
+        <input type="text" name="std_book" id="std_book" class="form-control" placeholder="เล่ม" value="{{ $standard->std_book }}">
         @if($errors->has('std_book'))<p class="help-block">{{ $errors->first('std_book') }}</p>@endif
     </div>
     <div class="col-md-2">
@@ -163,7 +163,7 @@
         {{-- {!! Form::select('ics[]', $OpIcs, !empty($standard_ics)?$standard_ics:null, ['class' => 'select2-multiple', 'multiple'=>'multiple', 'id'=>'ics', 'data-placeholder'=>'- เลือก ICS -']) !!}
         {!! $errors->first('ics', '<p class="help-block">:message</p>') !!} --}}
 
-        <textarea class="form-control" rows="4" name="ics" cols="50" id="ics"></textarea>
+        <textarea class="form-control" rows="4" name="ics" cols="50" id="ics">{{ $standard->standardIcs()->ics_text}}</textarea>
     </div>
 </div>
 

@@ -154,7 +154,7 @@
                                 <th width="10%" class="text-center">วันที่เสนอ</th>
                                 <th  width="15%" class="text-center">มาตรฐาน</th>
                                 <th width="15%" class="text-center">จุดประสงค์และเหตุผล</th>
-                                <th width="15%" class="text-center">ผู้เสนอความเห็น</th>
+                                <th width="15%" class="text-center">ประเภท</th>
                                 {{-- <th  width="15%" class="text-center">ประเภทมาตรฐาน</th> --}}
                                 <th width="10%" class="text-center">สถานะ</th>
                                 <th width="10%" class="text-center">ผู้ตรวจสอบคำขอ</th>
@@ -264,7 +264,7 @@
                             }
                         }
                     },
-                    { data: 'name', name: 'name' },
+                    { data: 'standard_type', name: 'standard_type' },
                     // { data: 'state', name: 'state' },
                     { 
                         data: 'state_id', 
@@ -397,6 +397,81 @@
             //     }
             // });
 
+            // $("#button_export_excel").click(function() {
+            //     if (table.$('.item_checkbox:checked').length > 0) {
+                    
+            //         var exportData = [];
+            //         table.$('.item_checkbox:checked').each(function() {
+            //             var rowData = table.row($(this).closest('tr')).data();
+            //             if (rowData) {
+            //                 var dataObject = {
+            //                     iso_number:       rowData.iso_number,
+            //                     standard_name:    rowData.standard_name,
+            //                     standard_name_en: rowData.standard_name_en,
+            //                     national_strategy:rowData.national_strategy,
+            //                     type:             rowData.c, // << แก้ไขตามชื่อฟิลด์ประเภทของคุณ
+            //                     reason:           rowData.reason,
+            //                     objectve:         rowData.objectve 
+            //                 };
+            //                 exportData.push(dataObject);
+            //             }
+            //         });
+
+
+            //         const typeMapping = {
+            //             'P': 'P-ผลิตภัณฑ์',
+            //             'M': 'M-วิธีทดสอบ',
+            //             'B': 'B-มาตรฐาน',
+            //             'S': 'S-ระบบ',
+            //             'C': 'C-ข้อแนะนำ'
+            //         };
+
+            //         const transformedData = exportData.map(item => ({
+            //             'เลขมาตรฐาน ISO': item.iso_number,
+            //             'ชื่อมาตรฐาน': item.standard_name,
+            //             'ชื่อมาตรฐานภาษาอังกฤษ': item.standard_name_en,
+            //             'แผนยุทธศาสตร์ชาติ 20ปี/แผนพัฒนาเศรษฐกิจและสังคมแห่งชาติ ฉบับที่ 13 (ถ้ามี)': item.national_strategy,
+            //             'ประเภท': typeMapping[item.type] || item.type,
+            //             // ✨ 2. ตรวจสอบค่า item.objectve เพื่อกำหนดค่าในคอลัมน์นี้
+            //             'กำหนดใหม่/ทบทวน': item.objectve === 'first_creation' ? 'กำหนดใหม่' : (item.objectve === 'standard_revision' ? 'ทบทวน' : ''),
+            //             'เหตุผล': item.reason
+            //         }));
+
+            //         const worksheet = XLSX.utils.json_to_sheet(transformedData);
+
+            //         // ✨ 3. ส่วนของการคำนวณและตั้งค่าความกว้างคอลัมน์อัตโนมัติ
+            //         const objectMaxLength = [];
+            //         // วนลูปผ่านข้อมูลเพื่อหาความยาวสูงสุดของแต่ละคอลัมน์
+            //         transformedData.forEach(row => {
+            //             Object.values(row).forEach((value, colIndex) => {
+            //                 // ถ้าค่าไม่ใช่ null หรือ undefined
+            //                 if (value != null) {
+            //                     const cellLength = value.toString().length;
+            //                     objectMaxLength[colIndex] = Math.max(objectMaxLength[colIndex] || 0, cellLength);
+            //                 }
+            //             });
+            //         });
+                    
+            //         // วนลูปผ่านหัวข้อตารางเพื่อหาความยาวสูงสุด
+            //         Object.keys(transformedData[0]).forEach((header, colIndex) => {
+            //             const headerLength = header.toString().length;
+            //             objectMaxLength[colIndex] = Math.max(objectMaxLength[colIndex] || 0, headerLength);
+            //         });
+
+            //         // แปลงค่าความยาวที่ได้เป็น format ที่ library ต้องการ {wch: width}
+            //         worksheet["!cols"] = objectMaxLength.map(width => ({ wch: width + 2 })); // +2 เพื่อให้มี padding เล็กน้อย
+
+
+            //         const workbook = XLSX.utils.book_new();
+            //         XLSX.utils.book_append_sheet(workbook, worksheet, "StandardsOffers");
+
+            //         XLSX.writeFile(workbook, "Exported_Standards_Offers.xlsx");
+
+            //     } else {
+            //         alert("กรุณาเลือกรายการที่ต้องการส่งออกอย่างน้อย 1 รายการ");
+            //     }
+            // });
+
             $("#button_export_excel").click(function() {
                 if (table.$('.item_checkbox:checked').length > 0) {
                     
@@ -408,47 +483,32 @@
                                 iso_number:       rowData.iso_number,
                                 standard_name:    rowData.standard_name,
                                 standard_name_en: rowData.standard_name_en,
-                                national_strategy:rowData.national_strategy,
-                                type:             rowData.c, // << แก้ไขตามชื่อฟิลด์ประเภทของคุณ
+                                type:             rowData.standard_type,
                                 reason:           rowData.reason,
-                                // ✨ 1. เพิ่มการดึงข้อมูล objectve เข้ามาใน object ที่จะใช้ export
+                                national_strategy:rowData.national_strategy,
                                 objectve:         rowData.objectve 
                             };
                             exportData.push(dataObject);
                         }
                     });
 
-                    // ================================================================
-                    // ===== ส่วนของการสร้างและดาวน์โหลด Excel ที่เพิ่มเข้ามา =====
-                    // ================================================================
-
-                    const typeMapping = {
-                        'P': 'P-ผลิตภัณฑ์',
-                        'M': 'M-วิธีทดสอบ',
-                        'B': 'B-มาตรฐาน',
-                        'S': 'S-ระบบ',
-                        'C': 'C-ข้อแนะนำ'
-                    };
-
-                    const transformedData = exportData.map(item => ({
+                    const transformedData = exportData.map((item, index) => ({
+                        'ลำดับ': index + 1, // <-- เพิ่มคอลัมน์ลำดับ
                         'เลขมาตรฐาน ISO': item.iso_number,
                         'ชื่อมาตรฐาน': item.standard_name,
                         'ชื่อมาตรฐานภาษาอังกฤษ': item.standard_name_en,
+                        'ประเภท': item.type,
+                        'เหตุผล': item.reason,
                         'แผนยุทธศาสตร์ชาติ 20ปี/แผนพัฒนาเศรษฐกิจและสังคมแห่งชาติ ฉบับที่ 13 (ถ้ามี)': item.national_strategy,
-                        'ประเภท': typeMapping[item.type] || item.type,
-                        // ✨ 2. ตรวจสอบค่า item.objectve เพื่อกำหนดค่าในคอลัมน์นี้
                         'กำหนดใหม่/ทบทวน': item.objectve === 'first_creation' ? 'กำหนดใหม่' : (item.objectve === 'standard_revision' ? 'ทบทวน' : ''),
-                        'เหตุผล': item.reason
                     }));
 
                     const worksheet = XLSX.utils.json_to_sheet(transformedData);
 
-                    // ✨ 3. ส่วนของการคำนวณและตั้งค่าความกว้างคอลัมน์อัตโนมัติ
+                    // (โค้ดส่วนของการปรับความกว้างคอลัมน์เหมือนเดิม)
                     const objectMaxLength = [];
-                    // วนลูปผ่านข้อมูลเพื่อหาความยาวสูงสุดของแต่ละคอลัมน์
                     transformedData.forEach(row => {
                         Object.values(row).forEach((value, colIndex) => {
-                            // ถ้าค่าไม่ใช่ null หรือ undefined
                             if (value != null) {
                                 const cellLength = value.toString().length;
                                 objectMaxLength[colIndex] = Math.max(objectMaxLength[colIndex] || 0, cellLength);
@@ -456,19 +516,15 @@
                         });
                     });
                     
-                    // วนลูปผ่านหัวข้อตารางเพื่อหาความยาวสูงสุด
                     Object.keys(transformedData[0]).forEach((header, colIndex) => {
                         const headerLength = header.toString().length;
                         objectMaxLength[colIndex] = Math.max(objectMaxLength[colIndex] || 0, headerLength);
                     });
 
-                    // แปลงค่าความยาวที่ได้เป็น format ที่ library ต้องการ {wch: width}
-                    worksheet["!cols"] = objectMaxLength.map(width => ({ wch: width + 2 })); // +2 เพื่อให้มี padding เล็กน้อย
-
+                    worksheet["!cols"] = objectMaxLength.map(width => ({ wch: width + 2 }));
 
                     const workbook = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(workbook, worksheet, "StandardsOffers");
-
                     XLSX.writeFile(workbook, "Exported_Standards_Offers.xlsx");
 
                 } else {

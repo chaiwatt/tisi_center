@@ -1,3 +1,4 @@
+{{-- MeetingStandardsController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -16,7 +17,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">นัดหมายการประชุม</h3>
+                    <h3 class="box-title pull-left">นัดหมายการประชุม มร</h3>
 
                     <div class="pull-right">
 
@@ -92,6 +93,7 @@
                                 <th width="15%" class="text-center">วันที่นัดหมาย</th>
                                 <th width="15%" class="text-center">สถานที่นัดหมาย</th>
                                 <th width="15%" class="text-center">สถานะ</th>
+                                <th width="15%" class="text-center">Group</th>
                                 <th width="10%" class="text-center">จัดการ</th>
                                 <th width="19%" class="text-center">ผลการประชุม</th>
                             </tr>
@@ -164,6 +166,7 @@
                     { data: 'date_meet', name: 'date_meet' },
                     { data: 'meeting_place', name: 'meeting_place' },
                     { data: 'status_id', name: 'status_id' },
+                    { data: 'meeting_group', name: 'meeting_group' },
                     { data: 'action', name: 'action' },
                     { data: 'action_meeting', name: 'action_meeting' }
                 ],

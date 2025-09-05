@@ -89,6 +89,11 @@ class Standard extends Model
         return $this->hasMany(StandardIcs::class, 'std_id');
     }
 
+     public function standardIcs(){
+        return StandardIcs::where('std_id',$this->id)->first();
+    }
+
+
     public function certify_standard_sendmail(){
         return $this->hasMany(StandardSendmail::class, 'std_id');
     }

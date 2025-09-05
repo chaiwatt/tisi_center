@@ -35,8 +35,8 @@
                             <div class="col-md-8">
                                 <select name="doc_type" id="doc_type" class="select2 form-control" data-placeholder="- เลือกประเภท -">
                                     <option></option>
-                                    <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด</option>
-                                    <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }}>เชิญประชุมอนุกรรมการวิชาการ</option>
+                                    {{-- <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด</option> --}}
+                                    <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }} selected>เชิญประชุมอนุกรรมการวิชาการ</option>
                                     {{-- <option value="3" {{ old('doc_type') == '3' ? 'selected' : '' }}>เชิญประชุมคณะกำหนด (ลท.)</option> --}}
                                 </select>
                                 @if ($errors->has('doc_type'))
@@ -100,12 +100,13 @@
                         </div>
 
                         <div class="form-group {{ $errors->has('set_standard') ? 'has-error' : '' }}">
-                            <label for="set_standard" class="col-md-3 control-label">มาตรฐาน / คำขอ :</label>
+                            <label for="set_standard" class="col-md-3 control-label">มาตรฐาน :</label>
                             <div class="col-md-8">
                                 <select name="set_standard[]" id="set_standard" class="select2-multiple" multiple data-placeholder="- เลือกมาตรฐาน -">
                                      @foreach ($setStandards as $setStandard)
                                         <option value="{{ $setStandard->id }}" {{ old('set_standard') == $setStandard->id ? 'selected' : '' }}>
-                                            {{ $setStandard->TisName }} <!-- ใช้ฟิลด์ name หรือฟิลด์ที่เหมาะสมจากโมเดล set_standard -->
+                                            
+                                          {{ str_replace('Req', 'CSD', $setStandard->estandard_plan_to->estandard_offers_to->refno) }} {{ $setStandard->TisName }} <!-- ใช้ฟิลด์ name หรือฟิลด์ที่เหมาะสมจากโมเดล set_standard -->
                                         </option>
                                     @endforeach
                                 </select>

@@ -20,7 +20,7 @@ class SetStandards extends Model
 
     protected $primaryKey = 'id';
 
-    protected $fillable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'status_sub_appointment_id','agreement_status','agreement_detail', 'created_by','standard_circular_doc_status', 'standard_circular_doc_details' , 'updated_by'];
+    protected $fillable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'status_sub_appointment_id','agreement_status','agreement_detail', 'created_by','standard_circular_doc_status', 'standard_circular_doc_details' , 'updated_by','finished'];
 
     public $sortable = ['projectid', 'plan_id', 'method_id', 'format_id', 'estimate_cost', 'plan_time', 'status_id', 'created_by', 'updated_by'];
 
@@ -161,10 +161,12 @@ class SetStandards extends Model
 
     public function mainAppointmentMeetingApproved()
     {
+      
         return $this->belongsToMany(MeetingInvitation::class, 'meeting_invitation_setstandards', 'setstandard_id', 'meeting_invitation_id')
-                    ->where('meeting_invitations.status', 3)
-                    ->where('meeting_invitations.type', 1);
+                    ->where('meeting_invitations.status', 3);
+                    // ->where('meeting_invitations.type', 1);
     }
+    
 
     public function standards()
     {

@@ -78,22 +78,26 @@
 
                 <div class="clearfix"></div>
 
-                <div class="row">
+                {{-- <div class="row">
                    <div class="col-md-12">
                         <table class="table table-striped" id="myTable">
                             <thead>
                                 <tr>
                                     <th width="1%" class="text-center">#</th>
-                                    <th width="15%" class="text-center">ชื่อมาตรฐาน</th>
+                                    <th width="15%">หัวเรื่อง</th>
+                                    <th width="10%" class="text-center">วันที่สร้าง</th>
                                     <th width="10%" class="text-center">สถานะ</th>
                                     <th width="15%" class="text-center">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
                              @foreach ($meetingInvitations as $index => $meetingInvitation)
+
+                             
                                     <tr>
                                         <td class="text-center">{{ $index + 1 }}</td>
-                                        <td class="text-center">{{ $meetingInvitation->setStandards->pluck('TisName')->implode(', ') ?: 'ไม่มี' }}</td>
+                                        <td >{{ $meetingInvitation->subject }}</td>
+                                        <td class="text-center">  {{ $meetingInvitation->created_at->addYears(543)->format('d/m/Y') }}</td>
                                         <td class="text-center"><span class="label label-warning">ส่งลงนาม</span></td>
                                         <td class="text-center">
                                              <a href="{{ route('certify.appointed-academic-sub-committee.view', $meetingInvitation->id) }}" class="btn btn-sm btn-info" title="ดู">
@@ -102,6 +106,62 @@
                                             @can('view-' . str_slug('appointed-committee'))
                                                 <a  class="btn btn-sm btn-warning btn_sign" data-id="{{$meetingInvitation->signer_id}}" data-meetinginvitation="{{$meetingInvitation->id}}" >
                                                 <i class="fa fa-check"></i>  ลงนาม
+                                                </a>
+                                            @endcan
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div> --}}
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-striped" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th width="1%" class="text-center">#</th>
+                                    <th width="15%">หัวเรื่อง</th>
+                                    <th width="10%" class="text-center">วันที่สร้าง</th>
+                                    <th width="10%" class="text-center">สถานะ</th>
+                                    <th width="15%" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{-- วนลูปข้อมูลที่รวมกันมาแล้วทั้งหมด --}}
+                                @foreach ($allMeetingInvitations as $item)
+                                    <tr>
+                                        <td class="text-center">{{ $loop->iteration }}</td>
+                                        <td>{{ $item->subject }}</td>
+                                        
+                                        {{-- ตรวจสอบว่าเป็นข้อมูลประเภท MeetingInvitation หรือไม่ ถ้าใช่ให้แสดงวันที่ --}}
+                                        <td class="text-center">
+                                            @if ($item instanceof \App\Models\MeetingInvitation)
+                                                {{ $item->created_at->addYears(543)->format('d/m/Y') }}
+                                            @else
+                                                - {{-- ถ้าเป็น LtMeetingInvitation จะไม่มีคอลัมน์นี้ --}}
+                                            @endif
+                                        </td>
+
+                                        <td class="text-center"><span class="label label-warning">ส่งลงนาม</span></td>
+                                        
+                                        <td class="text-center">
+                                            {{-- ใช้ instanceof เพื่อเปลี่ยนลิงก์ "ดู" ตามประเภทของข้อมูล --}}
+                                            @if ($item instanceof \App\Models\LtMeetingInvitation)
+                                                <a href="{{ route('certify.appointed-lt-committee.view', $item->id) }}" class="btn btn-sm btn-info" title="ดู">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                            @else {{-- กรณีเป็น MeetingInvitation --}}
+                                                <a href="{{ route('certify.appointed-academic-sub-committee.view', $item->id) }}" class="btn btn-sm btn-info" title="ดู">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                            @endif
+
+                                            {{-- ปุ่มลงนามเหมือนกันทั้งสองประเภท --}}
+                                            @can('view-' . str_slug('appointed-committee'))
+                                                <a class="btn btn-sm btn-warning btn_sign" data-id="{{ $item->signer_id }}" data-meetinginvitation="{{ $item->id }}">
+                                                    <i class="fa fa-check"></i> ลงนาม
                                                 </a>
                                             @endcan
                                         </td>

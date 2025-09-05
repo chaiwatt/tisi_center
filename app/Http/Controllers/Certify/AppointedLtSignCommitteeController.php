@@ -32,7 +32,7 @@ class AppointedLtSignCommitteeController extends Controller
             //     ->where('status', 2) // เพิ่มเงื่อนไข status = 2
             //     ->with(['setStandards', 'signer.user'])->get();
 
-                $meetingInvitations = LtMeetingInvitation::whereHas('signer.user', function ($query) {
+                $lTmeetingInvitations = LtMeetingInvitation::whereHas('signer.user', function ($query) {
                     $query->where('runrecno', auth()->user()->runrecno);
                 })
                 ->where('status', 2) // เพิ่มเงื่อนไข status = 2
@@ -42,7 +42,7 @@ class AppointedLtSignCommitteeController extends Controller
                 
 
             return view('certify.appointed-lt-sign-committee.index',[
-                'meetingInvitations' => $meetingInvitations
+                'lTmeetingInvitations' => $lTmeetingInvitations
             ]);
         }
         abort(403);

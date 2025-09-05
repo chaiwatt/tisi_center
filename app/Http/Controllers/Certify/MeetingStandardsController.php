@@ -9,17 +9,19 @@ use App\Http\Requests;
 use App\CommitteeLists;
 use App\CommitteeSpecial;
 use Illuminate\Http\Request;
+use App\Models\Certify\Standard;
 use Yajra\Datatables\Datatables;
 use App\Http\Controllers\Controller;
-use App\Models\Certify\SetStandards;
 
+use App\Models\Certify\SetStandards;
 use  App\Mail\Certify\MeetingStandards;
 use App\Models\Certify\MeetingStandard;
 use Illuminate\Support\Facades\Mail;   
 use App\Models\Certify\MeetingStandardRecord;
 use App\Models\Certify\MeetingStandardExperts;
-use App\Models\Certify\MeetingStandardProject;
 
+use App\Models\Certify\MeetingStandardProject;
+use App\Models\Certify\SetStandardSummeetings;
 use App\Mail\Certify\MeetingStandardsConclusion;
 use App\Models\Certify\MeetingStandardCommitee; 
 use App\Models\Certify\MeetingStandardRecordCost;
@@ -53,6 +55,7 @@ class MeetingStandardsController extends Controller
 
     public function index(Request $request)
     {
+        // dd('ok');
         $model = str_slug('meetingstandards','-');
         if(auth()->user()->can('view-'.$model)) {
             return view('certify.meeting-standards.index');
@@ -87,6 +90,7 @@ class MeetingStandardsController extends Controller
                                                $setstandard_meeting_ids =  CertifySetstandardMeetingType::where('meetingtype_id', $filter_meeting_type_id)->select('setstandard_meeting_id');
                                                 $query->whereIn('id', $setstandard_meeting_ids);
                                         });
+                                        // ->where('meeting_group',2);
 
         return Datatables::of($query)
                             ->addIndexColumn()
@@ -98,8 +102,12 @@ class MeetingStandardsController extends Controller
                                 }
                             })
                             ->addColumn('title', function ($item) {
-                                return   !empty($item->title)? $item->title:'';
+                                return   !empty($item->title)? $item->title . " (ID:" .$item->id. ")" :'';
                             })
+                             ->addColumn('meeting_group', function ($item) {
+                                return   !empty($item->meeting_group)? $item->meeting_group:'';
+                            })
+                            
                             ->addColumn('meeting_type', function ($item) {
                                 return   !empty($item->MeetingTypesName)?  implode(",<br/>",$item->MeetingTypesName)  :'';
                             })
@@ -148,7 +156,7 @@ class MeetingStandardsController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create($id = null)
     {
 
       
@@ -168,17 +176,51 @@ class MeetingStandardsController extends Controller
                 //         ->whereIn('status_id', [2, 3])
                 //         ->orWhereIn('status_sub_appointment_id', [2, 3])
                 //         ->get();
+                $userId = auth()->user()->runrecno;
 
+
+                if($id == null){
                 $standards = SetStandards::with('estandard_plan_to')
-                    ->whereHas('estandard_plan_to', function ($query) {
-                        $query->whereNotNull('approve');
-                    })
-                    ->where(function ($query) {
-                        $query->whereIn('status_id', [2, 3])
-                            ->orWhereIn('status_sub_appointment_id', [2, 3]);
-                    })
-                    ->doesntHave('standards')
-                    ->get();
+                        ->whereHas('estandard_plan_to', function ($query) {
+                            $query->whereNotNull('approve');
+                        })
+                        ->where(function ($query) {
+                            $query->whereIn('status_id', [2, 3])
+                                ->orWhereIn('status_sub_appointment_id', [2, 3]);
+                        })
+                        ->doesntHave('standards')
+                        ->whereHas('estandard_plan_to.estandard_offers_to.tisi_estandard_offers_asigns', function ($query) use ($userId) {
+                            $query->where('user_id', $userId);
+                        })
+                        
+                        ->orderBy('id', 'desc')
+                        ->get();
+
+                }else{
+                    $standards = SetStandards::with('estandard_plan_to')
+                            ->whereHas('estandard_plan_to', function ($query) {
+                                $query->whereNotNull('approve');
+                            })
+                            ->where(function ($query) {
+                                $query->whereIn('status_id', [2, 3])
+                                    ->orWhereIn('status_sub_appointment_id', [2, 3]);
+                            })
+
+                            ->doesntHave('standards')
+                            ->whereHas('estandard_plan_to.estandard_offers_to', function ($query) use ($id) {
+                                    $query->where('id', $id);
+                            })
+                            ->whereHas('estandard_plan_to.estandard_offers_to.tisi_estandard_offers_asigns', function ($query) use ($userId) {
+                                $query->where('user_id', $userId);
+                            })
+                            
+                            ->orderBy('id', 'desc')
+                            ->get();
+
+                }
+
+  
+
                                         
                     // foreach ($standards as $standard) {
                     //     $tisName = isset($standard->estandard_plan_to) ? $standard->estandard_plan_to->tis_name : null;
@@ -465,13 +507,17 @@ class MeetingStandardsController extends Controller
 
     public function update_conclusion(Request $request, $id)
     {
-        // dd($request->all());
+       $requestData = $request->all();
+        //   if(isset( $requestData['attach_step4'] ) ){
+        //     dd('has file');
+        //   }
+          
         $model = str_slug('meetingstandards','-');
         if(auth()->user()->can('edit-'.$model)) {
 
             $meetingstandard = MeetingStandard::findOrFail($id);
-
-             $requestData = $request->all();
+//   dd($requestData,$meetingstandard );
+            
             // $requestData['updated_by']  =  auth()->user()->getKey();
             // $requestData['start_date']  =  !empty($request->start_date) ?  HP::convertDate($request->start_date,true) : null;
             // $requestData['end_date']    =  !empty($request->end_date)   ?  HP::convertDate($request->end_date,true)   : null;
@@ -527,6 +573,90 @@ class MeetingStandardsController extends Controller
                }
            }
 
+           // ใช้ $request->hasFile() ในการตรวจสอบไฟล์ที่อัปโหลดมา
+            if ($request->hasFile('attach_step4')) {
+
+
+
+                foreach ($request->meeting['setstandard_id'] as $setstandard_id) {
+                    
+                    // Find object แค่ครั้งเดียว แล้วเก็บไว้ในตัวแปร
+                    $set_standards = SetStandards::find($setstandard_id);
+
+                    // ป้องกันกรณีหา ID ไม่เจอ
+                    if (!$set_standards) {
+                        continue; // ข้ามไปทำงาน ID ถัดไป
+                    }
+
+                    $tax_number = (!empty(auth()->user()->reg_13ID) ? str_replace("-", "", auth()->user()->reg_13ID) : '0000000000000');
+                    $projectid = !empty($set_standards->projectid) ? str_replace("-", "", $set_standards->projectid) : '0000000000000';
+
+                    // **สมมติว่าฟังก์ชันนี้จำเป็นต้องถูกเรียกใน loop เพื่อสร้างความสัมพันธ์**
+                    HP::singleFileUpload(
+                        $request->file('attach_step4'),                  //<-- แก้ไข: ใช้ $request->file()
+                        $this->attach_path . $projectid,
+                        $tax_number,
+                        (auth()->user()->FullName ?? null),
+                        'Center',
+                        (new SetStandards)->getTable(),
+                        $set_standards->id,
+                        'file_set_standards',
+                        $request->input('file_attach_step4_documents')  //<-- แก้ไข: ใช้ $request->input()
+                    );
+
+                    // ใช้ object ที่ find มาแล้วในการ update ไม่ต้อง find ใหม่
+                    $set_standards->update([
+                        'status_id' => 5,
+                        'finished' => 1
+                    ]);
+
+                $summeetings = SetStandardSummeetings::where('setstandard_id', $set_standards->id)
+                            ->where('meeting_group',$meetingstandard->meeting_group)
+                            ->first();
+                if(is_null($summeetings)){
+                    $summeetings = new  SetStandardSummeetings;
+                }
+                $summeetings->setstandard_id    = $set_standards->id;
+                $summeetings->meeting_group = $meetingstandard->meeting_group;
+                $summeetings->amount_sum        =  !empty($request->amount_sum)   ? str_replace(",","",$request->amount_sum)   : null ;
+                $summeetings->cost_sum          =  !empty($request->cost_sum)   ? str_replace(",","",$request->cost_sum) : null ;
+                $summeetings->detail            =  !empty($request->detail)   ? $request->detail : null ;
+                $summeetings->save();
+                $this->save_standard($set_standards);     
+
+                }
+                return redirect('certify/appointed-committee-lt')->with('flash_message', 'เรียบร้อยแล้ว!');
+            }
+
+            
+
+            // if(isset( $requestData['attach_step4'] ) ){
+            //     //  dd($setstandard_id);
+            //     foreach($request->meeting['setstandard_id'] as $setstandard_id)
+            //     {
+                   
+            //         $set_standards = SetStandards::find($setstandard_id);
+            //         $tax_number = (!empty(auth()->user()->reg_13ID) ?  str_replace("-","", auth()->user()->reg_13ID )  : '0000000000000');
+            //         $projectid =  !empty($set_standards->projectid) ?  str_replace("-","",  $set_standards->projectid  ): '0000000000000';
+
+            //         HP::singleFileUpload(
+            //             $requestData['attach_step4'],
+            //             $this->attach_path.$projectid,
+            //             ( $tax_number),
+            //             (auth()->user()->FullName ?? null),
+            //             'Center',
+            //             (  (new SetStandards)->getTable() ),
+            //             $set_standards->id,
+            //             'file_set_standards',
+            //             !empty($file['file_attach_step4_documents'])?$file['file_attach_step4_documents']:null
+            //         );
+
+            //         $set_standards = SetStandards::find($setstandard_id)->update([
+            //             'status_id' => 5
+            //         ]);
+            //     }
+            // }
+
            return redirect('certify/meeting-standards')->with('flash_message', 'เรียบร้อยแล้ว!');
            
             // return redirect('certify/meeting-standards/conclusion/'.$meetingstandard->id)->with('flash_message', 'เรียบร้อยแล้ว!');
@@ -536,6 +666,34 @@ class MeetingStandardsController extends Controller
     }
 
     
+    private function save_standard($set_standards){
+                $standard = Standard::where('setstandard_id',$set_standards->id)->first();
+                if(is_null($standard)){
+                    $standard = new Standard;
+                }
+                $standard->setstandard_id = $set_standards->id;
+            if(!is_null($set_standards->estandard_plan_to)){
+                $standardplan                =  $set_standards->estandard_plan_to;
+                $standard->std_type          = !empty($standardplan->std_type) ? $standardplan->std_type : null;
+                $standard->format_id         = !empty($standardplan->start_std) ? $standardplan->start_std : null;
+                $standard->standard_id       = !empty($standardplan->ref_std) ? $standardplan->ref_std : null;
+                $standard->std_no            = !empty($standardplan->tis_number) ? $standardplan->tis_number : null;
+                $standard->std_book          = !empty($standardplan->tis_book) ? $standardplan->tis_book : null;
+                $standard->std_year          = !empty($standardplan->tis_year) ? $standardplan->tis_year : null;
+                $standard->std_title         = !empty($standardplan->tis_name) ? $standardplan->tis_name : null;
+                $standard->std_title_en      = !empty($standardplan->ref_document) ? $standardplan->ref_document : null;
+                $standard->method_id         = !empty($standardplan->method_id) ? $standardplan->method_id : null;
+                $standard->ref_document      = !empty($standardplan->ref_document) ? $standardplan->method_id : null;
+                $standard->reason            = !empty($standardplan->reason_to->title) ? $standardplan->reason_to->title : null;
+                $standard->confirm_time      = !empty($standardplan->confirm_time) ? $standardplan->confirm_time : null;
+                $standard->industry_target   = !empty($standardplan->industry_target) ? $standardplan->industry_target : null;
+                $standard->industry_target   = !empty($standardplan->industry_target) ? $standardplan->industry_target : null;
+                $standard->status_id         =  4;  // ขั้นตอนการดำเนินงาน : อยู่ระหว่างจัดทำมาตรฐานการรับรอง
+                $standard->publish_state     =  1;  // สถานะการเผยแพร่ : รอเผยแพร่
+                $standard->created_by        =  auth()->user()->getKey();
+            }
+                $standard->save(); 
+    }
 
 
 

@@ -25,7 +25,7 @@
     $standard_types  = App\Models\Bcertify\Standardtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');//ข้อมูลประเภทมาตรฐาน
     $methods         = App\Models\Basic\Method::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');//วิธีการ
     $industry_targets= App\Models\Basic\IndustryTarget::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');//อุตสาหกรรมเป้าหมาย/บริการแห่งอนาคต
-    $standard_offers = App\Models\Tis\EstandardOffers::selectRaw('*, CONCAT_WS(" : ", refno, title) AS titles')->whereNotNull('standard_name')->where('state',2)->get();//ความเห็นการกำหนดมาตรฐานการตรวจสอบและรับรอง
+    // $standard_offers = App\Models\Tis\EstandardOffers::selectRaw('*, CONCAT_WS(" : ", refno, title) AS titles')->whereNotNull('standard_name')->where('state',2)->get();//ความเห็นการกำหนดมาตรฐานการตรวจสอบและรับรอง
     $assign_ids      = App\User::select(DB::raw("CONCAT(IF(reg_intital=1, 'นาย', IF(reg_intital=2, 'นางสาว', IF(reg_intital=3, 'นาง', ''))), '' , reg_fname, ' ', reg_lname) AS title"),'runrecno AS id')
                                 ->where('reg_subdepart', 1801)
                                ->orderbyRaw('CONVERT(title USING tis620)')
@@ -395,7 +395,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group" hidden>
                                         {!! Html::decode(Form::label('name', 'เจ้าหน้าที่ที่รับมอบหมาย'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label offers_assign_label'])) !!}
                                         <div class="col-md-9">
                                             {!! Form::select('list[assign_id][]',
@@ -403,6 +403,7 @@
                                                              $offers->assign_id,
                                                             ['class' => 'form-control offers_assign',
                                                              'required' => true,
+                                                              'readonly' => true,
                                                              'placeholder' => '- เลือกเจ้าหน้าที่ที่รับมอบหมาย -'
                                                             ])
                                             !!}

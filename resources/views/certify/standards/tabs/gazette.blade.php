@@ -172,7 +172,7 @@
 </div>
 
 <div class="row">
-    <div class="form-group {{ $errors->has('created_by') ? 'has-error' : ''}}">
+    <div class="form-group {{ $errors->has('created_by') ? 'has-error' : ''}}" hidden>
         {!! Form::label('created_by', 'ผู้บันทึก:', ['class' => 'col-md-3 control-label']) !!}
         <div class="col-md-3">
             <span>{{ !empty($standard->CreatedName)?$standard->CreatedName:(auth()->user()->FullName) }}</span>

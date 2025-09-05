@@ -292,6 +292,7 @@ class SaveAssessmentController extends Controller
                 $n->assessment_date                =  HP::convertDate($request->savedate,true) ?? null;   
                 $n->draft                          = 1;
                 $n->degree                         = $request->degree;
+                $n->submit_type                    = $request->submit_type;
                 $n->report_status                  = $request->report_status;
                 $n->group                          = json_encode($request->auditors ?? []);
                 $n->created_by                     =  auth()->user()->runrecno;

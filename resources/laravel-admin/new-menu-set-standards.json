@@ -106,16 +106,16 @@
                             "url": "\/certify\/appointed-academic-sub-committee"
                         },
                         {
-                            "title": "meetingstandards",
-                            "display": "นัดหมายการประชุม",
-                            "icon": "mdi mdi-chevron-double-right",
-                            "url": "\/certify\/meeting-standards"
-                        },
-                        {
                             "title": "appointed-committee",
                             "display": "ลงนามหนังสือเชิญประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-committee"
+                        },
+                        {
+                            "title": "meetingstandards",
+                            "display": "จัดการการประชุม",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/meeting-standards"
                         }
                     ]
                 },
@@ -124,22 +124,28 @@
                     "display": "เครื่องมือ (ลท.)",
                     "sub_menus":[
                         {
+                            "title": "set-standard-lt",
+                            "display": "มาตรฐานการตรวจสอบและรับรอง",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/set-standard-lt"
+                        },
+                        {
                             "title": "appointed-lt-committee",
                             "display": "หนังสือเชิญประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-lt-committee"
                         },
                         {
-                            "title": "appointed-committee-lt",
-                            "display": "นัดหมายการประชุม",
-                            "icon": "mdi mdi-chevron-double-right",
-                            "url": "\/certify\/appointed-committee-lt"
-                        },
-                        {
                             "title": "appointed-committee-sign-lt",
                             "display": "ลงนามหนังสือเชิญประชุม",
                             "icon": "mdi mdi-chevron-double-right",
                             "url": "\/certify\/appointed-committee-sign-lt"
+                        },
+                        {
+                            "title": "appointed-committee-lt",
+                            "display": "จัดการการประชุม",
+                            "icon": "mdi mdi-chevron-double-right",
+                            "url": "\/certify\/appointed-committee-lt"
                         }
                     ]
                 },

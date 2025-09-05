@@ -43,8 +43,8 @@
         <select name="meeting_group" id="meeting_group" class="form-control" required>
             <option value="">- เลือกประเภท -</option>
            
-            <option value="1" {{ old('meeting_group') === '1' ? 'selected' : '' }}>คณะกำหนด</option>
-            <option value="2" {{ old('meeting_group') === '2' ? 'selected' : '' }}>คณะอนุกรรมการวิชาการ</option>
+            {{-- <option value="1" {{ old('meeting_group') === '1' ? 'selected' : '' }}>คณะกำหนด</option> --}}
+            <option value="2" {{ old('meeting_group') === '2' ? 'selected' : '' }} selected>คณะอนุกรรมการวิชาการ</option>
         </select>
         @if ($errors->has('meeting_group'))
             <p class="help-block">{{ $errors->first('meeting_group') }}</p>
@@ -217,10 +217,10 @@
 
                     <select name="detail[projectid][{{ $item->meetingtype_id }}][]" class="select2-multiple select2 projectid" multiple required>
                            @foreach($standards as $standard)
-                            <option value="{{ $standard->id }}" @if($projectids->contains('id', $standard->id)) selected @endif>
-                                {{ $standard->estandard_plan_to->tis_name }}
-                            </option>
-                        @endforeach
+                                <option value="{{ $standard->id }}" @if($projectids->contains('id', $standard->id)) selected @endif>
+                                {{ str_replace('Req', 'CSD', $standard->estandard_plan_to->estandard_offers_to->refno) }} {{ $standard->estandard_plan_to->tis_name }} 
+                                </option>
+                            @endforeach
                     </select>
 
                     @if($errors->has('projectid'))

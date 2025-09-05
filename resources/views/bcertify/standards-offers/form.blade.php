@@ -73,19 +73,51 @@
     dd($estandardoffers);
 @endphp --}}
 {{-- <div class="form-group {{ $errors->has('objectve') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('objectve', 'จุดประสงค์และเหตุผล'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
+    {!! Html::decode(Form::label('objectve', 'จุดประสงค์และเหตุผล'.' : '.'', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-9">
        {!! Form::text('objectve', null,  ['class' => 'form-control','disabled'=>true]) !!}
         {!! $errors->first('objectve', '<p class="help-block">:message</p>') !!}
     </div>
 </div> --}}
-<div class="form-group {{ $errors->has('stakeholders') ? 'has-error' : ''}}">
+{{-- <div class="form-group {{ $errors->has('stakeholders') ? 'has-error' : ''}}">
     {!! Form::label('stakeholders', 'ผู้มีส่วนได้เสียที่เกี่ยวข้อง'.' : ', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-9">
         {!! Form::text('stakeholders', $estandardoffers->stakeholders ?? '(ไม่มี)',  ['class' => 'form-control','disabled'=>true]) !!}
         {!! $errors->first('stakeholders', '<p class="help-block">:message</p>') !!}
     </div>
+</div> --}}
+
+{{-- <div class="form-group {{ $errors->has('std_type') ? 'has-error' : ''}}">
+    {!! Form::label('std_type', 'ประเภทมาตรฐาน'.' : ', ['class' => 'col-md-3 control-label']) !!}
+    <div class="col-md-9">
+        {!! Form::textarea('std_type', $estandardoffers->stakeholders ?? '(ไม่มี)', ['class' => 'form-control', 'disabled' => true, 'rows' => 3]) !!}
+        {!! $errors->first('std_type', '<p class="help-block">:message</p>') !!}
+
+
+        
+    </div>
+</div> --}}
+
+
+@php
+    $standardTypes = App\Models\Bcertify\Standardtype::orderbyRaw('CONVERT(offertype USING tis620)')->pluck('offertype', 'id');
+@endphp
+<div class="form-group {{ $errors->has('std_type') ? 'has-error' : ''}}">
+    <label for="std_type" class="col-md-3 control-label">ประเภทมาตรฐาน : </label>
+    <div class="col-md-9">
+        <select name="std_type" id="std_type" class="form-control" disabled>
+            @foreach($standardTypes as $id => $offertype)
+                <option value="{{ $id }}" {{ ($estandardoffers->std_type ?? null) == $id ? 'selected' : '' }}>
+                    {{ $offertype }}
+                </option>
+            @endforeach
+        </select>
+        {!! $errors->first('std_type', '<p class="help-block">:message</p>') !!}
+    </div>
 </div>
+
+
+
 
 <div class="form-group">
     <label for="objectve" class="col-md-3 control-label">จุดประสงค์และเหตุผลในการจัดทำ :</label>
@@ -104,6 +136,15 @@
             <option value="sdo_advanced" {{ ($estandardoffers->proposer_type ?? '') == 'sdo_advanced' ? 'selected' : '' }}>SDO ขั้นสูง</option>
             <option value="sdo_basic_or_non_sdo" {{ ($estandardoffers->proposer_type ?? '') == 'sdo_basic_or_non_sdo' ? 'selected' : '' }}>SDO ขั้นต้น หรือหน่วยงานที่ไม่ใช่ SDO</option>
         </select>
+    </div>
+</div>
+
+
+<div class="form-group {{ $errors->has('stakeholders') ? 'has-error' : ''}}">
+    {!! Form::label('stakeholders', 'ผู้มีส่วนได้เสียที่เกี่ยวข้อง'.' : ', ['class' => 'col-md-3 control-label']) !!}
+    <div class="col-md-9">
+        {!! Form::textarea('stakeholders', $estandardoffers->stakeholders ?? '(ไม่มี)', ['class' => 'form-control', 'disabled' => true, 'rows' => 3]) !!}
+        {!! $errors->first('stakeholders', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
 
@@ -248,7 +289,7 @@
 </div>
 
 
-<div class="form-group {{ $errors->has('standard_types') ? 'has-error' : ''}}">
+<div class="form-group {{ $errors->has('standard_types') ? 'has-error' : ''}}" hidden>
     {!! Html::decode(Form::label('standard_types', 'ประเภทมาตรฐาน'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-4">
         {!! Form::select('standard_types',
@@ -267,7 +308,7 @@
 <div class="form-group {{ $errors->has('refno') ? 'has-error' : ''}}" id="div_refno">
     {!! Html::decode(Form::label('refno', 'รหัสความเห็น'.' : ', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-4">
-        {!! Form::text('refno', null,  ['class' => 'form-control not-allowed','readonly'=>true]) !!}
+        {!! Form::text('refno', null,  ['class' => 'form-control','readonly'=>true]) !!}
         {!! $errors->first('refno', '<p class="help-block">:message</p>') !!}
     </div>
 </div>
@@ -390,7 +431,7 @@
         $('#standard_types').change(function(){ 
             checkrefnos();
         });
-        $('#div_refno').hide();
+        // $('#div_refno').hide();
         var checkstate = "{{ $checkstate }}";
         var state          = $('#state').val(); 
 
@@ -428,13 +469,15 @@
                 method:"POST",
                 data:{state:state,standard_types:standard_types,_token:_token},
                 success:function (result){
+
+                // console.log(result);
                     if(result.refno.length){
                             $('#refno').val(result.refno);
                     }
                 }
             })
          }else{
-                $('#div_refno').hide();
+                // $('#div_refno').hide();
          }
     }
 

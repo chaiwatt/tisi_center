@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Certificate\MeetingInvitation;
 use Illuminate\Support\Facades\Mail;   
+use App\Certificate\LtMeetingInvitation;
 use App\Mail\Certify\MeetingAppointment;
 use App\Services\MeetingAppointmentCommitteePdf;
 
@@ -20,24 +21,39 @@ class AppointedCommitteeController extends Controller
 
         $model = str_slug('appointed-committee','-');
         if(auth()->user()->can('view-'.$model)) {
-            // $meetingInvitations = MeetingInvitation::whereHas('setStandards', function ($query) {
-            //        $query->where('status_id', 0)
-            //         ->orWhere('status_sub_appointment_id', 0);
-            //     })
-            //     ->whereHas('signer.user', function ($query) {
-            //         $query->where('runrecno', auth()->user()->runrecno);
-            //     })
-            //     ->where('status', 2) // เพิ่มเงื่อนไข status = 2
-            //     ->with(['setStandards', 'signer.user'])->get();
 
-                $meetingInvitations = MeetingInvitation::whereHas('signer.user', function ($query) {
-                    $query->where('runrecno', auth()->user()->runrecno);
-                })
-                ->where('status', 2) // เพิ่มเงื่อนไข status = 2
-                ->with(['setStandards', 'signer.user'])->get();
+
+                // $meetingInvitations = MeetingInvitation::whereHas('signer.user', function ($query) {
+                //     $query->where('runrecno', auth()->user()->runrecno);
+                // })
+                // ->where('status', 2) // เพิ่มเงื่อนไข status = 2
+                // ->with(['setStandards', 'signer.user'])->get();
+
+                // 1. ดึงข้อมูลชุดแรก (LtMeetingInvitation)
+        // สังเกตว่าเปลี่ยนชื่อตัวแปรเป็น $ltMeetingInvitations เพื่อไม่ให้ซ้ำกัน
+        $ltMeetingInvitations = LtMeetingInvitation::whereHas('signer.user', function ($query) {
+                $query->where('runrecno', auth()->user()->runrecno);
+            })
+            ->where('status', 2)
+            ->with(['signer.user'])
+            ->get();
+
+        // 2. ดึงข้อมูลชุดที่สอง (MeetingInvitation)
+        // เปลี่ยนชื่อตัวแปรเป็น $regularMeetingInvitations
+        $regularMeetingInvitations = MeetingInvitation::whereHas('signer.user', function ($query) {
+                $query->where('runrecno', auth()->user()->runrecno);
+            })
+            ->where('status', 2)
+            ->with(['setStandards', 'signer.user'])
+            ->get();
+
+        // 3. รวม Collection ทั้งสองเข้าด้วยกัน
+        // สามารถเรียงลำดับตามวันที่สร้างล่าสุดได้ด้วย sortByDesc
+        $allMeetingInvitations = $ltMeetingInvitations->merge($regularMeetingInvitations)
+                                                    ->sortByDesc('created_at');
 
             return view('certify.appointed-committee.index',[
-                'meetingInvitations' => $meetingInvitations
+                'allMeetingInvitations' => $allMeetingInvitations
             ]);
         }
         abort(403);

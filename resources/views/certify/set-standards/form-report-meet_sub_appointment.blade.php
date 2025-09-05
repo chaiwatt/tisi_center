@@ -117,7 +117,7 @@
  
 
 <div class="form-group {{ $errors->has('attach') ? 'has-error' : ''}}">
-    {!! Html::decode(Form::label('attach', 'เอกสารที่เกี่ยวข้อง<br> เช่น สาระการประชุมหรืออื่น ๆ'.' <span class="text-danger">*</span> : ', ['class' => 'col-md-3 control-label'])) !!}
+    {!! Html::decode(Form::label('attach', 'เอกสารที่เกี่ยวข้อง<br> เช่น วาระการประชุมหรืออื่น ๆ'.' <span class="text-danger">*</span> : ', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-9  repeater-form-file4" >
         <div class="row" data-repeater-list="repeater-attach_step4">
             @php

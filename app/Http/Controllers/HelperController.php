@@ -508,6 +508,24 @@ class HelperController extends Controller
         // if (!$admin->hasPermission($appointed_committee_sign_lt_delete)) {
         //     $admin_role->givePermissionTo($appointed_committee_sign_lt_delete);
         // }
+
+        // $set_standard_lt_add    = Permission::firstOrCreate(['name' => 'add-set-standard-lt']);
+        // $set_standard_lt_view   = Permission::firstOrCreate(['name' => 'view-set-standard-lt']);
+        // $set_standard_lt_edit   = Permission::firstOrCreate(['name' => 'edit-set-standard-lt']);
+        // $set_standard_lt_delete = Permission::firstOrCreate(['name' => 'delete-set-standard-lt']);
+
+        // if (!$admin->hasPermission($set_standard_lt_add)) {
+        //     $admin_role->givePermissionTo($set_standard_lt_add);
+        // }
+        // if (!$admin->hasPermission($set_standard_lt_view)) {
+        //     $admin_role->givePermissionTo($set_standard_lt_view);
+        // }
+        // if (!$admin->hasPermission($set_standard_lt_edit)) {
+        //     $admin_role->givePermissionTo($set_standard_lt_edit);
+        // }
+        // if (!$admin->hasPermission($set_standard_lt_delete)) {
+        //     $admin_role->givePermissionTo($set_standard_lt_delete);
+        // }
         return "done";
 
     }

@@ -32,10 +32,13 @@ class AppointedAcademicSubCommitteeController extends Controller
             //     ->with('setStandards') // Eager load เพื่อลด query
             //     ->get();
 
-                    $meetingInvitations = MeetingInvitation::whereIn('status',[1,2,3])
+            $meetingInvitations = MeetingInvitation::whereIn('status',[1,2,3])
                 ->with('setStandards') // Eager load เพื่อลด query
+                ->where('type',"2") 
                 ->orderBy('id','desc')
-                ->get();
+                // ->get();
+                ->paginate(10);
+
                 
                 
 
@@ -48,9 +51,9 @@ class AppointedAcademicSubCommitteeController extends Controller
         abort(403);
     }
 
-    public function create()
+    public function create($id = null)
     {
-       
+    //    dd("ok");
         $model = str_slug('appointed-academic-sub-committee','-');
         $singers = Signer::all();
         // $setStandards = SetStandards::whereHas('estandard_plan_to', function ($query) {
@@ -61,15 +64,53 @@ class AppointedAcademicSubCommitteeController extends Controller
         //         ->get();
 
 
-        $setStandards = SetStandards::query()
-            // เงื่อนไขแรก: ต้องมี estandard_plan_to ที่ approve แล้ว
-            ->whereHas('estandard_plan_to', function ($query) {
-                $query->whereNotNull('approve');
-            })
-            // เงื่อนไขที่สอง: และต้องไม่มีข้อมูลเชื่อมไปที่ตาราง Standard
-            ->doesntHave('standards') // <-- เพิ่มส่วนนี้
-            ->orderBy('id', 'desc')
-            ->get();
+        // $setStandards = SetStandards::query()
+        //     // เงื่อนไขแรก: ต้องมี estandard_plan_to ที่ approve แล้ว
+        //     ->whereHas('estandard_plan_to', function ($query) {
+        //         $query->whereNotNull('approve');
+        //     })
+        //     // เงื่อนไขที่สอง: และต้องไม่มีข้อมูลเชื่อมไปที่ตาราง Standard
+        //     ->doesntHave('standards') // <-- เพิ่มส่วนนี้
+        //     ->orderBy('id', 'desc')
+        //     ->get();
+
+
+        // เก็บ user id ไว้ในตัวแปรเพื่อความสะอาดของโค้ด
+            // เก็บ user id ไว้ในตัวแปร
+            $userId = auth()->user()->runrecno;
+
+            if($id == null){
+                $setStandards = SetStandards::query()
+                ->whereHas('estandard_plan_to', function ($query) {
+                    $query->whereNotNull('approve');
+                })
+                ->doesntHave('standards')
+                ->whereHas('estandard_plan_to.estandard_offers_to.tisi_estandard_offers_asigns', function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
+                ->orderBy('id', 'desc')
+                ->get();
+            }else{
+
+                $setStandards = SetStandards::query()
+                    ->whereHas('estandard_plan_to', function ($query) {
+                        $query->whereNotNull('approve');
+                    })
+                    ->doesntHave('standards')
+                    ->whereHas('estandard_plan_to.estandard_offers_to', function ($query) use ($id) {
+                        $query->where('id', $id);
+                    })
+                    ->whereHas('estandard_plan_to.estandard_offers_to.tisi_estandard_offers_asigns', function ($query) use ($userId) {
+                        $query->where('user_id', $userId);
+                    })
+                    
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
+
+
+
+            // dd($setStandards);
 
         // $setStandards = SetStandards::whereHas('estandard_plan_to') // <-- ตรวจสอบแค่ว่ามี relation อยู่หรือไม่
         //     ->where(function ($query) {
@@ -90,7 +131,7 @@ class AppointedAcademicSubCommitteeController extends Controller
 
     public function store(Request $request)
     {
-
+// dd($request->all());
         $validatedData = $request->validate([
             'doc_type' => 'required|in:1,2', // ต้องระบุและต้องเป็น 1 หรือ 2
             'header' => 'required|string|max:255', // ต้องระบุและไม่เกิน 255 ตัวอักษร

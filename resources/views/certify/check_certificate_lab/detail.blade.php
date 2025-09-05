@@ -373,6 +373,8 @@
                             $assessment_url =  '';
                             $notice = $item->assessment_to->notice();
                         @endphp
+
+                     
                         @if ($notice !== null)
                             @php
                                 
@@ -395,6 +397,10 @@
                                 }
                             @endphp
 
+                        {{-- @php
+                           dd($notice,$notice->submit_type);
+                       @endphp --}}
+                        
                             @if ($notice->submit_type == 'confirm' || $notice->submit_type == null)
                                     <a class="btn {{$assessment_btn}}"  href="{{  $assessment_url }}" style="width:750px;text-align: left">   {{$item->auditor}}</a>
                                 @elseif($notice->submit_type == 'save')

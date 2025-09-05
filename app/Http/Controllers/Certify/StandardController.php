@@ -8,21 +8,22 @@ use DB;
 use App\User;
 use stdClass;
 
+use App\RoleUser;
 use App\AttachFile;
 use App\Http\Requests;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Models\Besurv\Signer;
-use App\Models\Certify\Gazette;
 
+use App\Models\Certify\Gazette;
 use App\Models\Certify\Standard;
 use Yajra\Datatables\Datatables;
-use App\Mail\CertifyStandardIsbn;
 
+use App\Mail\CertifyStandardIsbn;
 use App\Models\Certify\IsbnRequest;
 use App\Models\Certify\StandardIcs;
-use App\Http\Controllers\Controller;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Certify\GazetteStandard;
 use Illuminate\Support\Facades\Storage;
@@ -184,6 +185,12 @@ class StandardController extends Controller
                                         })
                                         ->addColumn('status_id', function ($item) {
                                             return   !empty($item->SetStandardStatus) ? $item->SetStandardStatus : '';
+                                        })
+                                        ->addColumn('ref_no', function ($item) {
+                                            $original_refno = !empty($item->set_standard_to->estandard_plan_to->estandard_offers_to->refno) 
+                                                            ? $item->set_standard_to->estandard_plan_to->estandard_offers_to->refno 
+                                                            : '';
+                                            return str_replace('Req', 'CSD', $original_refno);
                                         })
                                         ->addColumn('publish_state', function ($item) {
                                             return   !empty($item->PublishStatus) ? $item->PublishStatus : '';
@@ -358,7 +365,7 @@ class StandardController extends Controller
 
     public function edit($id)
     {
-       
+    //    dd("ok");
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('edit-'.$model)) {
             $standard = Standard::findOrFail($id);
@@ -444,11 +451,25 @@ class StandardController extends Controller
             $standard->gazette_file             =  !empty($file_gazette->url) ? $file_gazette->url:null; 
 
 
+            // dd("okdd");
             // $isbn_number = "12345";
             // $status_text = "อนุมัติเลข ISBN";
             // $admin_msg = "ว้าว ๆ";
             // $request_status = 4;
-            return view('certify/standards.edit', compact('standard','standard_ics','standard_sendmail','isbn_number','status_text','admin_msg','request_status'));
+
+
+            $excluded_user_ids = RoleUser::select('user_runrecno')->where('role_id', 44);
+            $select_users  = User::select(DB::raw("CONCAT(reg_fname,' ',reg_lname) AS title"),'runrecno')
+                                        // ->whereIn('runrecno',$user_ids)
+                                        ->where('reg_subdepart', (auth()->user()->reg_subdepart ?? ''))
+                                        ->whereNotIn('runrecno', $excluded_user_ids) 
+                                        ->where('status', 1)
+                                        ->orderbyRaw('CONVERT(title USING tis620)')
+                                        ->pluck('title','runrecno');
+
+            // dd($select_users);
+            
+            return view('certify/standards.edit', compact('standard','standard_ics','standard_sendmail','isbn_number','status_text','admin_msg','request_status','select_users'));
         }
           abort(403);
     }
@@ -608,9 +629,11 @@ class StandardController extends Controller
 
                 // }
 
+                StandardIcs::where('std_id',$standard->id)->delete();
 
                 $input['std_id']    = $standard->id;
                 $input['ics_id']    = $request->ics;
+                $input['ics_text']    = $request->ics;
                 $input['created_by']     = auth()->user()->getKey();
                 StandardIcs::create($input);
 

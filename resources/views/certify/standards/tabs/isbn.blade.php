@@ -45,7 +45,7 @@
     </div>
 </div>
 
-<div class="form-group isbn_by {{ $errors->has('isbn_by') ? 'has-error' : ''}}">
+<div class="form-group isbn_by {{ $errors->has('isbn_by') ? 'has-error' : ''}}" hidden>
     {!! Form::label('isbn_by', 'ผู้ดำเนินการระบุเลข:', ['class' => 'col-md-3 control-label']) !!}
     <div class="col-md-7">
         {!! Form::text('isbn_by',null, ['class' => 'form-control', 'readonly'=>  (!empty($standard->isbn_by)?true:false) ]) !!}
@@ -54,14 +54,14 @@
 </div>
 
 <div class="row">
-    <div class="form-group {{ $errors->has('created_by') ? 'has-error' : ''}}">
+    <div class="form-group {{ $errors->has('created_by') ? 'has-error' : ''}}" hidden>
         {!! Form::label('created_by', 'ผู้บันทึก:', ['class' => 'col-md-3 control-label']) !!}
         <div class="col-md-3">
             <span>{{ !empty($standard->CreatedName)?$standard->CreatedName:(auth()->user()->FullName) }}</span>
         </div>
     </div>
 
-    <div class="form-group {{ $errors->has('created_at') ? 'has-error' : ''}}">
+    <div class="form-group {{ $errors->has('created_at') ? 'has-error' : ''}}" hidden>
         {!! Form::label('created_at', 'วันที่บันทึก:', ['class' => 'col-md-3 control-label']) !!}
         <div class="col-md-3">
             <span>{{ HP::DateTimeFullThai(date('Y-m-d H:m:s')) }}</span>

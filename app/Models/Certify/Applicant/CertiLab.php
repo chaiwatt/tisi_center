@@ -350,6 +350,7 @@ class CertiLab extends Model
     public function getBranchTitleAttribute() {
         $data = HP::getArrayFormSecondLevel($this->certi_test_scope->toArray(), 'branch_id');
         // $datas = DB::table('bcertify_test_branches')->whereIn('id', $data)->pluck('title')->toArray();
+        $data = array_unique($data);
         $datas = [];
         foreach ($data as $key => $list) {
             $branches = DB::table('bcertify_test_branches')->where('id',$list)->first() ;
@@ -362,6 +363,7 @@ class CertiLab extends Model
     public function getClibrateBranchTitleAttribute() {
         $data = HP::getArrayFormSecondLevel($this->certi_lab_calibrate->toArray(), 'branch_id');
         // $datas = DB::table('bcertify_calibration_branches')->whereIn('id', $data)->pluck('title')->toArray();
+        $data = array_unique($data);
         $datas = [];
         foreach ($data as $key => $list) {
             $branches = DB::table('bcertify_calibration_branches')->where('id',$list)->first() ;

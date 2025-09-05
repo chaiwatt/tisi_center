@@ -155,7 +155,7 @@
                                 <th width="1%" class="text-center">#</th>
                                 <th width="1%" ><input type="checkbox" id="checkall"></th>
                                 <th width="10%" >ร่างแผนปี</th>
-                                <th width="15%" >คำขอ</th>
+                                <th width="15%" >รหัสมาตรฐาน</th>
                                 {{-- <th width="20%" class="">คำขอ</th> --}}
                                 <th width="15%" >มาตรฐาน</th>
                                 <th width="20%" >มอบหมาย</th>

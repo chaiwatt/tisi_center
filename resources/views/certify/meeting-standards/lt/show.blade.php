@@ -1,3 +1,4 @@
+{{-- AppointedCommitteeLtController --}}
 @extends('layouts.master')
 
 @section('content')
@@ -5,7 +6,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="white-box">
-                <h3 class="box-title">บันทึกผลการประชุม</h3>
+                <h3 class="box-title">บันทึกผลการประชุม ลท</h3>
                 <hr>
 
                 {{-- 

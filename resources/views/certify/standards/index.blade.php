@@ -148,7 +148,9 @@
                                         <tr>
                                             <th width="2%"><input type="checkbox" id="checkall"></th>
                                             <th width="2%" class="text-center">No.</th>
+                                            <th width="10%" class="text-center">รหัสมาตรฐาน</th>
                                             <th width="15%" class="text-center">ชื่อมาตรฐาน</th>
+                                            
                                              <th width="8%" class="text-center">เลขมาตรฐาน</th>
                                             <th width="20%" class="text-center">ประเภทมาตรฐาน</th>
                                            
@@ -242,12 +244,14 @@
               }
           },
           columns: [
-              { data: 'checkbox', searchable: false, orderable: false},
+            { data: 'checkbox', searchable: false, orderable: false},
             
-              { data: 'DT_Row_Index', searchable: false, orderable: false},
-                  { data: 'std_title', name: 'std_title' },
-                    { data: 'std_no', name: 'std_no' }, 
-              { data: 'set_standard_id', name: 'set_standard_id' },
+            { data: 'DT_Row_Index', searchable: false, orderable: false},
+                   { data: 'ref_no', name: 'ref_no', className: 'text-center' },
+             { data: 'status_id', name: 'status_id' },
+     
+            { data: 'std_no', name: 'std_no' }, 
+            { data: 'set_standard_id', name: 'set_standard_id' },
             
             
               { data: 'status_id', name: 'status_id' },

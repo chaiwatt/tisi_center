@@ -29,7 +29,7 @@ class StandardIcs extends Model
      *
      * @var array
      */
-    protected $fillable = ['std_id', 'ics_id', 'created_by', 'updated_by'];
+    protected $fillable = ['std_id', 'ics_id', 'created_by', 'updated_by','ics_text'];
 
     /*
       Sorting

@@ -18,7 +18,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">หนังสือเชิญประชุม รม</h3>
+                    <h3 class="box-title pull-left">หนังสือเชิญประชุม มร.</h3>
 
                     <div class="pull-right">
                         <a class="btn btn-success btn-sm waves-effect waves-light" href="{{ url('/certify/appointed-academic-sub-committee/create') }}">
@@ -86,18 +86,29 @@
                                 <tr>
                                     <th width="1%" class="text-center">#</th>
                                     <th width="15%" >เรื่อง</th>
+                                     <th width="15%" class="text-center" >วันที่สร้าง</th>
                                     <th width="10%" class="text-center">สถานะ</th>
                                     <th width="15%" class="text-center">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($meetingInvitations as $meetingInvitation)
+                                      {{-- @php
+                                    dd($meetingInvitation);
+                                @endphp --}}
+
+                                    
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td>
                                             {{ $meetingInvitation->subject}}
                                         </td>
-                                        <td class="text-center">
+
+                                            <td class="text-center">
+                                            {{-- {{ $meetingInvitation->created_at}} --}}
+                                            {{ $meetingInvitation->created_at->addYears(543)->format('d/m/Y') }}
+                                        </td>
+                                        {{-- <td class="text-center">
                                             @if ($meetingInvitation->status == 1)
                                                     ร่าง
                                                 @elseif ($meetingInvitation->status == 2)
@@ -107,8 +118,20 @@
                                                 @else
                                                     ไม่ทราบสถานะ
                                                 @endif
+                                        </td> --}}
+                                        <td class="text-center">
+                                            @if ($meetingInvitation->status == 1)
+                                                <span class="badge bg-secondary">ร่าง</span>
+                                            @elseif ($meetingInvitation->status == 2)
+                                                <span class="badge bg-warning text-dark">ส่งลงนาม</span>
+                                            @elseif ($meetingInvitation->status == 3)
+                                                <span class="badge bg-success">ลงนามแล้ว</span>
+                                            @else
+                                                <span class="badge bg-danger">ไม่ทราบสถานะ</span>
+                                            @endif
                                         </td>
                                         <td class="text-center">
+                                             {{-- {{$meetingInvitation->type}} --}}
                                             @can('view-' . str_slug('appointed-academic-sub-committee'))
                                                 <a href="{{ route('certify.appointed-academic-sub-committee.view', $meetingInvitation->id) }}" class="btn btn-sm btn-info" title="ดู">
                                                     <i class="fa fa-eye"></i>
@@ -123,6 +146,9 @@
                                 @endforeach
                             </tbody>
                         </table>
+                           <div class="pagination-wrapper text-left">
+                            {!! $meetingInvitations->links() !!}
+                        </div>
                     </div>
                 </div>
            

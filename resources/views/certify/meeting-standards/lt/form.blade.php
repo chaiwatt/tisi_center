@@ -1,3 +1,4 @@
+{{-- AppointedCommitteeLtController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')}}" rel="stylesheet" />
@@ -33,6 +34,22 @@
     }
 </style>
 @endpush
+
+<div class="form-group {{ $errors->has('doc_type') ? 'has-error' : '' }}">
+    <label for="doc_type" class="col-md-3 control-label">ประเภท:</label>
+    <div class="col-md-8">
+        <select name="doc_type" id="doc_type" class="select2 form-control" data-placeholder="- เลือกประเภท -">
+            <option></option>
+            <option value="1" {{ old('doc_type') == '1' ? 'selected' : '' }}>พิจารณาคำขอ</option>
+            <option value="2" {{ old('doc_type') == '2' ? 'selected' : '' }}>พิจารณามาตรฐาน</option>
+        </select>
+        @if ($errors->has('doc_type'))
+            <p class="help-block">{{ $errors->first('doc_type') }}</p>
+        @endif
+    </div>
+</div>
+
+
 <div class="form-group {{ $errors->has('title') ? 'has-error' : ''}}">
     {!! Html::decode(Form::label('title', 'การประชุมครั้งที่'.' : '.'<span class="text-danger">*</span>', ['class' => 'col-md-3 control-label'])) !!}
     <div class="col-md-8">
@@ -113,6 +130,7 @@
 
     <div class="col-md-8">
         <select name="commitee_id" id="commitee_id" class="form-control select2" required data-placeholder="-เลือกผู้เข้าร่วม-">
+            <option value="">-เลือกผู้เข้าร่วม-</option>
             @foreach ($committeeOptions as $id => $committee_group)
                 <option value="{{ $id }}" 
                     {{ (isset($meetingstandard_commitees) && is_array($meetingstandard_commitees) && in_array($id, $meetingstandard_commitees)) ? 'selected' : '' }}>
@@ -126,9 +144,9 @@
     </div>
 </div>
 
-<div class="form-group {{ $errors->has('draft_plan_id') ? 'has-error' : '' }}">
+<div class="form-group {{ $errors->has('draft_plan_id') ? 'has-error' : '' }}" id="draft_std_wrapper">
     <label for="draft_plan_id" class="col-md-3 control-label">
-        <span class="select-label">แผนร่างมาตรฐาน :</span>
+        <span class="select-label">ร่างแผนมาตรฐาน:</span>
         <span class="text-danger select-label">*</span>
     </label>
 
@@ -147,6 +165,56 @@
         @endif
     </div>
 </div>
+
+
+<div class="form-group {{ $errors->has('detail') ? 'has-error' : ''}}" id="std_wrapper">
+    {!! Html::decode(Form::label('detail', '<span class="select-label">มาตรฐาน :</span>'.'<span class="text-danger select-label">*</span>', ['class' => 'col-md-3 control-label '])) !!}
+    <div class="col-md-8">
+        @if(count($setstandard_meeting_types) > 0 )
+            @php
+                if(!empty($meetingstandard) && $meetingstandard->status_id >= 4){
+                    $standards =  App\Models\Certify\SetStandards::pluck('projectid', 'id');
+                }
+            @endphp
+            @foreach($setstandard_meeting_types as $item)
+                @php
+                    $projectids =  App\Models\Certify\CertifySetstandardMeetingType::where('meetingtype_id',$item->meetingtype_id)->where('setstandard_meeting_id',@$meetingstandard->id)->pluck('setstandard_id');
+                @endphp
+                    <div hidden>
+                        @php
+                            $meetingTypes = App\Models\Bcertify\Meetingtype::orderbyRaw('CONVERT(title USING tis620)')->pluck('title', 'id');
+                            $selectedId = $meetingTypes->keys()->first();
+                        @endphp
+
+                        {!! Form::select('detail[meetingtype_id][]',
+                            $meetingTypes,
+                            $selectedId,
+                            [
+                                'class' => 'form-control select2 meetingtype_id',
+                                'required' => true
+                            ]
+                        ) !!}
+                    </div>
+                    <div>
+                        {{-- <select name="detail[projectid][{{ $item->meetingtype_id }}][]" class="select2-multiple select2 projectid" multiple> --}}
+                        <select name="detail[projectid][{{ $item->meetingtype_id }}][]" class="select2-multiple select2 projectid" id="standard_project_id" multiple required data-placeholder="-เลือกมาตรฐาน-">
+                            {{-- @foreach($standards as $standard)
+                                    <option value="{{ $standard->id }}" @if($projectids->contains('id', $standard->id)) selected @endif>
+                                    {{ str_replace('Req', 'CSD', $standard->estandard_plan_to->estandard_offers_to->refno) }} {{ $standard->estandard_plan_to->tis_name }} 
+                                    </option>
+                                @endforeach --}}
+                        </select>
+
+                        @if($errors->has('projectid'))
+                            <p class="help-block">{{ $errors->first('projectid') }}</p>
+                        @endif
+                    </div>
+            @endforeach  
+        @endif
+    </div>
+</div>
+
+
 
  @if (!empty($meetingstandard))
    @if (!empty($meetingstandard->meeting_group))
@@ -351,6 +419,10 @@
   <script>
     
     $(document).ready(function () {
+
+        $('#draft_std_wrapper').hide();
+        $('#std_wrapper').hide();
+
         @if(!empty($meetingstandard->status_id) && $meetingstandard->status_id ==  2)
                $('#form-meetingstandard').find('input, select, textarea').attr('disabled', true);
                $('#form-meetingstandard').find('.meetingstandard_remove').remove();
@@ -491,5 +563,178 @@
         function checkNone(value) {
             return value !== '' && value !== null && value !== undefined;
              }
+
+
+// $(document).on('change', '#doc_type', function() {
+//     var doc_type_id = $(this).val();
+//     // **เปลี่ยนเป้าหมายมาเป็น select ที่ถูกต้อง**
+//     var setStandardSelect = $('#draft_plan_id');
+
+//     if (!doc_type_id) {
+//         setStandardSelect.empty().trigger('change');
+//         $('#draft_std_wrapper').hide(); // ซ่อน wrapper
+//         $('#std_wrapper').hide();       // ซ่อน wrapper
+//         return;
+//     }
+//     setStandardSelect.empty().append('<option value="">Loading...</option>').prop('disabled', true).trigger('change');
+
+//     if(doc_type_id == 1){
+//         $('#draft_std_wrapper').show(); // แสดง wrapper ของประเภท 1
+//         $('#std_wrapper').hide();       // ซ่อน wrapper ของประเภท 2
+//         $.ajax({
+//             url: "{{ route('certify.meeting-standards.lt.plan-list') }}", // ตรวจสอบว่า route ถูกต้อง
+//             type: 'GET',
+//             data: { doc_type_id: doc_type_id },
+//             success: function(response) {
+//                 setStandardSelect.empty().prop('disabled', false);
+//                 if (response && response.length > 0) {
+//                     $.each(response, function(index, plan) {
+//                         let planText = 'N/A';
+//                         if (plan.estandard_offers_to) {
+//                             planText = `${plan.estandard_offers_to.standard_name} (${plan.estandard_offers_to.refno})`;
+//                         }
+//                         var newOption = new Option(planText, plan.id, false, false);
+//                         setStandardSelect.append(newOption);
+//                     });
+//                 }
+//                 setStandardSelect.trigger('change');
+//             },
+//             error: function(xhr, status, error) {
+//                 console.error("AJAX Error: " + status + error);
+//                 setStandardSelect.empty().prop('disabled', false);
+//                 setStandardSelect.trigger('change');
+//             }
+//         });
+//     }
+//     else
+//     {
+//         $('#draft_std_wrapper').hide(); // ซ่อน wrapper ของประเภท 1
+//         $('#std_wrapper').show();       // แสดง wrapper ของประเภท 2
+
+//         // ใช้ class 'projectid' ที่อยู่ใน '#std_wrapper' เป็นเป้าหมาย
+//         var standardSelect = $('#std_wrapper').find('.projectid'); // <== เป้าหมายที่ 2 (ที่ถูกต้อง)
+//         standardSelect.empty().prop('disabled', true).trigger('change');
+
+//         $.ajax({
+//             url: "{{ route('certify.meeting-standards.lt.std-list') }}", // ตรวจสอบว่า route ถูกต้อง
+//             type: 'GET',
+//             data: { doc_type_id: doc_type_id },
+//             success: function(response) {
+//                 setStandardSelect.empty().prop('disabled', false);
+
+//                 if (response && response.length > 0) {
+//                     // วนลูปข้อมูล standards ที่ได้จาก server
+//                     $.each(response, function(index, standard) {
+//                         let stdText = 'ข้อมูลไม่ครบถ้วน';
+//                         // ตรวจสอบว่ามีข้อมูลที่ต้องการครบหรือไม่
+//                         if (standard.estandard_plan_to && standard.estandard_plan_to.estandard_offers_to) {
+//                             let standardName = standard.estandard_plan_to.estandard_offers_to.standard_name;
+//                             let refno = standard.estandard_plan_to.estandard_offers_to.refno;
+//                             stdText = `${standardName} (${refno})`;
+//                         }
+//                         // สร้าง Option ใหม่ โดย value คือ id ของ SetStandards
+//                         var newOption = new Option(stdText, standard.id, false, false);
+//                         setStandardSelect.append(newOption);
+//                     });
+//                 }
+                
+//                 setStandardSelect.trigger('change');
+//             },
+//             error: function(xhr, status, error) {
+//                  console.error("AJAX Error: " + status + error);
+//                 setStandardSelect.empty().prop('disabled', false).trigger('change');
+//             }
+//         });
+//     }
+
+
+// });
+
+$(document).on('change', '#doc_type', function() {
+    var doc_type_id = $(this).val();
+    
+    // กำหนดตัวแปรของ select ทั้งสองไว้ก่อนเพื่อง่ายต่อการเรียกใช้
+    var draftPlanSelect = $('#draft_plan_id');
+    var standardSelect = $('#standard_project_id');
+
+    // ซ่อน wrapper และยกเลิก require ทั้งหมดก่อนหากไม่มีการเลือก
+    if (!doc_type_id) {
+        $('#draft_std_wrapper').hide();
+        $('#std_wrapper').hide();
+        draftPlanSelect.prop('required', false); // เพิ่ม/ลบ: ยกเลิก require
+        standardSelect.prop('required', false);  // เพิ่ม/ลบ: ยกเลิก require
+        return;
+    }
+
+    // --- กรณี 1: พิจารณาคำขอ ---
+    if (doc_type_id == 1) {
+        $('#draft_std_wrapper').show();
+        $('#std_wrapper').hide();
+        
+        draftPlanSelect.prop('required', true);   // เพิ่ม/ลบ: กำหนดให้ require
+        standardSelect.prop('required', false);   // เพิ่ม/ลบ: ยกเลิก require
+        
+        draftPlanSelect.empty().append('<option value="">Loading...</option>').prop('disabled', true).trigger('change');
+
+        $.ajax({
+            url: "{{ route('certify.meeting-standards.lt.plan-list') }}",
+            type: 'GET',
+            success: function(response) {
+                draftPlanSelect.empty().prop('disabled', false);
+                if (response && response.length > 0) {
+                    $.each(response, function(index, plan) {
+                        let planText = 'N/A';
+                        if (plan.estandard_offers_to) {
+                            planText = `${plan.estandard_offers_to.standard_name} (${plan.estandard_offers_to.refno})`;
+                        }
+                        var newOption = new Option(planText, plan.id, false, false);
+                        draftPlanSelect.append(newOption);
+                    });
+                }
+                draftPlanSelect.trigger('change');
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error (plan-list): " + status + error);
+                draftPlanSelect.empty().prop('disabled', false).trigger('change');
+            }
+        });
+    } 
+    // --- กรณี 2: พิจารณามาตรฐาน ---
+    else if (doc_type_id == 2) {
+        $('#draft_std_wrapper').hide();
+        $('#std_wrapper').show();
+        
+        draftPlanSelect.prop('required', false);  // เพิ่ม/ลบ: ยกเลิก require
+        standardSelect.prop('required', true);    // เพิ่ม/ลบ: กำหนดให้ require
+        
+        standardSelect.empty().append('<option value="">Loading...</option>').prop('disabled', true).trigger('change');
+
+        $.ajax({
+            url: "{{ route('certify.meeting-standards.lt.std-list') }}",
+            type: 'GET',
+            success: function(response) {
+                standardSelect.empty().prop('disabled', false);
+                if (response && response.length > 0) {
+                    $.each(response, function(index, standard) {
+                        let standardText = 'ข้อมูลไม่ครบถ้วน';
+                        if (standard.estandard_plan_to && standard.estandard_plan_to.estandard_offers_to) {
+                            let refno = standard.estandard_plan_to.estandard_offers_to.refno || '';
+                            let tisName = standard.estandard_plan_to.tis_name;
+                            let newRefno = refno.replace('Req', 'CSD');
+                            standardText = `${newRefno} ${tisName}`;
+                        }
+                        var newOption = new Option(standardText, standard.id, false, false);
+                        standardSelect.append(newOption);
+                    });
+                }
+                standardSelect.trigger('change');
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error (std-list): " + status, error);
+                standardSelect.empty().prop('disabled', false).trigger('change');
+            }
+        });
+    }
+});
 </script>
 @endpush

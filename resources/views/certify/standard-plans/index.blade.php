@@ -151,7 +151,7 @@
                                 <th width="1%" >#</th>
                                 {{-- <th  width="1%" ><input type="checkbox" id="checkall"></th> --}}
                                 <th width="10%" >ร่างแผนปี</th>
-                                <th width="20%" >คำขอ</th>
+                                <th width="10%" >รหัสมาตรฐาน</th>
                                  <th  width="15%" >ชื่อมาตรฐาน</th>
                                 <th width="20%" >ประเภทมาตรฐาน</th>
                                

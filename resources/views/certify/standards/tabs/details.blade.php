@@ -35,7 +35,7 @@
     <div class="form-group required{{ $errors->has('user_by') ? 'has-error' : ''}}">
         {!! Form::label('user_by', 'เจ้าหน้าที่ขอเลข ISBN :', ['class' => 'col-md-3 control-label']) !!}
         <div class="col-md-7">
-            {!! Form::select('user_by[]', $UserRoleISBN , !empty($standard_sendmail)?$standard_sendmail:null, ['class' => 'select2-multiple', 'multiple'=>'multiple', 'id'=>'user_by', 'data-placeholder'=>'- เลือก เจ้าหน้าที่กรอกเลข ISBN -']) !!}
+            {!! Form::select('user_by[]', $select_users , !empty($standard_sendmail)?$standard_sendmail:null, ['class' => 'select2-multiple', 'multiple'=>'multiple', 'id'=>'user_by', 'data-placeholder'=>'- เลือก เจ้าหน้าที่กรอกเลข ISBN -']) !!}
             {!! $errors->first('user_by', '<p class="help-block">:message</p>') !!}
         </div>
     </div>
@@ -120,14 +120,14 @@
 </div>
 
 <div class="row">
-    <div class="form-group {{ $errors->has('created_by') ? 'has-error' : ''}}">
+    <div class="form-group {{ $errors->has('created_by') ? 'has-error' : ''}}" hidden>
         {!! Form::label('created_by', 'ผู้บันทึก:', ['class' => 'col-md-3 control-label']) !!}
         <div class="col-md-3">
             <span>{{ !empty($standard->CreatedName)?$standard->CreatedName:(auth()->user()->FullName) }}</span>
         </div>
     </div>
 
-    <div class="form-group {{ $errors->has('created_at') ? 'has-error' : ''}}">
+    <div class="form-group {{ $errors->has('created_at') ? 'has-error' : ''}}" hidden>
         {!! Form::label('created_at', 'วันที่บันทึก:', ['class' => 'col-md-3 control-label']) !!}
         <div class="col-md-3">
             <span>{{ HP::DateTimeFullThai(date('Y-m-d H:m:s')) }}</span>

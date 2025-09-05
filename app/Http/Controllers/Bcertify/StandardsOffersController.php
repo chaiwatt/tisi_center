@@ -39,7 +39,7 @@ class StandardsOffersController extends Controller
 
     public function index(Request $request)
     {
- 
+        
         $model = str_slug('standardsoffers','-');
         if(auth()->user()->can('view-'.$model)) {
             $select_users  = [];
@@ -170,6 +170,8 @@ public function data_list(Request $request)
                                 return   !empty($item->department)? $item->department:'';
                             })
                             ->addColumn('standard_type', function ($item) {
+
+                                // dd($item->standard_type_to->title);
                                 return   !empty($item->standard_type_to->title)? $item->standard_type_to->title:'';
                             })
                             ->addColumn('state', function ($item) {
@@ -328,9 +330,11 @@ public function data_list(Request $request)
             $max_new = 1;
         }
 
+     
+
         $refno .=  str_pad($max_new, $amount, '0', STR_PAD_LEFT);
 
-
+//    dd($refno, $max_new , $amount);
 
         return response()->json([
                                   'refno'=> $refno

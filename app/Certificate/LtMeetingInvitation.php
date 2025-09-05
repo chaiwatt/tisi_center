@@ -25,6 +25,7 @@ class LtMeetingInvitation extends Model
         'board_json',
         'standard_json',
         'status',
+        'doc_type'
     ];
 
      protected $casts = [

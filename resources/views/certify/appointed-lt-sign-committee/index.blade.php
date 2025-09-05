@@ -84,23 +84,23 @@
                             <thead>
                                 <tr>
                                     <th width="1%" class="text-center">#</th>
-                                    <th width="15%" class="text-center">ชื่อมาตรฐาน</th>
+                                    <th width="15%" class="text-center">หัวเรื่อง</th>
                                     <th width="10%" class="text-center">สถานะ</th>
                                     <th width="15%" class="text-center">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
-                             @foreach ($meetingInvitations as $index => $meetingInvitation)
+                             @foreach ($lTmeetingInvitations as $index => $lTmeetingInvitation)
                                     <tr>
                                         <td class="text-center">{{ $index + 1 }}</td>
-                                        <td >{{ $meetingInvitation->subject }}</td>
+                                        <td >{{ $lTmeetingInvitation->subject }}</td>
                                         <td class="text-center"><span class="label label-warning">ส่งลงนาม</span></td>
                                         <td class="text-center">
-                                             <a href="{{ route('certify.appointed-lt-committee.view', $meetingInvitation->id) }}" class="btn btn-sm btn-info" title="ดู">
+                                             <a href="{{ route('certify.appointed-lt-committee.view', $lTmeetingInvitation->id) }}" class="btn btn-sm btn-info" title="ดู">
                                                     <i class="fa fa-eye"></i>
                                                 </a>
                                             @can('view-' . str_slug('appointed-committee'))
-                                                <a  class="btn btn-sm btn-warning btn_sign" data-id="{{$meetingInvitation->signer_id}}" data-meetinginvitation="{{$meetingInvitation->id}}" >
+                                                <a  class="btn btn-sm btn-warning btn_sign" data-id="{{$lTmeetingInvitation->signer_id}}" data-meetinginvitation="{{$lTmeetingInvitation->id}}" >
                                                 <i class="fa fa-check"></i>  ลงนาม
                                                 </a>
                                             @endcan

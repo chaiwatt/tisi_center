@@ -537,5 +537,55 @@
                 return value !== '' && value !== null && value !== undefined;
             }
 
+
+
+
+
+              // กำหนด event listener ให้กับ input วันที่เริ่มต้น
+    $('#plan_startdate').on('change', function() {
+        calculateEndDate();
+    });
+
+    // กำหนด event listener ให้กับ input จำนวนเดือนด้วย เผื่อกรณีที่กรอกเดือนทีหลัง
+    $('#period').on('keyup change', function() {
+        calculateEndDate();
+    });
+
+    function calculateEndDate() {
+        // 1. ดึงค่าจำนวนเดือน และแปลงเป็นตัวเลข
+        const periodInMonths = parseInt($('#period').val());
+
+        // 2. ดึงค่าวันที่เริ่มต้น
+        const startDateString = $('#plan_startdate').val();
+
+        // 3. ตรวจสอบว่ามีข้อมูลครบทั้ง 2 ช่องหรือไม่
+        if (!isNaN(periodInMonths) && periodInMonths > 0 && startDateString) {
+            
+            // 4. แปลง format วันที่ (โค้ดนี้รองรับ DD/MM/YYYY)
+            const parts = startDateString.split('/');
+            // เดือนใน JavaScript เริ่มนับที่ 0 (มกราคม = 0) จึงต้อง -1
+            const startDate = new Date(parts[2], parts[1] - 1, parts[0]);
+
+            // 5. คำนวณวันที่สิ้นสุดโดยการบวกเดือนเข้าไป
+            startDate.setMonth(startDate.getMonth() + periodInMonths);
+
+            // 6. จัดรูปแบบวันที่สิ้นสุดให้เป็น DD/MM/YYYY เหมือนเดิม
+            const day = ('0' + startDate.getDate()).slice(-2);
+            const month = ('0' + (startDate.getMonth() + 1)).slice(-2); // +1 เพื่อให้กลับเป็นเลขเดือนปกติ
+            const year = startDate.getFullYear();
+            const endDateString = `${day}/${month}/${year}`;
+
+            // 7. นำค่าที่คำนวณได้ไปใส่ใน input วันที่สิ้นสุด
+            $('#plan_enddate').val(endDateString);
+
+            // (ทางเลือก) ถ้าใช้ Bootstrap Datepicker ให้สั่งอัปเดต UI ด้วย
+            $('#plan_enddate').datepicker('update', endDateString);
+
+        } else {
+            // ถ้าข้อมูลไม่ครบ ให้ล้างค่าช่องวันสิ้นสุด
+            $('#plan_enddate').val('');
+        }
+    }
+
         </script>
 @endpush

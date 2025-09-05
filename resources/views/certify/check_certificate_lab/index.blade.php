@@ -154,7 +154,7 @@
                 <button type="button" class="btn btn-primary" id="microservice_simulation" > รัน Micro Service 🐆
                 </button>
                 <div class="white-box">
-                    <h3 class="box-title pull-left">ระบบตรวจสอบคำขอใบรับรองห้องปฏิบัติการ (LAB)ff</h3>
+                    <h3 class="box-title pull-left">ระบบตรวจสอบคำขอใบรับรองห้องปฏิบัติการ (LAB)</h3>
 
                     <div class="pull-right">
                         {{-- {{$select_users}} --}}
@@ -389,13 +389,16 @@
                                         <td class="text-center">{{ $app->assessment_type("th") }}</td>
                                         <td class="text-center text-top">
                                             @if($app->lab_type == 3)
+                                            {{-- aa --}}
                                             {{ $app->BranchTitle ?? '' }}
                                             @elseif($app->lab_type==4)
+                                            {{-- bb --}}
                                             {{ $app->ClibrateBranchTitle ?? '' }}
                                             @elseif($app->lab_type==1 || $app->lab_type==2)
+                                            {{-- cc --}}
                                                 {{ $app->get_branch() ? $app->get_branch()->title : '' }}
                                             @endif
-
+{{-- ออออออ --}}
                                         </td>
                                         <td class="text-center text-top">{{ $app->StartDateShow }}</td>
                                         <td class="text-center text-top">

@@ -15,7 +15,7 @@
                         <div class="row">
                             <div class="col-md-11">
                                 <div class="form-group required">
-                                    <label for="tistype" class="control-label text-right col-md-3">Tis Type:</label>
+                                    <label for="tistype" class="control-label text-right col-md-3">ประเภท มตช.:</label>
                                     <div class="col-md-8">
                                         <input type="text" name="tistype" id="tistype" class="form-control" required>
                                     </div>
@@ -26,7 +26,7 @@
                         <div class="row">
                             <div class="col-md-11">
                                 <div class="form-group required">
-                                    <label for="tisno" class="control-label text-right col-md-3">Tis No:</label>
+                                    <label for="tisno" class="control-label text-right col-md-3">หมายเลข มตช.:</label>
                                     <div class="col-md-8">
                                         <input type="text" name="tisno" id="tisno" class="form-control" required>
                                     </div>
@@ -37,7 +37,7 @@
                         <div class="row">
                             <div class="col-md-11">
                                 <div class="form-group required">
-                                    <label for="tisname" class="control-label text-right col-md-3">Tis Name:</label>
+                                    <label for="tisname" class="control-label text-right col-md-3">ชื่อมตช.:</label>
                                     <div class="col-md-8">
                                         <input type="text" name="tisname" id="tisname" class="form-control" required>
                                     </div>

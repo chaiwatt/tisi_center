@@ -1,3 +1,4 @@
+{{-- AppointedCommitteeLtController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -16,7 +17,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">นัดหมายการประชุม</h3>
+                    <h3 class="box-title pull-left">นัดหมายการประชุม ลท</h3>
 
                     <div class="pull-right">
 
@@ -40,46 +41,129 @@
                     <hr>
 
 
-                    {{-- <div class="row ">
-                        <div class="col-md-6 form-group">
-                            <div class=" {{ $errors->has('filter_search') ? 'has-error' : ''}}">
-                                {!! Form::label('filter_search', 'คำค้น'.' :', ['class' => 'col-md-4 control-label text-right ']) !!}
-                                <div class="col-md-8">
-                                    {!! Form::text('filter_search', null,  ['id' => 'filter_search','class' => 'form-control']) !!}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            {!! Form::select('filter_state',
-                                            ['1'=>'นัดหมายการประชุม','2'=>'บันทึกผลการประชุม','3'=>'อยู่ระหว่างดำเนินการประชุม'], 
-                                            null, 
-                                            ['class' => 'form-control', 
-                                            'id'=>'filter_state',
-                                            'placeholder' => '- เลือกสถานะ -']); 
-                            !!}
-                        </div>
-                        <div class="col-md-2">
-                            <div class="  pull-left">
-                                <button type="button" class="btn btn-info waves-effect waves-light" id="button_search"  style="margin-bottom: -1px;">ค้นหา</button>
-                            </div>
-                            <div class="  pull-left m-l-15">
-                                <button type="button" class="btn btn-warning waves-effect waves-light" id="filter_clear">ล้าง</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row ">
-                        <div class="col-md-6 form-group">
-                                {!! Form::label('', '', ['class' => 'col-md-4 control-label text-right ']) !!}
-                            <div class="col-md-8">
-                                {!! Form::select('filter_meeting_type_id',App\Models\Bcertify\Meetingtype::where('state',1)->pluck('title', 'id'),null, ['class' => 'form-control', 'placeholder' => '-เลือกวาระการประชุม-', 'required' => true]); !!}
-                            </div>
-                        </div>
-          
-                    </div>    --}}
+
     
 
                 <div class="clearfix"></div>
-                    <div class="row">
+
+
+
+
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#lt_transactions"><strong>รายการประชุม LT</strong></a></li>
+    <li><a data-toggle="tab" href="#std_transactions"><strong>รายการประชุมมาตรฐาน</strong></a></li>
+</ul>
+
+<div class="tab-content" style="padding-top: 20px;">
+
+    <div id="lt_transactions" class="tab-pane fade in active">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th width="1%" class="text-center">#</th>
+                            <th width="1%"><input type="checkbox" id="checkall_lt"></th>
+                            <th width="15%" class="text-center">หัวข้อการประชุม</th>
+                            <th width="15%" class="text-center">วันที่นัดหมาย</th>
+                            <th width="15%" class="text-center">สถานที่นัดหมาย</th>
+                            <th width="15%" class="text-center">สถานะ</th>
+                            <th width="19%" class="text-center">ผลการประชุม</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($meetingLtTransactions->reverse() as $item)
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td><input type="checkbox" name="ids_lt[]" class="checkbox_child_lt" value="{{ $item->id }}"></td>
+                            <td>{{ $item->title }}</td>
+                            <td>{{ $item->start_date }} {{ $item->start_time }}</td>
+                            <td>{{ $item->meeting_place }}</td>
+                            <td class="text-center">
+                                @if ($item->finish == null)
+                                <span class="badge badge-primary">อยู่ระหว่างดำเนินการ</span>
+                                @else
+                                <span class="badge badge-danger">ปิด</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <a href="{{route('certify.meeting-standards.lt.show',['id' => $item->id ])}}" class="btn btn-info btn-sm">บันทึกผล</a>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="9" class="text-center">ไม่พบข้อมูลการประชุม</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                {!! $meetingLtTransactions->links() !!}
+            </div>
+        </div>
+    </div>
+
+    <div id="std_transactions" class="tab-pane fade">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th width="1%" class="text-center">#</th>
+                            <th width="1%"><input type="checkbox" id="checkall_std"></th>
+                            <th width="15%" class="text-center">หัวข้อการประชุม</th>
+                            <th width="15%" class="text-center">วันที่นัดหมาย</th>
+                            <th width="15%" class="text-center">สถานที่นัดหมาย</th>
+                            <th width="15%" class="text-center">สถานะ</th>
+                            <th width="19%" class="text-center">ผลการประชุม</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($meetingStdTransactions as $item)
+                        {{-- @php
+                            dd($item);
+                        @endphp --}}
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td><input type="checkbox" name="ids_std[]" class="checkbox_child_std" value="{{ $item->id }}"></td>
+                            <td>{{ $item->title }}</td>
+                            <td>{{ $item->start_date }} {{ $item->start_time }}</td>
+                            <td>{{ $item->meeting_place }} {{$item->meeting_group}}</td>
+                            <td class="text-center">
+                                {{-- {{$item->status_id}} --}}
+                                @if ($item->status_id == 2)
+                                 <span class="badge badge-danger">ปิด</span>
+                               
+                                @else
+                                <span class="badge badge-primary">อยู่ระหว่างดำเนินการ</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                {{-- {{$item->id}} --}}
+                            {{-- @php
+                                dd($item);
+                            @endphp --}}
+                                <a href="{{route('certify.meeting-standards.lt.conclusion',['id' => $item->id])}}" class="btn btn-info btn-sm">บันทึกผล</a>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="9" class="text-center">ไม่พบข้อมูลการประชุม</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                {!! $meetingStdTransactions->links() !!}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+                    {{-- <div class="row">
                         <div class="col-md-12">
                             <table class="table table-striped" id="myTable">
                                 <thead>
@@ -87,51 +171,32 @@
                                         <th width="1%" class="text-center">#</th>
                                         <th width="1%"><input type="checkbox" id="checkall"></th>
                                         <th width="15%" class="text-center">หัวข้อการประชุม</th>
-                                        {{-- <th width="15%" class="text-center">วาระการประชุม</th> --}}
                                         <th width="15%" class="text-center">วันที่นัดหมาย</th>
                                         <th width="15%" class="text-center">สถานที่นัดหมาย</th>
                                         <th width="15%" class="text-center">สถานะ</th>
-                                        {{-- <th width="10%" class="text-center">จัดการ</th> --}}
                                         <th width="19%" class="text-center">ผลการประชุม</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- ใช้ @forelse เพื่อวนลูปข้อมูล และจัดการกรณีไม่มีข้อมูล --}}
                                     @forelse ($meetingLtTransactions as $item)
                                     <tr>
-
                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                        
                                         <td><input type="checkbox" name="ids[]" class="checkbox_child" value="{{ $item->id }}"></td>
-                                        
                                         <td>{{ $item->title }}</td>
-                                        
                                         <td>{{ $item->start_date }} {{ $item->start_time }}</td>
-
-
                                         <td>{{ $item->meeting_place }}</td>
-
-
                                         <td class="text-center">
                                             @if ($item->finish == null)
                                             <span class="badge badge-primary">อยู่ระหว่างดำเนินการ</span>
                                               @else  
                                               <span class="badge badge-danger">ปิด</span>
                                             @endif
-                                            
                                         </td>
-
-                                        {{-- <td class="text-center">
-                                            <a href="#" class="btn btn-warning btn-sm">แก้ไข</a>
-                                            <a href="#" class="btn btn-danger btn-sm">ลบ</a>
-                                        </td> --}}
-
                                         <td class="text-center">
                                             <a href="{{route('certify.meeting-standards.lt.show',['id' => $item->id ])}}" class="btn btn-info btn-sm">บันทึกผล</a>
                                         </td>
                                     </tr>
                                     @empty
-
                                     <tr>
                                         <td colspan="9" class="text-center">ไม่พบข้อมูลการประชุม</td>
                                     </tr>
@@ -139,7 +204,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div> --}}
                             
                 </div>
             </div>

@@ -136,7 +136,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">กำหนดมาตรฐานการตรวจสอบและรับรอง #STD</h3>
+                    <h3 class="box-title pull-left">กำหนดมาตรฐานการตรวจสอบและรับรอง ลท</h3>
 
                     <div class="pull-right">
 
@@ -246,7 +246,7 @@
                                         {{-- <th width="1%"></th> --}}
                                         {{-- <th width="15%" >รหัสโครงการ</th> --}}
                                            <th width="10%" >บรรจุแผนปี</th>
-                                           <th width="10%" >รหัสมาตรฐาน</th>
+                                           <th width="10%" >คำขอ</th>
                                         <th width="20%" >ชื่อมาตรฐาน</th>
                                         <th width="20%" >ประเภทข้อเสนอ</th>
                                         {{-- <th width="10%" >วิธีการ</th> --}}
@@ -296,20 +296,6 @@
                                                 <div style="display: inline-flex; align-items: center; gap: 5px;">
                                                     @if ($item->estandard_plan_to->estandard_offers_to->proposer_type == "sdo_advanced")
 
-
-                                                       {{-- ขั้นสูง ลท อย่ามาทำที่นี่ --}}
-                                                        {{-- @if(auth()->user()->roles->contains('id', $role->id))
-                                                              @if ($item->mainAppointmentMeetingApproved->count() == 0)
-                                                                    <a href="{{route('certify.appointed-lt-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
-                                                                        <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                                                                    </a>
-                                                                @else  
-                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                        <i class="fa fa-pencil-square-o"></i>
-                                                                    </a>
-                                                                @endif
-                                                        @endif --}}
-
                                                         @if(auth()->user()->roles->contains('id', $role->id))
                                                               {{-- @if ($item->mainAppointmentMeetingApproved->count() == 0) --}}
                                                               @if ($item->status_id != 5)
@@ -319,21 +305,10 @@
                                                                         <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                                                     </a>
                                                                 @else  
-                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                    {{-- <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-pencil-square-o"></i>
-                                                                    </a>
+                                                                    </a> --}}
                                                                 @endif
-
-                                                        @else
-                                                              @if ($item->status_id != 5)
-                                                                   
-                                                                   <span class="badge bg-warning text-dark">อยู่ระหว่างลท ดำเนินการ</span>
-                                                                @else  
-                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                        <i class="fa fa-pencil-square-o"></i>
-                                                                    </a>
-                                                                @endif
-
                                                         @endif
 
                                                             
@@ -341,34 +316,37 @@
 
                                                     {{-- @elseif($item->estandard_plan_to->method_to->id == 3) --}}
                                                     @elseif($item->estandard_plan_to->estandard_offers_to->proposer_type == "sdo_basic_or_non_sdo")
-                                                    
+                                                       
                                                        {{-- @php
                                                            dd($role->name);
                                                        @endphp --}}
-                                                       {{-- {{$role->name}} --}}
+                                                       
                                                         @if(!auth()->user()->roles->contains('id', $role->id))
+                                                        {{-- {{$item->subAppointmentMeetingApproved->count()}} --}}
                                                         {{-- ฉันไม่ใช่ลท --}}
                                                             @if ($item->subAppointmentMeetingApproved->count() == 0)
                                                                     <a href="{{route('certify.appointed-academic-sub-committee.create',['id' => $item->estandard_plan_to->estandard_offers_to->id])}}" title="หนังสือเชิญประชุมและนัดหมายประชุม" class="btn btn-warning btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                                                     </a>
                                                                 @else  
-                                                                {{-- certify.meeting-standards.create --}}
-                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit_sub_appointment')}}" title="หนังสือเชิญประชุมและนัดหมายประชุม" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                           
+                                                                    {{-- <a href="{{url('/certify/set-standards/'.$item->id.'/edit_sub_appointment')}}" title="หนังสือเชิญประชุมและนัดหมายประชุม" class="btn {{ $item->status_sub_appointment_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-pencil" aria-hidden="true"></i>
-                                                                    </a>
-
-                                                                    {{-- <a href="{{route('certify.meeting-standards.create',['id' => $item->estandard_plan_to->estandard_offers_to->id])}}" title="หนังสือเชิญประชุมและนัดหมายประชุม" class="btn btn-warning btn-xs" style="display: inline-block;">
-                                                                        <i class="fa fa-pencil" aria-hidden="true"></i> CC
                                                                     </a> --}}
+
+                                                                    อยู่ระหว่างการจัดการประชุม
+
+                                                      
                                                             @endif
+
+                                                            
                                                         @endif            
 
                                               
                                                         {{-- @php
                                                             dd($item);
                                                         @endphp --}}
-                                                        {{-- {{$item->status_sub_appointment_id }} --}}
+                                                        
                                                         
                                                         @if ($item->status_sub_appointment_id == 5)
                                                             @if(!auth()->user()->roles->contains('id', $role->id))
@@ -381,69 +359,43 @@
                                                                         <i class="fa fa-check-square-o" aria-hidden="true"></i>
                                                                 </a>
                                                             @endif
-                                                           
+                                                            
 
                                                             @if ($item->agreement_status == 1)
 
                                                                 @if(!auth()->user()->roles->contains('id', $role->id))
-                                                                    {{-- <a href="javascript:void(0)" data-id="{{$item->id}}" title="เวียนมาตรฐาน"  class="btn {{ $item->standard_circular_doc_status != null ? 'btn-info' : 'btn-warning' }} btn-xs  btn-standard-circular-doc" style="display: inline-block;">
+                                                                    <a href="javascript:void(0)" data-id="{{$item->id}}" title="เวียนมาตรฐาน"  class="btn {{ $item->standard_circular_doc_status != null ? 'btn-info' : 'btn-warning' }} btn-xs  btn-standard-circular-doc" style="display: inline-block;">
                                                                         <i class="fa fa-refresh" aria-hidden="true"></i>
-                                                                    </a> --}}
-
-                                                                    @if ($item->standard_circular_doc_status != null)
-                                                                        {{-- กรณีที่ standard_circular_doc_status มีค่า (ไม่เป็น null) --}}
-                                                                        <a href="javascript:void(0)" data-id="{{$item->id}}" title="เวียนมาตรฐาน" 
-                                                                        class="btn btn-info btn-xs btn-standard-circular-doc" 
-                                                                        style="display: inline-block;">
-                                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
-                                                                        </a>
-
-                                                                        @if ($item->finished == 1)
-                                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
-                                                                                <i class="fa fa-pencil-square-o"></i>
-                                                                            </a>
-                                                                        @else
-                                                                            <span class="badge bg-warning text-dark">อยู่ระหว่างลท ดำเนินการ</span>
-                                                                        @endif
-                                                                        
-                                                                    @else
-                                                                        {{-- กรณีที่ standard_circular_doc_status เป็น null --}}
-                                                                        <a href="javascript:void(0)" data-id="{{$item->id}}" title="เวียนมาตรฐาน" 
-                                                                        class="btn btn-warning btn-xs btn-standard-circular-doc" 
-                                                                        style="display: inline-block;">
-                                                                            <i class="fa fa-refresh" aria-hidden="true"></i>
-                                                                        </a>
-
-                                                                        {{-- bbb --}}
-                                                                    @endif
-                                                                     
+                                                                    </a>
                                                                 @endif
                                                                 
-                                                               
+                                                                
                                                                 @if(auth()->user()->roles->contains('id', $role->id))  
-                                                               
                                                                     @if ($item->standard_circular_doc_status != null)
-                                                                     
                                                                     {{-- @php
-                                                                        dd($item->mainAppointmentMeetingApproved->count())
+                                                                        dd($item)
                                                                     @endphp --}}
+
+                                                                     {{-- {{$item->finished}} --}}
+
+                                                                     @if ($item->finished == null)
+                                                                           <a href="{{route('certify.appointed-lt-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                                <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                            </a>
+                                                                     @endif
+
                                                                     {{-- {{$item->mainAppointmentMeetingApproved->count()}} --}}
-                                                                        @if ($item->mainAppointmentMeetingApproved->count() == 0)
+                                                                        {{-- @if ($item->mainAppointmentMeetingApproved->count() == 0)
                                                                             <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
                                                                                 <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                                                             </a>
                                                                         @else  
+                                                                            
                                                                             <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                                 <i class="fa fa-pencil-square-o"></i>
                                                                             </a>
-                                                                        @endif
-
-                                                                        @else 
-                                                                       
+                                                                        @endif --}}
                                                                     @endif
-                                                                @else
-                                                               
-
                                                                 @endif         
                                                             @endif 
                                                         @endif
