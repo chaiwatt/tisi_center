@@ -561,9 +561,15 @@
                     ตรวจสอบขอบข่าย
                 </button>
             </div>
-                <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
+{{-- {{$applicant->scope_view_status}} --}}
+            @if ($applicant->scope_view_status == 1)
+                 <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
                     <i class="fa fa-paperclip"></i>  แนบท้าย
                 </a> 
+            @endif
+
+
+           
             {{-- @else
                 @if ($applicant->scope_view_status !== null)
                     <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
