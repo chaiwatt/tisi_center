@@ -10,28 +10,30 @@ use Exception;
 use Mpdf\Mpdf;
 use App\RoleUser;
 use Carbon\Carbon;
+use App\CertificateExport;
 use App\Helpers\TextHelper;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Smalot\PdfParser\Parser;
 use App\Models\Besurv\Signer;
 use Illuminate\Http\Response;
-use App\Mail\Lab\MailBoardAuditor;
 
+use App\Mail\Lab\MailBoardAuditor;
 use Illuminate\Support\Facades\DB;
 use App\Models\Certify\BoardAuditor;
 use App\Models\Certify\CertiEmailLt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+
+
 use Illuminate\Http\RedirectResponse;
-
-
 use Illuminate\Support\Facades\Route;
 use App\Models\Bcertify\StatusAuditor;
 use App\Models\Certify\Applicant\Cost;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\Lab\MailBoardAuditorSigner;
+use App\Models\Certify\Applicant\Report;
 use App\Models\Certify\BoardAuditorDate;
 use App\Models\Bcertify\AuditorExpertise;
 use App\Models\Certify\BoardAuditorGroup;
@@ -40,9 +42,9 @@ use App\Models\Bcertify\BoardAuditoExpert;
 use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Certify\CertificateHistory;
 use App\Models\Bcertify\AuditorInformation;
+
 use App\Models\Certify\BoardAuditorHistory;
 use App\Services\CreateLabMessageRecordPdf;
-
 use App\Models\Certify\Applicant\Assessment;
 use App\Models\Certify\Applicant\CostDetails;
 use App\Models\Certify\Applicant\CheckExaminer;
@@ -1394,8 +1396,16 @@ class BoardAuditorController extends Controller
         abort(403);
     }
 
+    // dd("ok");
+
     $boardAuditor = BoardAuditor::find($id);
     $groups = $boardAuditor->groups;
+
+    $appCertiLab = CertiLab::find($boardAuditor->app_certi_lab_id); 
+
+    // dd($appCertiLab);
+
+
 
     $auditorIds = [];
     $statusAuditorMap = [];
@@ -1470,6 +1480,10 @@ class BoardAuditorController extends Controller
 
     // ✅ ป้องกัน error template parsing โดยไม่ใช้ Blade syntax ใน Heredoc
     $labTypeText = $data->lab_type;
+
+
+
+
 $data->fix_text1 = <<<HTML
 <div class="section-title">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
 <div style="text-indent:125px">๒.๑ พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑ (ประกาศในราชกิจจานุเบกษา วันที่ ๔ มีนาคม ๒๕๕๑) มาตรา ๒๘ วรรค ๒ ระบุ “การขอใบรับรอง การตรวจสอบและการออกใบรับรอง ให้เป็นไปตามหลักเกณฑ์ วิธีการ และเงื่อนไขที่คณะกรรมการประกาศกำหนด”</div>
@@ -1485,9 +1499,36 @@ $data->fix_text2 = <<<HTML
 <div style="text-indent:125px">ตามประกาศคณะกรรมการการมาตรฐานแห่งชาติ เรื่อง หลักเกณฑ์ วิธีการ และเงื่อนไขการรับรองห้องปฏิบัติการ สมอ. มีอำนาจหน้าที่ในการรับรองความสามารถห้องปฏิบัติการ กำหนดให้มีการประเมินเพื่อพิจารณาให้การรับรองความสามารถห้องปฏิบัติการ{$labTypeText} ตามมาตรฐานเลขที่ มอก. 17025-2561</div>
 HTML;
 
+$startDate = "";
+$endDate = "";
+$certificateNo = "";
+$accereditatioNo ="";
+
+if($certi_lab->purpose_type > 1)
+{
+
+$certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
+$report = Report::where('app_certi_lab_id',$certificateExport->certificate_for)->first();
+
+// dd($certificateExport,$report);
+
+$startDate = HP::formatDateThaiFullNumThai($report->start_date);
+$endDate = HP::formatDateThaiFullNumThai($report->end_date);
+$certificateNo = $certificateExport->certificate_no;
+$accereditatioNo = $certificateExport->accereditatio_no;
+
+
+}
+
     return view('certify.auditor.initial-message-record', [
         'data' => $data,
-        'id' => $id
+        'id' => $id,
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+        'certificateNo' => $certificateNo,
+        'certiLab' => $certi_lab,
+        'certiLab' => $certi_lab,
+        'accereditatioNo' => $accereditatioNo
     ]);
 }
 
@@ -1730,10 +1771,33 @@ HTML;
     $data->fix_text1 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text1 : '';
     $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : '';
 
+
+    if($certi_lab->purpose_type > 1)
+{
+
+$certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
+$report = Report::where('app_certi_lab_id',$certificateExport->certificate_for)->first();
+
+// dd($certificateExport,$report);
+
+$startDate = HP::formatDateThaiFullNumThai($report->start_date);
+$endDate = HP::formatDateThaiFullNumThai($report->end_date);
+$certificateNo = $certificateExport->certificate_no;
+$accereditatioNo = $certificateExport->accereditatio_no;
+
+
+}
+
     return view('certify.auditor.view-message-record', [
         'data' => $data,
         'id' => $id,
-        'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo
+        'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo,
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+        'certificateNo' => $certificateNo,
+        'certiLab' => $certi_lab,
+        'certiLab' => $certi_lab,
+        'accereditatioNo' => $accereditatioNo
     ]);
 }
 

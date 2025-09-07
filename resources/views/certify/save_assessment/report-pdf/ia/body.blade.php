@@ -46,7 +46,7 @@
                     ตำบล{{$labScopeTransaction->sub_district}} อำเภอ{{$labScopeTransaction->address_district}} จังหวัด{{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
                 @endif --}}
 
-            <div><span style="font-weight:bold">วันที่ยื่นคำขอ :</span> <span>11 ธันวาคม 2566</span> </div>
+            <div><span style="font-weight:bold">วันที่ยื่นคำขอ :</span> <span>{{HP::formatDateThaiFullPoint($certi_lab->get_date)}}</span> </div>
             <div><span style="font-weight:bold">สาขาและขอบข่าย :</span> <span>ตามเอกสารประกอบคำขอของ ห้องปฏิบัติการ{{$certi_lab->lab_name}} ลงวันที่ {{HP::formatDateThaiFullPoint($certi_lab->get_date)}} และ / หรือหนังสือขอแก้ไขขอบข่ายของ ห้องปฏิบัติการ ลงวันที่ {{HP::formatDateThaiFullPoint($notice->date_car)}} (ถ้ามี)/ ขอบข่าย ดังแนบ</span></div>
         </div>
     </div>
@@ -58,7 +58,7 @@
             <div style="margin-left:20px"> 
 
 
-                @php
+                {{-- @php
                     $index = 0;
                 @endphp
                 @foreach ($data->statusAuditorMap as $statusId => $auditorIds)
@@ -76,7 +76,28 @@
                         </div>
 
                     @endforeach
-                @endforeach
+                @endforeach --}}
+
+               @php
+                    $index = 0;
+                @endphp
+
+                <table>
+                    @foreach ($data->statusAuditorMap as $statusId => $auditorIds)
+                        @foreach ($auditorIds as $auditorId)
+                            @php
+                                $index++;
+                                $info = HP::getExpertInfo($statusId, $auditorId);
+                            @endphp
+                            {{-- เปลี่ยนจาก div เป็น tr --}}
+                            <tr>
+                                {{-- เปลี่ยนจาก span เป็น td และกำหนดความกว้างให้คอลัมน์แรก --}}
+                                <td style="width: 250px;">{{$index}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
+                                <td>{!!$info->statusAuditor->title!!}</td>
+                            </tr>
+                        @endforeach
+                    @endforeach
+                </table>
             </div>  
         </div>
 
@@ -124,9 +145,14 @@
                     $endMonth = (int)$end->format('n');
 
                     // ตรวจสอบเงื่อนไข
-                    if ($startMonth === $endMonth && $startYearBE === $endYearBE) {
+                    if ($start->format('Y-m-d') === $end->format('Y-m-d')) {
+                        // กรณีเป็นวันเดียวกัน
+                        $formattedDate = "$startDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE";
+                    } elseif ($startMonth === $endMonth && $startYearBE === $endYearBE) {
+                        // กรณีเป็นเดือนและปีเดียวกัน
                         $formattedDate = "$startDay - $endDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE";
                     } else {
+                        // กรณีเป็นคนละเดือนหรือคนละปี
                         $formattedDate = "$startDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE - $endDay {$thaiMonths[$endMonth]} พ.ศ. $endYearBE";
                     }
                 @endphp
@@ -1502,7 +1528,8 @@
     <div style="margin-left: 20px ;font-weight:bold"><span>(3) สรุปผลการตรวจประเมิน</span> </div>
     <table autosize="1"  style="margin-left: 40px">
         <tr>
-            <td style="vertical-align: top"><input type="checkbox" checked="checked" {{ $labReportInfo->inp_3_0_assessment_results === "1" ? 'checked="checked"' : '' }}></td>
+            
+            <td style="vertical-align: top"><input type="checkbox" {{ $labReportInfo->inp_3_0_assessment_results === "1" ? 'checked="checked"' : '' }}></td>
             <td style="vertical-align: top">พบข้อบกพร่อง จำนวน
                 
                 @if ($labReportInfo->inp_3_0_issue_count != "")
@@ -1531,7 +1558,7 @@
                   เพื่อพิจารณา ให้การรับรองต่อไป</td>
         </tr>
         <tr>
-            <td style="vertical-align: top"><input type="checkbox" checked="checked" {{ $labReportInfo->inp_3_0_offer_agreement === "1" ? 'checked="checked"' : '' }}></td>
+            <td style="vertical-align: top"><input type="checkbox" {{ $labReportInfo->inp_3_0_offer_agreement === "1" ? 'checked="checked"' : '' }}></td>
             <td style="vertical-align: top">ห้องปฏิบัติการมีระบบการบริหารงานและการดำเนินงานด้านวิชาการเป็นไปตามมาตรฐานเลขที่ มอก. 17025-2561 ในขอบข่ายที่ขอรับการรับรอง คณะผู้ตรวจประเมินเห็นควรนำเสนอคณะอนุกรรมการ พิจารณารับรองห้องปฏิบัติการ{{$certi_lab->lab_name}} เพื่อพิจารณาให้การรับรองต่อไป</td>
         </tr>
     </table>

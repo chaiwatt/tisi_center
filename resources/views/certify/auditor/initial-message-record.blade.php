@@ -1,3 +1,4 @@
+{{-- class BoardAuditorController --}}
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -285,9 +286,21 @@
             <div class="section">
                 <div>เรียน ผอ.สก. ผ่าน ผก.รป.<input type="text" class="input-no-border" id="body_text1" name="body_text1" value="{{ old('body_text1') }}" style="width:30px" ></div>
                 <div class="section-title" >๑. เรื่องเดิม</div>
-                <div class="indent" style="text-indent: 125px;" >
-                    วันที่ {{$data->register_date}} ชื่อห้องปฏิบัติการ{{$data->lab_name}} ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ{{$data->lab_type}} สาขา{{$data->scope_branch}} ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
-                </div>
+                @if ($certiLab->purpose_type == 1)
+                     <div class="indent" style="text-indent: 125px;" >
+                        วันที่ {{$data->register_date}} ชื่อห้องปฏิบัติการ{{$data->lab_name}} ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ{{$data->lab_type}} สาขา{{$data->scope_branch}} ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
+                    </div>
+                @else
+                    <div class="indent" style="text-indent: 125px;" >
+                        ๑.๑ ห้องปฏิบัติการ{{$data->lab_name}} ได้รับการรับรองความสามารถห้องปฏิบัติการ{{$data->lab_type}} สาขา{{$data->scope_branch}} ตามมาตรฐานเลขที่ มอก. 17025–2561 หมายเลขการรับรองที่ {{$accereditatioNo}} ใบรับรองเลขที่ {{$certificateNo}} ออกให้ ณ วันที่ {{$startDate}} และสิ้นอายุวันที่ {{$endDate}}
+                    </div>
+                     <div class="indent" style="text-indent: 125px;" >
+                        ๑.๒ เมื่อวันที่ {{$data->register_date}} ชื่อห้องปฏิบัติการ{{$data->lab_name}} ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ{{$data->lab_type}} สาขา{{$data->scope_branch}} ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
+
+
+                @endif
+                
+               
             </div>
             
             <!-- ข้อกฎหมาย -->
@@ -348,29 +361,39 @@
                         $index = 0;
                         // dd($data->statusAuditorMap);
                     @endphp
-                    <table style="margin-left: 110px">
-
+                    {{-- <table style="margin-left: 70px;width:100%">
                         @foreach ($data->statusAuditorMap as $statusId => $auditorIds)
-                           
                             @php
                                 $index++;
-
-                                
                             @endphp
-    
                             @foreach ($auditorIds as $auditorId)
                                 @php
-   
                                     $info = HP::getExpertInfo($statusId, $auditorId);
-                                    
                                 @endphp
                                 <tr>
-                                    <td style="width: 200px">{{HP::toThaiNumber($index)}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
+                                    <td style="width: 300px">{{HP::toThaiNumber($index)}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
                                     <td style="width: 100px">{{$info->auditorInformation->number_auditor}}</td>
                                     <td style="padding-left:20px">{{$info->statusAuditor->title}}</td>
                                 </tr>
                             @endforeach
-                        
+                        @endforeach
+                    </table> --}}
+
+                    <table style="margin-left: 70px;width:100%">
+                        {{-- ควรตั้งค่าเริ่มต้นให้ index ก่อนเริ่มลูป --}}
+                        @php $index = 0; @endphp 
+                        @foreach ($data->statusAuditorMap as $statusId => $auditorIds)
+                            @foreach ($auditorIds as $auditorId)
+                                @php
+                                    $index++; 
+                                    $info = HP::getExpertInfo($statusId, $auditorId);
+                                @endphp
+                                <tr>
+                                    <td style="width: 300px">{{HP::toThaiNumber($index)}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
+                                    <td style="width: 100px">{{$info->auditorInformation->number_auditor}}</td>
+                                    <td style="padding-left:20px">{{$info->statusAuditor->title}}</td>
+                                </tr>
+                            @endforeach
                         @endforeach
                     </table>
 

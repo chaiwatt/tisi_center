@@ -1,4 +1,5 @@
 {{-- work on class CheckCertificateLabController extends Controller --}}
+{{-- class CheckCertificateLabController --}}
 @extends('layouts.master')
 @inject('Carbon', '\Carbon\Carbon')
 @push('css')
@@ -398,13 +399,14 @@
                             @endphp
 
                         {{-- @php
-                           dd($notice,$notice->submit_type);
+                           dd($notice->submit_type);
                        @endphp --}}
                         
                             @if ($notice->submit_type == 'confirm' || $notice->submit_type == null)
                                     <a class="btn {{$assessment_btn}}"  href="{{  $assessment_url }}" style="width:750px;text-align: left">   {{$item->auditor}}</a>
                                 @elseif($notice->submit_type == 'save')
-                                    <a class="btn btn-info" href="{{ route('save_assessment.create', ['id' => $item->id]) }}" style="background-color:{{$assessment_btn}};width:750px;text-align: left"> {{$item->auditor}}  (ฉบับร่าง)</>  
+                                    {{-- <a class="btn btn-info" href="{{ route('save_assessment.create', ['id' => $item->id]) }}" style="background-color:{{$assessment_btn}};width:750px;text-align: left"> {{$item->auditor}}  (ฉบับร่าง)</>   --}}
+                                        <a class="btn btn-info" href="{{ route('save_assessment.create', ['id' => $item->id]) }}" style="background-color:{{$assessment_btn}};width:750px;text-align: left"> {{$item->auditor}}  (ฉบับร่าง)</>  
                             @endif
                          @else
                              <a class="btn btn-info" href="{{ route('save_assessment.create', ['id' => $item->id]) }}" style="background-color:{{$assessment_btn}};width:750px;text-align: left"> {{$item->auditor}}  (อยู่ระหว่างการตรวจสอบ)</>  
@@ -547,6 +549,18 @@
     {{-- {{$applicant->certi_lab_export_mapreq_to}} --}}
         @if ($applicant->report_to->ability_confirm !== null)
              {{-- @if ($applicant->scope_view_signer_id == null) --}}
+            @include ('certify.check_certificate_lab.modal_scope_review')
+            @php
+                $btnClass = $applicant->scope_view_signer_id == null
+                    ? 'btn-warning'
+                    : ($applicant->scope_view_status == null ? 'btn-success' : 'btn-info');
+            @endphp
+
+            <div class="btn-group form_group">
+                <button class="btn {{ $btnClass }}" data-toggle="modal" data-target="#exampleModalScopeReview">
+                    ตรวจสอบขอบข่าย
+                </button>
+            </div>
                 <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
                     <i class="fa fa-paperclip"></i>  แนบท้าย
                 </a> 

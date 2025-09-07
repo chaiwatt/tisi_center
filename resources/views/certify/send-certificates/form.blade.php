@@ -173,6 +173,7 @@
                                 @endphp
                             <tr>
                                 <td class="text-center">{{ $key +1}}</td>
+                                
                      @if (isset($signs)  || (!empty($sendcertificate) && in_array($sendcertificate->state,[99])))
                                 <td class="text-center div_hide">
                                     <input type="checkbox" name="lists[id][]" class="item_checkbox"  value="{!! $item->certificate_id !!}" checked>
@@ -199,6 +200,7 @@
                                     </td>
                         @endif
                                 <td class="text-center"> 
+                                    
                                         {!! $cer->cer_pdf !!}  
                                 </td>
                                 <td class="text-center">

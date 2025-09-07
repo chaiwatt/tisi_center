@@ -259,11 +259,13 @@
                     </a>
                 @endif --}}
                     <div class="col-md-6">
+                        {{-- {{$find_notice->id}} --}}
                         <label class="col-md-4 text-right">รายงานการตรวจประเมิน : </label>
                         
                         <div class="col-md-8 mt-5" style="margin-top:5px">
 
                             @if ($find_notice->labReportInfo !== null)
+                            {{-- {{$find_notice->labReportInfo->status}} --}}
                                 {{-- รายงานที่1 --}}
                                 @if ($find_notice->labReportInfo->status === "1")
                                         <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
@@ -271,10 +273,17 @@
                                             สร้างรายงาน
                                         </a>
                                     @else
-                                        <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
+                                        @if ($find_notice->submit_type == "save")
+                                            <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
+                                                    title="จัดทำรายงาน" class="btn btn-info">
+                                                    สร้างรายงาน
+                                                </a>
+                                        @endif
+                                        
+                                        {{-- <a href="{{route('save_assessment.view_lab_info',['id' => $find_notice->id])}}"
                                             title="จัดทำรายงาน" class="btn btn-info">
                                             สร้างรายงาน
-                                        </a>
+                                        </a> --}}
                                 @endif 
 
                                 @if(!is_null($find_notice) && !is_null($find_notice->file) )

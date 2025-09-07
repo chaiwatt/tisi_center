@@ -2538,7 +2538,7 @@ class SaveAssessmentController extends Controller
 
         public function updateLabInfo(Request $request)
         {
-            // dd('update');
+            
             // รับค่าจาก JSON
             $data = $request->input('data'); // ข้อมูลใน key "data"
             $persons = $request->input('persons'); // ข้อมูลใน key "data"
@@ -2763,6 +2763,9 @@ class SaveAssessmentController extends Controller
             $inp_3_0_deficiency_resolution_date = $data[13]['3_0_assessment_results']['3_0_deficiency_resolution_date'];
             $inp_3_0_offer_agreement = $data[13]['3_0_offer_agreement'];
 
+
+            // dd($inp_3_0_assessment_results, $inp_3_0_offer_agreement);
+
             $persons = json_encode($persons);
 
             // dd($id);
@@ -2984,6 +2987,10 @@ class SaveAssessmentController extends Controller
 
             $config = HP::getConfig();
             $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+            // Notice::find($noticeId)->update([
+            //     'submit_type' => $submitType
+            // ]);
 
             SignAssessmentReportTransaction::where('report_info_id', $labReportInfo->id)
                                             ->where('certificate_type',2)

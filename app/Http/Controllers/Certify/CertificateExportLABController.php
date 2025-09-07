@@ -429,6 +429,97 @@ class CertificateExportLABController extends Controller
                         ->where('app_certi_lab_id',$certi_lab->id)
                         ->first();
 
+           
+
+        
+                if (!$labHtmlTemplate) { return 'Template not found'; }
+
+                        $certiLab = CertiLab::find($labHtmlTemplate->app_certi_lab_id);
+                        if (!$certiLab) { return 'CertiLab not found'; }
+
+                        $certificateExport = CertificateExport::where('certificate_for', $certiLab->id)->first();
+                        if (!$certificateExport) { return 'CertificateExport not found'; }
+
+                        $report = Report::where('app_certi_lab_id', $labHtmlTemplate->app_certi_lab_id)->first();
+                        if (!$report) { return 'Report not found'; }
+
+                        // 2. เตรียมข้อความ "ใหม่"
+                        $newAccreditationTh = $certificateExport->accereditatio_no;
+                        $newAccreditationEn = '(' . $certificateExport->accereditatio_no_en . ')';
+                        $newCertNoValue = $certificateExport->certificate_no; // เลขใหม่ เช่น "5-LB0013"
+                        $newStartDateStrings = $this->formatDateStrings($report->start_date, 'start');
+                        $newEndDateStrings   = $this->formatDateStrings($report->end_date, 'end');
+
+                        // 3. เตรียม DOM และ XPath (สำหรับวันที่และหมายเลขการรับรอง)
+                        $htmlContent = json_decode($labHtmlTemplate->html_pages)[0];
+                        $dom = new \DOMDocument();
+                        @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+                        $xpath = new \DOMXPath($dom);
+
+                        // 4. ดึงข้อความ "เก่า" (เฉพาะส่วนของวันที่ และ หมายเลขการรับรอง)
+                        // ... (โค้ดดึงข้อความเก่าของวันที่และหมายเลขการรับรองเหมือนเดิม) ...
+                        $oldValidFromThText = ''; $oldUntilThText = ''; $oldValidFromEnText = ''; $oldUntilEnText = '';
+                        $validFromNodes = $xpath->query("//td[contains(., 'ออกให้ตั้งแต่วันที่')]");
+                        if ($validFromNodes->length > 0) {
+                            $fullText = trim($validFromNodes[0]->nodeValue);
+                            $enNodes = $validFromNodes[0]->getElementsByTagName('span');
+                            if ($enNodes->length > 0) {
+                                $oldValidFromEnText = trim($enNodes[0]->nodeValue);
+                                $oldValidFromThText = trim(str_replace($oldValidFromEnText, '', $fullText));
+                            }
+                        }
+                        $untilNodes = $xpath->query("//td[contains(., 'ถึงวันที่')]");
+                        if ($untilNodes->length > 0) {
+                            $fullText = trim($untilNodes[0]->nodeValue);
+                            $enNodes = $untilNodes[0]->getElementsByTagName('span');
+                            if ($enNodes->length > 0) {
+                                $oldUntilEnText = trim($enNodes[0]->nodeValue);
+                                $oldUntilThText = trim(str_replace($oldUntilEnText, '', $fullText));
+                            }
+                        }
+                        $oldAccreditationTh = ''; $oldAccreditationEn = '';
+                        $accreditationNodes = $xpath->query("//td[span[contains(., 'Calibration') or contains(., 'Testing')]]");
+                        if ($accreditationNodes->length > 0) {
+                            $fullText = trim($accreditationNodes[0]->nodeValue);
+                            $enNodes = $accreditationNodes[0]->getElementsByTagName('span');
+                            if ($enNodes->length > 0) {
+                                $oldAccreditationEn = trim($enNodes[0]->nodeValue);
+                                $oldAccreditationTh = trim(str_replace($oldAccreditationEn, '', $fullText));
+                            }
+                        }
+
+                        // 5. แทนที่ส่วนแรกด้วย str_replace
+                        $searchFor = [
+                            $oldValidFromThText, $oldUntilThText,
+                            $oldValidFromEnText, $oldUntilEnText,
+                            $oldAccreditationTh, $oldAccreditationEn
+                        ];
+                        $replaceWith = [
+                            $newStartDateStrings['th'], $newEndDateStrings['th'],
+                            $newStartDateStrings['en'], $newEndDateStrings['en'],
+                            $newAccreditationTh,        $newAccreditationEn
+                        ];
+                        $updatedHtmlContent = str_replace($searchFor, $replaceWith, $htmlContent);
+
+                        // 6. ⭐ ค้นหาและแทนที่ "ใบรับรองเลขที่" ด้วยวิธีที่แน่นอนที่สุด ⭐
+                        // 6.1) ค้นหา "เลขเก่า" ที่เป็น placeholder (เช่น "25-LB0000")
+                        $oldCertNoValue = '';
+                        if (preg_match('/\d{1,2}-LB0000/', $updatedHtmlContent, $matches)) {
+                            $oldCertNoValue = $matches[0];
+                        }
+
+                        // 6.2) ถ้าเจอ "เลขเก่า" ให้แทนที่ด้วย "เลขใหม่"
+                        if (!empty($oldCertNoValue)) {
+                            $updatedHtmlContent = str_replace($oldCertNoValue, $newCertNoValue, $updatedHtmlContent);
+                        }
+
+                        // 7. บันทึกกลับฐานข้อมูล
+                        $labHtmlTemplate->html_pages = json_encode([$updatedHtmlContent], JSON_UNESCAPED_UNICODE);
+                        $labHtmlTemplate->save();
+
+
+
+
                     $this->exportScopePdf($certi_lab->id,$labHtmlTemplate);
                  
                     // $pdfService = new CreateLabScopePdf($certi_lab);
@@ -488,6 +579,31 @@ class CertificateExportLABController extends Controller
         }
         abort(403);
     }
+
+private function formatDateStrings(string $dateString, string $type): array
+{
+    // ตั้งค่า Carbon ให้ใช้ภาษาไทย
+    Carbon::setLocale('th');
+    $date = Carbon::parse($dateString);
+
+    // เตรียมคำนำหน้า
+    $prefixTh = ($type === 'start') ? 'ออกให้ตั้งแต่วันที่ ' : 'ถึงวันที่ ';
+    $prefixEn = ($type === 'start') ? '(Valid from ' : '(Until ';
+
+    // สร้างข้อความภาษาไทยโดยการคำนวณปี พ.ศ. โดยตรง
+    // 1. ดึง วัน และ เดือน (เช่น "20 สิงหาคม")
+    // 2. ดึง ปี ค.ศ. มาบวก 543 (2025 + 543 = 2568)
+    // 3. นำทั้งหมดมาต่อกัน
+    $thaiText = $prefixTh . $date->isoFormat('D MMMM') . ' ' . ($date->year + 543);
+
+    // สร้างข้อความภาษาอังกฤษ (ส่วนนี้ถูกต้องอยู่แล้ว)
+    $englishText = $prefixEn . $date->format('j F') . ' B.E.' . ($date->year + 543) . ' (' . $date->year . '))';
+
+    return [
+        'th' => $thaiText,
+        'en' => $englishText,
+    ];
+}
 
  public function exportScopePdf($id,$labHtmlTemplate)
     {

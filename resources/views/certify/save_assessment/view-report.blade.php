@@ -1,3 +1,4 @@
+{{-- Certify\SaveAssessmentController --}}
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -406,7 +407,7 @@
         <input type="hidden" id="certi_lab_id" value="{{$certi_lab->check->id}}">
         <div class="header">
             รายงานการตรวจประเมินความสามารถของห้องปฏิบัติการทดสอบ/สอบเทียบ<br>
-            ตามมาตรฐานเลขที่ มอก. 17025-2561
+            ตามมาตรฐานเลขที่ มอก. 17025-2561 checkpoint
         </div>
 
         <div class="checkbox-section">
@@ -505,8 +506,7 @@
             </div>
             <div style="margin-left: 25px;margin-top:10px">
 
-
-                @php
+                {{-- @php
                     $index = 0;
                 @endphp
                 @foreach ($data->statusAuditorMap as $statusId => $auditorIds)
@@ -519,10 +519,26 @@
                             $info = HP::getExpertInfo($statusId, $auditorId);
                         @endphp
                         <div style="display: flex; gap: 10px;">
-                            <span style="flex: 0 0 250px;">{{$index}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</span>
+                            <span style="flex: 0 0 350px;">{{$index}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</span>
                             <span style="flex: 1 0 200px;">{!!$info->statusAuditor->title!!}</span>
                         </div>
 
+                    @endforeach
+                @endforeach --}}
+
+                @php
+                    $index = 0;
+                @endphp
+                @foreach ($data->statusAuditorMap as $statusId => $auditorIds)
+                    @foreach ($auditorIds as $auditorId)
+                        @php
+                            $index++; // <-- ย้ายการเพิ่มค่ามาไว้ตรงนี้
+                            $info = HP::getExpertInfo($statusId, $auditorId);
+                        @endphp
+                        <div style="display: flex; gap: 10px;">
+                            <span style="flex: 0 0 350px;">{{$index}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</span>
+                            <span style="flex: 1 0 200px;">{!!$info->statusAuditor->title!!}</span>
+                        </div>
                     @endforeach
                 @endforeach
             </div>
@@ -580,9 +596,14 @@
                             $endMonth = (int)$end->format('n');
 
                             // ตรวจสอบเงื่อนไข
-                            if ($startMonth === $endMonth && $startYearBE === $endYearBE) {
+                            if ($start->format('Y-m-d') === $end->format('Y-m-d')) {
+                                // กรณีเป็นวันเดียวกัน
+                                $formattedDate = "$startDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE";
+                            } elseif ($startMonth === $endMonth && $startYearBE === $endYearBE) {
+                                // กรณีเป็นเดือนและปีเดียวกัน
                                 $formattedDate = "$startDay - $endDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE";
                             } else {
+                                // กรณีเป็นคนละเดือนหรือคนละปี
                                 $formattedDate = "$startDay {$thaiMonths[$startMonth]} พ.ศ. $startYearBE - $endDay {$thaiMonths[$endMonth]} พ.ศ. $endYearBE";
                             }
                         @endphp
@@ -3201,7 +3222,7 @@
 
            
             // แสดงผลข้อมูลที่เลือก
-            //    console.log(data[12]);
+            //    console.log(data[13]);
 
             //     return;
 

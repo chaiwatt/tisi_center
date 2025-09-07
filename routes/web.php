@@ -129,7 +129,7 @@ Route::get('/ib-pdf-server', 'MyTestController@getIbServerPdf');
 Route::get('/set-cb-mail', 'MyTestController@set_cb_mail');
 
 
-
+Route::get('/change-date-lab-template', 'MyTestController@changeDateInLabHtmlTemplate');
 
 
 

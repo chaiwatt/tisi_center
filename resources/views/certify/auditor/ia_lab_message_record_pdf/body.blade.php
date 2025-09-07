@@ -59,14 +59,35 @@
     <div Style="margin-bottom:5px;">เรียน &nbsp;&nbsp;&nbsp; ผอ.สก. ผ่าน ผก.รป.{{$boardAuditorMsRecordInfo->body_text1}}</div>
     <div style="font-weight: bold;margin-left:90px;">๑. เรื่องเดิม</div>
     <div>
-        @php
-            $textResult = TextHelper::callLonganTokenizePost("วันที่!" . $data->register_date . "!ห้องปฏิบัติ".str_replace(' ', '!', $data->lab_name)." ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ".$data->lab_type." สาขา".$data->scope_branch." ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
-            // แทนที่ '!' ด้วย span ที่ซ่อนด้วย color:#fff
-            $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
+        @if ($certiLab->purpose_type == 1)
+            @php
+                $textResult = TextHelper::callLonganTokenizePost("วันที่!" . $data->register_date . "!ห้องปฏิบัติ".str_replace(' ', '!', $data->lab_name)." ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ".$data->lab_type." สาขา".$data->scope_branch." ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
+                // แทนที่ '!' ด้วย span ที่ซ่อนด้วย color:#fff
+                $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
 
-        @endphp
+            @endphp
+            <div style="text-indent: 100px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
+        @else
+
+            @php
+                $textResult = TextHelper::callLonganTokenizePost("๑.๑!ห้องปฏิบัติ".str_replace(' ', '!', $data->lab_name)." ได้รับการรับรองความสามารถห้องปฏิบัติการ".$data->lab_type." สาขา".$data->scope_branch." ตามมาตรฐานเลขที่ มอก. 17025–2561 หมายเลขการรับรองที่ ". $accereditatioNo ." ใบรับรองเลขที่ ". $certificateNo ." ออกให้ ณ วันที่ ". $startDate ." และสิ้นอายุวันที่ ". $endDate);
+                // แทนที่ '!' ด้วย span ที่ซ่อนด้วย color:#fff
+                $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
+
+            @endphp
+            <div style="text-indent: 100px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
+
+            @php
+                $textResult = TextHelper::callLonganTokenizePost("๑.๒!วันที่!" . $data->register_date . "!ห้องปฏิบัติ".str_replace(' ', '!', $data->lab_name)." ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ".$data->lab_type." สาขา".$data->scope_branch." ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ ". $data->get_date);
+                // แทนที่ '!' ด้วย span ที่ซ่อนด้วย color:#fff
+                $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
+
+            @endphp
+            <div style="text-indent: 100px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
+        @endif
+
    
-        <div style="text-indent: 100px;display:block;font-size:22px;word-spacing: -0.2em">{!! $textResult !!}</div>
+        
     </div>
 
     <div style="font-weight: bold;margin-left:90px ;margin-top:5px;">๒. ข้อกฎหมาย/กฎระเบียบที่เกี่ยวข้อง</div>
@@ -78,7 +99,7 @@
         <div style="text-indent:125px">๒.๓ คำสั่งสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม ที่ ๓๔๒/๒๕๖๖ เรื่อง มอบอำนาจ ให้ข้าราชการสั่งและปฏิบัติราชการแทนเลขาธิการสำนักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรม (สั่ง ณ วันที่ ๑๓ พฤศจิกายน ๒๕๖๖) ข้อ ๓ ระบุว่า "ให้ผู้อำนวยการสำนักงานคณะกรรมการ การมาตรฐานแห่งชาติเป็นผู้มี อำนาจ พิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตามพระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑" เลขาธิการ สํานักงานมาตรฐานผลิตภัณฑ์อุตสาหกรรมที่กํากับเป็นผู้พิจารณาแต่งตั้งคณะผู้ตรวจประเมิน ตาม</span> พระราชบัญญัติการมาตรฐานแห่งชาติ พ.ศ. ๒๕๕๑</div>
 
     </div>
-     <div style="margin-top: 60px; margin-left:520px; margin-bottom: 30px;">๓. ข้อเท็จจริง ...</div>
+     {{--  --}}
 </div>
 
 <pagebreak />
@@ -90,7 +111,7 @@
 
     <div style="position: relative;padding-top:10px; line-height:1.15">
        
-       
+       <div style="margin-left:520px; margin-bottom: 30px;">๓. ข้อเท็จจริง ...</div>
         
         {{-- {!!$data->fix_text2!!} --}}
 
@@ -109,7 +130,7 @@
 
         <div style="display:inline-block;padding-top:0%;padding-top:20px;padding-bottom:15px">
             <table style="border-collapse: collapse;margin-left:70px;">
-                @php
+                {{-- @php
                     $index = 0;
                 @endphp
                 @foreach ($data->statusAuditorMap as $statusId => $auditorIds)
@@ -122,17 +143,33 @@
                             $info = HP::getExpertInfo($statusId, $auditorId);
                        
                             $textResult = TextHelper::callLonganTokenizePost($info->statusAuditor->title);
-                            // แทนที่ '!' ด้วย span ที่ซ่อนด้วย color:#fff
                             $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
-                
                         @endphp
                         <tr>
-                            <td style="width: 220px">{{HP::toThaiNumber($index)}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
+                            <td style="width: 300px">{{HP::toThaiNumber($index)}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
                             <td style="width: 100px">{{$info->auditorInformation->number_auditor}}</td>
                             <td style="padding-left:10px;word-spacing: -0.2em">{!!$textResult!!}</td>
                         </tr>
                     @endforeach
-                @endforeach
+                @endforeach --}}
+                @php $index = 0; @endphp
+
+                    @foreach ($data->statusAuditorMap as $statusId => $auditorIds)
+                        @foreach ($auditorIds as $auditorId)
+                            @php
+                                $index++; // <-- ย้ายการเพิ่มค่ามาไว้ตรงนี้
+                                $info = HP::getExpertInfo($statusId, $auditorId);
+                            
+                                $textResult = TextHelper::callLonganTokenizePost($info->statusAuditor->title);
+                                $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
+                            @endphp
+                            <tr>
+                                <td style="width: 220px; vertical-align:top">{{HP::toThaiNumber($index)}}. {{$info->auditorInformation->title_th}}{{$info->auditorInformation->fname_th}} {{$info->auditorInformation->lname_th}}</td>
+                                <td style="width: 100px; vertical-align:top">{{$info->auditorInformation->number_auditor}}</td>
+                                <td style="padding-left:10px;word-spacing: -0.2em; vertical-align:top">{!!$textResult!!}</td>
+                            </tr>
+                        @endforeach
+                    @endforeach
             </table>
         </div>
 

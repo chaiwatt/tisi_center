@@ -178,7 +178,7 @@
         </table>
         <table autosize="1"  style="margin-left:25px">
             @php
-            //  {{$certi_lab->lab_name}}ได้ดำเนินการแก้ไขข้อบกพร่องแล้วเสร็จอย่างมีประสิทธิผลและเป็นที่ยอมรับของคณะผู้ตรวจประเมิน จำนวน <input type="text" class="input-no-border" placeholder="" style="width: 80px;text-align:center" name="inp_3_approved_text" id="inp_3_approved_text"> รายการ ยังคงเหลือข้อบกพร่อง <input type="text" class="input-no-border" placeholder="" style="width: 80px;text-align:center" name="inp_3_remain_text" id="inp_3_remain_text"> รายการ ห้องปฏิบัติการต้องส่งหลักฐานการแก้ไขข้อบกพร่องให้คณะผู้ตรวจประเมินพิจารณาภายในวันที่ {{HP::formatDateThaiFullPoint($assessment->date_car)}} (ภายใน 90 วันนับแต่วันที่ออกรายงานข้อบกพร่องครั้งแรก) ณ สำนักงาน หากห้องปฏิบัติการสามารถดำเนินการแก้ไขข้อบกพร่องทั้งหมดได้แล้วเสร็จสอดคล้องตาม มาตรฐานเลขที่ มอก. 17025-2561 คณะผู้ตรวจประเมินจะนำเสนอคณะอนุกรรมการพิจารณารับรอง{{$certi_lab->lab_name}} เพื่อพิจารณาให้การรับรองต่อไป
+            
                 $textResult = TextHelper::callLonganTokenizePost($certi_lab->lab_name . "ได้ดำเนินการแก้ไขข้อบกพร่องแล้วเสร็จอย่างมีประสิทธิผลและเป็นที่ยอมรับของคณะผู้ตรวจประเมิน จำนวน " . $labReportInfo->inp_3_approved_text . " รายการ ยังคงเหลือข้อบกพร่อง" . $labReportInfo->inp_3_remain_text . " รายการ ห้องปฏิบัติการต้องส่งหลักฐานการแก้ไขข้อบกพร่องให้คณะผู้ตรวจประเมินพิจารณาภายในวันที่ " .HP::formatDateThaiFullPoint($assessment->date_car). " (ภายใน 90 วันนับแต่วันที่ออกรายงานข้อบกพร่องครั้งแรก) ณ สำนักงาน หากห้องปฏิบัติการสามารถดำเนินการแก้ไขข้อบกพร่องทั้งหมดได้แล้วเสร็จสอดคล้องตาม มาตรฐานเลขที่ มอก. 17025-2561 คณะผู้ตรวจประเมินจะนำเสนอคณะอนุกรรมการพิจารณารับรอง" .$certi_lab->lab_name ." เพื่อพิจารณาให้การรับรองต่อไป" );
                 $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
             @endphp
@@ -187,6 +187,34 @@
                     <div><input type="checkbox" {{ $labReportInfo->inp_3_lab_fix_some_issues_chk === "1" ? 'checked="checked"' : '' }} ></div>
                 </td>
                 <td style="display:block;word-spacing: -0.2em;">{!!$textResult!!}</td>
+            </tr>
+        </table>
+
+        <table autosize="1"  style="margin-left:25px;margin-top:10px">
+            @php
+                $textResult = TextHelper::callLonganTokenizePost($certi_lab->lab_name . " ไม่สามารถดำเนินการแก้ไขข้อบกพร่องทั้งหมดได้แล้วเสร็จอย่างมีประสิทธิผลและเป็นที่ยอมรับของคณะผู้ตรวจประเมิน");
+                $textResult = str_replace('!', '<span style="color:#fff;">!</span>', $textResult);
+            @endphp
+            <tr>
+                <td style="width: 30px;vertical-align:top">
+                    <div><input type="checkbox" {{ $labReportInfo->inp_3_lab_fix_failed_issues_chk === "1" ? 'checked="checked"' : '' }} ></div>
+                </td>
+                <td style="display:block;word-spacing: -0.2em;">{!!$textResult!!}</td>
+            </tr>
+        </table>
+
+        <table autosize="1"  style="margin-left:50px;">
+            <tr>
+                <td style="width: 30px;vertical-align:top">
+                    <div style="padding: left:25px"><input type="checkbox" {{ $labReportInfo->inp_3_lab_fix_failed_issues_yes_chk === "1" ? 'checked="checked"' : '' }} ></div>
+                </td>
+                <td style="display:block;">สมควรนำเสนอสำนักงานพิจารณายกเลิกคำขอรับบริการยืนยันความสามารถห้องปฏิบัติการต่อไป</td>
+            </tr>
+            <tr>
+                <td style="width: 30px;vertical-align:top">
+                    <div style="padding: left:25px"><input type="checkbox" {{ $labReportInfo->inp_3_lab_fix_failed_issues_no_chk === "1" ? 'checked="checked"' : '' }} ></div>
+                </td>
+                <td style="display:block;">สมควรนำเสนอคณะอนุกรรมการพิจารณารับรอง {{$certi_lab->lab_name}} เพื่อพิจารณาไม่ต่ออายุใบรับรอง (กรณีคำขอต่ออายุ)</td>
             </tr>
         </table>
     </div>

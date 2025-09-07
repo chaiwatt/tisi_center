@@ -1884,7 +1884,7 @@ class CheckCertificateLabController extends Controller
 
     public function certificate_detail($token = null)
     {
-        // dd('ok');
+        
         $certi_lab = CertiLab::where('token',$token)->first();
 
         // เงื่อนไขเดิม

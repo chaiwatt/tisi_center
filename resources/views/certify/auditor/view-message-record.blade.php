@@ -237,12 +237,24 @@
             <div class="section">
                 <div>เรียน ผอ.สก. ผ่าน ผก.รป.<input type="text" class="input-no-border" id="body_text1" name="body_text1" value="{{$boardAuditorMsRecordInfo->body_text1}}" style="width:30px" required readonly></div>
                 <div class="section-title" >๑. เรื่องเดิม</div>
-                {{-- <div class="indent">
-                    ห้องปฏิบัติการ {{$data->lab_type}} {{$data->company}}
-                </div> --}}
-                <div class="indent" style="text-indent: 120px;">
+       
+                {{-- <div class="indent" style="text-indent: 120px;">
                     วันที่ {{$data->register_date}} ชื่อห้องปฏิบัติการ{{$data->lab_name}} ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ{{$data->lab_type}} สาขา{{$data->scope_branch}} ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
-                </div>
+                </div> --}}
+
+                  @if ($certiLab->purpose_type == 1)
+                     <div class="indent" style="text-indent: 125px;" >
+                        วันที่ {{$data->register_date}} ชื่อห้องปฏิบัติการ{{$data->lab_name}} ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ{{$data->lab_type}} สาขา{{$data->scope_branch}} ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
+                    </div>
+                @else
+                    <div class="indent" style="text-indent: 125px;" >
+                        ๑.๑ ห้องปฏิบัติการ{{$data->lab_name}} ได้รับการรับรองความสามารถห้องปฏิบัติการ{{$data->lab_type}} สาขา{{$data->scope_branch}} ตามมาตรฐานเลขที่ มอก. 17025–2561 หมายเลขการรับรองที่ {{$accereditatioNo}} ใบรับรองเลขที่ {{$certificateNo}} ออกให้ ณ วันที่ {{$startDate}} และสิ้นอายุวันที่ {{$endDate}}
+                    </div>
+                     <div class="indent" style="text-indent: 125px;" >
+                        ๑.๒ เมื่อวันที่ {{$data->register_date}} ชื่อห้องปฏิบัติการ{{$data->lab_name}} ได้ยื่นคำขอรับใบรับรองห้องปฏิบัติการ{{$data->lab_type}} สาขา{{$data->scope_branch}} ในระบบ E-Accreditation และสามารถรับคำขอได้เมื่อวันที่ {{$data->get_date}}
+
+
+                @endif
             </div>
 
             <div class="section">

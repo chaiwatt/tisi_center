@@ -51,6 +51,7 @@ use App\Models\Certify\SetStandardUser;
 use Illuminate\Support\Facades\Artisan;
 use App\Mail\CB\CbDocReviewAuditorsMail;
 use App\Models\Certify\Applicant\Notice;
+use App\Models\Certify\Applicant\Report;
 use App\Models\Certify\BoardAuditorDate;
 use App\Models\Certify\TransactionPayIn;
 use App\Mail\Lab\DirectorSignNotification;
@@ -3858,7 +3859,7 @@ $footerHtml = '
     </div>
 
     <div style="display: inline-block; width: 15%;float:right;width:25%">
-            <img src="' . $sign_url1 . '" style="height:40px;">
+            <img src="' . $sign_url1 . '" style="height:30px;">
     </div>
 
     <div width="100%" style="display:inline;text-align:center">
@@ -4286,7 +4287,7 @@ $footerHtml = '
     </div>
 
     <div style="display: inline-block; width: 15%;float:right;width:25%">
-   <img src="' . $sign_url1 . '" style="height:40px;">
+   <img src="' . $sign_url1 . '" style="height:30px;">
     </div>
 
     <div width="100%" style="display:inline;text-align:center">
@@ -4420,6 +4421,115 @@ $mpdf->SetHTMLFooter($footerHtml);
     
   }
 
+  public function changeDateInLabHtmlTemplate()
+  {
+    $labHtmlTemplate = LabHtmlTemplate::latest()->first();
+
+    $certiLab = CertiLab::find($labHtmlTemplate->app_certi_lab_id);
+
+    if($certiLab->lab_type == 3){
+        //ทสอบ
+    }else if($certiLab->lab_type == 4)
+    {
+        //สอบเทียบ
+    }
+
+    $certificateExport = CertificateExport::where('certificate_for',$certiLab->id)->first();
+
+    // dd($certiLab);
+    $thaiAccereditatioNo =  $certificateExport->accereditatio_no;
+    $enAccereditatioNo =  $certificateExport->accereditatio_no_en;
+    if (!$labHtmlTemplate) { return 'Template not found'; }
+    $pages = json_decode($labHtmlTemplate->html_pages);
+    if (empty($pages[0])) { return 'Invalid HTML data'; }
+    $htmlContent = $pages[0]; // <--- นี่คือ HTML ต้นฉบับที่เราจะแก้ไข
+    $dom = new \DOMDocument();
+    @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    $xpath = new \DOMXPath($dom);
+
+    // --- 1. ดึงข้อความ "เก่า" ทั้งหมดออกมาเพื่อใช้เป็นเป้าหมายในการค้นหา ---
+    $oldValidFromThText = '';
+    $oldUntilThText     = '';
+    $oldValidFromEnText   = '';
+    $oldUntilEnText       = '';
+
+    $validFromNodes = $xpath->query("//td[contains(., 'ออกให้ตั้งแต่วันที่')]");
+    if ($validFromNodes->length > 0) {
+        $fullText = trim($validFromNodes[0]->nodeValue);
+        $enNodes = $validFromNodes[0]->getElementsByTagName('span');
+        if ($enNodes->length > 0) {
+            $oldValidFromEnText = trim($enNodes[0]->nodeValue);
+            $oldValidFromThText = trim(str_replace($oldValidFromEnText, '', $fullText));
+        }
+    }
+    
+    $untilNodes = $xpath->query("//td[contains(., 'ถึงวันที่')]");
+    if ($untilNodes->length > 0) {
+        $fullText = trim($untilNodes[0]->nodeValue);
+        $enNodes = $untilNodes[0]->getElementsByTagName('span');
+        if ($enNodes->length > 0) {
+            $oldUntilEnText = trim($enNodes[0]->nodeValue);
+            $oldUntilThText = trim(str_replace($oldUntilEnText, '', $fullText));
+        }
+    }
+    
+    // --- 2. ดึงข้อมูลวันที่ "ใหม่" จากฐานข้อมูล ---
+    $report = Report::where('app_certi_lab_id', $labHtmlTemplate->app_certi_lab_id)->first();
+    if (!$report) {
+        return 'Report not found';
+    }
+
+    // --- 3. เรียกใช้ Helper function เพื่อสร้างข้อความวันที่ "ใหม่" ---
+    $newStartDateStrings = $this->formatDateStrings($report->start_date, 'start');
+    $newEndDateStrings   = $this->formatDateStrings($report->end_date, 'end');
+    
+    // --- 4. เตรียม Array สำหรับการค้นหาและแทนที่ ---
+    $searchFor = [
+        $oldValidFromThText,
+        $oldUntilThText,
+        $oldValidFromEnText,
+        $oldUntilEnText
+    ];
+
+    $replaceWith = [
+        $newStartDateStrings['th'],
+        $newEndDateStrings['th'],
+        $newStartDateStrings['en'],
+        $newEndDateStrings['en']
+    ];
+
+    // --- 5. แทนที่ข้อความทั้งหมดในครั้งเดียว ---
+    $updatedHtmlContent = str_replace($searchFor, $replaceWith, $htmlContent);
+
+    // แสดงผลลัพธ์สุดท้ายเป็น HTML ที่ถูกแก้ไขแล้ว
+    // คุณสามารถนำ $updatedHtmlContent ไปบันทึกลงฐานข้อมูลหรือแสดงผลต่อไปได้
+    dd($updatedHtmlContent);
+  }
+
+
+  private function formatDateStrings(string $dateString, string $type): array
+{
+    // ตั้งค่า Carbon ให้ใช้ภาษาไทย
+    Carbon::setLocale('th');
+    $date = Carbon::parse($dateString);
+
+    // เตรียมคำนำหน้า
+    $prefixTh = ($type === 'start') ? 'ออกให้ตั้งแต่วันที่ ' : 'ถึงวันที่ ';
+    $prefixEn = ($type === 'start') ? '(Valid from ' : '(Until ';
+
+    // สร้างข้อความภาษาไทย
+    // D คือวันที่, MMMM คือชื่อเดือนเต็ม, GGGG คือปี พ.ศ.
+    $thaiText = $prefixTh . $date->isoFormat('D MMMM GGGG');
+
+    // สร้างข้อความภาษาอังกฤษ
+    // B.E. คือปี พ.ศ., YYYY คือปี ค.ศ.
+    $englishText = $prefixEn . $date->format('j F') . ' B.E.' . ($date->year + 543) . ' (' . $date->year . '))';
+
+    return [
+        'th' => $thaiText,
+        'en' => $englishText,
+    ];
+}
 
 }
 

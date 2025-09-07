@@ -8,8 +8,10 @@ use App\User;
 use stdClass;
 use Mpdf\Mpdf;
 use App\RoleUser;
+use Carbon\Carbon;
 use App\LabHtmlTemplate;
 use Mpdf\HTMLParserMode;
+use App\CertificateExport;
 use Illuminate\Http\Request;
 use App\Models\Besurv\Signer;
 use Yajra\DataTables\DataTables;
@@ -180,13 +182,113 @@ class LabScopeReviewController extends Controller
 
     public function signDocument(Request $request)
     {
-
-        
-
-
+       
         CertiLab::find($request->id)->update([
             'scope_view_status' => 1
         ]);
+
+        
+        $certi_lab = CertiLab::find($request->id);
+
+
+        if($certi_lab->purpose_type > 1)
+        {
+            $lab_ability = "test";
+            if($certi_lab->lab_type == "4")
+            {
+                $lab_ability = "calibrate";
+            }
+
+            $ssoUser = DB::table('sso_users')->where('username', $certi_lab->tax_id)->first();  
+
+           $labHtmlTemplate = LabHtmlTemplate::where('user_id', $ssoUser->id)
+                        ->where('according_formula',$certi_lab->standard_id)
+                        ->where('purpose',$certi_lab->purpose_type)
+                        ->where('lab_ability',$lab_ability)
+                        ->where('app_certi_lab_id',$certi_lab->id)
+                        ->first();
+
+                       
+
+           
+             
+                        $certiLab = CertiLab::find($labHtmlTemplate->app_certi_lab_id);
+                    
+
+                        $report = Report::where('app_certi_lab_id', $labHtmlTemplate->app_certi_lab_id)->first();
+                    
+
+                        // 2. เตรียมข้อความ "ใหม่"
+
+                        $newStartDateStrings = $this->formatDateStrings($report->start_date, 'start');
+                        $newEndDateStrings   = $this->formatDateStrings($report->end_date, 'end');
+ 
+                        // 3. เตรียม DOM และ XPath (สำหรับวันที่และหมายเลขการรับรอง)
+                        $htmlContent = json_decode($labHtmlTemplate->html_pages)[0];
+                        $dom = new \DOMDocument();
+                        @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+                        $xpath = new \DOMXPath($dom);
+
+                        // 4. ดึงข้อความ "เก่า" (เฉพาะส่วนของวันที่ และ หมายเลขการรับรอง)
+                        // ... (โค้ดดึงข้อความเก่าของวันที่และหมายเลขการรับรองเหมือนเดิม) ...
+                        $oldValidFromThText = ''; $oldUntilThText = ''; $oldValidFromEnText = ''; $oldUntilEnText = '';
+                        $validFromNodes = $xpath->query("//td[contains(., 'ออกให้ตั้งแต่วันที่')]");
+                        if ($validFromNodes->length > 0) {
+                            $fullText = trim($validFromNodes[0]->nodeValue);
+                            $enNodes = $validFromNodes[0]->getElementsByTagName('span');
+                            if ($enNodes->length > 0) {
+                                $oldValidFromEnText = trim($enNodes[0]->nodeValue);
+                                $oldValidFromThText = trim(str_replace($oldValidFromEnText, '', $fullText));
+                            }
+                        }
+                        $untilNodes = $xpath->query("//td[contains(., 'ถึงวันที่')]");
+                        if ($untilNodes->length > 0) {
+                            $fullText = trim($untilNodes[0]->nodeValue);
+                            $enNodes = $untilNodes[0]->getElementsByTagName('span');
+                            if ($enNodes->length > 0) {
+                                $oldUntilEnText = trim($enNodes[0]->nodeValue);
+                                $oldUntilThText = trim(str_replace($oldUntilEnText, '', $fullText));
+                            }
+                        }
+              
+                        // 5. แทนที่ส่วนแรกด้วย str_replace
+                        $searchFor = [
+                            $oldValidFromThText, $oldUntilThText,
+                            $oldValidFromEnText, $oldUntilEnText
+                        ];
+                        $replaceWith = [
+                            $newStartDateStrings['th'], $newEndDateStrings['th'],
+                            $newStartDateStrings['en'], $newEndDateStrings['en'],
+                        ];
+                        $updatedHtmlContent = str_replace($searchFor, $replaceWith, $htmlContent);
+
+      
+                        // 7. บันทึกกลับฐานข้อมูล
+                        $labHtmlTemplate->html_pages = json_encode([$updatedHtmlContent], JSON_UNESCAPED_UNICODE);
+                        $labHtmlTemplate->save();
+
+                        //  dd($labHtmlTemplate);
+
+                        $this->exportScopePdf($labHtmlTemplate->app_certi_lab_id,$labHtmlTemplate);
+
+                    $json = $this->copyScopeLabFromAttachement($certi_lab);
+                    $copiedScopes = json_decode($json, true);
+            
+                    Report::where('app_certi_lab_id',$certi_lab->id)->update([
+                        'file_loa' =>  $copiedScopes[0]['attachs'],
+                        'file_loa_client_name' =>  $copiedScopes[0]['file_client_name']
+                    ]);
+
+
+        }
+            
+
+
+
+
+
+
+
 
         // $certi_lab = CertiLab::find($request->id);
 
@@ -233,8 +335,32 @@ class LabScopeReviewController extends Controller
     }
 
     
+private function formatDateStrings(string $dateString, string $type): array
+{
+    // ตั้งค่า Carbon ให้ใช้ภาษาไทย
+    Carbon::setLocale('th');
+    $date = Carbon::parse($dateString);
 
-    
+    // เตรียมคำนำหน้า
+    $prefixTh = ($type === 'start') ? 'ออกให้ตั้งแต่วันที่ ' : 'ถึงวันที่ ';
+    $prefixEn = ($type === 'start') ? '(Valid from ' : '(Until ';
+
+    // สร้างข้อความภาษาไทยโดยการคำนวณปี พ.ศ. โดยตรง
+    // 1. ดึง วัน และ เดือน (เช่น "20 สิงหาคม")
+    // 2. ดึง ปี ค.ศ. มาบวก 543 (2025 + 543 = 2568)
+    // 3. นำทั้งหมดมาต่อกัน
+    $thaiText = $prefixTh . $date->isoFormat('D MMMM') . ' ' . ($date->year + 543);
+
+    // สร้างข้อความภาษาอังกฤษ (ส่วนนี้ถูกต้องอยู่แล้ว)
+    $englishText = $prefixEn . $date->format('j F') . ' B.E.' . ($date->year + 543) . ' (' . $date->year . '))';
+
+    return [
+        'th' => $thaiText,
+        'en' => $englishText,
+    ];
+}
+
+
  public function exportScopePdf($id,$labHtmlTemplate)
     {
         $htmlPages = json_decode($labHtmlTemplate->html_pages);
@@ -310,7 +436,10 @@ class LabScopeReviewController extends Controller
 $selectedCertiLab = CertiLab::find($id);
 
           
-           $subGroup = $selectedCertiLab->subgroup;
+        //    $subGroup = $selectedCertiLab->subgroup;
+
+
+
           
 
             // $appCertiMail = CertiEmailLt::where('certi',$subGroup)->where('roles',1)->pluck('admin_group_email')->toArray();
@@ -334,30 +463,34 @@ $selectedCertiLab = CertiLab::find($id);
             //     $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
             // }
 
-            // $user =  auth()->user();
-        //   $targetRoleId = 22;
-                   // ผู้อำนวยการกลุ่ม สก. (LAB) 22
-            $role = Role::where('name','ผู้อำนวยการกลุ่ม สก. (LAB)')->first();
-            $targetRoleId = $role->id;
-            $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
-            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$selectedCertiLab->subgroup)->get();
+            $attach1 = null;
+            if($selectedCertiLab->scope_view_signer_id == null )
+            {
+                // $targetRoleId = 22;
+                           // ผู้อำนวยการกลุ่ม สก. (LAB) 22
+                $role = Role::where('name','ผู้อำนวยการกลุ่ม สก. (LAB)')->first();
+                $targetRoleId = $role->id;
+                $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+                $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$selectedCertiLab->subgroup)->get();
 
+                $firstSignerGroups = [];
+                if(count($groupAdminUsers) != 0){
+                    $allReg13Ids = [];
+                    foreach ($groupAdminUsers as $groupAdminUser) {
+                        $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                        $allReg13Ids[] = $reg13Id;
+                    }
 
-            $firstSignerGroups = [];
-            if(count($groupAdminUsers) != 0){
-                 $allReg13Ids = [];
-                 foreach ($groupAdminUsers as $groupAdminUser) {
-                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
-                    $allReg13Ids[] = $reg13Id;
+                    $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
                 }
 
-                $firstSignerGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+                $attach1 = !empty($firstSignerGroups->first()->AttachFileAttachTo) ? $firstSignerGroups->first()->AttachFileAttachTo : null;
+            }else{
+                   $signer = Signer::find($selectedCertiLab->scope_view_signer_id);
+                    $attach1 = !empty($signer->AttachFileAttachTo) ? $signer->AttachFileAttachTo : null;
             }
 
-
-
-
-$attach1 = !empty($firstSignerGroups->first()->AttachFileAttachTo) ? $firstSignerGroups->first()->AttachFileAttachTo : null;
+   
 
   $sign_url1 = $this->getSignature($attach1);
 
@@ -371,7 +504,7 @@ $footerHtml = '
     </div>
 
     <div style="display: inline-block; width: 15%;float:right;width:25%">
-            <img src="' . $sign_url1 . '" style="height:40px;">
+            <img src="' . $sign_url1 . '" style="height:30px;">
     </div>
 
     <div width="100%" style="display:inline;text-align:center">
@@ -427,6 +560,7 @@ $mpdf->SetHTMLFooter($footerHtml);
       $certi_lab_attach->save();
 
     }
+
 
       public function getSignature($attach)
     {

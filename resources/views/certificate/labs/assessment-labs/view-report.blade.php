@@ -425,7 +425,8 @@
                     @endif
                     disabled
                 >
-                การขยาย/ปรับขอบข่ายใบรับรอง
+                ต่ออายุใบรับรอง
+                
             </label>
             <label>
                 <input type="checkbox" 
@@ -434,7 +435,7 @@
                     @endif
                     disabled
                 >
-                ต่ออายุใบรับรอง
+                การขยาย/ปรับขอบข่ายใบรับรอง
             </label>
         
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">

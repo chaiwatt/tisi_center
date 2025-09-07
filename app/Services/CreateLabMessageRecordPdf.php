@@ -4,6 +4,7 @@ namespace App\Services;
 use HP;
 use stdClass;
 use Mpdf\Mpdf;
+use App\CertificateExport;
 use Smalot\PdfParser\Parser;
 use App\Models\Certify\BoardAuditor;
 use Illuminate\Support\Facades\File;
@@ -11,13 +12,14 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Bcertify\LabCalRequest;
 use App\Models\Bcertify\LabTestRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Certify\Applicant\Report;
 use App\Models\Certify\BoardAuditorDate;
 use App\Models\Bcertify\BoardAuditoExpert;
 use App\Models\Bcertify\CalibrationBranch;
 use App\Models\Certify\Applicant\CertiLab;
 use App\Models\Bcertify\AuditorInformation;
-use App\Models\Bcertify\BoardAuditorMsRecordInfo;
 use App\Models\Certify\MessageRecordTransaction;
+use App\Models\Bcertify\BoardAuditorMsRecordInfo;
 use App\Models\Certify\Applicant\CertiLabAttachAll;
 use App\Models\Bcertify\CalibrationBranchInstrument;
 use App\Models\Bcertify\HtmlLabMemorandumPdfRequest;
@@ -378,10 +380,36 @@ public function ia($mpdf)
     $signer->signer_url3 = $this->getSignature($attach3);
     $signer->signer_url4 = $this->getSignature($attach4);
 
+    $startDate = "";
+    $endDate = "";
+    $certificateNo = "";
+    $accereditatioNo = "";
+
+    if($certi_lab->purpose_type > 1)
+    {
+
+    $certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
+    $report = Report::where('app_certi_lab_id',$certificateExport->certificate_for)->first();
+
+    // dd($certificateExport,$report);
+
+    $startDate = HP::formatDateThaiFullNumThai($report->start_date);
+    $endDate = HP::formatDateThaiFullNumThai($report->end_date);
+    $certificateNo = $certificateExport->certificate_no;
+    $accereditatioNo = $certificateExport->accereditatio_no;
+
+
+    }
+
     $body = view('certify.auditor.ia_lab_message_record_pdf.body', [
         'data' => $data,
         'boardAuditorMsRecordInfo' => $boardAuditorMsRecordInfo,
-        'signer' => $signer
+        'signer' => $signer,
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+        'certificateNo' => $certificateNo,
+        'certiLab' => $certi_lab,
+        'accereditatioNo' => $accereditatioNo
     ]);
     $footer = view('certify.auditor.ia_lab_message_record_pdf.footer', []);
 
