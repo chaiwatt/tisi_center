@@ -430,94 +430,116 @@ class CertificateExportLABController extends Controller
                         ->first();
 
            
-
-        
                 if (!$labHtmlTemplate) { return 'Template not found'; }
 
-                        $certiLab = CertiLab::find($labHtmlTemplate->app_certi_lab_id);
-                        if (!$certiLab) { return 'CertiLab not found'; }
+                $certiLab = CertiLab::find($labHtmlTemplate->app_certi_lab_id);
 
-                        $certificateExport = CertificateExport::where('certificate_for', $certiLab->id)->first();
-                        if (!$certificateExport) { return 'CertificateExport not found'; }
+                if (!$certiLab) { return 'CertiLab not found'; }
 
-                        $report = Report::where('app_certi_lab_id', $labHtmlTemplate->app_certi_lab_id)->first();
-                        if (!$report) { return 'Report not found'; }
+                $certificateExport = CertificateExport::where('certificate_for', $certiLab->id)->first();
+                if (!$certificateExport) { return 'CertificateExport not found'; }
 
-                        // 2. เตรียมข้อความ "ใหม่"
-                        $newAccreditationTh = $certificateExport->accereditatio_no;
-                        $newAccreditationEn = '(' . $certificateExport->accereditatio_no_en . ')';
-                        $newCertNoValue = $certificateExport->certificate_no; // เลขใหม่ เช่น "5-LB0013"
-                        $newStartDateStrings = $this->formatDateStrings($report->start_date, 'start');
-                        $newEndDateStrings   = $this->formatDateStrings($report->end_date, 'end');
+                $report = Report::where('app_certi_lab_id', $labHtmlTemplate->app_certi_lab_id)->first();
+                if (!$report) { return 'Report not found'; }
 
-                        // 3. เตรียม DOM และ XPath (สำหรับวันที่และหมายเลขการรับรอง)
-                        $htmlContent = json_decode($labHtmlTemplate->html_pages)[0];
-                        $dom = new \DOMDocument();
-                        @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-                        $xpath = new \DOMXPath($dom);
 
-                        // 4. ดึงข้อความ "เก่า" (เฉพาะส่วนของวันที่ และ หมายเลขการรับรอง)
-                        // ... (โค้ดดึงข้อความเก่าของวันที่และหมายเลขการรับรองเหมือนเดิม) ...
-                        $oldValidFromThText = ''; $oldUntilThText = ''; $oldValidFromEnText = ''; $oldUntilEnText = '';
-                        $validFromNodes = $xpath->query("//td[contains(., 'ออกให้ตั้งแต่วันที่')]");
-                        if ($validFromNodes->length > 0) {
-                            $fullText = trim($validFromNodes[0]->nodeValue);
-                            $enNodes = $validFromNodes[0]->getElementsByTagName('span');
-                            if ($enNodes->length > 0) {
-                                $oldValidFromEnText = trim($enNodes[0]->nodeValue);
-                                $oldValidFromThText = trim(str_replace($oldValidFromEnText, '', $fullText));
-                            }
+                // 2. เตรียมข้อความ "ใหม่"
+                $newAccreditationTh = $certificateExport->accereditatio_no;
+                $newAccreditationEn = '(' . $certificateExport->accereditatio_no_en . ')';
+                $newCertNoValue     = $certificateExport->certificate_no;
+                $newStartDateStrings = $this->formatDateStrings($report->start_date, 'start');
+                $newEndDateStrings   = $this->formatDateStrings($report->end_date, 'end');
+
+                // (ในอนาคตควรดึงค่า issue no มาจาก $report หรือ $certificateExport)
+                $issueNo = "01"; 
+
+
+                // 3. Decode JSON ที่มีหลายหน้าออกมาเป็น Array
+                $allHtmlPages = json_decode($labHtmlTemplate->html_pages, true);
+                $updatedPages = []; // เตรียม Array ว่างสำหรับเก็บหน้าที่แก้ไขแล้ว
+
+                // 4. วนลูปเพื่อแก้ไข HTML ในแต่ละหน้า
+                foreach ($allHtmlPages as $htmlContent) {
+                    
+                    // 4.1) อ่านและบันทึกสถานะของ Checkbox จาก HTML เดิม (ที่เป็น string) เก็บไว้ก่อน
+                    $originallyCheckedLabels = [];
+                    preg_match_all('/<input[^>]+?checked[^>]*?>\s*<span[^>]*?>([^<\s]+)/is', $htmlContent, $matches);
+                    if (!empty($matches[1])) {
+                        $originallyCheckedLabels = $matches[1]; // จะได้ค่าเป็น Array เช่น ['ถาวร']
+                    }
+
+                    // 4.2) ห่อหุ้ม HTML ด้วยโครงสร้าง HTML5 เพื่อป้องกัน Tag หาย (เช่น <input>)
+                    $dom = new \DOMDocument('1.0', 'utf-8');
+                    $html5Wrapper = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $htmlContent . '</body></html>';
+
+
+                    
+                    libxml_use_internal_errors(true);
+                    $dom->loadHTML($html5Wrapper);
+                    libxml_clear_errors();
+
+                    $xpath = new \DOMXPath($dom);
+
+                    // 4.3) สร้างฟังก์ชันสำหรับ "แทนที่ข้อความทั้งหมด" ใน node ที่ต้องการ
+                    $replaceNodeContent = function(string $class, string $newValue) use ($xpath) {
+                        $node = $xpath->query("//span[contains(@class, '{$class}')]")->item(0);
+                        if ($node) {
+                            $node->nodeValue = trim($newValue);
                         }
-                        $untilNodes = $xpath->query("//td[contains(., 'ถึงวันที่')]");
-                        if ($untilNodes->length > 0) {
-                            $fullText = trim($untilNodes[0]->nodeValue);
-                            $enNodes = $untilNodes[0]->getElementsByTagName('span');
-                            if ($enNodes->length > 0) {
-                                $oldUntilEnText = trim($enNodes[0]->nodeValue);
-                                $oldUntilThText = trim(str_replace($oldUntilEnText, '', $fullText));
-                            }
-                        }
-                        $oldAccreditationTh = ''; $oldAccreditationEn = '';
-                        $accreditationNodes = $xpath->query("//td[span[contains(., 'Calibration') or contains(., 'Testing')]]");
-                        if ($accreditationNodes->length > 0) {
-                            $fullText = trim($accreditationNodes[0]->nodeValue);
-                            $enNodes = $accreditationNodes[0]->getElementsByTagName('span');
-                            if ($enNodes->length > 0) {
-                                $oldAccreditationEn = trim($enNodes[0]->nodeValue);
-                                $oldAccreditationTh = trim(str_replace($oldAccreditationEn, '', $fullText));
-                            }
-                        }
+                    };
 
-                        // 5. แทนที่ส่วนแรกด้วย str_replace
-                        $searchFor = [
-                            $oldValidFromThText, $oldUntilThText,
-                            $oldValidFromEnText, $oldUntilEnText,
-                            $oldAccreditationTh, $oldAccreditationEn
-                        ];
-                        $replaceWith = [
-                            $newStartDateStrings['th'], $newEndDateStrings['th'],
-                            $newStartDateStrings['en'], $newEndDateStrings['en'],
-                            $newAccreditationTh,        $newAccreditationEn
-                        ];
-                        $updatedHtmlContent = str_replace($searchFor, $replaceWith, $htmlContent);
+                    // 5) เรียกใช้ฟังก์ชันเพื่อแทนที่ข้อมูลทั้งหมด
+                    
+                    // 5.1) แทนที่ Issue No. (ทั้ง th และ en)
+                    $replaceNodeContent('issue_no', $issueNo);
+                    $replaceNodeContent('issue_no_en', $issueNo);
 
-                        // 6. ⭐ ค้นหาและแทนที่ "ใบรับรองเลขที่" ด้วยวิธีที่แน่นอนที่สุด ⭐
-                        // 6.1) ค้นหา "เลขเก่า" ที่เป็น placeholder (เช่น "25-LB0000")
-                        $oldCertNoValue = '';
-                        if (preg_match('/\d{1,2}-LB0000/', $updatedHtmlContent, $matches)) {
-                            $oldCertNoValue = $matches[0];
-                        }
+                    // 5.2) แทนที่วันที่ (แบบเต็มข้อความ)
+                    $replaceNodeContent('issue_from_date_th', $newStartDateStrings['th']);
+                    $replaceNodeContent('issue_from_date_en', $newStartDateStrings['en']);
+                    $replaceNodeContent('issue_to_date_th', $newEndDateStrings['th']);
+                    $replaceNodeContent('issue_to_date_en', $newEndDateStrings['en']);
 
-                        // 6.2) ถ้าเจอ "เลขเก่า" ให้แทนที่ด้วย "เลขใหม่"
-                        if (!empty($oldCertNoValue)) {
-                            $updatedHtmlContent = str_replace($oldCertNoValue, $newCertNoValue, $updatedHtmlContent);
-                        }
+                    // 5.3) แทนที่ Accreditation No. (แบบเต็มข้อความ)
+                    $replaceNodeContent('accreditation_no_th', $newAccreditationTh);
+                    $replaceNodeContent('accreditation_no_en', $newAccreditationEn);
+                    
+                    // 5.4) แทนที่ Certificate No. (แบบบางส่วน)
+                    $certThNode = $xpath->query("//span[contains(@class, 'certificate_no_th')]")->item(0);
+                    if ($certThNode) {
+                        $certThNode->nodeValue = preg_replace('/\d{1,2}-[A-Z]{2}\d{4}/', $newCertNoValue, $certThNode->nodeValue);
+                    }
+                    $certEnNode = $xpath->query("//span[contains(@class, 'certificate_no_en')]")->item(0);
+                    if ($certEnNode) {
+                        $certEnNode->nodeValue = preg_replace('/\d{1,2}-[A-Z]{2}\d{4}/', $newCertNoValue, $certEnNode->nodeValue);
+                    }
 
-                        // 7. บันทึกกลับฐานข้อมูล
-                        $labHtmlTemplate->html_pages = json_encode([$updatedHtmlContent], JSON_UNESCAPED_UNICODE);
-                        $labHtmlTemplate->save();
+                    
+                    // 7) บันทึก HTML ที่แก้ไขสมบูรณ์แล้ว
+                    $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                    $cleanedHtml = '';
+                    foreach ($bodyNode->childNodes as $childNode) {
+                        $cleanedHtml .= $dom->saveHTML($childNode);
+                    }
+                    
+                    $mpdfCompatibleHtml = str_replace(
+                        'type="checkbox" checked', 
+                        'type="checkbox" checked="checked"', 
+                        $cleanedHtml
+                    );
+                    
+                    // 9) เก็บ HTML ที่พร้อมสำหรับ mPDF ลงใน Array
+                    $updatedPages[] = $mpdfCompatibleHtml;
+
+                
+                    // $updatedPages[] = $cleanedHtml;
+                }
 
 
+                // dd($updatedPages);
+                // 8) บันทึก Array ที่มีทุกหน้าที่แก้ไขแล้วกลับไปที่ฐานข้อมูล
+                $labHtmlTemplate->html_pages = json_encode($updatedPages, JSON_UNESCAPED_UNICODE);
+                $labHtmlTemplate->save();
 
 
                     $this->exportScopePdf($certi_lab->id,$labHtmlTemplate);

@@ -473,7 +473,7 @@
                 <span>ตั้งอยู่เลขที่ :</span>
                 <span>
 
-
+{{-- {{$labScopeTransaction->id}} --}}
                             {{$labScopeTransaction->address_number}} หมู่ที่ {{$labScopeTransaction->village_no}} 
                             @if(\Illuminate\Support\Str::contains($labScopeTransaction->address_city_text, 'กรุงเทพ'))
                                 แขวง{{$labScopeTransaction->sub_district}} เขต{{$labScopeTransaction->address_district}} {{$labScopeTransaction->address_city_text}} {{$labScopeTransaction->postal_code}} 
