@@ -2119,7 +2119,8 @@ class CbPdfGeneratorController extends Controller
                         </table>
 
                         <div stye="line-height:5px;font-size:8px">&nbsp;</div>
-
+                        <span style="line-height:20px;font-size:22px;font-weight: bold;">เรียน ผอ.สก. ผ่าน ผก.รร.</span><br><br>
+                        
                         <span style="line-height:20px;font-size:22px;font-weight: bold;">1. เรื่องเดิม</span><br>
                         <span style="line-height:20px;font-size:22px"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$certiCb->name.' ได้ยื่นคำขอการรับรองระบบงานหน่วยรับรอง ตามมาตรฐานเลขที่ มอก. 17020-2556  ต่อ สก. ผ่านระบบ e-Accreditation ตามคำขอเลขที่ '.$certiCb->app_no.' เมื่อวันที่ '.HP::formatDateThaiFullNumThai(Carbon::now()).'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.1)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.2)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.3)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.4)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.5)</span>
 
