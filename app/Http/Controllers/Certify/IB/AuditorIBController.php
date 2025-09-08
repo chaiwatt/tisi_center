@@ -955,6 +955,10 @@ public function reject_doc_review(Request $request)
 
 public function accept_doc_review(Request $request)
 {
+
+    // dd($request->all());
+       // ตรวจสอบว่ามีไฟล์แนบมาหรือไม่
+
     try {
         $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id', $request->certiIbId)
             ->where('template', 'ib_doc_review_template')
@@ -978,6 +982,64 @@ public function accept_doc_review(Request $request)
             'doc_review_reject' => null,
             'doc_review_reject_message' => null,
         ]);
+
+        if ($request->hasFile('other_input_file')) {
+        
+            $certiIb = CertiIb::find($request->certiIbId);
+            // รับไฟล์
+            $file = $request->file('other_input_file');
+
+            $no  = str_replace("RQ-","",$certiIb->app_no);
+            $no  = str_replace("-","_",$no);
+
+            $attach_path  =  $this->attach_path.$no;
+            // $file_extension = $file->getClientOriginalExtension();
+            // $fileClientOriginal   =  HP::ConvertCertifyFileName($file->getClientOriginalName());
+            // $filename = pathinfo($fileClientOriginal, PATHINFO_FILENAME);
+            $fullFileName =  str_random(10).'-date_time'.date('Ymd_hms') . '.' . $file->getClientOriginalExtension();
+
+            $storagePath = Storage::putFileAs($attach_path, $file,  str_replace(" ","",$fullFileName) );
+            $storageName = basename($storagePath); // Extract the filename
+            // return  $no.'/'.$storageName;
+
+            $tb                                     = new CertiIB;
+            $certi_ib_attach_more                   = new CertiIBAttachAll();
+            $certi_ib_attach_more->app_certi_ib_id  = $request->certiIbId ?? null;
+            $certi_ib_attach_more->ref_id           = $request->certiIbId;
+            $certi_ib_attach_more->table_name       = $tb->getTable();
+            $certi_ib_attach_more->file_section     = '2131';
+            $certi_ib_attach_more->file             = $no.'/'.$storageName;
+            $certi_ib_attach_more->file_client_name = HP::ConvertCertifyFileName($file->getClientOriginalName());
+            $certi_ib_attach_more->token            = str_random(16);
+            $certi_ib_attach_more->save();
+
+
+            CertiIbHistory::create([
+                            'app_certi_ib_id'   => $request->certiIbId,
+                            'auditors_id'       => null,
+                            'system'            => 50,
+                            'table_name'        => $tb->getTable(),
+                            'ref_id'            => $request->certiIbId,
+                            'details_one'       => null,
+                            'details_two'       => null,
+                            'details_three'     => null,
+                            'details_four'      => null,
+                            'file'              => $certi_ib_attach_more->file,
+                            'file_client_name'  => HP::ConvertCertifyFileName($file->getClientOriginalName()),
+                            'attachs'           => null,
+                            'attach_client_name'=> null,
+                            'created_by'        =>  auth()->user()->runrecno
+                        ]);
+
+        }
+
+        // else{
+        //     return null;
+        // }
+
+        //     // public function set_attachs($attachs, $auditors,$number) {
+
+    // }
 
         // ส่งผลลัพธ์ว่าสำเร็จกลับไป
         return response()->json([

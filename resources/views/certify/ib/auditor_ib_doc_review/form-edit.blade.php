@@ -1178,8 +1178,8 @@
         // ดึงค่าของ radio ที่ถูกเลือก
         let agreeValue = $("input[name='result']:checked").val();
         console.log(agreeValue)
-        // return;
-        // alert('first');
+
+
 
         if(agreeValue == 1)
         {
@@ -1220,13 +1220,28 @@
             //         window.location.href = redirectUrl;
             //     }
             // });
+
+            let formData = new FormData();
+
+            // 2. ดึงข้อมูลไฟล์จาก input
+            // เราใช้ [0] เพื่อเข้าถึง DOM element และ .files[0] เพื่อเอาไฟล์แรกที่ผู้ใช้เลือก
+            let file = $('input[name="other_input_file"]')[0].files[0]; 
+
+            // 3. ตรวจสอบว่ามีไฟล์ถูกเลือกหรือไม่ (จัดการกรณีที่ไฟล์อาจจะไม่มี)
+            if (file) {
+                // ถ้ามีไฟล์ ให้แนบไฟล์ลงใน formData
+                formData.append('other_input_file', file);
+            }
+
+            formData.append('certiIbId', certiIb.id);
+            formData.append('_token', _token);
+
             $.ajax({
                 url: "{{ route('ib_accept_doc_review') }}",
                 method: "POST",
-                data: {
-                    certiIbId: certiIb.id,
-                    _token: _token
-                },
+                data: formData, // << ใช้ formData ที่เราสร้างขึ้น
+                processData: false, // << สำคัญมาก: บอก jQuery ไม่ให้แปลงข้อมูลเป็น query string
+                contentType: false, // << สำคัญมาก: บอก jQuery ไม่ให้ตั้งค่า Content-Type header เอง
                 success: function(result) {
                     // ตรวจสอบค่า success ที่ส่งมาจาก Controller
                     if (result.success === true) {
