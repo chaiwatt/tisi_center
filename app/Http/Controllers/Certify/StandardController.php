@@ -457,7 +457,7 @@ class StandardController extends Controller
             // $admin_msg = "ว้าว ๆ";
             // $request_status = 4;
 
-
+            // dd("ok");
             $excluded_user_ids = RoleUser::select('user_runrecno')->where('role_id', 44);
             $select_users  = User::select(DB::raw("CONCAT(reg_fname,' ',reg_lname) AS title"),'runrecno')
                                         // ->whereIn('runrecno',$user_ids)
@@ -556,6 +556,7 @@ class StandardController extends Controller
 
     public function save_standards(Request $request){
         // dd($request->all());
+        // set_standard_to->estandard_plan_to->estandard_offers_to
         $model = str_slug('certifystandard','-');
         if(auth()->user()->can('edit-'.$model)) {
             
@@ -641,6 +642,17 @@ class StandardController extends Controller
                     $this->save_sendmail($standard, $user_by);
                     $this->sendmail($standard_full, $user_by);
                 }
+
+                $standardOffer = $standard->set_standard_to->estandard_plan_to->estandard_offers_to;
+                // dd($request->all());
+                if($standardOffer != null){
+                    $standardOffer->update([
+                        'iso_number' => $request->std_no
+                    ]);
+                }
+
+                // set_standard_to->estandard_plan_to->estandard_offers_to
+
                 return response()->json(['msg' => 'success' , 'state' => 'success', 'url' => $url ]);
 
             } catch (\Exception $e) {
