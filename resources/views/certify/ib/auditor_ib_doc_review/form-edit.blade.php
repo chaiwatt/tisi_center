@@ -405,6 +405,10 @@
                     @endforeach
                 @endif
             </div>
+
+
+
+            
         </div>
 
 
@@ -431,6 +435,38 @@
             </div>
         </div>
     </div>
+
+    
+        <div class="row" style="margin-top: 20px">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-8">
+                <legend><h4>  เอกสารแนบเพิ่มเติม
+                </h4>
+                </legend>
+                <div class="clearfix"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-12 text-light">
+                                <div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                                    <div class="form-control" data-trigger="fileinput">
+                                        <i class="glyphicon glyphicon-file fileinput-exists"></i>
+                                        <span class="fileinput-filename"></span>
+                                    </div>
+                                    <span class="input-group-addon btn btn-default btn-file">
+                                        <span class="fileinput-new">เลือกไฟล์</span>
+                                        <span class="fileinput-exists">เปลี่ยน</span>
+                                        <input type="file" name="other_input_file" class="check_max_size_file">
+                                    </span>
+                                    <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">ลบ</a>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <div class="row" style="margin-top: 50px">
         

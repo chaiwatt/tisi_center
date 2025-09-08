@@ -163,7 +163,7 @@
         {{-- {!! Form::select('ics[]', $OpIcs, !empty($standard_ics)?$standard_ics:null, ['class' => 'select2-multiple', 'multiple'=>'multiple', 'id'=>'ics', 'data-placeholder'=>'- เลือก ICS -']) !!}
         {!! $errors->first('ics', '<p class="help-block">:message</p>') !!} --}}
 
-        <textarea class="form-control" rows="4" name="ics" cols="50" id="ics">{{ $standard->standardIcs()->ics_text}}</textarea>
+        <textarea class="form-control" rows="4" name="ics" cols="50" id="ics">{{ @$standard->standardIcs()->ics_text}}</textarea>
     </div>
 </div>
 

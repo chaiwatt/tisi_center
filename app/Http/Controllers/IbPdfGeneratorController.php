@@ -2525,6 +2525,7 @@ public function docResultReviewHtml($id)
 
     public function downloadAssessmentReviewHtml(Request $request)
     {
+        // dd("ok");
     
        $ibDocReviewAssessment=  IbDocReviewAssessment::where('app_certi_ib_id', $request->ibId)
                                 ->where('report_type', $request->templateType)
@@ -2718,6 +2719,7 @@ public function docResultReviewHtml($id)
                         </table>
 
                         <div stye="line-height:5px;font-size:8px">&nbsp;</div>
+                        <span style="line-height:20px;font-size:22px;font-weight: bold;">เรียน ผอ.สก. ผ่าน ผก.รต.</span><br><br>
 
                         <span style="line-height:20px;font-size:22px;font-weight: bold;">1. เรื่องเดิม</span><br>
                         <span style="line-height:20px;font-size:22px"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$certiIb->name.' ได้ยื่นคำขอการรับรองระบบงานหน่วยตรวจ ตามมาตรฐานเลขที่ มอก. 17020-2556  ต่อ สก. ผ่านระบบ e-Accreditation ตามคำขอเลขที่ '.$certiIb->app_no.' เมื่อวันที่ '.HP::formatDateThaiFullNumThai(Carbon::now()).'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.1)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.2)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.3)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.4)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1.5)</span>
@@ -2804,7 +2806,7 @@ public function docResultReviewHtml($id)
                             </tbody>
                         </table> 
                 '];
-  
+ 
         return response()->json([
             'pages' => $pages, 
             'status' => null

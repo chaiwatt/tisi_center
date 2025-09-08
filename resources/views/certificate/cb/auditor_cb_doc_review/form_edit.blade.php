@@ -61,7 +61,7 @@
         
         <div class="form-group">
             <label for="auditor" class="col-md-5 control-label">
-                <span class="text-danger">*</span> ชื่อผู้ยื่นคำขอ : 
+                <span class="text-danger">*</span> ชื่อผู้ยื่นคำขอ: 
             </label>
             <label  class="col-md-7 control-label" style="text-align: left">
                 <span class="text-danger"> </span> {{$tracking->certificate_export_to->applications->EsurvTrader->name}}
@@ -344,6 +344,20 @@
             </div>
         </div>
     </div>
+
+{{--     
+<div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                                <div class="form-control" data-trigger="fileinput">
+                                    <i class="glyphicon glyphicon-file fileinput-exists"></i>
+                                    <span class="fileinput-filename"></span>
+                                </div>
+                                <span class="input-group-addon btn btn-default btn-file">
+                                    <span class="fileinput-new">เลือกไฟล์</span>
+                                    <span class="fileinput-exists">เปลี่ยน</span>
+                                    <input type="file" name="other_attach" required class="check_max_size_file">
+                                </span>
+                                <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">ลบ</a>
+                            </div>  --}}
 
      @if ($tracking->trackingDocReviewAuditor->status == 1)
         <div class="form-group" style="margin-top: 20px">
