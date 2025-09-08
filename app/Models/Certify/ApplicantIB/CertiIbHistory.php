@@ -121,7 +121,8 @@ class CertiIbHistory extends Model
                     '8'=> 'บันทึกผลการตรวจประเมิน',
                     '9'=> 'สรุปรายงานและเสนอคณะกรรมการฯ',
                     '10'=> 'Pay-in ครั้งที่ 2',
-                    '11'=> 'ทบทวนฯ'
+                    '11'=> 'ทบทวนฯ',
+                    '50'=> 'แต่งตั้งคณะตรวจประเมินเอกสาร',
                   ];
         return  array_key_exists($this->system,$details) ?  $details[$this->system] : '-';
     }

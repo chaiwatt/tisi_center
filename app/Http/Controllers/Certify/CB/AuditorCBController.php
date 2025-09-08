@@ -1075,6 +1075,50 @@ public function sendMailAuditorDocReview($certi_cb,$cbDocReviewAuditor)
             'doc_review_reject_message' => null,
         ]);
 
+        if ($request->hasFile('other_input_file')) {
+
+              $certiCb = CertiCb::find($request->certiCbId);
+              $file = $request->file('other_input_file');
+
+              $no  = str_replace("RQ-","",$certiCb->app_no);
+              $no  = str_replace("-","_",$no);
+            
+              $attach_path  =  $this->attach_path.$no;
+            
+              $fullFileName =   str_random(10).'-date_time'.date('Ymd_hms') . '.' . $file->getClientOriginalExtension();
+
+              $storagePath = Storage::putFileAs($attach_path, $file,  str_replace(" ","",$fullFileName) );
+              $storageName = basename($storagePath); // Extract the filename
+              
+              $tb  = new CertiCB;
+              $certi_cb_attach_more = new CertiCBAttachAll();
+              $certi_cb_attach_more->app_certi_cb_id = $request->certiCbId;
+              $certi_cb_attach_more->ref_id = $request->certiCbId;
+              $certi_cb_attach_more->table_name = $tb->getTable();
+              $certi_cb_attach_more->file_section =  '2131';
+              $certi_cb_attach_more->file = $no.'/'.$storageName;;
+              $certi_cb_attach_more->file_client_name = HP::ConvertCertifyFileName($file->getClientOriginalName());
+              $certi_cb_attach_more->token = str_random(16);
+              $certi_cb_attach_more->save();
+
+              CertiCbHistory::create([ 
+                                'app_certi_cb_id'   => $request->certiCbId ,
+                                'auditors_id'       =>  null,
+                                'system'            => 50,
+                                'table_name'        => $tb->getTable(),
+                                'ref_id'            => $request->certiCbId,
+                                'details_one'       => null,
+                                'details_two'       => null,
+                                'details_three'     => null,
+                                'details_four'      => null,
+                                'file'              => $certi_cb_attach_more->file,
+                                'file_client_name'  =>  HP::ConvertCertifyFileName($file->getClientOriginalName()),
+                                'attachs'           => null,
+                                'attach_client_name'=> null,
+                                'created_by'        =>  auth()->user()->runrecno
+                          ]);
+        }
+
         // ส่งผลลัพธ์ว่าสำเร็จกลับไป
         return response()->json([
             'success' => true,

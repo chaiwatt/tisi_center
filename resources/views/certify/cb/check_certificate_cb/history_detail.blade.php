@@ -30,7 +30,9 @@
             @elseif( $history->system == 10)
                 @include ('certify/cb/check_certificate_cb/history.system10')
             @elseif( $history->system == 11)
-                 @include ('certify/cb/check_certificate_cb/history.system11')
+                @include ('certify/cb/check_certificate_cb/history.system11')
+             @elseif( $history->system == 50)
+                @include ('certify/cb/check_certificate_cb/history.doc_review')
             @endif
         @else 
         @endif
