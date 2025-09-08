@@ -143,6 +143,7 @@ class CertificateExportCBController extends Controller
      */
     public function create(Request $request)
     {
+        
         $model = str_slug('certificateexportcb','-');
        
         if(auth()->user()->can('add-'.$model)) {
@@ -219,7 +220,24 @@ class CertificateExportCBController extends Controller
      */
     public function store(Request $request)
     {
-       
+    //    dd($request->all());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         $model = str_slug('certificateexportcb','-');
         if(auth()->user()->can('add-'.$model)) {
            
@@ -345,11 +363,61 @@ class CertificateExportCBController extends Controller
                 ->where('petitioner',$certi_cb->petitioner)
                 ->where('trust_mark',$certi_cb->trust_mark_id)
                 ->first();
+                
+            $certificateNo = $export_cb->certificate; // << นี่คือค่าใหม่ที่ต้องการนำไปแทนที่ (เป็นค่าตัวอย่าง)
 
-// dd($cbHtmlTemplate);
+            // 2. Decode JSON ที่เก็บ HTML ออกมาเป็น Array
+            // ใช้ true เพื่อให้ได้ผลลัพธ์เป็น array, ถ้าไม่ใส่จะได้เป็น object
+            $allHtmlPages = json_decode($cbHtmlTemplate->html_pages, true);
+
+            // 3. เตรียม Array ว่างสำหรับเก็บหน้าที่แก้ไขแล้ว
+            $updatedPages = [];
+
+            // 4. วนลูปเพื่อแก้ไข HTML ในแต่ละหน้า (แม้ว่าจะมีหน้าเดียวก็ตาม)
+            foreach ($allHtmlPages as $htmlContent) {
+
+                // 4.1) สร้าง DOM object และโหลด HTML
+                $dom = new \DOMDocument('1.0', 'utf-8');
+
+                // ห่อหุ้ม HTML ด้วยโครงสร้างพื้นฐานเพื่อป้องกัน error และช่วยให้ parser ทำงานได้ถูกต้อง
+                $htmlWrapper = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $htmlContent . '</body></html>';
+                
+                // ปิดการแสดง error ของ libxml ชั่วคราว เพราะ HTML ของเราเป็นแค่ส่วนหนึ่ง (fragment)
+                libxml_use_internal_errors(true);
+                $dom->loadHTML($htmlWrapper);
+                libxml_clear_errors();
+
+                // 4.2) สร้าง XPath object
+                $xpath = new \DOMXPath($dom);
+
+                // 4.3) ค้นหา **ทุก Nodes** ที่มี class 'certificate_no'
+                // เราไม่ใช้ ->item(0) เพราะต้องการแก้ไขทุกจุดที่เจอ
+                $certificateNodes = $xpath->query("//span[contains(@class, 'certificate_no')]");
+
+                // 4.4) วนลูปเพื่อแทนที่ค่าในทุก Node ที่หาเจอ
+                foreach ($certificateNodes as $node) {
+                    $node->nodeValue = $certificateNo; // แทนที่ข้อความใน node ด้วยค่าใหม่
+                }
+
+                // 4.5) ดึงเฉพาะ HTML ที่อยู่ข้างใน <body> กลับออกมา
+                $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                $cleanedHtml = '';
+                foreach ($bodyNode->childNodes as $childNode) {
+                    $cleanedHtml .= $dom->saveHTML($childNode);
+                }
+                
+                // 4.6) เก็บ HTML ที่แก้ไขแล้วลงใน Array
+                $updatedPages[] = $cleanedHtml;
+            }
+
+            // 5. Encode กลับเป็น JSON และบันทึกลงฐานข้อมูล
+            $cbHtmlTemplate->html_pages = json_encode($updatedPages, JSON_UNESCAPED_UNICODE);
+            $cbHtmlTemplate->save();
+
+
                  if($request->status < 4)
                 {
-                    $this->exportCbScopePdf( $certi_cb->id,$cbHtmlTemplate);
+                    $this->exportCbScopePdf($certi_cb->id,$cbHtmlTemplate);
                    
                     // if($certi_cb->scope_table == "cb_scope_isic_transactions")
                     // {

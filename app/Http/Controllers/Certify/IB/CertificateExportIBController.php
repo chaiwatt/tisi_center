@@ -214,6 +214,23 @@ class CertificateExportIBController extends Controller
     public function store(Request $request)
     {
         // dd('ok');
+
+//  $certi_ib = CertiIb::findOrFail($request->app_certi_ib_id);
+
+//                 $ssoUser = DB::table('sso_users')->where('username', $certi_ib->tax_id)->first();  
+            
+//                 $ibHtmlTemplate = IbHtmlTemplate::where('user_id',$ssoUser->id)
+//                         ->where('type_standard',$certi_ib->type_standard)
+//                         ->where('app_certi_ib_id',$certi_ib->id)
+//                         ->where('type_unit',$certi_ib->type_unit)
+//                         ->first();
+
+
+//         dd($ibHtmlTemplate );
+
+
+
+
         $model = str_slug('certificateexportib','-');
         if(auth()->user()->can('add-'.$model)) {
             $request->validate([
@@ -335,6 +352,59 @@ class CertificateExportIBController extends Controller
                         ->where('app_certi_ib_id',$certi_ib->id)
                         ->where('type_unit',$certi_ib->type_unit)
                         ->first();
+
+
+                        $certificateNo = $export_ib->certificate;      // << ค่า Certificate No. ใหม่ (เป็นค่าตัวอย่าง)
+                        // $accreditationNo = "หน่วยตรวจ 9999"; // << ค่า Accreditation No. ใหม่ (เป็นค่าตัวอย่าง)
+
+                        // 2. Decode JSON ที่เก็บ HTML ออกมาเป็น Array
+                        $allHtmlPages = json_decode($ibHtmlTemplate->html_pages, true);
+
+                        // 3. เตรียม Array ว่างสำหรับเก็บหน้าที่แก้ไขแล้ว
+                        $updatedPages = [];
+
+                        // 4. วนลูปเพื่อแก้ไข HTML ในแต่ละหน้า
+                        foreach ($allHtmlPages as $htmlContent) {
+
+                            // 4.1) สร้าง DOM object และโหลด HTML
+                            $dom = new \DOMDocument('1.0', 'utf-8');
+                            $htmlWrapper = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $htmlContent . '</body></html>';
+                            
+                            libxml_use_internal_errors(true);
+                            $dom->loadHTML($htmlWrapper);
+                            libxml_clear_errors();
+
+                            // 4.2) สร้าง XPath object
+                            $xpath = new \DOMXPath($dom);
+
+                            // --- ส่วนที่ 1: แทนที่ Certificate No ---
+                            // 4.3) ค้นหาทุก Nodes ที่มี class 'certificate_no' และแทนที่ค่า
+                            $certificateNodes = $xpath->query("//span[contains(@class, 'certificate_no')]");
+                            foreach ($certificateNodes as $node) {
+                                $node->nodeValue = $certificateNo;
+                            }
+
+                            // --- ส่วนที่ 2: แทนที่ Accreditation No ---
+                            // 4.4) ค้นหาทุก Nodes ที่มี class 'accreditation_no' และแทนที่ค่า
+                            // $accreditationNodes = $xpath->query("//span[contains(@class, 'accreditation_no')]");
+                            // foreach ($accreditationNodes as $node) {
+                            //     $node->nodeValue = $accreditationNo;
+                            // }
+
+                            // 4.5) ดึงเฉพาะ HTML ที่อยู่ข้างใน <body> กลับออกมา
+                            $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                            $cleanedHtml = '';
+                            foreach ($bodyNode->childNodes as $childNode) {
+                                $cleanedHtml .= $dom->saveHTML($childNode);
+                            }
+                            
+                            // 4.6) เก็บ HTML ที่แก้ไขแล้วลงใน Array
+                            $updatedPages[] = $cleanedHtml;
+                        }
+
+                        // 5. Encode กลับเป็น JSON และบันทึกลงฐานข้อมูล
+                        $ibHtmlTemplate->html_pages = json_encode($updatedPages, JSON_UNESCAPED_UNICODE);
+                        $ibHtmlTemplate->save();
 
                 // dd($certi_lab,$labHtmlTemplate,$certi_lab->standard_id,$certi_lab->purpose_type,$lab_ability,$ssoUser->username);
 
