@@ -1079,7 +1079,12 @@
             document.getElementById('confirm-signature-btn').addEventListener('click', () => {
                 const selectedId = $('#signature-select').val();
                 const newPosition = $('#signer-position-input').val();
-                
+
+                if (!newPosition) {
+                    alert('กรุณากรอกตำแหน่ง');
+                    return;
+                }
+                            
                 if (selectedId && activeSignatureBlock) {
                     const selectedSigner = signersData.find(s => s.id == selectedId);
                     if (selectedSigner) {

@@ -11,41 +11,91 @@
     {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
 
     <style>
-        /* ปรับสไตล์ของ Select2 ให้เหมือน input ทั่วไป
-        */
+        /* --- Select2 Custom Theme ให้เข้ากับ THSarabunNew --- */
 
-        /* ปรับกรอบนอกให้เหมือนช่องอื่น */
+        /* กล่องหลัก */
         .select2-container--default .select2-selection--single {
-            border: 1px solid #ccc !important; 
-            border-radius: 6px !important;
-            height: 40px !important; /* ปรับความสูงให้เท่ากับช่องอื่น */
+            height: auto !important;          /* ให้ขยายอัตโนมัติ */
+            min-height: 40px;                 /* เท่ากับ select ปกติ */
+            padding: 6px 12px !important;     /* padding แบบเดียวกับ select */
+            display: flex !important;         
+            align-items: center !important;   /* จัดข้อความตรงกลางแนวตั้ง */
+            font-family: 'THSarabunNew', sans-serif;
+            font-size: 14pt;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            box-sizing: border-box;
         }
 
-        /* ปรับฟอนต์และข้อความข้างใน (ส่วนที่สำคัญที่สุด) */
-        .select2-container .select2-selection--single .select2-selection__rendered {
-            font-size: 14px;      /* << กำหนดขนาดฟอนต์ */
-            font-weight: normal;  /* << กำหนดความหนาฟอนต์เป็นปกติ */
-            color: #555;         /* ปรับสีฟอนต์ให้เหมือนช่องอื่น */
-            padding-top: 5px;     /* จัดตำแหน่งข้อความแนวตั้ง (อาจต้องปรับค่า) */
-            padding-left: 10px;   /* ระยะห่างด้านซ้าย */
+        /* ตอน hover / focus */
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default .select2-selection--single:hover {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            outline: none;
         }
 
-        /* ปรับลูกศรชี้ลง */
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            top: 6px !important;
+        /* ลูกศรด้านขวา */
+        .select2-container--default .select2-selection__arrow {
+            height: 100% !important;
+            right: 10px;
+            display: flex;
+            align-items: center;
         }
 
-        /* ปรับความกว้างของช่องค้นหาใน dropdown */
-        .select2-container--default.select2-container--open .select2-search--dropdown .select2-search__field {
-            width: 100% !important; /* ทำให้กว้างเต็มพื้นที่ dropdown */
-            box-sizing: border-box; /* รวม padding และ border ในขนาด */
+        /* ข้อความ placeholder */
+        .select2-container--default .select2-selection__placeholder {
+            color: #999;
+            font-style: italic;
         }
+
+        /* ตอนเลือกแล้ว */
+        .select2-container--default .select2-selection__rendered {
+            padding-left: 0 !important;
+            line-height: normal !important;
+        }
+
+        /* Dropdown list */
+        .select2-container--default .select2-dropdown {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-family: 'THSarabunNew', sans-serif;
+            font-size: 14pt;
+        }
+
+        /* item ใน dropdown */
+        .select2-container--default .select2-results__option {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        /* item ตอน hover */
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* item ตอนเลือกแล้ว */
+        .select2-container--default .select2-results__option[aria-selected="true"] {
+            background-color: #e9ecef;
+            color: #333;
+        }
+        .select2-selection__clear {
+            display: none !important;
+        }
+
     </style>
 
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+      <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 </head>
@@ -208,6 +258,15 @@
         const initialStatus = @json($status ?? 'draft');
 
         document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('signature-select');
+            if (select) {
+                $('#signature-select').select2({
+                    placeholder: "ค้นหารายชื่อ...",
+                    allowClear: true,
+                    width: '100%' // ให้เต็ม container
+                });
+            }
+
             document.execCommand('defaultParagraphSeparator', false, 'p');
             const editor = document.getElementById('document-editor');
             const exportButton = document.getElementById('export-pdf-button');
@@ -1180,6 +1239,11 @@
                 const selectedId = $('#signature-select').val();
                 const newPosition = $('#signer-position-input').val();
                 const selectedSequence = $('#signer-sequence-select').val();
+
+                if (!newPosition) {
+                    alert('กรุณากรอกตำแหน่ง');
+                    return;
+                }
 
                 // --- เริ่ม: โค้ดตรวจสอบลำดับซ้ำ ---
                 const allSignatureBlocks = editor.querySelectorAll('td > div[style*="border-top"]');

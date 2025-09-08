@@ -38,9 +38,9 @@
 
                 <div class="clearfix"></div>
             
-                {{-- @if (isset($certi_cb) && $certi_cb->FileAttach3->count() > 0)
+                @if (isset($certi_cb) && $certi_cb->FileAttach3->count() > 0)
                 <div class="row">
-                    @foreach($certi_cb->FileAttach3 as $data)
+                    @foreach($certi_cb->FileAttach3->reverse() as $data)
                       @if ($data->file)
                         <div class="col-md-12">
                             <div class="form-group">
@@ -62,9 +62,9 @@
                         @endif
                      @endforeach
                   </div>
-                @endif --}}
+                @endif
 
-                @if (isset($certi_cb) && $certi_cb->FileAttach3->count() > 0)
+                {{-- @if (isset($certi_cb) && $certi_cb->FileAttach3->count() > 0)
                     @php
                         // ดึงไฟล์ที่ id มากที่สุด (ล่าสุด)
                         $latestFile = $certi_cb->FileAttach3->sortByDesc('id')->first();
@@ -91,7 +91,7 @@
                             </div>
                         </div>
                     @endif
-                @endif
+                @endif --}}
       </div>  
     </div>
 </div>

@@ -7,8 +7,6 @@
     <title>eDocument Editor</title>
     {{-- Make sure this CSS file is adjusted to not have A4 page styling --}}
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         /* Add basic styling to replace A4 page look */
         #editor-container {
@@ -26,7 +24,94 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
             outline: none;
         }
+
+                /* --- Select2 Custom Theme ให้เข้ากับ THSarabunNew --- */
+
+        /* กล่องหลัก */
+        .select2-container--default .select2-selection--single {
+            height: auto !important;          /* ให้ขยายอัตโนมัติ */
+            min-height: 40px;                 /* เท่ากับ select ปกติ */
+            padding: 6px 12px !important;     /* padding แบบเดียวกับ select */
+            display: flex !important;         
+            align-items: center !important;   /* จัดข้อความตรงกลางแนวตั้ง */
+            font-family: 'THSarabunNew', sans-serif;
+            font-size: 14pt;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            box-sizing: border-box;
+        }
+
+        /* ตอน hover / focus */
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default .select2-selection--single:hover {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            outline: none;
+        }
+
+        /* ลูกศรด้านขวา */
+        .select2-container--default .select2-selection__arrow {
+            height: 100% !important;
+            right: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ข้อความ placeholder */
+        .select2-container--default .select2-selection__placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        /* ตอนเลือกแล้ว */
+        .select2-container--default .select2-selection__rendered {
+            padding-left: 0 !important;
+            line-height: normal !important;
+        }
+
+        /* Dropdown list */
+        .select2-container--default .select2-dropdown {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-family: 'THSarabunNew', sans-serif;
+            font-size: 14pt;
+        }
+
+        /* item ใน dropdown */
+        .select2-container--default .select2-results__option {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        /* item ตอน hover */
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* item ตอนเลือกแล้ว */
+        .select2-container--default .select2-results__option[aria-selected="true"] {
+            background-color: #e9ecef;
+            color: #333;
+        }
+        .select2-selection__clear {
+            display: none !important;
+        }
     </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+          <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
 </head>
 <body>
 
@@ -211,6 +296,15 @@
         const initialStatus = @json($status ?? 'draft');
 
         document.addEventListener('DOMContentLoaded', function() {
+        
+            const select = document.getElementById('signature-select');
+            if (select) {
+                $('#signature-select').select2({
+                    placeholder: "ค้นหารายชื่อ...",
+                    allowClear: true,
+                    width: '100%' // ให้เต็ม container
+                });
+            }
             document.execCommand('defaultParagraphSeparator', false, 'p');
             // The main editor is now a single div
             const editor = document.getElementById('document-editor');
@@ -1074,10 +1168,15 @@
             //     document.getElementById('signature-modal').style.display = 'none';
             // });
 
-                        document.getElementById('confirm-signature-btn').addEventListener('click', () => {
+            document.getElementById('confirm-signature-btn').addEventListener('click', () => {
                 const selectedId = $('#signature-select').val();
                 const newPosition = $('#signer-position-input').val();
                 const selectedSequence = $('#signer-sequence-select').val();
+
+                if (!newPosition) {
+                    alert('กรุณากรอกตำแหน่ง');
+                    return;
+                }
 
                 // --- เริ่ม: โค้ดตรวจสอบลำดับซ้ำ ---
                 const allSignatureBlocks = editor.querySelectorAll('td > div[style*="border-top"]');
