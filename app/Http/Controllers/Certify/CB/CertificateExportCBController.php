@@ -224,20 +224,6 @@ class CertificateExportCBController extends Controller
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         $model = str_slug('certificateexportcb','-');
         if(auth()->user()->can('add-'.$model)) {
            

@@ -94,6 +94,10 @@
         {!! Form::radio('type_unit', '3',false, ['class'=>'check checkLab', 'data-radio'=>'iradio_square-green']) !!}
          &nbsp;C 
      </label>
+          <label class="col-md-1  label-height" >
+        {!! Form::radio('type_unit', '4',false, ['class'=>'check checkLab', 'data-radio'=>'iradio_square-green']) !!}
+         &nbsp;Other
+     </label>
    {!! $errors->first('type_unit', '<p class="help-block">:message</p>') !!}
 </div>
 

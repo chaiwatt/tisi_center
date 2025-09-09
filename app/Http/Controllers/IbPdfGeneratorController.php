@@ -1171,6 +1171,14 @@ class IbPdfGeneratorController extends Controller
                                     ->first();
             if( $check == null)
             {
+
+                SignAssessmentReportTransaction::where('report_info_id', $report->id)
+                                ->where('certificate_type',1)
+                                ->where('signer_order',$signer['sequence'])
+                                ->where('report_type',$report_type)
+                                ->where('template',$template)
+                                ->delete();
+
             SignAssessmentReportTransaction::create([
                 'report_info_id' => $report->id,
                 'signer_id' => $signer['id'],
@@ -1457,6 +1465,14 @@ public function docReviewHtml($id)
 
                 if($check == null)
                 {
+
+                    SignAssessmentReportTransaction::where('report_info_id', $certiIbId)
+                                ->where('certificate_type',1)
+                                ->where('signer_order',$signer['sequence'])
+                                ->where('report_type',1)
+                                ->where('template',"ib_doc_review_template")
+                                ->delete();
+
                     SignAssessmentReportTransaction::create([
                         'report_info_id' => $certiIbId,
                         'signer_id' => $signer['id'],
@@ -2151,6 +2167,14 @@ public function docResultReviewHtml($id)
                 if (!isset($signer['id'], $signer['name'], $signer['position'])) {
                     continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
                 }
+
+                SignAssessmentReportTransaction::where('report_info_id', $certiIbId)
+                    ->where('certificate_type',1)
+                    ->where('signer_order',$key)
+                    ->where('report_type',1)
+                    ->where('template',$request->templateType)
+                    ->delete();
+
                 SignAssessmentReportTransaction::create([
                     'report_info_id' => $certiIbId,
                     'signer_id' => $signer['id'],
@@ -2881,6 +2905,12 @@ public function docResultReviewHtml($id)
 
                 if($check == null)
                 {
+
+                     MessageRecordTransaction::where('board_auditor_id',$certiIb->id)
+                    ->where('signer_order',$signer['sequence'])
+                    ->where('job_type',$request->templateType)
+                    ->delete();
+
                     MessageRecordTransaction::create([
                         'board_auditor_id' => $certiIb->id,
                         'signer_id' => $signer['id'],
@@ -3865,6 +3895,14 @@ $certiIb = CertiIb::find($request->ibId);
                 
                 if($check  == null)
                 {
+
+                    SignAssessmentReportTransaction::where('report_info_id', $certiIbId)
+                    ->where('certificate_type',1)
+                    ->where('signer_order',$signer['sequence'])
+                    ->where('report_type',1)
+                    ->where('template',$request->templateType)
+                    ->delete();
+
                 // dd($check);
                 SignAssessmentReportTransaction::create([
                     'report_info_id' => $certiIbId,
@@ -4236,6 +4274,11 @@ $certiIb = CertiIb::find($request->ibId);
 
                 if($check == null)
                 {
+                    MessageRecordTransaction::where('board_auditor_id',$certiIb->id)
+                    ->where('signer_order',$signer['sequence'])
+                    ->where('job_type',$request->templateType)
+                    ->delete();
+                    
                     MessageRecordTransaction::create([
                         'board_auditor_id' => $certiIb->id,
                         'signer_id' => $signer['id'],

@@ -218,7 +218,7 @@
                 <div class="clearfix"></div>
                 @if ($certiCb->FileAttach1->count() > 0)
                     <div class="row">
-                        @foreach($certiCb->FileAttach1 as $data)
+                        @foreach($certiCb->FileAttach1->unique('file_client_name') as $data)
                             @if ($data->file)
                                 <div class="col-md-12">
                                     <div class="form-group">

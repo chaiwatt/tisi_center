@@ -19,6 +19,8 @@
     </div>
 </div>
 
+{{-- {{$standard_change}} --}}
+
 <div class="form-group {{ $errors->has('standard_change') ? 'has-error' : ''}}">
     {!! HTML::decode(Form::label('name_standard', 'วัตถุประสงค์ในการยื่นคำขอ'.':'.'<br/><span class=" font_size">(Apply to NSC for)</span>', ['class' => 'col-md-3 control-label label-height'])) !!}
     <label  class="col-md-2 label-height" >
@@ -43,6 +45,10 @@
     </label>
 </div>
 
+
+{{-- @php
+    dd(@$certi_cb);
+@endphp --}}
 @if(!empty($certi_cb->standard_change) && $certi_cb->standard_change != 1)
     <div id="box_ref_application_no" >
         <div class="form-group {{ $errors->has('app_no') ? 'has-error' : ''}}">

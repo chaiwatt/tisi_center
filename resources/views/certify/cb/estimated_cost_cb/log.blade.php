@@ -97,7 +97,9 @@
                  <p class="text-nowrap">ขอบข่าย :</p>
                  </div>
                  <div class="col-md-9">
-                 @foreach($attachs as $scope)
+                 {{-- @foreach($attachs as $scope) --}}
+                 @foreach(array_slice($attachs, -1) as $scope)
+                 
                          <p>
                              <a href="{{url('certify/check/file_cb_client/'.$scope->file.'/'.( !empty($scope->file_client_name) ? $scope->file_client_name : basename($scope->file) ))}}" target="_blank">
                                 {{  !empty($scope->file_client_name) ? $scope->file_client_name :  basename($scope->file)   }}

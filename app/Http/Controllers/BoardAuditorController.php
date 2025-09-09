@@ -587,6 +587,16 @@ class BoardAuditorController extends Controller
                 foreach ($signatures as $signatureId => $signature) {
                     try {
                         // ลองสร้างข้อมูลในฐานข้อมูล
+
+                        // MessageRecordTransaction::where('board_auditor_id',$baId)
+                        // ->where('signer_order',preg_replace('/[^0-9]/', '', $signatureId))
+                        // ->delete();
+
+                          MessageRecordTransaction::where('board_auditor_id',$baId)
+                        ->where('signer_order',preg_replace('/[^0-9]/', '', $signatureId))
+                        ->whereNull('job_type')
+                        ->delete();
+
                         MessageRecordTransaction::create([
                             'board_auditor_id' => $baId,
                             'signer_id' => $signature['signer_id'],
@@ -670,6 +680,17 @@ class BoardAuditorController extends Controller
                     // echo "Signer ID: $signerId<br>";
                     // echo "Signer Position: $signerPosition<br>";
                     // echo "Line Space: $lineSpace<br>";
+
+                    // MessageRecordTransaction::where('board_auditor_id',$baId)
+                    //     ->where('signer_order',preg_replace('/[^0-9]/', '', $signatureId))
+                    //     ->delete();
+
+                    MessageRecordTransaction::where('board_auditor_id',$baId)
+                        ->where('signer_order',preg_replace('/[^0-9]/', '', $signatureId))
+                        ->whereNull('job_type')
+                        ->delete();
+
+
                     MessageRecordTransaction::create([
                         'board_auditor_id' => $baId,
                         'signer_id' => $signerId,

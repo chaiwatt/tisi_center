@@ -225,10 +225,21 @@
                         $file_sectionn1 = App\Models\Certify\ApplicantIB\CertiIBAttachAll::where('app_certi_ib_id', $certiIb->id )->where('file_section', '1')->get();
                     @endphp
 
-                    @foreach ( $file_sectionn1 as $section1 )
+                    {{-- @foreach ( $file_sectionn1 as $section1 )
                         <div class="form-group">
                             <div class="col-md-12">
                                  <a href="{!! HP::getFileStorage($attach_path.$section1->file) !!}" target="_blank" > {!! HP::FileExtension($section1->file)  ?? '' !!} {!! $section1->file_client_name !!}</a>
+                            </div>
+                        </div>
+                    @endforeach --}}
+
+                    @foreach ( $file_sectionn1->unique('file_client_name') as $section1 )
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <a href="{!! HP::getFileStorage($attach_path.$section1->file) !!}" target="_blank" > 
+                                    {!! HP::FileExtension($section1->file) ?? '' !!} 
+                                    {!! $section1->file_client_name !!}
+                                </a>
                             </div>
                         </div>
                     @endforeach

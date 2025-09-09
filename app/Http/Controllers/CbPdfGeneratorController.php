@@ -1184,6 +1184,14 @@ class CbPdfGeneratorController extends Controller
                             ->where('template',$template)
                             ->first();
             if($check == null){
+
+                SignAssessmentReportTransaction::where('report_info_id',$report->id)
+                            ->where('certificate_type',0)
+                            ->where('signer_order',$signer['sequence'])
+                            ->where('report_type',$report_type)
+                            ->where('template',$template)
+                            ->delete();
+
                 SignAssessmentReportTransaction::create([
                     'report_info_id' => $report->id,
                     'signer_id' => $signer['id'],
@@ -1348,6 +1356,14 @@ class CbPdfGeneratorController extends Controller
                 if($check  == null)
                 {
                 // dd($check);
+
+                SignAssessmentReportTransaction::where('report_info_id',$certiCbId)
+                            ->where('certificate_type',0)
+                            ->where('signer_order',$signer['sequence'])
+                            ->where('report_type',1)
+                            ->where('template',"cb_doc_review_template")
+                            ->delete();
+
                 SignAssessmentReportTransaction::create([
                     'report_info_id' => $certiCbId,
                     'signer_id' => $signer['id'],
@@ -2440,6 +2456,7 @@ class CbPdfGeneratorController extends Controller
         $htmlContent = str_replace('☑', '<input type="checkbox" checked="checked">', $htmlContent);
         $htmlContent = str_replace('☐', '<input type="checkbox">', $htmlContent);
 
+        // dd($reportType);
         try {
             // 5. บันทึกหรืออัปเดตข้อมูลด้วย updateOrCreate
             CbDocReviewAssessment::updateOrCreate(
@@ -2479,7 +2496,12 @@ class CbPdfGeneratorController extends Controller
 
                 if($check == null)
                 {
-                     
+                 
+                    MessageRecordTransaction::where('board_auditor_id',$certiCb->id)
+                    ->where('signer_order',$signer['sequence'])
+                    ->where('job_type',$request->templateType)
+                    ->delete();
+
                     MessageRecordTransaction::create([
                         'board_auditor_id' => $certiCb->id,
                         'signer_id' => $signer['id'],
@@ -3243,6 +3265,14 @@ class CbPdfGeneratorController extends Controller
                 if($check  == null)
                 {
                 // dd($check);
+
+                SignAssessmentReportTransaction::where('report_info_id',$certiCbId)
+                            ->where('certificate_type',0)
+                            ->where('signer_order',$signer['sequence'])
+                            ->where('report_type',1)
+                            ->where('template',$request->templateType)
+                            ->delete();
+
                 SignAssessmentReportTransaction::create([
                     'report_info_id' => $certiCbId,
                     'signer_id' => $signer['id'],
@@ -3620,6 +3650,11 @@ class CbPdfGeneratorController extends Controller
 
                 if($check == null)
                 {
+
+                     MessageRecordTransaction::where('board_auditor_id',$certiCb->id)
+                    ->where('signer_order',$signer['sequence'])
+                    ->where('job_type',$request->templateType)
+                    ->delete();
                      
                     MessageRecordTransaction::create([
                         'board_auditor_id' => $certiCb->id,
@@ -3986,6 +4021,14 @@ class CbPdfGeneratorController extends Controller
                 if (!isset($signer['id'], $signer['name'], $signer['position'])) {
                     continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
                 }
+
+              SignAssessmentReportTransaction::where('report_info_id',$certiCbId)
+                            ->where('certificate_type',0)
+                            ->where('signer_order',$key)
+                            ->where('report_type',1)
+                            ->where('template',$request->templateType)
+                            ->delete();
+
                 SignAssessmentReportTransaction::create([
                     'report_info_id' => $certiCbId,
                     'signer_id' => $signer['id'],

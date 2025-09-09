@@ -659,6 +659,11 @@ class AuditorCBController extends Controller
              if ($signatures) {
                  foreach ($signatures as $signatureId => $signature) {
                      try {
+                        MessageRecordTransaction::where('board_auditor_id',$baId)
+                        ->where('signer_order',preg_replace('/[^0-9]/', '', $signatureId))
+                        ->whereNull('job_type')
+                        ->delete();
+
                          // ลองสร้างข้อมูลในฐานข้อมูล
                          MessageRecordTransaction::create([
                              'board_auditor_id' => $baId,
