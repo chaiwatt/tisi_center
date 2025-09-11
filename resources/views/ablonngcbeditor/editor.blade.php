@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Document Editor รายงานแต่งตั้งตรวจเอกสาร</title>
+    <title>Document Editor | CB รายงานแต่งตั้งตรวจเอกสาร</title>
     {{-- Make sure this CSS file is adjusted to not have A4 page styling --}}
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
         <style>
@@ -1002,6 +1002,11 @@
 
             const loadTemplateBtn = document.getElementById('load-template-btn');
             loadTemplateBtn.addEventListener('click', () => {
+                downloadTemplate();
+            });
+
+            function downloadTemplate()
+            {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
                 // alert('aha');
@@ -1053,9 +1058,10 @@
                     loadingIndicator.style.display = 'none';
                     loadTemplateBtn.disabled = false;
                 });
-            });
+            }
 
 
+            downloadTemplate();
 
             // NEW: Default Template Download Logic
             const loadDefaultTemplateBtn = document.getElementById('load-default-template-btn');

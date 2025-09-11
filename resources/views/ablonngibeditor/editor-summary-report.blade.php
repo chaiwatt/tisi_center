@@ -1005,6 +1005,12 @@
 
             const loadTemplateBtn = document.getElementById('load-template-btn');
             loadTemplateBtn.addEventListener('click', () => {
+                downloadTemplate();
+            });
+
+
+            function downloadTemplate()
+            {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
                 // alert('fk');
@@ -1055,9 +1061,9 @@
                     loadingIndicator.style.display = 'none';
                     loadTemplateBtn.disabled = false;
                 });
-            });
+            }
 
-
+            downloadTemplate();
 
             // NEW: Default Template Download Logic
             const loadDefaultTemplateBtn = document.getElementById('load-default-template-btn');

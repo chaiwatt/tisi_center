@@ -287,6 +287,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
 
+            
             const select = document.getElementById('signature-select');
             if (select) {
                 $('#signature-select').select2({
@@ -303,6 +304,7 @@
             const loadingIndicator = document.getElementById('loading-indicator');
             let activeSignatureBlock = null; 
             let signersData = []; 
+
             
             // ... (โค้ดส่วน formatButtons และอื่นๆ ไม่เปลี่ยนแปลง)
             const formatButtons = [
@@ -315,6 +317,9 @@
                 { id: 'align-center-btn', command: 'justifyCenter' },
                 { id: 'align-right-btn', command: 'justifyRight' },
             ];
+
+          
+
             formatButtons.forEach(btnInfo => {
                 const button = document.getElementById(btnInfo.id);
                 if (button) {
@@ -1123,6 +1128,15 @@
 
             const loadTemplateBtn = document.getElementById('load-template-btn');
             loadTemplateBtn.addEventListener('click', () => {
+                
+                downloadTemplate();
+            });
+
+           
+
+
+            function downloadTemplate()
+            {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
                 
@@ -1179,12 +1193,14 @@
                     loadingIndicator.style.display = 'none';
                     loadTemplateBtn.disabled = false;
                 });
-            });
+            }
+
+
+             downloadTemplate();
 
 
 
-
-             const loadDefaultTemplateBtn = document.getElementById('load-default-template-btn');
+            const loadDefaultTemplateBtn = document.getElementById('load-default-template-btn');
             loadDefaultTemplateBtn.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
@@ -1552,6 +1568,7 @@
                 closeBtn.addEventListener('click', closeModal);
                 okBtn.addEventListener('click', closeModal);
             }
+            // 
         });
     </script>
 </body>

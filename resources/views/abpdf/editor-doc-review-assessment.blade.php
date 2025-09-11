@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Document Editor</title>
+    <title>Document Editor | แต่งตั้งผู้ตรวจเอกสาร</title>
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
         <style>
         /* --- Select2 Custom Theme ให้เข้ากับ THSarabunNew --- */
@@ -1093,11 +1093,14 @@
 
             const loadTemplateBtn = document.getElementById('load-template-btn');
             loadTemplateBtn.addEventListener('click', () => {
+                downloadTemplate();
+            });
+
+            function downloadTemplate()
+            {
                 loadingIndicator.style.display = 'inline-block';
                 loadTemplateBtn.disabled = true;
 
-                
-                
                 fetch("{{ route('ib.download-assessment-review-html-template') }}", {
                     method: 'POST',
                     headers: {
@@ -1151,8 +1154,11 @@
                     loadingIndicator.style.display = 'none';
                     loadTemplateBtn.disabled = false;
                 });
-            });
+            }
 
+            downloadTemplate();
+
+            
             const loadDefaultTemplateBtn = document.getElementById('load-default-template-btn');
             loadDefaultTemplateBtn.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';

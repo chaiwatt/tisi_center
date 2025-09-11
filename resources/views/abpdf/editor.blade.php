@@ -1208,6 +1208,8 @@
                     loadTemplateBtn.disabled = false;
                 });
             });
+
+
             
             // if (initialStatus === 'final') {
             //     lockEditor();
