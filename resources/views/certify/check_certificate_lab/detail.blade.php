@@ -24,7 +24,7 @@
             @endcan
         </div>
 
-        <h3 class="box-title" style="display: inline-block;">คำขอรับใบรับรองห้องปฏิบัติการ check {{ $cc->applicant->app_no ?? '-' }}
+        <h3 class="box-title" style="display: inline-block;">คำขอรับใบรับรองห้องปฏิบัติการ check {{ $cc->applicant->app_no ?? '-' }} status {{ $cc->applicant->status }}
     @php
         $exported = $cc->applicant->certificate_export;
     @endphp
@@ -421,6 +421,7 @@
     @endif
  
 
+    {{-- {{$applicant->status}} --}}
 
 
 
@@ -457,7 +458,7 @@
                     </a>
                 @endif --}}
 
-
+       
                 @if ($applicant->pendingSignAssessmentReportTransaction()->count() == 0)
                         <button type="button" class="form_group btn {{ $btn_report }}" data-toggle="modal" data-target="#exampleModalReport">
                                 {!! $report_icon !!} สรุปรายงาน
@@ -561,22 +562,39 @@
                     ตรวจสอบขอบข่าย
                 </button>
             </div>
-{{-- {{$applicant->scope_view_status}} --}}
+
             @if ($applicant->scope_view_status == 1)
-                 <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
-                    <i class="fa fa-paperclip"></i>  แนบท้าย
-                </a> 
+                {{-- {{$applicant}} --}}
+                
+                @if ($applicant->purpose_type == 5)
+                        <div class="btn-group form_group">
+                            <form action="{{ url('/certify/certificate-export-lab/create')}}" method="POST" style="display:inline"  > 
+                                {{ csrf_field() }}
+                                {!! Form::hidden('app_token', (!empty($applicant->token) ? $applicant->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
+                                @if ($applicant->scope_view_signer_id == null)
+                                    <button class="btn btn-warning" type="submit" >
+                                        ออกใบรับรอง
+                                    </button>
+                                @else
+                                    @if ($applicant->scope_view_status !== null)
+                                        <button class="btn btn-warning" type="submit">
+                                            ออกใบรับรอง
+                                        </button>
+                                    @endif
+                                @endif
+                            </form>
+                        </div>
+                    @else
+                        <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
+                            <i class="fa fa-paperclip"></i>  แนบท้าย
+                        </a> 
+                @endif
+                
             @endif
 
 
            
-            {{-- @else
-                @if ($applicant->scope_view_status !== null)
-                    <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail/".$applicant->token)}}" >
-                        <i class="fa fa-paperclip"></i>  แนบท้าย
-                    </a> 
-                @endif
-            @endif --}}
+       
             
         @endif
     @else 

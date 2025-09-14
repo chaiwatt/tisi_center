@@ -75,7 +75,9 @@ class Notice extends Model
 
     public function CertificateHistorys() 
     {
-        $ao = new Notice;
+        // dd($this->app_no);
+         $ao = new Notice;
+    //    dd()
         $certiLab = CertiLab::find($this->app_certi_lab_id);
         return $this->hasMany(CertificateHistory::class,'ref_id', 'id')
         ->where('system',4)

@@ -995,7 +995,7 @@ class BoardAuditorController extends Controller
                 $certi_lab = CertiLab::where('id',$auditors->app_certi_lab_id)->first();
     
                 if(!is_null($certi_lab)){
-                    $certi_lab->status = 7; // 
+                    $certi_lab->status = 7;  
                     $certi_lab->save();
 
                     $cost =  CostAssessment::where('app_certi_lab_id',$certi_lab->id)->orderby('id','desc')->first();
