@@ -1696,13 +1696,19 @@ $accereditatioNo = $certificateExport->accereditatio_no;
 
     public function viewLabMessageRecord($id)
 {
+  
     $boardAuditor = BoardAuditor::find($id);
-    if (!$boardAuditor) {
+     
+    if ($boardAuditor == null) {
         abort(404, 'ไม่พบข้อมูล BoardAuditor');
     }
 
     // $boardAuditorMsRecordInfo = $boardAuditor->boardAuditorMsRecordInfos->first();
     $boardAuditorMsRecordInfo = BoardAuditorMsRecordInfo::where('board_auditor_id',$boardAuditor->id)->first();
+
+    if($boardAuditorMsRecordInfo == null){
+       return redirect()->back()->with('error', 'ไม่พบรายการแต่งตั้ง');
+    }
 
     $groups = $boardAuditor->groups ?? collect();
 

@@ -17,6 +17,7 @@ use App\Services\CreateIbMessageRecordPdf;
 use App\Services\CreateLabMessageRecordPdf;
 use App\Models\Certify\Applicant\CheckExaminer;
 use App\Models\Certify\MessageRecordTransaction;
+use App\Models\Bcertify\BoardAuditorMsRecordInfo;
 use App\Models\Certify\ApplicantCB\CertiCBAuditors;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Models\Certify\LabMessageRecordTransaction;
@@ -262,6 +263,24 @@ class AuditorAssignmentController extends Controller
                 ]);
             }
 
+           
+
+            if($currentTransaction->certificate_type == 2){
+                $record = BoardAuditorMsRecordInfo::where('board_auditor_id',$currentTransaction->board_auditor_id)->first();
+                if($record == null){
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'อยู่ระหว่างจัดทำรายงาน'
+                    ]);
+                }
+            }else if($currentTransaction->certificate_type == 1) {
+
+            }elseif ($currentTransaction->certificate_type == 1)
+            {
+
+            }
+
+            //  dd("ok");
             // 3. ถ้าผ่านการตรวจสอบ ให้ทำการอัปเดตสถานะการลงนาม
             $currentTransaction->update(['approval' => 1]);
 

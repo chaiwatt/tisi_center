@@ -19,7 +19,11 @@
             <div class="col-sm-12">
                 <div class="white-box">
                     <h3 class="box-title pull-left">ระบบลงนามบันทึกข้อความ</h3>
-
+@if (session('error'))
+    <script>
+        alert("{{ session('error') }}");
+    </script>
+@endif
                     <div class="pull-right">
 
                       {{-- @can('add-'.str_slug('sendcertificates'))
