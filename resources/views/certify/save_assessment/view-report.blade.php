@@ -2337,6 +2337,8 @@
                     _token: '{{ csrf_token() }}' // ส่ง CSRF token สำหรับ Laravel
                 },
                 success: function(response) {
+
+                    // console.log('f',defaultSignerIds,response.signers);
                     if (response.signers && Array.isArray(response.signers)) {
                         // ลบ option เก่าใน <select>
                         $('.signature-select').empty().append('<option value="">- ผู้ลงนาม -</option>');

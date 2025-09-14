@@ -316,11 +316,13 @@
                             @if(isset($notice)  && !is_null($notice->attachs)) 
                                 @php 
                                 $attachs = json_decode($notice->attachs);
+                                // dd(count($attachs));
                                 @endphp
                                     @foreach($attachs as  $key => $item)
                                         <div class="row">
                                             <div class="col-md-2 text-light"></div>
                                             <div class="col-md-10">
+                                                
                                                <a href="{{url('certify/check/file_client/'.$item->attachs.'/'.( !empty($item->attachs_client_name) ? $item->attachs_client_name : 'null' ))}}" 
                                                       title=" {{ !empty($item->attachs_client_name) ? $item->attachs_client_name :  basename($item->attachs)}}"  target="_blank">
                                                     {!! HP::FileExtension($item->attachs)  ?? '' !!}

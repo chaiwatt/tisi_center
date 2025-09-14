@@ -451,7 +451,7 @@
             <div id="other_attach">
                 <div class="form-group other_attach_item">
                     <div class="col-md-2 text-light">
-                        <label for="#" class="label_other_attach text-light">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ไฟล์แนบ : </label>
+                        <label for="#" class="label_other_attach text-light">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ไฟล์แนบ: </label>
 
                     </div>
                     <div class="col-md-6">
@@ -478,9 +478,12 @@
                     </div>
                 </div>
             </div>
-            @if(isset($notice)  && !is_null($notice->attachs)) 
+            {{--  @if(isset($notice)  && !is_null($notice->attachs))  --}}
+            @if(isset($find_notice)  && !is_null($find_notice->attachs)) 
+          
                 @php 
-                $attachs = json_decode($notice->attachs);
+                $attachs = json_decode($find_notice->attachs);
+                // dd($attachs);
                 @endphp
                     @foreach($attachs as  $key => $item)
                         <div class="row">
