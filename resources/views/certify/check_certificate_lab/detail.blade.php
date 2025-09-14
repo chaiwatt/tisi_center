@@ -582,7 +582,7 @@
     @else 
  
 
-
+{{-- {{$applicant->report_to->ability_confirm}} --}}
         @if ($applicant->report_to->ability_confirm !== null)
             @include ('certify.check_certificate_lab.modal_scope_review')
             @php
