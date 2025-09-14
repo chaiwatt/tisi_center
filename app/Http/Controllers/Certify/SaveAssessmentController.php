@@ -2363,13 +2363,12 @@ class SaveAssessmentController extends Controller
             $labScopeTransaction = LabScopeTransaction::where('app_certi_lab_id',$app_certi_lab->id)->first();
 
             // $defaultSignerIds = [167,168,169];
-            $group = SignerGroup::where('name', 'lab')->first();
-            $signerIdsJsonString = $group->signer_ids;
-            $defaultSignerIds = json_decode($signerIdsJsonString, true);
+            // $group = SignerGroup::where('name', 'lab')->first();
+            // $signerIdsJsonString = $group->signer_ids;
+            // $defaultSignerIds = json_decode($signerIdsJsonString, true);
 
             $subgroup = $certi_lab->subgroup;
 
-            // $userGoups = User::where('reg_sub', $userRunrecnos)->where('reg_subdepart',$certi_lab->subgroup)->get();
             $groupAdminUsers = User::where('reg_subdepart', $subgroup)->get();
 
             $defaultSignerIds = [];
@@ -2392,13 +2391,9 @@ class SaveAssessmentController extends Controller
                             ->whereJsonContains('main_group', auth()->user()->DepartmentId)
                             ->pluck('id');
 
-                // 3. นำมารวมกันและหาค่าที่ไม่ซ้ำ
-                //    - merge(): นำ $defaultSignerIds (Array) มารวมกับ $signs (Collection)
-                //    - unique(): กรองเอาเฉพาะค่าที่ไม่ซ้ำกัน
-                //    - values()->toArray(): จัดเรียง key ใหม่และแปลงผลลัพธ์สุดท้ายให้เป็น Array
                 $allUniqueSignerIds = $signs->merge($defaultSignerIds)->unique()->toArray();
 
-// dd($allUniqueSignerIds );
+
 
             return view('certify.save_assessment.view-report', [
                 'labReportInfo' => $labReportInfo,
@@ -3309,9 +3304,36 @@ class SaveAssessmentController extends Controller
             // dd("ok");
             // dd($boardAuditor->board_auditors_date->start_date);
 
-            $group = SignerGroup::where('name', 'lab')->first();
-            $signerIdsJsonString = $group->signer_ids;
-            $defaultSignerIds = json_decode($signerIdsJsonString, true);
+            // $group = SignerGroup::where('name', 'lab')->first();
+            // $signerIdsJsonString = $group->signer_ids;
+            // $defaultSignerIds = json_decode($signerIdsJsonString, true);
+
+                        $subgroup = $certi_lab->subgroup;
+
+            $groupAdminUsers = User::where('reg_subdepart', $subgroup)->get();
+
+            $defaultSignerIds = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $defaultSignerIds = Signer::whereIn('tax_number',$allReg13Ids)->pluck('id')->toArray();
+            }
+
+            // dd($firstSignerGroups);
+
+               $signs = Signer::select('id','name')->whereJsonContains('main_group', auth()->user()->DepartmentId)->pluck('id');
+
+               // 2. โค้ดส่วนที่สองของคุณ (ได้ผลลัพธ์เป็น Collection)
+                $signs = Signer::select('id', 'name')
+                            ->whereJsonContains('main_group', auth()->user()->DepartmentId)
+                            ->pluck('id');
+
+                $allUniqueSignerIds = $signs->merge($defaultSignerIds)->unique()->toArray();
+
         //   dd("ok");
             return view('certificate.labs.assessment-labs.view-report', [
                 'labReportInfo' => $labReportInfo,
@@ -3325,7 +3347,7 @@ class SaveAssessmentController extends Controller
                 'approveNoticeItems' => $approveNoticeItems,
                 'labInformation' => $labInformation[0],
                 'id' => $id,
-                'defaultSignerIds' => $defaultSignerIds
+                'defaultSignerIds' => $allUniqueSignerIds
             ]);
 
 
