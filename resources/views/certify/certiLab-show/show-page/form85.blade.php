@@ -40,6 +40,14 @@ $labRequestBranchs = [];
                             <label for="">ต่ออายุใบรับรอง</label>
                     @elseif ($certi_lab->purpose_type == 3)
                             <label for="">ขยายขอบข่าย</label>
+                    @elseif ($certi_lab->purpose_type == 4)
+                            <label for="">เปลี่ยนแปลงมาตรฐาน</label>
+                      @elseif ($certi_lab->purpose_type == 4)
+                            <label for="">เปลี่ยนแปลงมาตรฐาน</label>
+                        @elseif ($certi_lab->purpose_type == 5)
+                            <label for="">ย้ายสถานที่</label>
+                        @elseif ($certi_lab->purpose_type == 6)
+                            <label for="">โอนใบรับรอง</label>
                      @endif
                 </label>
                  </div>
@@ -49,10 +57,27 @@ $labRequestBranchs = [];
             <div class="row">
                  <div class="col-md-4 text-right">
                     อ้างอิงเลขที่คำขอ : 
+
+                    @if ($certi_lab->purpose_type == 1)
+                             A
+                        @else
+                             
+                             @if ($certi_lab->certi_lab_export_mapreq_to != null)
+                                 {{-- {{$certi_lab->certi_lab_export_mapreq_to}} --}}
+                                 
+                                 @php
+                                    $certifiCateExport = $certi_lab->getCertificateExport($certi_lab->certi_lab_export_mapreq_to->certificate_exports_id);
+                                    // dd($certifiCateExport);
+                                 @endphp
+                             @endif
+                            
+                    @endif
                  </div>
                  <div class="col-md-8 text-left">
                     <label for="lab_name">
-                        {{ @$certi_lab->certificate_exports_id }}
+                         @if ($certifiCateExport != null)
+                            {{$certifiCateExport->request_number}}
+                        @endif
                    </label>
                  </div>
             </div>
@@ -64,7 +89,10 @@ $labRequestBranchs = [];
                  </div>
                  <div class="col-md-8 text-left">
                     <label for="lab_name">
-                        {{ $certi_lab->certificate_exports_id }}
+                        {{-- {{ $certi_lab->certificate_exports_id }} --}}
+                        @if ($certifiCateExport != null)
+                            {{$certifiCateExport->certificate_no}}
+                        @endif
                    </label>
                  </div>
             </div>
@@ -76,7 +104,10 @@ $labRequestBranchs = [];
                  </div>
                  <div class="col-md-8 text-left">
                     <label for="lab_name">
-                        {{ $certi_lab->accereditation_no }}
+                        {{-- {{ $certi_lab->accereditation_no }} --}}
+                        @if ($certifiCateExport != null)
+                            {{$certifiCateExport->accereditatio_no}}
+                        @endif
                    </label>
                  </div>
             </div>

@@ -347,6 +347,12 @@ class CertiLab extends Model
         return $this->hasOne(CertificateExport::class, 'certificate_for');
     }
 
+    public function getCertificateExport($certificateExportId)
+    {
+        return CertificateExport::find($certificateExportId);
+    }
+
+
     public function getBranchTitleAttribute() {
         $data = HP::getArrayFormSecondLevel($this->certi_test_scope->toArray(), 'branch_id');
         // $datas = DB::table('bcertify_test_branches')->whereIn('id', $data)->pluck('title')->toArray();
