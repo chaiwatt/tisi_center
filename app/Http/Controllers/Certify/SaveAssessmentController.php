@@ -774,6 +774,7 @@ class SaveAssessmentController extends Controller
     
         $previousUrl = app('url')->previous();
         
+        // dd("ok");
         // $notice->group = json_decode($notice->group);
  
         $NoticeItem = NoticeItem::where('app_certi_lab_notice_id', $notice->id)->get();
@@ -800,6 +801,7 @@ class SaveAssessmentController extends Controller
                         ->get();
         // dd($notice->assessment->id); 
         $report = Report::where('app_certi_assessment_id',$notice->assessment->id)->first();
+       
         return view('certify/save_assessment/form_assess', compact('notice', 'app','NoticeItem','find_notice','previousUrl','approveNoticeItems','report'));
     }
 

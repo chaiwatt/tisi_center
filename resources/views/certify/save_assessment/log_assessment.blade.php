@@ -17,6 +17,9 @@
 
 <div id="collapse" class="panel-collapse collapse ">
     <br>
+    {{-- @php
+        dd($find_notice);
+    @endphp --}}
  @foreach($find_notice->CertificateHistorys as $key1 => $item1)
 
  <div class="row form-group">

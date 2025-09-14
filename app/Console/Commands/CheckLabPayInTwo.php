@@ -56,6 +56,8 @@ class CheckLabPayInTwo extends Command
                         ->orWhere('ref1', 'like', 'CAL%');
             })
             ->get();
+
+        // dd($transactionPayIns);
         
         Log::info('พบ Transaction PayIn2 (Lab) ที่ต้องตรวจสอบจำนวน: ' . $transactionPayIns->count() . ' รายการ');
 

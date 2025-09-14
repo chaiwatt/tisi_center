@@ -64,9 +64,23 @@ class Notice extends Model
         return $this->belongsTo(User::class, 'updated_by');
       }
     //ประวัติ
-    public function CertificateHistorys() {
-    $ao = new Notice;
-    return $this->hasMany(CertificateHistory::class,'ref_id', 'id')->where('system',4)->where('table_name',$ao->getTable());
+    
+    function getCertificateHistorys($certiLab)
+    {
+       $ao = new Notice;
+    //    dd()
+       return CertificateHistory::where('ref_id',$this->id)->where('system',4)->where('table_name',$ao->getTable())->where('app_no',$this->app_no)->get();
+        // dd($certificateHistories );
+    }
+
+    public function CertificateHistorys() 
+    {
+        $ao = new Notice;
+        $certiLab = CertiLab::find($this->app_certi_lab_id);
+        return $this->hasMany(CertificateHistory::class,'ref_id', 'id')
+        ->where('system',4)
+        ->where('app_no', $certiLab->app_no)
+        ->where('table_name',$ao->getTable());
     }
      //ประวัติ
     public function LogNotice() {
