@@ -2,13 +2,24 @@
 /*
 # Allow specific directories and files
 !/app/
+!/bootstrap/      # <-- เพิ่มบรรทัดนี้
 !/config/
 !/database/
+!/public/         # <-- เพิ่มบรรทัดนี้
 !/resources/
 !/routes/
+!/storage/        # <-- เพิ่มบรรทัดนี้
+!.env.example     # <-- เพิ่มบรรทัดนี้
 !.gitignore
+!/artisan         # <-- เพิ่มบรรทัดนี้
 !composer.json
 !composer.lock
+!package.json     # <-- เพิ่มบรรทัดนี้ (ถ้ามี)
+!vite.config.js   # <-- เพิ่มบรรทัดนี้ (ถ้ามี)
 !README.md
 # Ignore database/database_start and its contents
+# Ignore specific subdirectories
 database/database_start/
+/node_modules/
+/vendor/
+storage/*.key

@@ -325,7 +325,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameOne.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionOne.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateOne.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateOne.'</p>
                                     </div>
                                 </td>
                                 <!-- Column 2 -->
@@ -336,7 +336,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameTwo.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionTwo.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateTwo.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateTwo.'</p>
                                     </div>
                                 </td>
                                 <!-- Column 3 -->
@@ -347,7 +347,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameThree.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionThree.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateThree.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateThree.'</p>
                                     </div>
                                 </td>
                             </tr>
@@ -609,7 +609,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameOne.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionOne.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateOne.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateOne.'</p>
                                     </div>
                                 </td>
                                 <!-- Column 2 -->
@@ -620,7 +620,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameTwo.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionTwo.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateTwo.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateTwo.'</p>
                                     </div>
                                 </td>
                                 <!-- Column 3 -->
@@ -631,7 +631,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameThree.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionThree.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateThree.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateThree.'</p>
                                     </div>
                                 </td>
                             </tr>
@@ -919,7 +919,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameOne.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionOne.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateOne.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateOne.'</p>
                                     </div>
                                 </td>
                                 <!-- Column 2 -->
@@ -930,7 +930,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameTwo.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionTwo.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateTwo.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateTwo.'</p>
                                     </div>
                                 </td>
                                 <!-- Column 3 -->
@@ -941,7 +941,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameThree.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionThree.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateThree.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateThree.'</p>
                                     </div>
                                 </td>
                             </tr>
@@ -995,7 +995,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameOne.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionOne.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateOne.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateOne.'</p>
                                     </div>
                                 </td>
                                 <!-- Column 2 -->
@@ -1006,7 +1006,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameTwo.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionTwo.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateTwo.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateTwo.'</p>
                                     </div>
                                 </td>
                                 <!-- Column 3 -->
@@ -1017,7 +1017,7 @@ class IbPdfGeneratorController extends Controller
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">('.$finalReportProcessOneSignerNameThree.')</p>
                                         <p style="margin: 0;">'.$finalReportProcessOneSignerPositionThree.'</p>
-                                        <p style="margin: 0;">วันที่ '.$finalReportProcessOneSignerDateThree.'</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่ '.$finalReportProcessOneSignerDateThree.'</p>
                                     </div>
                                 </td>
                             </tr>
