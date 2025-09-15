@@ -59,7 +59,9 @@ $labRequestBranchs = [];
                     อ้างอิงเลขที่คำขอ : 
 
                     @if ($certi_lab->purpose_type == 1)
-                             A
+                             @php
+                                 $certifiCateExport = null;
+                             @endphp
                         @else
                              
                              @if ($certi_lab->certi_lab_export_mapreq_to != null)
