@@ -66,7 +66,7 @@ $labRequestBranchs = [];
                                  {{-- {{$certi_lab->certi_lab_export_mapreq_to}} --}}
                                  
                                  @php
-                                    $certifiCateExport = $certi_lab->getCertificateExport($certi_lab->certi_lab_export_mapreq_to->certificate_exports_id);
+                                    $certifiCateExport = @$certi_lab->getCertificateExport($certi_lab->certi_lab_export_mapreq_to->certificate_exports_id);
                                     // dd($certifiCateExport);
                                  @endphp
                              @endif
