@@ -1745,7 +1745,7 @@ public function docReviewHtml($id)
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">(xxxx)</p>
                                         <p style="margin: 0;">xxxx</p>
-                                        <p style="margin: 0;">วันที่ xxx</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่</p>
                                     </div>
                             </td>
                             <!-- Column 2 -->
@@ -1756,7 +1756,7 @@ public function docReviewHtml($id)
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">(xxxx)</p>
                                         <p style="margin: 0;">xxxx</p>
-                                        <p style="margin: 0;">วันที่ xxx</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่</p>
                                     </div>
                             </td>
                             <!-- Column 3 -->
@@ -1879,7 +1879,7 @@ public function docReviewHtml($id)
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">(xxxx)</p>
                                         <p style="margin: 0;">xxxx</p>
-                                        <p style="margin: 0;">วันที่ xxx</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่</p>
                                     </div>
                             </td>
                             <!-- Column 2 -->
@@ -1890,7 +1890,7 @@ public function docReviewHtml($id)
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">(xxxx)</p>
                                         <p style="margin: 0;">xxxx</p>
-                                        <p style="margin: 0;">วันที่ xxx</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่</p>
                                     </div>
                             </td>
                             <!-- Column 3 -->
@@ -3782,7 +3782,7 @@ $certiIb = CertiIb::find($request->ibId);
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">(xxxx)</p>
                                         <p style="margin: 0;">xxxx</p>
-                                        <p style="margin: 0;">วันที่ xxx</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่</p>
                                     </div>
                             </td>
                             <!-- Column 2 -->
@@ -3793,7 +3793,7 @@ $certiIb = CertiIb::find($request->ibId);
                                     <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                         <p style="margin: 0;">(xxxx)</p>
                                         <p style="margin: 0;">xxxx</p>
-                                        <p style="margin: 0;">วันที่ xxx</p>
+                                        <p style="margin: 0;" class="signed_date">วันที่</p>
                                     </div>
                             </td>
                             <!-- Column 3 -->
