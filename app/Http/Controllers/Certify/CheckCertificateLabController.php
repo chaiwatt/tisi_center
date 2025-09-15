@@ -104,6 +104,7 @@ class CheckCertificateLabController extends Controller
         $arrStatus = $ao->arrStatus2();
         $branches = collect();
         $Query = CertiLab::select('app_certi_labs.*')->where('status','>=','1');
+        //    dd($Query->latest()->first());
         if ($filter['at']!='') { // ความสามารถห้องปฏิบัติการ
             $Query = $Query->where('lab_type', $filter['at']);
             $ao->get_branches($filter['at'])->each(function ($branch) use ($branches) {
@@ -155,9 +156,12 @@ class CheckCertificateLabController extends Controller
             });
         }
         // dd(auth()->user());
+       
         $examiner = CheckExaminer::where('user_id',auth()->user()->runrecno)->pluck('app_certi_lab_id'); //เจ้าหน้าที่ รับผิดชอบ  สก.
         $User =   User::where('runrecno',auth()->user()->runrecno)->first();
         $select_users = array();
+
+      
         if($User->IsGetIdRoles() == 'false'){  //ไม่ใช่ admin , ผอ , ลท
             //  dd(auth()->user()->RoleListId);
             // Role ผก
@@ -169,8 +173,9 @@ class CheckCertificateLabController extends Controller
                
                 if(isset($User) && !is_null($User->reg_subdepart) && (in_array('11',$User->BasicRoleUser) || in_array('22',$User->BasicRoleUser))  ) {  //ผู้อำนวยการกอง ของ สก.
                     //  dd("c");
-                    //  dd($Query->latest()->first(),$User->reg_subdepart);
+                  
                     $Query = $Query->where('subgroup',$User->reg_subdepart);
+                     
                 }else{
                 //    dd("d");
                     $Query = $Query->whereIn('id',['']);  // ไม่ตรงกับเงื่อนไข
