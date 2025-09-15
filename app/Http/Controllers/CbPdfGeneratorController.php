@@ -1322,6 +1322,17 @@ class CbPdfGeneratorController extends Controller
         $htmlContent = str_replace('☑', '<input type="checkbox" checked="checked">', $htmlContent);
         $htmlContent = str_replace('☐', '<input type="checkbox">', $htmlContent);
 
+        // dd($certiCbId, $reportType);
+
+        // $check = CbDocReviewReport::where('app_certi_cb_id',$certiCbId)->where('report_type',$reportType)->first();
+        // dd( $check);
+        // if($check == null)
+        // {
+        //     dd("create");
+        // }else{
+
+        // }
+
         CbDocReviewReport::updateOrCreate(
                 [
                     'app_certi_cb_id' => $certiCbId,
