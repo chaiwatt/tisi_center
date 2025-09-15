@@ -314,7 +314,7 @@ class IbPdfGeneratorController extends Controller
                     &nbsp;&nbsp;&nbsp;จากการตรวจประเมิน .....<br> 
                     <b style="font-size: 22px">&nbsp;&nbsp;&nbsp;สรุปการตรวจประเมิน</b><br>
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;หน่วยตรวจประเมิน .....<br> 
-                    <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                         <tbody>
                             <tr>
                                 <!-- Column 1 -->
@@ -598,7 +598,7 @@ class IbPdfGeneratorController extends Controller
                 &nbsp;&nbsp;&nbsp;&nbsp;7.1 แนวทางการแก้ไข .....<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;7.2 หลักฐานการแก้ไข .....<br>
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                         <tbody>
                             <tr>
                                 <!-- Column 1 -->
@@ -908,7 +908,7 @@ class IbPdfGeneratorController extends Controller
                     <b style="font-size: 22px">12. ความเห็น/ข้อเสนอแนะของคณะผู้ตรวจประเมิน</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;หน่วยตรวจมีระบบการบริหารงานส่วนใหญ่.....</b><br><br><br><br><br><br>
 
-                    <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                         <tbody>
                             <tr>
                                 <!-- Column 1 -->
@@ -984,7 +984,7 @@ class IbPdfGeneratorController extends Controller
                 &nbsp;&nbsp;&nbsp;&nbsp;7.1 แนวทางการแก้ไข .....<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;7.2 หลักฐานการแก้ไข .....<br>
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                         <tbody>
                             <tr>
                                 <!-- Column 1 -->
@@ -1733,7 +1733,7 @@ public function docReviewHtml($id)
 
 
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
@@ -1867,7 +1867,7 @@ public function docReviewHtml($id)
                 <b style="font-size: 22px">&nbsp;&nbsp;&nbsp;10.1. ความเป็นมา</b><br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;บริษัท...
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
@@ -2080,7 +2080,7 @@ public function docResultReviewHtml($id)
 
 
 
-             <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+             <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
@@ -2503,7 +2503,7 @@ public function docResultReviewHtml($id)
 
             
 
-             <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+             <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
@@ -2780,7 +2780,7 @@ public function docResultReviewHtml($id)
                         <br>
                         <br>
                             
-                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                             <tbody>
                                 <tr>
                                     <!-- Column 1 -->
@@ -3088,7 +3088,7 @@ $certiIb = CertiIb::find($request->ibId);
                         <br>
                         <br>
                             
-                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                             <tbody>
                                 <tr>
                                     <!-- Column 1 -->
@@ -3770,7 +3770,7 @@ $certiIb = CertiIb::find($request->ibId);
 <br>
 <br>
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
@@ -4148,7 +4148,7 @@ $certiIb = CertiIb::find($request->ibId);
                         <br>
                         <br>
                             
-                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                             <tbody>
                                 <tr>
                                     <!-- Column 1 -->

@@ -312,7 +312,7 @@ class CbPdfGeneratorController extends Controller
                     &nbsp;&nbsp;&nbsp;จากการตรวจประเมิน .....<br> 
                     <b style="font-size: 22px">&nbsp;&nbsp;&nbsp;สรุปการตรวจประเมิน</b><br>
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;หน่วยรับรองประเมิน .....<br> 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                         <tbody>
                             <tr>
                                 <!-- Column 1 -->
@@ -596,7 +596,7 @@ class CbPdfGeneratorController extends Controller
                 &nbsp;&nbsp;&nbsp;&nbsp;7.1 แนวทางการแก้ไข .....<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;7.2 หลักฐานการแก้ไข .....<br>
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                         <tbody>
                             <tr>
                                 <!-- Column 1 -->
@@ -909,7 +909,7 @@ class CbPdfGeneratorController extends Controller
                     <b style="font-size: 22px">12. ความเห็น/ข้อเสนอแนะของคณะผู้ตรวจประเมิน</b><br>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;หน่วยรับรองมีระบบการบริหารงานส่วนใหญ่.....</b><br><br><br><br><br><br>
 
-                    <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                         <tbody>
                             <tr>
                                 <!-- Column 1 -->
@@ -987,7 +987,7 @@ class CbPdfGeneratorController extends Controller
                 &nbsp;&nbsp;&nbsp;&nbsp;7.1 แนวทางการแก้ไข .....<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;7.2 หลักฐานการแก้ไข .....<br>
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                         <tbody>
                             <tr>
                                 <!-- Column 1 -->
@@ -1622,7 +1622,7 @@ class CbPdfGeneratorController extends Controller
 
 
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
@@ -1884,7 +1884,7 @@ class CbPdfGeneratorController extends Controller
 
 
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
@@ -2172,7 +2172,7 @@ class CbPdfGeneratorController extends Controller
                         <br>
                         <br>
                             
-                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                             <tbody>
                                 <tr>
                                     <!-- Column 1 -->
@@ -2370,7 +2370,7 @@ class CbPdfGeneratorController extends Controller
                         <br>
                         <br>
                             
-                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                             <tbody>
                                 <tr>
                                     <!-- Column 1 -->
@@ -3150,7 +3150,7 @@ class CbPdfGeneratorController extends Controller
 <br>
 <br>
 
-                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
@@ -3524,7 +3524,7 @@ class CbPdfGeneratorController extends Controller
                         <br>
                         <br>
                             
-                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                             <tbody>
                                 <tr>
                                     <!-- Column 1 -->
@@ -3934,7 +3934,7 @@ class CbPdfGeneratorController extends Controller
             </table>
 
 
-             <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;">
+             <table style="width: 100%; border-collapse: collapse; font-size: 20px; border: none; margin-top: 40px;" class="signer_area_table">
                     <tbody>
                         <tr>
                             <!-- Column 1 -->
