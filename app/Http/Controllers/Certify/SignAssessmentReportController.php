@@ -290,7 +290,7 @@ class SignAssessmentReportController extends Controller
     {
         $currentTransaction = SignAssessmentReportTransaction::find($request->id);
 
-      
+        //  dd($currentTransaction);
       
         if($currentTransaction->template == "ib_doc_review_template" || $currentTransaction->template == "cb_doc_review_template" ){
 
@@ -566,6 +566,118 @@ class SignAssessmentReportController extends Controller
                 ->whereNotNull('signer_id')
                 ->where('approval', 0)
                 ->count();
+
+
+            if($currentTransaction->certificate_type == 0)
+            {
+                if ($currentTransaction->template == "cb_final_report_process_one") {
+                    $cbReportTemplate = CbReportTemplate::find($currentTransaction->report_info_id);
+
+                    // ป้องกัน error กรณีหา report ไม่เจอ
+                    if (!$cbReportTemplate) {
+                        return; // หรือจัดการ error ตามต้องการ
+                    }
+
+                    $htmlContent = $cbReportTemplate->template;
+
+                    // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+                    $dom = new DOMDocument();
+                    @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+                    $xpath = new DOMXPath($dom);
+
+                    // 2. ค้นหา element ทั้งหมดที่มี class 'signed_date'
+                    $signedDateNodes = $xpath->query('//*[contains(@class, "signed_date")]');
+
+                    // 3. วนลูปเพื่ออัปเดตวันที่ในแต่ละ element
+                    foreach ($signedDateNodes as $node) {
+                        $parentDiv = $node->parentNode;
+                        if ($parentDiv && $parentDiv->hasAttribute('data-signer-id')) {
+                            $signerId = $parentDiv->getAttribute('data-signer-id');
+
+                            // ตรวจสอบถ้า signerId จาก HTML ตรงกับ signer_id ของ Transaction ปัจจุบัน
+                            if ($signerId == $currentTransaction->signer_id) {
+                                // 4. สร้างวันที่และจัดรูปแบบ (dd/mm/yyyy พ.ศ.)
+                                $signatureDate = $currentTransaction->updated_at ?? Carbon::now();
+                                $formattedDate = $signatureDate->addYears(543)->format('d/m/Y');
+
+                                // 5. อัปเดตเนื้อหาของ node
+                                $node->nodeValue = 'วันที่ ' . $formattedDate;
+
+                                // break; 
+                            }
+                        }
+                    }
+
+                    // 6. แปลง DOM ที่แก้ไขแล้วกลับเป็น HTML String
+                    $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                    $updatedHtml = '';
+                    foreach ($bodyNode->childNodes as $child) {
+                        $updatedHtml .= $dom->saveHTML($child);
+                    }
+                    
+                    // 7. อัปเดตค่าใน object ที่ถูกต้อง ($cbReportTemplate)
+                    $cbReportTemplate->template = $updatedHtml;
+
+                    // 8. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+                    $cbReportTemplate->save();
+                }
+            }else if($currentTransaction->certificate_type == 1)
+            {
+                if ($currentTransaction->template == "ib_final_report_process_one") {
+                    $ibReportTemplate = IbReportTemplate::find($currentTransaction->report_info_id);
+
+                    // ป้องกัน error กรณีหา report ไม่เจอ
+                    if (!$ibReportTemplate) {
+                        return; // หรือจัดการ error ตามต้องการ
+                    }
+
+                    $htmlContent = $ibReportTemplate->template;
+
+                    // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+                    $dom = new DOMDocument();
+                    @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+                    $xpath = new DOMXPath($dom);
+
+                    // 2. ค้นหา element ทั้งหมดที่มี class 'signed_date'
+                    $signedDateNodes = $xpath->query('//*[contains(@class, "signed_date")]');
+
+                    // 3. วนลูปเพื่ออัปเดตวันที่ในแต่ละ element
+                    foreach ($signedDateNodes as $node) {
+                        $parentDiv = $node->parentNode;
+                        if ($parentDiv && $parentDiv->hasAttribute('data-signer-id')) {
+                            $signerId = $parentDiv->getAttribute('data-signer-id');
+
+                            // ตรวจสอบถ้า signerId จาก HTML ตรงกับ signer_id ของ Transaction ปัจจุบัน
+                            if ($signerId == $currentTransaction->signer_id) {
+                                // 4. สร้างวันที่และจัดรูปแบบ (dd/mm/yyyy พ.ศ.)
+                                $signatureDate = $currentTransaction->updated_at ?? Carbon::now();
+                                $formattedDate = $signatureDate->addYears(543)->format('d/m/Y');
+
+                                // 5. อัปเดตเนื้อหาของ node
+                                $node->nodeValue = 'วันที่ ' . $formattedDate;
+
+                                // break; 
+                            }
+                        }
+                    }
+
+                    // 6. แปลง DOM ที่แก้ไขแล้วกลับเป็น HTML String
+                    $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                    $updatedHtml = '';
+                    foreach ($bodyNode->childNodes as $child) {
+                        $updatedHtml .= $dom->saveHTML($child);
+                    }
+                    
+                    // 7. อัปเดตค่าใน object ที่ถูกต้อง ($cbReportTemplate)
+                    $ibReportTemplate->template = $updatedHtml;
+
+                    // 8. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+                    $ibReportTemplate->save();
+                }
+            }else if($currentTransaction->certificate_type == 2)
+            {
+                
+            }
 
             // 5. หากลงนามครบแล้ว (remainingApprovals == 0) ให้ดำเนินการขั้นสุดท้าย
             if ($remainingApprovals === 0) {

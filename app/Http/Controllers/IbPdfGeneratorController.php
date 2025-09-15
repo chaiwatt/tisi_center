@@ -451,7 +451,7 @@ class IbPdfGeneratorController extends Controller
                                 <div style="border-top: 1px solid #000; padding-top: 5px; display: inline-block; width: 90%;">
                                     <p style="margin: 0;">()</p>
                                     <p style="margin: 0;"></p>
-                                    <p style="margin: 0;">วันที่ </p>
+                                    <p style="margin: 0;" class="signed_date">วันที่ </p>
                                 </div>
                             </td>
                         </tr>
