@@ -25,6 +25,8 @@ use App\Services\CreateLabMessageRecordPdf;
 use App\Models\Certify\Applicant\CheckExaminer;
 use App\Models\Certify\MessageRecordTransaction;
 use App\Models\Bcertify\BoardAuditorMsRecordInfo;
+use App\Models\Bcertify\CbBoardAuditorMsRecordInfo;
+use App\Models\Bcertify\IbBoardAuditorMsRecordInfo;
 use App\Models\Certify\ApplicantCB\CertiCBAuditors;
 use App\Models\Certify\ApplicantIB\CertiIBAuditors;
 use App\Models\Certify\LabMessageRecordTransaction;
@@ -370,20 +372,34 @@ class AuditorAssignmentController extends Controller
             }
 
            
+//  $record = BoardAuditorMsRecordInfo::where('board_auditor_id',$currentTransaction->board_auditor_id)->first();
+            // dd(CbBoardAuditorMsRecordInfo::where('board_auditor_id',$currentTransaction->board_auditor_id)->first());
 
             if($currentTransaction->certificate_type == 2){
                 $record = BoardAuditorMsRecordInfo::where('board_auditor_id',$currentTransaction->board_auditor_id)->first();
                 if($record == null){
                     return response()->json([
                         'success' => false,
-                        'message' => 'อยู่ระหว่างจัดทำรายงาน'
+                        'message' => 'อยู่ระหว่างจัดทำรายงานแต่งตั้ง'
                     ]);
                 }
             }else if($currentTransaction->certificate_type == 1) {
-
-            }elseif ($currentTransaction->certificate_type == 1)
+            $record = IbBoardAuditorMsRecordInfo::where('board_auditor_id',$currentTransaction->board_auditor_id)->first();
+                if($record == null){
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'อยู่ระหว่างจัดทำรายงานแต่งตั้ง'
+                    ]);
+                }
+            }elseif ($currentTransaction->certificate_type == 0)
             {
-
+                $record = CbBoardAuditorMsRecordInfo::where('board_auditor_id',$currentTransaction->board_auditor_id)->first();
+                if($record == null){
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'อยู่ระหว่างจัดทำรายงานแต่งตั้ง'
+                    ]);
+                }
             }
 
             //  dd("ok");
