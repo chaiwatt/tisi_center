@@ -163,7 +163,7 @@
                         </div>
                     </div>
                 @else
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <label for="assessment_type" class="col-md-5 control-label">
                             ประเภทการตรวจประเมิน
                         </label>

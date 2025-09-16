@@ -140,7 +140,7 @@ class TrackingCbController extends Controller
                                                     $scope_ids =  CertiCBExport::LeftJoin((new CertiCb)->getTable()." AS app", 'app.id', '=', 'app_certi_cb_export.app_certi_cb_id')
                                                                                 ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.standard_id','app.type_standard')
                                                                                 ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
-                                                                                ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
+                                                                                // ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
                                                                                 ->select('app_certi_cb_export.id');
                                                     $query->whereIn('app_certi_cb_export.id',$scope_ids);
                                                 // }else{
@@ -244,7 +244,7 @@ class TrackingCbController extends Controller
                                                 $scope_ids =  CertiCBExport::LeftJoin((new CertiCb)->getTable()." AS app", 'app.id', '=', 'app_certi_cb_export.app_certi_cb_id')
                                                                             ->leftJoin((new SetStandardUserSub)->getTable().' AS user_sub','user_sub.standard_id','app.type_standard')
                                                                             ->leftJoin((new SetStandardUser)->getTable().' AS user_set','user_set.id','user_sub.standard_user_id')
-                                                                            ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
+                                                                            // ->where('user_set.sub_department_id', $userLogIn->reg_subdepart  )
                                                                             ->select('app_certi_cb_export.id');
                                                 $query->whereIn('app_certi_cb_export.id',$scope_ids);
                                             // }else{

@@ -129,6 +129,7 @@ class AuditorCbController extends Controller
 
     public function create(Request $request)
     {
+      // dd("ok");
         $model = str_slug('auditorcb','-');
         if(auth()->user()->can('add-'.$model)) {
           $previousUrl = app('url')->previous();
@@ -259,7 +260,7 @@ class AuditorCbController extends Controller
         if($check->count() == 0){
             $signatures = json_decode($request->input('signaturesJson'), true);
             //  dd($signatures);
-            $viewUrl = url('/certificate/auditor-cbs/view-cb-tracking-message-record/'.$boardTrackingAutitorId);
+            $viewUrl = url('/certificate/auditor_cb_doc_review/view-cb-tracking-message-record/'.$boardTrackingAutitorId);
             if ($signatures) {
                 foreach ($signatures as $signatureId => $signature) {
                     // dd($signature);
