@@ -58,7 +58,7 @@ class TrackingSignAssessmentReportController extends Controller
         $signer = Signer::where('tax_number', $cleanId)->first();
 
     
-
+       
         // ตรวจสอบว่าพบข้อมูลหรือไม่
         if ($signer) {
             $filter_approval = $request->input('filter_state');
@@ -73,7 +73,7 @@ class TrackingSignAssessmentReportController extends Controller
             //     });
 
          
-
+//  dd($signer);
 
    
             // if ($filter_approval) {
@@ -127,7 +127,7 @@ class TrackingSignAssessmentReportController extends Controller
             if ($filter_approval) {
                 $query->where('approval', $filter_approval);
             }else{
-                $query->where('approval', 0);
+                $query->where('approval', 0)->orWhereNull('approval');
             }
 //  dd($query->get()->count(),$filter_approval);
             // $query->where('approval',0);
@@ -137,11 +137,15 @@ class TrackingSignAssessmentReportController extends Controller
             //     $query->where('message_record_status', 2);
                 
             // });
+
+            //  dd($query->latest()->first(),$query->latest()->first(),$signer->id);
         
             if ($filter_certificate_type !== null) {
                 
                 $query->where('certificate_type', $filter_certificate_type);
             }
+
+           
          
             $data = $query->get();
             $data = $data->map(function($item, $index) {

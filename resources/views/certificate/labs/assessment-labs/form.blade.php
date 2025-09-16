@@ -232,12 +232,20 @@
      --}}
 
 
+@php
+    // dd($assessment->certificate_export_to->CertiLabTo->lab_name);
+    $certiLab = $assessment->certificate_export_to->CertiLabTo;
+    $auditor = $assessment->auditors_to;
+
+    // dd($auditor->auditors_date_many);
+@endphp
+
 <div class="row">
     <div class="col-md-6">
         <div class="form-group {{ $errors->has('laboratory_name') ? 'has-error' : '' }}">
             <label for="laboratory_name" class="col-md-3 control-label">ชื่อห้องปฏิบัติการ :</label>
             <div class="col-md-7">
-                <input type="text" name="laboratory_name" id="laboratory_name" class="form-control" placeholder="" value="{{ old('laboratory_name') }}" disabled>
+                <input type="text" name="laboratory_name" id="laboratory_name" class="form-control" placeholder="" value="{{ $certiLab->lab_name }}" disabled>
             </div>
         </div>
     </div>
@@ -245,14 +253,14 @@
         <div class="form-group {{ $errors->has('auditor') ? 'has-error' : '' }}">
             <label for="auditor" class="col-md-3 control-label"><span class="text-danger">*</span> ชื่อคณะผู้ตรวจประเมิน :</label>
             <div class="col-md-7">
-                <input type="text" name="auditor" id="auditor" class="form-control" placeholder="" value="{{ old('auditor') }}" disabled>
+                <input type="text" name="auditor" id="auditor" class="form-control" placeholder="" value="{{ $auditor->auditor }}" disabled>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-6" hidden>
         <div class="form-group {{ $errors->has('auditor_date') ? 'has-error' : '' }}">
             <label for="auditor_date" class="col-md-3 control-label"><span class="text-danger">*</span> วันที่ตรวจประเมิน :</label>
             <div class="col-md-7">

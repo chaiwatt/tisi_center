@@ -112,6 +112,7 @@ class TrackingLabsController extends Controller
         abort(403);
 
     }
+    
 
     public function data_list(Request $request)
     {
