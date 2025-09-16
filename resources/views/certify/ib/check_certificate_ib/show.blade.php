@@ -604,7 +604,6 @@
                                             </a> 
                                         @endif
                                   @else 
-                                   
                                         <div class="btn-group form_group">
                                             <form action="{{ url('/certify/certificate-export-ib/create')}}" method="POST" style="display:inline"  > 
                                                 {{ csrf_field() }}
@@ -614,9 +613,7 @@
                                                 </button>
                                             </form>
                                         </div>
-                                 
-
-                            @endif
+                                @endif
 
 
 

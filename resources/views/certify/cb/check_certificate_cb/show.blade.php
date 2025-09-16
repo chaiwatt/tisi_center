@@ -632,15 +632,15 @@ ssss
                                     {!! $export_icon !!}    ออกใบรับรอง 
                             </a>
                         @elseif(!empty($certi_cb->certi_cb_export_mapreq_to))
+                        {{-- {{$certi_cb->purposeType->id}}  --}}
+
+                          @if ($certi_cb->purposeType->id != 5)
                             @if ($report->ability_confirm !== null)
                                 <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail-cb/".$certi_cb->token)}}" >
                                     <i class="fa fa-paperclip"></i>  แนบท้าย
                                 </a> 
                             @endif
-                        @else 
-                            
-                                {{-- {{ $report->ability_confirm}} --}}
-                                @if ($report->ability_confirm !== null)
+                          @else
                                 <div class="btn-group form_group">
                                     <form action="{{ url('/certify/certificate-export-cb/create')}}" method="POST" style="display:inline" > 
                                         {{ csrf_field() }}
@@ -650,9 +650,24 @@ ssss
                                         </button>
                                     </form>
                                 </div>
-                                @else
+                          @endif
+                           
+                        @else 
+                            
+                                {{-- {{ $report->ability_confirm}} --}}
+                            @if ($report->ability_confirm !== null)
+                                <div class="btn-group form_group">
+                                    <form action="{{ url('/certify/certificate-export-cb/create')}}" method="POST" style="display:inline" > 
+                                        {{ csrf_field() }}
+                                        {!! Form::hidden('app_token', (!empty($certi_cb->token) ? $certi_cb->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
+                                        <button class=" btn btn-warning" type="submit" >
+                                            ออกใบรับรอง 
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
                                 <span class="text-warning">รอยืนยันความสามารถ</span>
-                                @endif
+                            @endif
                                 
                         @endif 
                   
