@@ -551,6 +551,7 @@ class SignAssessmentReportController extends Controller
                 ]);
             }
 
+            // dd($currentTransaction);
             // 3. หากผ่านการตรวจสอบ ให้ลงนาม (Update Approval)
             $currentTransaction->update(['approval' => 1]);
 
@@ -570,7 +571,8 @@ class SignAssessmentReportController extends Controller
 
             if($currentTransaction->certificate_type == 0)
             {
-                if ($currentTransaction->template == "cb_final_report_process_one") {
+                
+                if ($currentTransaction->template == "cb_final_report_process_one" || $currentTransaction->template == "cb_final_report_process_two") {
                     $cbReportTemplate = CbReportTemplate::find($currentTransaction->report_info_id);
 
                     // ป้องกัน error กรณีหา report ไม่เจอ
@@ -623,7 +625,7 @@ class SignAssessmentReportController extends Controller
                 }
             }else if($currentTransaction->certificate_type == 1)
             {
-                if ($currentTransaction->template == "ib_final_report_process_one") {
+                if ($currentTransaction->template == "ib_final_report_process_one" || $currentTransaction->template == "ib_final_report_process_two") {
                     $ibReportTemplate = IbReportTemplate::find($currentTransaction->report_info_id);
 
                     // ป้องกัน error กรณีหา report ไม่เจอ
