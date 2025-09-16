@@ -293,11 +293,11 @@
 
                         <div class="form_group btn-group">
                             <div class="btn-group">
-                                <a  class="btn {{$assessment_btn}}" href="{{ url("certify/save_assessment-cb")}}" >
+                                {{-- <a  class="btn {{$assessment_btn}}" href="{{ url("certify/save_assessment-cb")}}" >
                                     {!! $assessment_icon  !!}    ผลการตรวจประเมิน
-                                </a>
+                                </a> --}}
                                 <button type="button" class="btn  {{$assessment_btn}} dropdown-toggle" data-toggle="dropdown">
-                                    <span class="caret"></span>
+                                    ผลการตรวจประเมิน<span class="caret"></span>
                                 </button>
 
                                 <div class="dropdown-menu" role="menu" >

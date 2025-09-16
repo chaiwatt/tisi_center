@@ -270,6 +270,17 @@ public function basic_district() {
  {
      return $this->belongsTo(CertiCBReview::class,'id','app_certi_cb_id')->orderby('id','desc');
  }
+
+ public function getCertificateExport()
+ {
+    $certiCbExportMapreq = CertiCbExportMapreq::where('app_certi_cb_id',$this->id)->first();
+    if($certiCbExportMapreq != null)
+    {
+        return CertiCBExport::find($certiCbExportMapreq->certificate_exports_id);
+    }else{
+        return null;
+    }
+ }
 // ตารางใบรับรอง
 public function app_certi_cb_export()
 {

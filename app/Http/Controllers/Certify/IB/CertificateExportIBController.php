@@ -410,7 +410,7 @@ class CertificateExportIBController extends Controller
 
                 if($request->status < 4)
                 {
-                $this->exportIbScopePdf($certi_ib->id,$ibHtmlTemplate);
+                    $this->exportIbScopePdf($certi_ib->id,$ibHtmlTemplate);
 
                     $json = $this->copyScopeIbFromAttachement($certi_ib->id);
                     $copiedScopes = json_decode($json, true);

@@ -715,5 +715,17 @@ public function basic_district() {
         }                              
                                         
     }
+
+    
+ public function getCertificateExport()
+ {
+    $certiIbExportMapreq = CertiIbExportMapreq::where('app_certi_ib_id',$this->id)->first();
+    if($certiIbExportMapreq != null)
+    {
+        return CertiIBExport::find($certiIbExportMapreq->certificate_exports_id);
+    }else{
+        return null;
+    }
+ }
    
 }

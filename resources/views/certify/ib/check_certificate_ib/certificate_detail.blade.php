@@ -1,3 +1,4 @@
+{{-- CheckCertificateIBController --}}
 @extends('layouts.master')
 
 @push('css')
@@ -15,7 +16,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">เอกสารแนบท้าย (ขอบข่าย)</h3>
+                    <h3 class="box-title pull-left">เอกสารแนบท้าย (ขอบข่าย) IB</h3>
               
                         <a class="btn btn-success pull-right" href="{{ app('url')->previous() }}">
                             <i class="icon-arrow-left-circle"></i> กลับ

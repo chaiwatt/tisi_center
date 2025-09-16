@@ -44,6 +44,14 @@
 </div>
 
 @if(!empty($certi_ib->standard_change) && $certi_ib->standard_change != 1)
+
+    @php
+        $certificate = "";
+        $certificateExport = $certi_ib->getCertificateExport();
+        if($certificateExport != null){
+            $certificate = $certificateExport->certificate;
+        }
+    @endphp
     <div id="box_ref_application_no" >
         <div class="form-group {{ $errors->has('app_no') ? 'has-error' : ''}}">
             {!! HTML::decode(Form::label('app_no', 'อ้างอิงเลขที่คำขอ'.':'.'<br/><span class=" font_size">(Application No.)</span>', ['class' => 'col-md-3 control-label  label-height'])) !!}
@@ -52,11 +60,24 @@
                 {!! $errors->first('app_no', '<p class="help-block">:message</p>') !!}
             </div>
         </div>
-        <div class="form-group {{ $errors->has('app_certi_ib_export_id') ? 'has-error' : ''}}">
+        {{-- <div class="form-group {{ $errors->has('app_certi_ib_export_id') ? 'has-error' : ''}}">
             {!! HTML::decode(Form::label('app_certi_ib_export_id', 'ใบรับรองเลขที่'.':'.'<br/><span class="  font_size">(Certificate No)</span>', ['class' => 'col-md-3 control-label label-height'])) !!}
             <div class="col-md-4">
                 {!! Form::text('app_certi_ib_export_id', null, ['class' => 'form-control', 'id' => 'app_certi_ib_export_id']) !!}
                 {!! $errors->first('app_certi_ib_export_id', '<p class="help-block">:message</p>') !!}
+            </div>
+        </div> --}}
+        <div class="form-group @if($errors->has('app_certi_ib_export_id')) has-error @endif">
+            <label for="app_certi_ib_export_id" class="col-md-3 control-label label-height">
+                ใบรับรองเลขที่:<br/>
+                <span class="font_size">(Certificate No)</span>
+            </label>
+            <div class="col-md-4">
+                <input class="form-control" id="app_certi_ib_export_id" name="app_certi_ib_export_id" type="text" value="{{  $certificate }}">
+                
+                @if ($errors->has('app_certi_ib_export_id'))
+                    <p class="help-block">{{ $errors->first('app_certi_ib_export_id') }}</p>
+                @endif
             </div>
         </div>
         <div class="form-group {{ $errors->has('accereditation_no') ? 'has-error' : ''}}">
