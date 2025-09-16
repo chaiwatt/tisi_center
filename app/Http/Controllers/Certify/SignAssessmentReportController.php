@@ -322,7 +322,7 @@ class SignAssessmentReportController extends Controller
 
 
 
-            if ($currentTransaction->template == "cb_doc_review_template") {
+            if ($currentTransaction->template == "cb_doc_review_template" || $currentTransaction->template == "cb_summary_report_template") {
                 
                 $certiCb = CertiCb::where('app_no', $currentTransaction->app_id)->first();
 
@@ -495,6 +495,139 @@ class SignAssessmentReportController extends Controller
                 ->orderBy('signer_order', 'asc')
                 ->first();
 
+
+            if($currentTransaction->template == "cb_result_review_template" )
+            {
+                    $certiCb = CertiCb::where('app_no', $currentTransaction->app_id)->first();
+
+                    // เพิ่มการตรวจสอบเผื่อไม่พบข้อมูล
+                    if (!$certiCb) {
+                        // จัดการกรณีไม่พบข้อมูล เช่น return หรือ throw exception
+                        return;
+                    }
+
+                    $cbDocReviewAssessment = CbDocReviewReport::where('app_certi_cb_id', $certiCb->id)
+                        ->where('report_type', "cb_result_review_template")
+                        ->first();
+                    //  dd($cbDocReviewAssessment,"cb_summary_report_template");
+                    // เพิ่มการตรวจสอบเผื่อไม่พบข้อมูล
+                    if (!$cbDocReviewAssessment) {
+                        return;
+                    }
+
+                    $htmlContent = $cbDocReviewAssessment->template;
+
+                    // dd("fsfsf");
+
+                    // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+                    $dom = new DOMDocument();
+                    // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+                    @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+                    $xpath = new DOMXPath($dom);
+                    
+                    // --- ส่วนของการเพิ่มวันที่และบันทึก ---
+                    
+                    // 2. ค้นหา element ทั้งหมดที่มี class 'signed_date'
+                    $signedDateNodes = $xpath->query('//*[contains(@class, "signed_date")]');
+
+                    // 3. วนลูปเพื่ออัปเดตวันที่ในแต่ละ element
+                    foreach ($signedDateNodes as $node) {
+                        $parentDiv = $node->parentNode;
+                        if ($parentDiv && $parentDiv->hasAttribute('data-signer-id')) {
+                            $signerId = $parentDiv->getAttribute('data-signer-id');
+
+                            // ตรวจสอบถ้า signerId จาก HTML ตรงกับ signer_id ของ Transaction ปัจจุบัน
+                            if ($signerId == $currentTransaction->signer_id) {
+                                // สร้างวันที่และจัดรูปแบบ (dd/mm/yyyy พ.ศ.)
+                                $signatureDate = $currentTransaction->updated_at ?? Carbon::now();
+                                $formattedDate = $signatureDate->addYears(543)->format('d/m/Y');
+
+                                // อัปเดตเนื้อหาของ node
+                                $node->nodeValue = 'วันที่ ' . $formattedDate;
+                                
+                            }
+                        }
+                    }
+
+                    // 4. แปลง DOM ที่แก้ไขแล้วกลับเป็น HTML String (เอาเฉพาะเนื้อหาใน body)
+                    $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                    $updatedHtml = '';
+                    foreach ($bodyNode->childNodes as $child) {
+                        $updatedHtml .= $dom->saveHTML($child);
+                    }
+                    
+                    // 5. อัปเดตค่าใน object
+                    $cbDocReviewAssessment->template = $updatedHtml;
+
+                    // 6. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+                    $cbDocReviewAssessment->save();
+            }else if($currentTransaction->template == "ib_result_review_template" )
+            {
+                    $certiIb = CertiIb::where('app_no', $currentTransaction->app_id)->first();
+
+                    // เพิ่มการตรวจสอบเผื่อไม่พบข้อมูล
+                    if (!$certiIb) {
+                        // จัดการกรณีไม่พบข้อมูล เช่น return หรือ throw exception
+                        return;
+                    }
+
+                    $ibDocReviewAssessment = IbDocReviewReport::where('app_certi_ib_id', $certiIb->id)
+                        ->where('report_type', "ib_result_review_template")
+                        ->first();
+                    //  dd($certiCb->id,"cb_doc_review_template");
+                    // เพิ่มการตรวจสอบเผื่อไม่พบข้อมูล
+                    if (!$ibDocReviewAssessment) {
+                        return;
+                    }
+
+                    $htmlContent = $ibDocReviewAssessment->template;
+
+                    // dd("fsfsf");
+
+                    // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+                    $dom = new DOMDocument();
+                    // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+                    @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+                    $xpath = new DOMXPath($dom);
+                    
+                    // --- ส่วนของการเพิ่มวันที่และบันทึก ---
+                    
+                    // 2. ค้นหา element ทั้งหมดที่มี class 'signed_date'
+                    $signedDateNodes = $xpath->query('//*[contains(@class, "signed_date")]');
+
+                    // 3. วนลูปเพื่ออัปเดตวันที่ในแต่ละ element
+                    foreach ($signedDateNodes as $node) {
+                        $parentDiv = $node->parentNode;
+                        if ($parentDiv && $parentDiv->hasAttribute('data-signer-id')) {
+                            $signerId = $parentDiv->getAttribute('data-signer-id');
+
+                            // ตรวจสอบถ้า signerId จาก HTML ตรงกับ signer_id ของ Transaction ปัจจุบัน
+                            if ($signerId == $currentTransaction->signer_id) {
+                                // สร้างวันที่และจัดรูปแบบ (dd/mm/yyyy พ.ศ.)
+                                $signatureDate = $currentTransaction->updated_at ?? Carbon::now();
+                                $formattedDate = $signatureDate->addYears(543)->format('d/m/Y');
+
+                                // อัปเดตเนื้อหาของ node
+                                $node->nodeValue = 'วันที่ ' . $formattedDate;
+                                
+                            }
+                        }
+                    }
+
+                    // 4. แปลง DOM ที่แก้ไขแล้วกลับเป็น HTML String (เอาเฉพาะเนื้อหาใน body)
+                    $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                    $updatedHtml = '';
+                    foreach ($bodyNode->childNodes as $child) {
+                        $updatedHtml .= $dom->saveHTML($child);
+                    }
+                    
+                    // 5. อัปเดตค่าใน object
+                    $ibDocReviewAssessment->template = $updatedHtml;
+
+                    // 6. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+                    $ibDocReviewAssessment->save();
+            }
+
             // หากพบว่ามี "คนอื่น" ที่ต้องลงนามก่อนหน้า
             if ($nextPendingTransaction) {
             
@@ -515,8 +648,8 @@ class SignAssessmentReportController extends Controller
             ]);
         }
         else
-            {
-           
+        {
+            // dd($currentTransaction);
             if (!$currentTransaction) {
                 return response()->json(['success' => false, 'message' => 'ไม่พบรายการที่ต้องการลงนาม']);
             }
@@ -553,7 +686,12 @@ class SignAssessmentReportController extends Controller
 
             // dd($currentTransaction);
             // 3. หากผ่านการตรวจสอบ ให้ลงนาม (Update Approval)
+
+
+
             $currentTransaction->update(['approval' => 1]);
+
+
 
             // ... ส่วนที่เหลือของโค้ดเหมือนเดิม ...
             // 4. ตรวจสอบว่าลงนามครบทุกคนแล้วหรือยัง
@@ -572,7 +710,7 @@ class SignAssessmentReportController extends Controller
             if($currentTransaction->certificate_type == 0)
             {
                 
-                if ($currentTransaction->template == "cb_final_report_process_one" || $currentTransaction->template == "cb_final_report_process_two") {
+                if ($currentTransaction->template == "cb_final_report_process_one" || $currentTransaction->template == "cb_final_report_process_two"  || $currentTransaction->template == "cb_car_report_two_process_two") {
                     $cbReportTemplate = CbReportTemplate::find($currentTransaction->report_info_id);
 
                     // ป้องกัน error กรณีหา report ไม่เจอ
@@ -622,10 +760,78 @@ class SignAssessmentReportController extends Controller
 
                     // 8. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
                     $cbReportTemplate->save();
+                }else if($currentTransaction->template == "cb_summary_report_template")
+                {
+                     $certiCb = CertiCb::where('app_no', $currentTransaction->app_id)->first();
+
+                    // เพิ่มการตรวจสอบเผื่อไม่พบข้อมูล
+                    if (!$certiCb) {
+                        // จัดการกรณีไม่พบข้อมูล เช่น return หรือ throw exception
+                        return;
+                    }
+
+                    $cbDocReviewAssessment = CbDocReviewReport::where('app_certi_cb_id', $certiCb->id)
+                        ->where('report_type', "cb_summary_report_template")
+                        ->first();
+                    //  dd($cbDocReviewAssessment,"cb_summary_report_template");
+                    // เพิ่มการตรวจสอบเผื่อไม่พบข้อมูล
+                    if (!$cbDocReviewAssessment) {
+                        return;
+                    }
+
+                    $htmlContent = $cbDocReviewAssessment->template;
+
+                    // dd("fsfsf");
+
+                    // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+                    $dom = new DOMDocument();
+                    // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+                    @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+                    $xpath = new DOMXPath($dom);
+                    
+                    // --- ส่วนของการเพิ่มวันที่และบันทึก ---
+                    
+                    // 2. ค้นหา element ทั้งหมดที่มี class 'signed_date'
+                    $signedDateNodes = $xpath->query('//*[contains(@class, "signed_date")]');
+
+                    // 3. วนลูปเพื่ออัปเดตวันที่ในแต่ละ element
+                    foreach ($signedDateNodes as $node) {
+                        $parentDiv = $node->parentNode;
+                        if ($parentDiv && $parentDiv->hasAttribute('data-signer-id')) {
+                            $signerId = $parentDiv->getAttribute('data-signer-id');
+
+                            // ตรวจสอบถ้า signerId จาก HTML ตรงกับ signer_id ของ Transaction ปัจจุบัน
+                            if ($signerId == $currentTransaction->signer_id) {
+                                // สร้างวันที่และจัดรูปแบบ (dd/mm/yyyy พ.ศ.)
+                                $signatureDate = $currentTransaction->updated_at ?? Carbon::now();
+                                $formattedDate = $signatureDate->addYears(543)->format('d/m/Y');
+
+                                // อัปเดตเนื้อหาของ node
+                                $node->nodeValue = 'วันที่ ' . $formattedDate;
+                                
+                            }
+                        }
+                    }
+
+                    // 4. แปลง DOM ที่แก้ไขแล้วกลับเป็น HTML String (เอาเฉพาะเนื้อหาใน body)
+                    $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                    $updatedHtml = '';
+                    foreach ($bodyNode->childNodes as $child) {
+                        $updatedHtml .= $dom->saveHTML($child);
+                    }
+                    
+                    // 5. อัปเดตค่าใน object
+                    $cbDocReviewAssessment->template = $updatedHtml;
+
+                    // 6. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+                    $cbDocReviewAssessment->save();
+                    // dd( $cbDocReviewAssessment->template);
                 }
             }else if($currentTransaction->certificate_type == 1)
             {
-                if ($currentTransaction->template == "ib_final_report_process_one" || $currentTransaction->template == "ib_final_report_process_two") {
+
+               
+                if ($currentTransaction->template == "ib_final_report_process_one" || $currentTransaction->template == "ib_final_report_process_two" || $currentTransaction->template == "ib_car_report_two_process_two" ) {
                     $ibReportTemplate = IbReportTemplate::find($currentTransaction->report_info_id);
 
                     // ป้องกัน error กรณีหา report ไม่เจอ
@@ -675,6 +881,71 @@ class SignAssessmentReportController extends Controller
 
                     // 8. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
                     $ibReportTemplate->save();
+                }else if($currentTransaction->template == "ib_summary_report_template")
+                {
+                     $certiIb = CertiIb::where('app_no', $currentTransaction->app_id)->first();
+
+                    // เพิ่มการตรวจสอบเผื่อไม่พบข้อมูล
+                    if (!$certiIb) {
+                        // จัดการกรณีไม่พบข้อมูล เช่น return หรือ throw exception
+                        return;
+                    }
+
+                    $ibDocReviewAssessment = IbDocReviewReport::where('app_certi_ib_id', $certiIb->id)
+                        ->where('report_type', "ib_summary_report_template")
+                        ->first();
+                    //  dd($certiCb->id,"cb_doc_review_template");
+                    // เพิ่มการตรวจสอบเผื่อไม่พบข้อมูล
+                    if (!$ibDocReviewAssessment) {
+                        return;
+                    }
+
+                    $htmlContent = $ibDocReviewAssessment->template;
+
+                    // dd("fsfsf");
+
+                    // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+                    $dom = new DOMDocument();
+                    // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+                    @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+                    $xpath = new DOMXPath($dom);
+                    
+                    // --- ส่วนของการเพิ่มวันที่และบันทึก ---
+                    
+                    // 2. ค้นหา element ทั้งหมดที่มี class 'signed_date'
+                    $signedDateNodes = $xpath->query('//*[contains(@class, "signed_date")]');
+
+                    // 3. วนลูปเพื่ออัปเดตวันที่ในแต่ละ element
+                    foreach ($signedDateNodes as $node) {
+                        $parentDiv = $node->parentNode;
+                        if ($parentDiv && $parentDiv->hasAttribute('data-signer-id')) {
+                            $signerId = $parentDiv->getAttribute('data-signer-id');
+
+                            // ตรวจสอบถ้า signerId จาก HTML ตรงกับ signer_id ของ Transaction ปัจจุบัน
+                            if ($signerId == $currentTransaction->signer_id) {
+                                // สร้างวันที่และจัดรูปแบบ (dd/mm/yyyy พ.ศ.)
+                                $signatureDate = $currentTransaction->updated_at ?? Carbon::now();
+                                $formattedDate = $signatureDate->addYears(543)->format('d/m/Y');
+
+                                // อัปเดตเนื้อหาของ node
+                                $node->nodeValue = 'วันที่ ' . $formattedDate;
+                                
+                            }
+                        }
+                    }
+
+                    // 4. แปลง DOM ที่แก้ไขแล้วกลับเป็น HTML String (เอาเฉพาะเนื้อหาใน body)
+                    $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                    $updatedHtml = '';
+                    foreach ($bodyNode->childNodes as $child) {
+                        $updatedHtml .= $dom->saveHTML($child);
+                    }
+                    
+                    // 5. อัปเดตค่าใน object
+                    $ibDocReviewAssessment->template = $updatedHtml;
+
+                    // 6. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+                    $ibDocReviewAssessment->save();
                 }
             }else if($currentTransaction->certificate_type == 2)
             {

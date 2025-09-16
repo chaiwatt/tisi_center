@@ -282,7 +282,7 @@
               {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-3 control-label  label-height'])) !!}
               <div class="col-md-7">
                      <div class="input-group">
-                      {!! Form::text('accereditatio_no_en', !empty($export_cb->accereditatio_no)? $export_cb->accereditatio_no:null, ['class' => 'form-control','id'=>'accereditatio_no_en','required' => true]) !!}
+                      {!! Form::text('accereditatio_no_en', !empty($export_cb->accereditatio_no_en)? $export_cb->accereditatio_no_en:null, ['class' => 'form-control','id'=>'accereditatio_no_en','required' => true]) !!}
                       <span class="input-group-addon bg-secondary "> EN </span>
                     </div>
                   {!! $errors->first('formula_en', '<p class="help-block">:message</p>') !!}

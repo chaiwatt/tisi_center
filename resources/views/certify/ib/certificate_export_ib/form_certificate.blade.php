@@ -1,3 +1,4 @@
+{{-- CertificateExportIBController --}}
 <div class="white-box" id="box-readonly">
     <div class="row">
         <div class="col-sm-12">
@@ -310,6 +311,10 @@
                 </div>
             </div>
 
+            {{-- {{$export_ib}} --}}
+            {{-- @php
+                dd($export_ib);
+            @endphp --}}
             <div class="form-group {{ $errors->has('accereditatio_no') ? 'has-error' : ''}}">
                 {!! HTML::decode(Form::label('accereditatio_no', '<span class="text-danger">*</span> มาตรฐาน'.' :', ['class' => 'col-md-3 control-label'])) !!}
                 <div class="col-md-7">
@@ -325,7 +330,7 @@
                 {!! HTML::decode(Form::label(' ', ' ', ['class' => 'col-md-3 control-label  label-height'])) !!}
                 <div class="col-md-7">
                     <div class="input-group">
-                        {!! Form::text('accereditatio_no_en', !empty( $export_ib->accereditatio_no)? $export_ib->accereditatio_no:null, ['class' => 'form-control','id'=>'accereditatio_no_en','required' => true]) !!}
+                        {!! Form::text('accereditatio_no_en', !empty( $export_ib->accereditatio_no_en)? $export_ib->accereditatio_no_en:null, ['class' => 'form-control','id'=>'accereditatio_no_en','required' => true]) !!}
                         <span class="input-group-addon bg-secondary "> EN </span>
                     </div>
                     {!! $errors->first('formula_en', '<p class="help-block">:message</p>') !!}

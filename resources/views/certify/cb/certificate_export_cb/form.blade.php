@@ -68,7 +68,8 @@
             $export_cb->formula = !empty($appData->formula)?$appData->formula:null;
             $export_cb->formula_en = !empty($appData->formula_en)?$appData->formula_en:null;
 
-            $export_cb->accereditatio_no = !empty($appData->accereditatio_no)?$appData->accereditatio_no:null;
+            // $export_cb->accereditatio_no = !empty($appData->accereditatio_no)?$appData->accereditatio_no:null;
+            $export_cb->accereditatio_no = null;
 
             $export_cb->date_start = !empty($appData->date_start)?$appData->date_start:null;
             $export_cb->date_end = !empty($appData->date_end)?$appData->date_end:null;

@@ -9,6 +9,8 @@ use DOMDocument;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Besurv\Signer;
+use App\ApplicantCB\CbTobToun;
+use App\ApplicantIB\IbTobToun;
 use Yajra\Datatables\Datatables;
 use App\Mail\Lab\MailBoardAuditor;
 use App\Http\Controllers\Controller;
@@ -176,6 +178,7 @@ class AuditorAssignmentController extends Controller
         $currentTransaction = MessageRecordTransaction::find($request->id);
 
        
+        // dd($currentTransaction);
 
         if (!$currentTransaction) {
             return response()->json([
@@ -346,6 +349,112 @@ class AuditorAssignmentController extends Controller
 
             // 3. ถ้าผ่านการตรวจสอบ ให้ทำการอัปเดตสถานะการลงนาม
             $currentTransaction->update(['approval' => 1]);
+
+
+
+
+
+
+
+         if($currentTransaction->job_type == "cb-tangtung-tobtoun")
+            {
+                $certiCb = CertiCb::where('app_no', $currentTransaction->app_id)->first();
+            
+                $cbDocReviewAssessment=  CbTobToun::where('app_certi_cb_id', $certiCb->id)
+                                ->where('report_type',"cb-tangtung-tobtoun")
+                                ->first();
+                $htmlContent = $cbDocReviewAssessment->template;
+
+                                // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+                $dom = new DOMDocument();
+                // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+                @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+                $xpath = new DOMXPath($dom);
+ 
+                $signedDateNodes = $xpath->query('//*[contains(@class, "signed_date")]');
+                foreach ($signedDateNodes as $node) {
+                    // parentNode คือ <div> ที่มี data-signer-id
+                    $parentDiv = $node->parentNode;
+                    if ($parentDiv && $parentDiv->hasAttribute('data-signer-id')) {
+                        $signerId = $parentDiv->getAttribute('data-signer-id');
+
+                         if ($signerId == $currentTransaction->signer_id) {
+                            // 4. สร้างวันที่และจัดรูปแบบ (dd/mm/yyyy พ.ศ.)
+                            // ใช้เวลาที่ transaction อัปเดตล่าสุดเพื่อความแม่นยำ หรือใช้ Carbon::now() หากไม่มี
+                            $signatureDate = $currentTransaction->updated_at ?? Carbon::now();
+                            $formattedDate = $signatureDate->addYears(543)->format('d/m/Y');
+
+                            // 5. อัปเดตเนื้อหาของ node
+                            $node->nodeValue = 'วันที่ ' . $formattedDate;
+                        }
+                    }
+                }
+                  // 6. แปลง DOM ที่แก้ไขแล้วกลับเป็น HTML String (เอาเฉพาะเนื้อหาใน body)
+                $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                $updatedHtml = '';
+                foreach ($bodyNode->childNodes as $child) {
+                    $updatedHtml .= $dom->saveHTML($child);
+                }
+                
+                // 7. อัปเดตค่าใน object
+                $cbDocReviewAssessment->template = $updatedHtml;
+
+                // 8. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+                $cbDocReviewAssessment->save();
+
+                // dd($cbDocReviewAssessment->template);
+            }else if($currentTransaction->job_type == "ib-tangtung-tobtoun")
+            {
+                $certiIb = CertiIb::where('app_no', $currentTransaction->app_id)->first();
+            
+                $ibDocReviewAssessment=  IbTobToun::where('app_certi_ib_id', $certiIb->id)
+                                ->where('report_type',"ib-tangtung-tobtoun")
+                                ->first();
+                $htmlContent = $ibDocReviewAssessment->template;
+
+                                // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+                $dom = new DOMDocument();
+                // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+                @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+                $xpath = new DOMXPath($dom);
+ 
+                $signedDateNodes = $xpath->query('//*[contains(@class, "signed_date")]');
+                foreach ($signedDateNodes as $node) {
+                    // parentNode คือ <div> ที่มี data-signer-id
+                    $parentDiv = $node->parentNode;
+                    if ($parentDiv && $parentDiv->hasAttribute('data-signer-id')) {
+                        $signerId = $parentDiv->getAttribute('data-signer-id');
+
+                         if ($signerId == $currentTransaction->signer_id) {
+                            // 4. สร้างวันที่และจัดรูปแบบ (dd/mm/yyyy พ.ศ.)
+                            // ใช้เวลาที่ transaction อัปเดตล่าสุดเพื่อความแม่นยำ หรือใช้ Carbon::now() หากไม่มี
+                            $signatureDate = $currentTransaction->updated_at ?? Carbon::now();
+                            $formattedDate = $signatureDate->addYears(543)->format('d/m/Y');
+
+                            // 5. อัปเดตเนื้อหาของ node
+                            $node->nodeValue = 'วันที่ ' . $formattedDate;
+                        }
+                    }
+                }
+                  // 6. แปลง DOM ที่แก้ไขแล้วกลับเป็น HTML String (เอาเฉพาะเนื้อหาใน body)
+                $bodyNode = $dom->getElementsByTagName('body')->item(0);
+                $updatedHtml = '';
+                foreach ($bodyNode->childNodes as $child) {
+                    $updatedHtml .= $dom->saveHTML($child);
+                }
+                
+                // 7. อัปเดตค่าใน object
+                $ibDocReviewAssessment->template = $updatedHtml;
+
+                // 8. บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+                $ibDocReviewAssessment->save();
+            }
+
+
+
+
+
+
         }
         else{
                // 2. ตรวจสอบและค้นหาผู้ลงนามลำดับก่อนหน้าที่ยังไม่ได้ลงนาม

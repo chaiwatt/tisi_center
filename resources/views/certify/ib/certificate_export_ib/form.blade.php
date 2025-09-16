@@ -1,3 +1,4 @@
+{{-- CertificateExportIBController --}}
 @push('css')
     <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('plugins/components/bootstrap-datepicker-thai/css/datepicker.css')}}" rel="stylesheet" type="text/css" />
@@ -67,7 +68,8 @@
             $export_ib->formula = !empty($appData->formula)?$appData->formula:null;
             $export_ib->formula_en = !empty($appData->formula_en)?$appData->formula_en:null;
 
-            $export_ib->accereditatio_no = !empty($appData->accereditatio_no)?$appData->accereditatio_no:null;
+            // $export_ib->accereditatio_no = !empty($appData->accereditatio_no)?$appData->accereditatio_no:null;
+            $export_ib->accereditatio_no = null;
 
             $export_ib->date_start = !empty($appData->date_start)?$appData->date_start:null;
             $export_ib->date_end = !empty($appData->date_end)?$appData->date_end:null;

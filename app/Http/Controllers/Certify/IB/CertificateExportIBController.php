@@ -213,7 +213,7 @@ class CertificateExportIBController extends Controller
      */
     public function store(Request $request)
     {
-        // dd('ok');
+        // dd($request->all());
 
 //  $certi_ib = CertiIb::findOrFail($request->app_certi_ib_id);
 
@@ -355,7 +355,7 @@ class CertificateExportIBController extends Controller
 
 
                         $certificateNo = $export_ib->certificate;      // << ค่า Certificate No. ใหม่ (เป็นค่าตัวอย่าง)
-                        // $accreditationNo = "หน่วยตรวจ 9999"; // << ค่า Accreditation No. ใหม่ (เป็นค่าตัวอย่าง)
+                        $accreditationNo = $request->accereditatio_no; // << ค่า Accreditation No. ใหม่ (เป็นค่าตัวอย่าง)
 
                         // 2. Decode JSON ที่เก็บ HTML ออกมาเป็น Array
                         $allHtmlPages = json_decode($ibHtmlTemplate->html_pages, true);
@@ -386,10 +386,10 @@ class CertificateExportIBController extends Controller
 
                             // --- ส่วนที่ 2: แทนที่ Accreditation No ---
                             // 4.4) ค้นหาทุก Nodes ที่มี class 'accreditation_no' และแทนที่ค่า
-                            // $accreditationNodes = $xpath->query("//span[contains(@class, 'accreditation_no')]");
-                            // foreach ($accreditationNodes as $node) {
-                            //     $node->nodeValue = $accreditationNo;
-                            // }
+                            $accreditationNodes = $xpath->query("//span[contains(@class, 'accreditation_no')]");
+                            foreach ($accreditationNodes as $node) {
+                                $node->nodeValue = $accreditationNo;
+                            }
 
                             // 4.5) ดึงเฉพาะ HTML ที่อยู่ข้างใน <body> กลับออกมา
                             $bodyNode = $dom->getElementsByTagName('body')->item(0);

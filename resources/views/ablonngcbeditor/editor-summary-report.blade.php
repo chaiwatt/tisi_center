@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>ADocument Editor</title>
+    <title>Editor - CB สรุปรายงานการตรวจ</title>
     {{-- Make sure this CSS file is adjusted to not have A4 page styling --}}
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
         <style>
