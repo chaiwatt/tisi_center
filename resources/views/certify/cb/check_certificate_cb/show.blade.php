@@ -250,7 +250,7 @@
                                         @endphp
                                         @if ($item->status   != 3) 
                                             <a  class="btn {{$payin1_btn}} " href="{{ url("certify/check_certificate-cb/Pay_In1/".$item->id."/".$certi_cb->token)}}" style="width:750px;text-align: left">
-                                                ครั้งที่ห {{ $display_key }} :  
+                                                ครั้งที่ {{ $display_key }} :  
                                                 {{ $item->CertiCBAuditorsTo->auditor ?? '-'}}
                                             </a> 
                                             <br>

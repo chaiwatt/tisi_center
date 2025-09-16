@@ -572,7 +572,7 @@
 
                             {{-- @if($certi_ib->standard_change == 1  || is_null($certi_ib->app_certi_ib_export)) --}}
                             @if(!empty($certi_ib->CertiIBExportTo) && !in_array($certi_ib->CertiIBExportTo->status,[99]))
-                                    @php 
+                                @php 
                                         $export =  $certi_ib->CertiIBExportTo;
                                         $export_btn =  '';
                                         $export_icon =  '';
@@ -594,12 +594,33 @@
                                 <a href="{{ url('certify/certificate-export-ib/'.$export->id.'/edit') }}" class="form_group btn  {{$export_btn}}"  >
                                         {!! $export_icon !!}    ออกใบรับรอง
                                 </a>
+
                             @elseif(!empty($certi_ib->certi_ib_export_mapreq_to))
-                                @if ($report->ability_confirm !== null)
-                                    <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail-ib/".$certi_ib->token)}}" >
-                                        <i class="fa fa-paperclip"></i>  แนบท้าย
-                                    </a> 
-                                @endif
+                                {{-- {{$certi_ib->purposeType->id}} --}}
+                                @if ($certi_ib->purposeType->id != 5)
+                                        @if ($report->ability_confirm !== null)
+                                            <a  class="form_group btn  btn-info " href="{{ url("certify/certificate_detail-ib/".$certi_ib->token)}}" >
+                                                <i class="fa fa-paperclip"></i>  แนบท้าย
+                                            </a> 
+                                        @endif
+                                  @else 
+                                   
+                                        <div class="btn-group form_group">
+                                            <form action="{{ url('/certify/certificate-export-ib/create')}}" method="POST" style="display:inline"  > 
+                                                {{ csrf_field() }}
+                                                {!! Form::hidden('app_token', (!empty($certi_ib->token) ? $certi_ib->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
+                                                <button class=" btn btn-warning" type="submit" >
+                                                    ออกใบรับรอง
+                                                </button>
+                                            </form>
+                                        </div>
+                                 
+
+                            @endif
+
+
+
+
                             @else 
                                 @if ($report->ability_confirm !== null)
                                     <div class="btn-group form_group">
