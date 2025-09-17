@@ -1798,7 +1798,7 @@ $accereditatioNo = $certificateExport->accereditatio_no;
     $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : '';
 
 
-    if($certi_lab->purpose_type > 1)
+    if($certi_lab->purpose_type > 1 && $certi_lab->purpose_type != 6)
 {
 
 $certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
