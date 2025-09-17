@@ -61,7 +61,7 @@ class CheckTrackingIbPayInOne extends Command
             ->where(function ($query) {
                 $query->where('ref1', 'like', 'SurIB%');
             });
-            // ->get();
+            ->get();
 
             dd($transactionPayIns);
 
