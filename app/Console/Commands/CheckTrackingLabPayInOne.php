@@ -59,11 +59,12 @@ class CheckTrackingLabPayInOne extends Command
                 $query->where('ref1', 'like', 'SurLab%');
             })
             ->get();
-        dd($transactionPayIns->first());
+       
         foreach ($transactionPayIns as $transactionPayIn) 
         {
             $ref1 = $transactionPayIn->ref1;
             $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
+             dd($transactionPayIns->first(),$ref1);
             // dd($result);
             // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
             if ($result instanceof \Illuminate\Http\JsonResponse) {
