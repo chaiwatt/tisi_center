@@ -51,8 +51,14 @@ class CheckTrackingLabPayInOne extends Command
 
          $now = Carbon::now();
 
-        $transactionPayIns = TransactionPayIn::where('status_confirmed', 0)
-            ->where('table_name','app_certi_tracking_pay_in1')
+        // $transactionPayIns = TransactionPayIn::where('status_confirmed', 0)
+        //     ->where('table_name','app_certi_tracking_pay_in1')
+            $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $now)
+            ->where('invoiceEndDate', '>=', $now)
+            ->where(function ($query) {
+                $query->whereNull('status_confirmed')
+                      ->orWhere('status_confirmed', 0);
+            })
             ->where('state',1)
             ->where('count','<=',3)
             ->where(function ($query) {
