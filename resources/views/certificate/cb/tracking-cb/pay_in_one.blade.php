@@ -518,6 +518,7 @@ $SumCost = !empty($pay_in->auditors_to->SumCostConFirm) ? $pay_in->auditors_to->
                                 "ref1": ref1 
                             }
                         }).success(function (msg) {
+                             console.log(msg)
                             if(msg.message == true){
                             var  response  =  msg.response;   
                                 $('#ModalPayIn').modal('show');

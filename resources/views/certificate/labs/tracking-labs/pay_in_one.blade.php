@@ -1,3 +1,5 @@
+{{-- TrackingLabsController --}}
+{{-- Checkbill2Controller --}}
 @extends('layouts.master')
 @push('css')
 <link href="{{asset('plugins/components/icheck/skins/all.css')}}" rel="stylesheet" type="text/css" />
