@@ -185,7 +185,7 @@
       
  <!-- START  admin , ผอ , ผก ,เจ้าหน้าที่ CB  -->
  {{-- @if((auth()->user()->SetRolesLicenseCertify() == "true" ||  in_array("29",auth()->user()->RoleListId)) && count($tracking->tracking_payin_one_status1_many)  > 0 )   --}}
-{{$tracking->status_id,count($tracking->tracking_assessment_many)}}
+{{-- {{$tracking->status_id,count($tracking->tracking_assessment_many)}} --}}
  @if($tracking->status_id >= 3  &&  count($tracking->tracking_assessment_many) > 0 ) 
   @php 
       $assessment_btn =  '';
