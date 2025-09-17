@@ -62,7 +62,7 @@ class CheckTrackingIbPayInOne extends Command
             })
             ->get();
 
-            dd($transactionPayIns);
+            dd($transactionPayIns->count());
 
         foreach ($transactionPayIns as $transactionPayIn) 
         {
