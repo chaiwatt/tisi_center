@@ -1525,7 +1525,8 @@ $endDate = "";
 $certificateNo = "";
 $accereditatioNo ="";
 
-if($certi_lab->purpose_type > 1 && $certi_lab->purpose_type != 6)
+// dd($certi_lab->purpose_type );
+$certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
 {
 
 $certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
@@ -1797,8 +1798,13 @@ $accereditatioNo = $certificateExport->accereditatio_no;
     $data->fix_text1 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text1 : '';
     $data->fix_text2 = $htmlLabMemorandumRequest ? $htmlLabMemorandumRequest->text2 : '';
 
+$startDate = "";
+$endDate = "";
+$certificateNo = "";
+$accereditatioNo ="";
 
-    if($certi_lab->purpose_type > 1 && $certi_lab->purpose_type != 6)
+// dd($certi_lab->purpose_type);
+    if($certi_lab->purpose_type > 1 && $certi_lab->purpose_type < 6)
 {
 
 $certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
