@@ -64,7 +64,7 @@ class CheckTrackingLabPayInOne extends Command
         {
             $ref1 = $transactionPayIn->ref1;
             $result = $this->callCheckBill($ref1); // เรียกฟังก์ชัน
-             dd($transactionPayIns->first(),$ref1,$result);
+            //  dd($transactionPayIns->first(),$ref1,$result);
             // dd($result);
             // ตรวจสอบว่า $result เป็น JsonResponse หรือไม่
             if ($result instanceof \Illuminate\Http\JsonResponse) {
