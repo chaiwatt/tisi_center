@@ -49,9 +49,9 @@ class CheckTrackingIbPayInOne extends Command
     {
         $today = now(); // กำหนดวันปัจจุบัน
 
-        $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
-            ->where('invoiceEndDate', '>=', $today)
-            ->where(function ($query) {
+        // $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
+        //     ->where('invoiceEndDate', '>=', $today)
+        $transactionPayIns = TransactionPayIn::where(function ($query) {
                 $query->whereNull('status_confirmed')
                       ->orWhere('status_confirmed', 0);
             })
@@ -62,7 +62,7 @@ class CheckTrackingIbPayInOne extends Command
             })
             ->get();
 
-            // dd($transactionPayIns->first());
+            dd($transactionPayIns->first());
 
         foreach ($transactionPayIns as $transactionPayIn) 
         {
