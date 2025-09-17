@@ -1526,9 +1526,8 @@ $certificateNo = "";
 $accereditatioNo ="";
 
 // dd($certi_lab->purpose_type );
-$certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
+if($certi_lab->purpose_type > 1 && $certi_lab->purpose_type < 6)
 {
-
 $certificateExport = CertificateExport::where('accereditatio_no',$certi_lab->accereditation_no)->first();
 $report = Report::where('app_certi_lab_id',$certificateExport->certificate_for)->first();
 
