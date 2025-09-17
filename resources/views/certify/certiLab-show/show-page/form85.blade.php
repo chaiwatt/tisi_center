@@ -63,23 +63,23 @@ $labRequestBranchs = [];
                                  $certifiCateExport = null;
                              @endphp
                         @else
-                             
+{{--                              
                              @if ($certi_lab->certi_lab_export_mapreq_to != null)
-                                 {{-- {{$certi_lab->certi_lab_export_mapreq_to}} --}}
+
                                  
                                  @php
                                     $certifiCateExport = @$certi_lab->getCertificateExport($certi_lab->certi_lab_export_mapreq_to->certificate_exports_id);
-                                    // dd($certifiCateExport);
+
                                  @endphp
-                             @endif
+                             @endif --}}
                             
                     @endif
                  </div>
                  <div class="col-md-8 text-left">
                     <label for="lab_name">
-                         @if ($certifiCateExport != null)
+                         {{-- @if ($certifiCateExport != null)
                             {{$certifiCateExport->request_number}}
-                        @endif
+                        @endif --}}
                    </label>
                  </div>
             </div>
@@ -91,10 +91,10 @@ $labRequestBranchs = [];
                  </div>
                  <div class="col-md-8 text-left">
                     <label for="lab_name">
-                        {{-- {{ $certi_lab->certificate_exports_id }} --}}
-                        @if ($certifiCateExport != null)
+
+                        {{-- @if ($certifiCateExport != null)
                             {{$certifiCateExport->certificate_no}}
-                        @endif
+                        @endif --}}
                    </label>
                  </div>
             </div>
@@ -106,10 +106,10 @@ $labRequestBranchs = [];
                  </div>
                  <div class="col-md-8 text-left">
                     <label for="lab_name">
-                        {{-- {{ $certi_lab->accereditation_no }} --}}
+{{-- 
                         @if ($certifiCateExport != null)
                             {{$certifiCateExport->accereditatio_no}}
-                        @endif
+                        @endif --}}
                    </label>
                  </div>
             </div>
