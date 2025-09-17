@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 use HP;
+use Carbon\Carbon;
 use App\AttachFile;
 use App\CertificateExport;
 use Illuminate\Http\Request;
@@ -46,10 +47,12 @@ class CheckTrackingLabPayInOne extends Command
 
     public function updateTrackingLabPayin1()
     {
-        $today = now(); // กำหนดวันปัจจุบัน
+        // $today = now(); // กำหนดวันปัจจุบัน
 
-        $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
-            ->where('invoiceEndDate', '>=', $today)
+         $now = Carbon::now();
+
+        $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $now)
+            ->where('invoiceEndDate', '>=', $now)
             ->where(function ($query) {
                 $query->whereNull('status_confirmed')
                       ->orWhere('status_confirmed', 0);
