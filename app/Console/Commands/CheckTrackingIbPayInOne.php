@@ -51,10 +51,11 @@ class CheckTrackingIbPayInOne extends Command
 
         // $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
         //     ->where('invoiceEndDate', '>=', $today)
-        $transactionPayIns = TransactionPayIn::where(function ($query) {
-                $query->whereNull('status_confirmed')
-                      ->orWhere('status_confirmed', 0);
-            })
+        // $transactionPayIns = TransactionPayIn::where(function ($query) {
+        //         $query->whereNull('status_confirmed')
+        //               ->orWhere('status_confirmed', 0);
+        //     })
+        $transactionPayIns = TransactionPayIn::where('status_confirmed', 0)
             ->where('state',1)
             ->where('count','<=',3)
             ->where(function ($query) {
