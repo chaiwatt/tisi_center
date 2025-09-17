@@ -520,34 +520,34 @@ $SumCost = !empty($pay_in->auditors_to->SumCostConFirm) ? $pay_in->auditors_to->
                                 "ref1": ref1 
                             }
                         }).success(function (msg) {
-                            if(msg.message == true){
-                            var  response  =  msg.response;   
+                            // if(msg.message == true){
+                            // var  response  =  msg.response;   
                                 $('#ModalPayIn').modal('show');
-                                $('#ReceiptCreateDate').val(response.receipt_create_date_th);
-                                $('#ReceiptCode').val(response.ReceiptCode);
-                                $('#ref1').html(response.ref1);
-                                $('#CGDRef1').html(response.CGDRef1); 
-                                $('#receipt_create_date').html(response.receipt_create_date_th); 
-                                $('#receipt_code').html(response.ReceiptCode);
-                                $('#PayAmountBill').html(addCommas(response.PayAmountBill, 2) );
-                                if(response.status_confirmed == 1){
-                                    $('#StatusPayIn').html('ชำระค่าธรรมเนียมเรียบร้อย');
-                                }else{
-                                    $('#StatusPayIn').html('ยังไม่ชำระค่าธรรมเนียม');
-                                }
+                                // $('#ReceiptCreateDate').val(response.receipt_create_date_th);
+                                // $('#ReceiptCode').val(response.ReceiptCode);
+                                // $('#ref1').html(response.ref1);
+                                // $('#CGDRef1').html(response.CGDRef1); 
+                                // $('#receipt_create_date').html(response.receipt_create_date_th); 
+                                // $('#receipt_code').html(response.ReceiptCode);
+                                // $('#PayAmountBill').html(addCommas(response.PayAmountBill, 2) );
+                                // if(response.status_confirmed == 1){
+                                //     $('#StatusPayIn').html('ชำระค่าธรรมเนียมเรียบร้อย');
+                                // }else{
+                                //     $('#StatusPayIn').html('ยังไม่ชำระค่าธรรมเนียม');
+                                // }
 
                                 $.LoadingOverlay("hide");
-                            }else{
-                                $.LoadingOverlay("hide");
-                                $('#ModalPayIn').modal('hide');
-                                Swal.fire({
-                                    icon: 'warning',
-                                    width: 600,
-                                    position: 'center',
-                                    title: 'กรุณารอข้อมูล E-payment จาก สมอ.',
-                                    showConfirmButton: true,
-                                });
-                            }
+                            // }else{
+                            //     $.LoadingOverlay("hide");
+                            //     $('#ModalPayIn').modal('hide');
+                            //     Swal.fire({
+                            //         icon: 'warning',
+                            //         width: 600,
+                            //         position: 'center',
+                            //         title: 'กรุณารอข้อมูล E-payment จาก สมอ.',
+                            //         showConfirmButton: true,
+                            //     });
+                            // }
 
                         });
                     }
