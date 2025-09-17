@@ -535,7 +535,7 @@ $SumCost = !empty($pay_in->auditors_to->SumCostConFirm) ? $pay_in->auditors_to->
                             //         $('#StatusPayIn').html('ยังไม่ชำระค่าธรรมเนียม');
                             //     }
 
-                            //     $.LoadingOverlay("hide");
+                                $.LoadingOverlay("hide");
                             // }else{
                             //     $.LoadingOverlay("hide");
                             //     $('#ModalPayIn').modal('hide');
