@@ -57,6 +57,8 @@ class CheckTrackingIbPayInOne extends Command
         //     })
         $transactionPayIns = TransactionPayIn::where('status_confirmed', 0)
             ->where('state',1)
+            ->where('table_name','app_certi_tracking_pay_in1')
+            
             ->where('count','<=',3)
             ->where(function ($query) {
                 $query->where('ref1', 'like', 'SurIB%');
