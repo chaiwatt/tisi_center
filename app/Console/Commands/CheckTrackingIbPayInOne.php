@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 use HP;
+use Carbon\Carbon;
 use App\AttachFile;
 use App\CertificateExport;
 use Illuminate\Http\Request;
@@ -48,24 +49,20 @@ class CheckTrackingIbPayInOne extends Command
     public function updateTrackingIbPayin1()
     {
         $today = now(); // กำหนดวันปัจจุบัน
+        $now = Carbon::now();
 
-        // $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $today)
-        //     ->where('invoiceEndDate', '>=', $today)
-        // $transactionPayIns = TransactionPayIn::where(function ($query) {
-        //         $query->whereNull('status_confirmed')
-        //               ->orWhere('status_confirmed', 0);
-        //     })
-        $transactionPayIns = TransactionPayIn::where('status_confirmed', 0)
+        $transactionPayIns = TransactionPayIn::where('invoiceStartDate', '<=', $now)
+            ->where('invoiceEndDate', '>=', $now)
+            ->where(function ($query) {
+                $query->whereNull('status_confirmed')
+                      ->orWhere('status_confirmed', 0);
+            })
             ->where('state',1)
-            ->where('table_name','app_certi_tracking_pay_in1')
-            
             ->where('count','<=',3)
             ->where(function ($query) {
                 $query->where('ref1', 'like', 'SurIB%');
             })
             ->get();
-
-            dd($transactionPayIns);
 
         foreach ($transactionPayIns as $transactionPayIn) 
         {
