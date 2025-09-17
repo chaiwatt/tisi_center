@@ -60,7 +60,7 @@ class CheckTrackingLabPayInOne extends Command
                 $query->where('ref1', 'like', 'SurLab%');
             })
             ->get();
-
+        // dd($transactionPayIns->count());
         foreach ($transactionPayIns as $transactionPayIn) 
         {
             $ref1 = $transactionPayIn->ref1;
