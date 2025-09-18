@@ -4016,12 +4016,12 @@ static function ConvertCertifyFileName($name){
                                                         <i class="fa fa-pencil-square-o"></i>
                                                 </a>';
         endif;
-        if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('delete-' . str_slug($str_slug_name)) && $show_delete === true):
-            $form_action .= '<form action="' . action($controller_action, ['id' => $id]) . '" method="POST" style="display:inline">
-                                                ' . csrf_field() . method_field('DELETE') . '
-                                                <button type="submit" class="btn btn-danger btn-xs" title="Delete ' . substr($str_slug_name, 0, -1) . '" onclick="return confirm_delete()"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
-                                                </form>';
-        endif;
+        // if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('delete-' . str_slug($str_slug_name)) && $show_delete === true):
+        //     $form_action .= '<form action="' . action($controller_action, ['id' => $id]) . '" method="POST" style="display:inline">
+        //                                         ' . csrf_field() . method_field('DELETE') . '
+        //                                         <button type="submit" class="btn btn-danger btn-xs" title="Delete ' . substr($str_slug_name, 0, -1) . '" onclick="return confirm_delete()"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+        //                                         </form>';
+        // endif;
         return $form_action;
     }
 
