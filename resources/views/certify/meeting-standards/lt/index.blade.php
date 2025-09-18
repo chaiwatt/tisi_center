@@ -51,7 +51,7 @@
 
 
 <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#lt_transactions"><strong>รายการประชุม LT</strong></a></li>
+    <li class="active"><a data-toggle="tab" href="#lt_transactions"><strong>รายการประชุมขอ</strong></a></li>
     <li><a data-toggle="tab" href="#std_transactions"><strong>รายการประชุมมาตรฐาน</strong></a></li>
 </ul>
 
