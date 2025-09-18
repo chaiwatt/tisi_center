@@ -189,7 +189,8 @@
 
 <div class="form-group">
     @if ($standard != null)
-        @if ($standard->status_id <= 7)
+    {{$standard->status_id}}
+        @if ($standard->status_id < 7)
             <div class="col-md-offset-4 col-md-4">
                 @if( $step_tap_disabled >= 7 )
                     <input type='button' class='btn btn-previous btn-fill btn-warning' name='back' value='Back' />
