@@ -43,7 +43,7 @@ class AppointedCommitteeLtController extends Controller
        
         $model = str_slug('appointed-committee-lt','-');
         if(auth()->user()->can('view-'.$model)) {
-            $meetingLtTransactions  = MeetingLtTransaction::paginate(10, ['*'], 'lt_page');
+            $meetingLtTransactions  = MeetingLtTransaction::orderByDesc('id')->paginate(10, ['*'], 'lt_page');
 
 
         $roles =  !empty(auth()->user()->roles) ? auth()->user()->roles->pluck('id')->toArray() : []; 
