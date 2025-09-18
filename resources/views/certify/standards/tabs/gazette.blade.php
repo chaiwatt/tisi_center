@@ -188,8 +188,9 @@
 </div>
 
 <div class="form-group">
-    @if ($standard != null)
     {{$standard->status_id}}
+    @if ($standard != null)
+    
         @if ($standard->status_id < 7)
             <div class="col-md-offset-4 col-md-4">
                 @if( $step_tap_disabled >= 7 )
