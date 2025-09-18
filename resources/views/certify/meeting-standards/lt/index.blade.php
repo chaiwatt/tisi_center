@@ -65,7 +65,7 @@
                         <tr>
                             <th width="1%" class="text-center">#</th>
                             <th width="1%"><input type="checkbox" id="checkall_lt"></th>
-                            <th width="15%" class="text-center">หัวข้อการประชุม</th>
+                            <th width="15%" class="text-center">หัวข้อการประชุมคำขอ</th>
                             <th width="15%" class="text-center">วันที่นัดหมาย</th>
                             <th width="15%" class="text-center">สถานที่นัดหมาย</th>
                             <th width="15%" class="text-center">สถานะ</th>
