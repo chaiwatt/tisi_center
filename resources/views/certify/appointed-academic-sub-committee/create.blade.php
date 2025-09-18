@@ -183,9 +183,9 @@
                                 </button>
 
                                 <!-- ปุ่มบันทึก -->
-                                <button class="btn btn-primary" type="submit" name="action" value="save">
+                                {{-- <button class="btn btn-primary" type="submit" name="action" value="save">
                                     <i class="fa fa-paper-plane"></i> บันทึก
-                                </button>
+                                </button> --}}
 
                                 @can('view-'.str_slug('standarddrafts'))
                                     <a class="btn btn-default" href="{{ url('/certify/standard-drafts') }}">
