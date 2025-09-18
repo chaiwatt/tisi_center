@@ -66,7 +66,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box">
-                    <h3 class="box-title pull-left">จัดทำมาตรฐานรับรอง #</h3>
+                    <h3 class="box-title pull-left">จัดทำมาตรฐานรับรอง STD#</h3>
 
                     <div class="pull-right">
 
@@ -248,7 +248,7 @@
             
             { data: 'DT_Row_Index', searchable: false, orderable: false},
                    { data: 'ref_no', name: 'ref_no', className: 'text-center' },
-             { data: 'status_id', name: 'status_id' },
+             { data: 'std_title', name: 'std_title' },
      
             { data: 'std_no', name: 'std_no' }, 
             { data: 'set_standard_id', name: 'set_standard_id' },
