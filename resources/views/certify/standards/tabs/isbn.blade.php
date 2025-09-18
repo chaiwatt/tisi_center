@@ -72,14 +72,16 @@
 <div class="form-group">
 
     @if ($standard != null)
-        @if ($standard->status_id < 7)
+        
             <div class="col-md-offset-4 col-md-4">
                 @if( $step_tap_disabled >= 5 )
                     <input type='button' class='btn btn-previous btn-fill btn-warning' name='back' value='Back' />
                 @endif
-                <button class="btn btn-primary step_save" type="button">
-                    <i class="fa fa-paper-plane"></i> บันทึก
-                </button>
+                @if ($standard->status_id < 7)
+                    <button class="btn btn-primary step_save" type="button">
+                        <i class="fa fa-paper-plane"></i> บันทึก
+                    </button>
+                 @endif
                 @can('view-'.str_slug('certifystandard'))
                     <a class="btn btn-default" href="{{url('/certify/standards')}}">
                         <i class="fa fa-rotate-left"></i> ยกเลิก
@@ -89,7 +91,7 @@
                     <input type='button' class='btn btn-next btn-fill btn-success' name='next' value='Next' />
                 @endif
             </div>
-        @endif
+       
     @endif
 
 </div>
