@@ -136,7 +136,7 @@
 </div>
 
 @if ($standard != null)
-    @if ($standard->status_id < 7)
+    @if ($standard->status_id <= 7)
         <div class="form-group">
             <div class="col-md-offset-4 col-md-4">
                 <button class="btn btn-primary step_save" type="button">
