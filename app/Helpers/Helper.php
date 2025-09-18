@@ -4004,12 +4004,12 @@ static function ConvertCertifyFileName($name){
     public static function buttonAction($id, $action_url, $controller_action, $str_slug_name, $show_view = true, $show_edit = true, $show_delete = true)
     {
         $form_action = '';
-        if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('view-' . str_slug($str_slug_name)) && $show_view === true):
-            $form_action .= '<a href="' . url('/' . $action_url . '/' . $id) . '"
-                                                title="View ' . substr($str_slug_name, 0, -1) . '" class="btn btn-info btn-xs">
-                                                        <i class="fa fa-eye"></i>
-                                                </a>';
-        endif;
+        // if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('view-' . str_slug($str_slug_name)) && $show_view === true):
+        //     $form_action .= '<a href="' . url('/' . $action_url . '/' . $id) . '"
+        //                                         title="View ' . substr($str_slug_name, 0, -1) . '" class="btn btn-info btn-xs">
+        //                                                 <i class="fa fa-eye"></i>
+        //                                         </a>';
+        // endif;
         if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('edit-' . str_slug($str_slug_name)) && $show_edit === true):
             $form_action .= ' <a href="' . url('/' . $action_url . '/' . $id . '/edit') . '"
                                                 title="Edit ' . substr($str_slug_name, 0, -1) . '" class="btn btn-warning btn-xs">
