@@ -73,7 +73,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($meetingLtTransactions->reverse() as $item)
+                        @forelse ($meetingLtTransactions as $item)
                         <tr>
                             <td class="text-center">{{ $loop->iteration }}</td>
                             <td><input type="checkbox" name="ids_lt[]" class="checkbox_child_lt" value="{{ $item->id }}"></td>
