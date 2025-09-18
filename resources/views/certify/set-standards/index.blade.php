@@ -300,11 +300,11 @@
                                                        {{-- ขั้นสูง ลท อย่ามาทำที่นี่ --}}
                                                         {{-- @if(auth()->user()->roles->contains('id', $role->id))
                                                               @if ($item->mainAppointmentMeetingApproved->count() == 0)
-                                                                    <a href="{{route('certify.appointed-lt-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                    <a href="{{route('certify.appointed-lt-committee.create')}}" title="จัดการประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                                                     </a>
                                                                 @else  
-                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="จัดการประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-pencil-square-o"></i>
                                                                     </a>
                                                                 @endif
@@ -314,12 +314,12 @@
                                                               {{-- @if ($item->mainAppointmentMeetingApproved->count() == 0) --}}
                                                               @if ($item->status_id != 5)
                                                               {{-- certify.appointed-lt-committee.create --}}
-                                                                    {{-- <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;"> --}}
-                                                                    <a href="{{route('certify.appointed-lt-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                    {{-- <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="จัดการประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;"> --}}
+                                                                    <a href="{{route('certify.appointed-lt-committee.create')}}" title="จัดการประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                                                     </a>
                                                                 @else  
-                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="จัดการประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-pencil-square-o"></i>
                                                                     </a>
                                                                 @endif
@@ -329,7 +329,7 @@
                                                                    
                                                                    <span class="badge bg-warning text-dark">อยู่ระหว่างลท ดำเนินการ</span>
                                                                 @else  
-                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                    <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="จัดการประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                         <i class="fa fa-pencil-square-o"></i>
                                                                     </a>
                                                                 @endif
@@ -399,7 +399,7 @@
                                                                         </a>
 
                                                                         @if ($item->finished == 1)
-                                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="จัดการประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                                 <i class="fa fa-pencil-square-o"></i>
                                                                             </a>
                                                                         @else
@@ -429,11 +429,11 @@
                                                                     @endphp --}}
                                                                     {{-- {{$item->mainAppointmentMeetingApproved->count()}} --}}
                                                                         @if ($item->mainAppointmentMeetingApproved->count() == 0)
-                                                                            <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
+                                                                            <a href="{{route('certify.appointed-academic-sub-committee.create')}}" title="จัดการประชุมคณะกำหนด" class="btn btn-warning btn-xs" style="display: inline-block;">
                                                                                 <i class="fa fa-envelope-o" aria-hidden="true"></i>
                                                                             </a>
                                                                         @else  
-                                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="หนังสือเชิญประชุมและนัดหมายประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
+                                                                            <a href="{{url('/certify/set-standards/'.$item->id.'/edit')}}" title="จัดการประชุมคณะกำหนด" class="btn {{ $item->status_id == 5 ? 'btn-info' : 'btn-warning' }}  btn-xs" style="display: inline-block;">
                                                                                 <i class="fa fa-pencil-square-o"></i>
                                                                             </a>
                                                                         @endif
