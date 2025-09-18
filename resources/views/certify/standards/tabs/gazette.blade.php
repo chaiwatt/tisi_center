@@ -16,7 +16,7 @@
     <div class="col-md-6">
         <div class="checkbox checkbox-success  label-height">
             <input id="gazette_state" class="gazette_state checkbox" type="checkbox" name="gazette_state" value="1" {!! !empty($standard)?(($standard->gazette_state ==1)?'checked':''):''  !!}>
-            <label for="gazette_state"  class="label-height">&nbsp;ประกาศในราชกิจจานุเบกษา&nbsp; {{$standard->status_id}}</label>
+            <label for="gazette_state"  class="label-height">&nbsp;ประกาศในราชกิจจานุเบกษา&nbsp;</label>
         </div>
     </div>
 </div>
@@ -188,19 +188,24 @@
 </div>
 
 <div class="form-group">
-    <div class="col-md-offset-4 col-md-4">
-        @if( $step_tap_disabled >= 7 )
-            <input type='button' class='btn btn-previous btn-fill btn-warning' name='back' value='Back' />
+    @if ($standard != null)
+        @if ($standard->status_id < 7)
+            <div class="col-md-offset-4 col-md-4">
+                @if( $step_tap_disabled >= 7 )
+                    <input type='button' class='btn btn-previous btn-fill btn-warning' name='back' value='Back' />
+                @endif
+                <button class="btn btn-primary step_save" type="button">
+                    <i class="fa fa-paper-plane"></i> บันทึก
+                </button>
+                @can('view-'.str_slug('certifystandard'))
+                    <a class="btn btn-default" href="{{url('/certify/standards')}}">
+                        <i class="fa fa-rotate-left"></i> ยกเลิก
+                    </a>
+                @endcan
+            </div>
         @endif
-        <button class="btn btn-primary step_save" type="button">
-            <i class="fa fa-paper-plane"></i> บันทึก
-        </button>
-        @can('view-'.str_slug('certifystandard'))
-            <a class="btn btn-default" href="{{url('/certify/standards')}}">
-                <i class="fa fa-rotate-left"></i> ยกเลิก
-            </a>
-        @endcan
-    </div>
+    @endif
+
 </div>
 
 
