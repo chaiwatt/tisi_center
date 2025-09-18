@@ -16,7 +16,7 @@
     <div class="col-md-6">
         <div class="checkbox checkbox-success  label-height">
             <input id="gazette_state" class="gazette_state checkbox" type="checkbox" name="gazette_state" value="1" {!! !empty($standard)?(($standard->gazette_state ==1)?'checked':''):''  !!}>
-            <label for="gazette_state"  class="label-height">&nbsp;ประกาศในราชกิจจานุเบกษา&nbsp;</label>
+            <label for="gazette_state"  class="label-height">&nbsp;ประกาศในราชกิจจานุเบกษา&nbsp; {{$standard->status_id}}</label>
         </div>
     </div>
 </div>
