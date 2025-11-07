@@ -19,10 +19,15 @@
 @endpush
 @section('content')
 
+@php
+     $attach_path = 'files/applicants/check_files_cb/';
+@endphp
+
 <div class="container-fluid">
     <!-- .row -->
     <div class="row">
         <div class="col-sm-12">
+            <input id="app_certi_cb_id" value="{{$certi_cb->id}}" type="hidden">
             <div class="white-box">
 
                 <h3 class="box-title pull-left">ระบบตรวจสอบคำขอหน่วยรับรอง show {{ $certi_cb->app_no ?? null }} </h3>
@@ -654,8 +659,32 @@ ssss
                            
                         @else 
                             
-                                {{-- {{ $report->ability_confirm}} --}}
                             @if ($report->ability_confirm !== null)
+
+                                {{-- {{$certi_cb->scope_view_status }} --}}
+                                @include ('certify.cb.check_certificate_cb.modal_scope_review')
+
+                                @php
+                                    $btnClass = $certi_cb->scope_view_signer_id == null
+                                        ? 'btn-warning'
+                                        : ($certi_cb->scope_view_status == null ? 'btn-success' : 'btn-info');
+                                @endphp
+
+                                <div class="btn-group form_group">
+                                    <button class="btn {{ $btnClass }}" data-toggle="modal" data-target="#exampleModalScopeReview">
+                                        ตรวจสอบขอบข่าย
+                                    </button>
+                                </div>
+
+                                {{-- {{$report->file_loa}} --}}
+
+                                {{-- @php
+                                    dd($report);
+                                @endphp --}}
+
+                                     {{-- <div class="clearfix"></div> --}}
+
+                              
                                 <div class="btn-group form_group">
                                     <form action="{{ url('/certify/certificate-export-cb/create')}}" method="POST" style="display:inline" > 
                                         {{ csrf_field() }}

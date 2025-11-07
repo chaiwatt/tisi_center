@@ -108,8 +108,98 @@ class IbPdfGeneratorController extends Controller
                                        ->first();
 
         if ($savedReport && !empty($savedReport->template)) {
-            // ถ้ามีข้อมูลอยู่แล้ว ให้ส่งข้อมูลนั้นกลับไป
-            // ไม่ต้อง decode เพราะเราไม่ได้ encode ตอนบันทึก
+            
+
+
+            $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id' , $savedReport->id)
+                ->where('certificate_type',1)
+                ->where('report_type' , 1)
+                ->where('approval' , 1)
+                ->where('template' , $templateType)
+                ->get();
+            
+
+            // ดึง HTML content เริ่มต้น
+            $htmlContent = $savedReport->template;
+
+
+            $dom = new DOMDocument();
+            // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+            @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+            $xpath = new DOMXPath($dom);
+
+                        // --- ส่วนที่เพิ่มเข้ามา ---
+                // นับจำนวนช่องลายเซ็นทั้งหมดที่มีใน Template จาก attribute 'data-signer-id'
+                $totalSignerSlots = $xpath->query("//div[@data-signer-id]")->length;
+
+                // นับจำนวนผู้ที่อนุมัติแล้ว
+                $approvedSignerCount = $signAssessmentReportTransactions->count();
+                // --- สิ้นสุดส่วนที่เพิ่มเข้ามา ---
+
+            // 2. วนลูปเฉพาะผู้ลงนามที่อนุมัติแล้ว
+            foreach ($signAssessmentReportTransactions as $transaction) {
+                $signerId = $transaction->signer_id;
+
+                // 3. ค้นหา Signer และดึง Path ของลายเซ็น
+                $signer = Signer::find($signerId);
+                
+                // ตรวจสอบให้แน่ใจว่าพบ signer และมีไฟล์แนบ
+                if ($signer && $signer->AttachFileAttachTo) {
+                    // สมมติว่า $this->getSignature() คืนค่า path ที่ถูกต้อง
+                    $signaturePath = $this->getSignature($signer->AttachFileAttachTo);
+                    
+                    // สร้าง URL ที่สมบูรณ์สำหรับรูปภาพ
+                    $fullSignatureUrl = asset($signaturePath);
+
+                    // 4. (แก้ไข) ค้นหา div ของผู้ลงนามใน HTML ทั้งหมด (ไม่ใช่แค่ตัวแรก)
+                    $signerDivNodes = $xpath->query("//div[@data-signer-id='{$signerId}']");
+
+                    // 5. (แก้ไข) วนลูป div ทั้งหมดที่เจอสำหรับ signerId นี้
+                    foreach ($signerDivNodes as $signerDivNode) {
+                        if ($signerDivNode) {
+                            // 6. ค้นหา <img> ที่อยู่ภายใน td แม่ของ div นั้น
+                            $tdNode = $signerDivNode->parentNode;
+                            $imgNode = $xpath->query('.//img', $tdNode)->item(0);
+
+                            if ($imgNode) {
+                                // 7. อัปเดต src ของ <img> ด้วย URL ของลายเซ็น
+                                $imgNode->setAttribute('src', $fullSignatureUrl);
+                            }
+                        }
+                    }
+                }
+                
+            }
+
+            // 8. บันทึก HTML ที่แก้ไขแล้วกลับเป็น String
+            $bodyNode = $dom->getElementsByTagName('body')->item(0);
+            $updatedHtmlContent = '';
+            foreach ($bodyNode->childNodes as $child) {
+                $updatedHtmlContent .= $dom->saveHTML($child);
+            }
+
+            
+                // ตรวจสอบว่าจำนวนช่องลายเซ็น > 0 และจำนวนที่อนุมัติเท่ากับจำนวนช่องทั้งหมด
+                if ($totalSignerSlots > 0 && $totalSignerSlots === $approvedSignerCount) {
+                    // ถ้าเท่ากัน ให้เพิ่ม 'all_signed' => true เข้าไปใน response
+                    return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $savedReport->status,
+                                'all_signed' => true
+                            ]);
+                    $response['all_signed'] = true;
+                }else{
+                        return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $savedReport->status,
+                                'all_signed' => false
+                            ]);
+                }
+
+                
+              
+
+            
             return response()->json([
                 'html' => $savedReport->template, 
                 'status' => $savedReport->status
@@ -740,7 +830,7 @@ class IbPdfGeneratorController extends Controller
 
                      <div>
                         &nbsp;&nbsp;<b> 10.4 รายละเอียดผลการตรวจประเมิน</b><br>
-                        <table class="table-bordered" style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px; margin-left: -7px;">
+                        <table class="table-bordered" style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 22px; margin-left: -5px;">
                             <thead>
                                 <tr>
                                     <th style="width: 220px; border: 1px solid black; padding: 2px 8px; text-align: left; font-weight: bold;">เกณฑ์ที่ใช้ในการตรวจประเมิน</th>
@@ -1064,6 +1154,7 @@ class IbPdfGeneratorController extends Controller
 
     public function saveHtml(Request $request)
     {
+       
         // 1. ตรวจสอบข้อมูลที่ส่งมา
         $validator = Validator::make($request->all(), [
             'html_content' => 'required|string',
@@ -1502,18 +1593,105 @@ public function docReviewHtml($id)
 
     public function loadIbDocReviewTemplate(Request $request)
     {
-      
+    
+        
        $ibDocReviewReport=  IbDocReviewReport::where('app_certi_ib_id', $request->certiIbId)
                                 ->where('report_type', $request->templateType)
                                 ->first();
 
         if($ibDocReviewReport !== null)
         {
+
+            $htmlContent = $ibDocReviewReport->template;
+
+            $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id', $request->certiIbId)
+            ->where('certificate_type' , 1)
+            ->where('report_type' , 1)
+            ->where('approval' , 1)
+            ->where('template' , $request->templateType)
+            ->get();
+
+                        // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+            $dom = new DOMDocument();
+            // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+            @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+            $xpath = new DOMXPath($dom);
+
+                        // --- ส่วนที่เพิ่มเข้ามา ---
+                // นับจำนวนช่องลายเซ็นทั้งหมดที่มีใน Template จาก attribute 'data-signer-id'
+                $totalSignerSlots = $xpath->query("//div[@data-signer-id]")->length;
+
+                // นับจำนวนผู้ที่อนุมัติแล้ว
+                $approvedSignerCount = $signAssessmentReportTransactions->count();
+                // --- สิ้นสุดส่วนที่เพิ่มเข้ามา ---
+
+            // 2. วนลูปเฉพาะผู้ลงนามที่อนุมัติแล้ว
+            foreach ($signAssessmentReportTransactions as $transaction) {
+                $signerId = $transaction->signer_id;
+
+                // 3. ค้นหา Signer และดึง Path ของลายเซ็น
+                $signer = Signer::find($signerId);
+                
+                // ตรวจสอบให้แน่ใจว่าพบ signer และมีไฟล์แนบ
+                if ($signer && $signer->AttachFileAttachTo) {
+                    // สมมติว่า $this->getSignature() คืนค่า path ที่ถูกต้อง
+                    $signaturePath = $this->getSignature($signer->AttachFileAttachTo);
+                    
+                    // สร้าง URL ที่สมบูรณ์สำหรับรูปภาพ
+                    $fullSignatureUrl = asset($signaturePath);
+
+                    // 4. (แก้ไข) ค้นหา div ของผู้ลงนามใน HTML ทั้งหมด (ไม่ใช่แค่ตัวแรก)
+                    $signerDivNodes = $xpath->query("//div[@data-signer-id='{$signerId}']");
+
+                    // 5. (แก้ไข) วนลูป div ทั้งหมดที่เจอสำหรับ signerId นี้
+                    foreach ($signerDivNodes as $signerDivNode) {
+                        if ($signerDivNode) {
+                            // 6. ค้นหา <img> ที่อยู่ภายใน td แม่ของ div นั้น
+                            $tdNode = $signerDivNode->parentNode;
+                            $imgNode = $xpath->query('.//img', $tdNode)->item(0);
+
+                            if ($imgNode) {
+                                // 7. อัปเดต src ของ <img> ด้วย URL ของลายเซ็น
+                                $imgNode->setAttribute('src', $fullSignatureUrl);
+                            }
+                        }
+                    }
+                }
+                
+            }
+
+            // 8. บันทึก HTML ที่แก้ไขแล้วกลับเป็น String
+            $bodyNode = $dom->getElementsByTagName('body')->item(0);
+            $updatedHtmlContent = '';
+            foreach ($bodyNode->childNodes as $child) {
+                $updatedHtmlContent .= $dom->saveHTML($child);
+            }
+
+            
+                // ตรวจสอบว่าจำนวนช่องลายเซ็น > 0 และจำนวนที่อนุมัติเท่ากับจำนวนช่องทั้งหมด
+                if ($totalSignerSlots > 0 && $totalSignerSlots === $approvedSignerCount) {
+                    // ถ้าเท่ากัน ให้เพิ่ม 'all_signed' => true เข้าไปใน response
+                    return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $ibDocReviewReport->status,
+                                'all_signed' => true
+                            ]);
+                    $response['all_signed'] = true;
+                }else{
+                        return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $ibDocReviewReport->status,
+                                'all_signed' => false
+                            ]);
+                }
+
             return response()->json([
                 'html' => $ibDocReviewReport->template, 
                 'status' => $ibDocReviewReport->status
             ]);
         }   
+
+      
         
 
         $certi_ib = CertiIb::find($request->certiIbId);
@@ -1654,7 +1832,8 @@ public function docReviewHtml($id)
             }
         }
 
-
+        // dd( $ibDocReviewAuditor);
+          
         
         $html = 
                 '
@@ -2274,6 +2453,101 @@ public function docResultReviewHtml($id)
 
         if($ibDocReviewReport !== null)
         {
+
+
+
+            
+
+            $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id' , $request->certiIbId)
+                ->where('certificate_type',1)
+                ->where('report_type' , 1)
+                ->where('approval' , 1)
+                ->where('template' , $request->templateType)
+                ->get();
+            
+
+            // ดึง HTML content เริ่มต้น
+            $htmlContent = $ibDocReviewReport->template;
+
+
+            $dom = new DOMDocument();
+            // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+            @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+            $xpath = new DOMXPath($dom);
+
+                        // --- ส่วนที่เพิ่มเข้ามา ---
+                // นับจำนวนช่องลายเซ็นทั้งหมดที่มีใน Template จาก attribute 'data-signer-id'
+                $totalSignerSlots = $xpath->query("//div[@data-signer-id]")->length;
+
+                // นับจำนวนผู้ที่อนุมัติแล้ว
+                $approvedSignerCount = $signAssessmentReportTransactions->count();
+                // --- สิ้นสุดส่วนที่เพิ่มเข้ามา ---
+
+            // 2. วนลูปเฉพาะผู้ลงนามที่อนุมัติแล้ว
+            foreach ($signAssessmentReportTransactions as $transaction) {
+                $signerId = $transaction->signer_id;
+
+                // 3. ค้นหา Signer และดึง Path ของลายเซ็น
+                $signer = Signer::find($signerId);
+                
+                // ตรวจสอบให้แน่ใจว่าพบ signer และมีไฟล์แนบ
+                if ($signer && $signer->AttachFileAttachTo) {
+                    // สมมติว่า $this->getSignature() คืนค่า path ที่ถูกต้อง
+                    $signaturePath = $this->getSignature($signer->AttachFileAttachTo);
+                    
+                    // สร้าง URL ที่สมบูรณ์สำหรับรูปภาพ
+                    $fullSignatureUrl = asset($signaturePath);
+
+                    // 4. (แก้ไข) ค้นหา div ของผู้ลงนามใน HTML ทั้งหมด (ไม่ใช่แค่ตัวแรก)
+                    $signerDivNodes = $xpath->query("//div[@data-signer-id='{$signerId}']");
+
+                    // 5. (แก้ไข) วนลูป div ทั้งหมดที่เจอสำหรับ signerId นี้
+                    foreach ($signerDivNodes as $signerDivNode) {
+                        if ($signerDivNode) {
+                            // 6. ค้นหา <img> ที่อยู่ภายใน td แม่ของ div นั้น
+                            $tdNode = $signerDivNode->parentNode;
+                            $imgNode = $xpath->query('.//img', $tdNode)->item(0);
+
+                            if ($imgNode) {
+                                // 7. อัปเดต src ของ <img> ด้วย URL ของลายเซ็น
+                                $imgNode->setAttribute('src', $fullSignatureUrl);
+                            }
+                        }
+                    }
+                }
+                
+            }
+
+            // 8. บันทึก HTML ที่แก้ไขแล้วกลับเป็น String
+            $bodyNode = $dom->getElementsByTagName('body')->item(0);
+            $updatedHtmlContent = '';
+            foreach ($bodyNode->childNodes as $child) {
+                $updatedHtmlContent .= $dom->saveHTML($child);
+            }
+
+            
+                // ตรวจสอบว่าจำนวนช่องลายเซ็น > 0 และจำนวนที่อนุมัติเท่ากับจำนวนช่องทั้งหมด
+                if ($totalSignerSlots > 0 && $totalSignerSlots === $approvedSignerCount) {
+                    // ถ้าเท่ากัน ให้เพิ่ม 'all_signed' => true เข้าไปใน response
+                    return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $ibDocReviewReport->status,
+                                'all_signed' => true
+                            ]);
+                    $response['all_signed'] = true;
+                }else{
+                        return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $ibDocReviewReport->status,
+                                'all_signed' => false
+                            ]);
+                }
+
+                
+              
+
+
+
             return response()->json([
                 'html' => $ibDocReviewReport->template, 
                 'status' => $ibDocReviewReport->status
@@ -2566,7 +2840,6 @@ public function docResultReviewHtml($id)
                 ->where('approval', 1)
                 ->get();
 
-            // ดึง HTML content เริ่มต้น
             // ดึง HTML content เริ่มต้น
             $htmlContent = $ibDocReviewAssessment->template;
 
@@ -2871,7 +3144,7 @@ public function docResultReviewHtml($id)
 
         try {
             // 5. บันทึกหรืออัปเดตข้อมูลด้วย updateOrCreate
-            IbDocReviewAssessment::updateOrCreate(
+            $ibDocReviewAssessment = IbDocReviewAssessment::updateOrCreate(
                 [
                     'app_certi_ib_id' => $request->input('ibId'),
                     'report_type'      => $reportType,
@@ -2934,6 +3207,11 @@ public function docResultReviewHtml($id)
                     ]);
                 }
             }
+
+                if($request->send_email == true){
+                    // dd("send mail");
+                    $this->sign_notification_mail($signers,'ลงนามหนังสือแต่งตั้งผู้ตรวจประเมินเอกสาร',$certiIb,$ibDocReviewAssessment) ;
+                } 
         }
 
             $redirectUrl = url('/certify/check_certificate-ib/' . $certiIb->token);
@@ -2947,6 +3225,54 @@ public function docResultReviewHtml($id)
             Log::error('Failed to save IbReportTemplate: ' . $e->getMessage());
             return response()->json(['message' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูลลงฐานข้อมูล'], 500);
         }
+    }
+
+    public function sign_notification_mail($signers,$title,$certiIb,$ibDocReviewAssessment) 
+    {
+        $uniqueIds = collect($signers) // 1. แปลง array เป็น Collection
+                ->pluck('id')    // 2. ดึงค่าของ key 'id' ทั้งหมดออกมา
+                ->unique()       // 3. กรองเอาเฉพาะค่าที่ไม่ซ้ำกัน
+                ->values()       // 4. (Optional) จัดเรียง key ของ array ใหม่
+                ->all();         // 5. แปลงกลับเป็น PHP array ธรรมดา
+
+
+        $signerEmails = Signer::whereIn('id',$uniqueIds)->get()->pluck('user.reg_email')->filter()->values();
+        $config = HP::getConfig();
+        $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+        $data_app = [ 
+                    'certi_ib'    => $certiIb,
+                    'reportName'  => $title,
+                    'url'         => $url.'certify/auditor-assignment' ?? '-',
+                    'email'       =>  !empty($certi_ib->DataEmailCertifyCenter) ? $certiIb->DataEmailCertifyCenter : 'ib@tisi.mail.go.th',
+                    'email_cc'    =>  !empty($certi_ib->DataEmailDirectorIBCC) ? $certiIb->DataEmailDirectorIBCC : 'ib@tisi.mail.go.th',
+                    'email_reply' => !empty($certi_ib->DataEmailDirectorIBReply) ? $certiIb->DataEmailDirectorIBReply : 'ib@tisi.mail.go.th'
+                    ];
+            
+        $log_email =  HP::getInsertCertifyLogEmail($certiIb->app_no,
+                                                $certiIb->id,
+                                                (new CertiIb)->getTable(),
+                                                $ibDocReviewAssessment->id,
+                                                (new IbDocReviewAssessment)->getTable(),
+                                                2,
+                                                $title,
+                                                view('mail.IB.sign_report_notification', $data_app),
+                                                $certiIb->created_by,
+                                                $certiIb->agent_id,
+                                                auth()->user()->getKey(),
+                                                !empty($certi_ib->DataEmailCertifyCenter) ?  implode(',',(array)$certiIb->DataEmailCertifyCenter)  :  'ib@tisi.mail.go.th',
+                                                $certiIb->email,
+                                                !empty($certi_ib->DataEmailDirectorIBCC) ? implode(',',(array)$certiIb->DataEmailDirectorIBCC)   :   'ib@tisi.mail.go.th',
+                                                !empty($certi_ib->DataEmailDirectorIBReply) ?implode(',',(array)$certiIb->DataEmailDirectorIBReply)   :   'ib@tisi.mail.go.th',
+                                                null
+                                                );
+
+            $html = new IBSignReportNotificationMail($data_app);
+            $mail =  Mail::to($signerEmails)->send($html);
+
+            if(is_null($mail) && !empty($log_email)){
+                HP::getUpdateCertifyLogEmail($log_email->id);
+            }  
     }
     
     public function downloadDefaultDocAssessmentReviewHtml(Request $request)
@@ -3208,6 +3534,95 @@ $certiIb = CertiIb::find($request->ibId);
 
         if($ibDocReviewReport !== null)
         {
+
+
+            
+            $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id' , $request->certiIbId)
+                ->where('certificate_type',1)
+                ->where('report_type' , 1)
+                ->where('approval' , 1)
+                ->where('template' , $request->templateType)
+                ->get();
+    
+            // ดึง HTML content เริ่มต้น
+            $htmlContent = $ibDocReviewReport->template;
+
+            
+            $dom = new DOMDocument();
+            // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+            @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+            $xpath = new DOMXPath($dom);
+
+                        // --- ส่วนที่เพิ่มเข้ามา ---
+                // นับจำนวนช่องลายเซ็นทั้งหมดที่มีใน Template จาก attribute 'data-signer-id'
+                $totalSignerSlots = $xpath->query("//div[@data-signer-id]")->length;
+
+                // นับจำนวนผู้ที่อนุมัติแล้ว
+                $approvedSignerCount = $signAssessmentReportTransactions->count();
+                // --- สิ้นสุดส่วนที่เพิ่มเข้ามา ---
+
+            // 2. วนลูปเฉพาะผู้ลงนามที่อนุมัติแล้ว
+            foreach ($signAssessmentReportTransactions as $transaction) {
+                $signerId = $transaction->signer_id;
+
+                // 3. ค้นหา Signer และดึง Path ของลายเซ็น
+                $signer = Signer::find($signerId);
+                
+                // ตรวจสอบให้แน่ใจว่าพบ signer และมีไฟล์แนบ
+                if ($signer && $signer->AttachFileAttachTo) {
+                    // สมมติว่า $this->getSignature() คืนค่า path ที่ถูกต้อง
+                    $signaturePath = $this->getSignature($signer->AttachFileAttachTo);
+                    
+                    // สร้าง URL ที่สมบูรณ์สำหรับรูปภาพ
+                    $fullSignatureUrl = asset($signaturePath);
+
+                    // 4. (แก้ไข) ค้นหา div ของผู้ลงนามใน HTML ทั้งหมด (ไม่ใช่แค่ตัวแรก)
+                    $signerDivNodes = $xpath->query("//div[@data-signer-id='{$signerId}']");
+
+                    // 5. (แก้ไข) วนลูป div ทั้งหมดที่เจอสำหรับ signerId นี้
+                    foreach ($signerDivNodes as $signerDivNode) {
+                        if ($signerDivNode) {
+                            // 6. ค้นหา <img> ที่อยู่ภายใน td แม่ของ div นั้น
+                            $tdNode = $signerDivNode->parentNode;
+                            $imgNode = $xpath->query('.//img', $tdNode)->item(0);
+
+                            if ($imgNode) {
+                                // 7. อัปเดต src ของ <img> ด้วย URL ของลายเซ็น
+                                $imgNode->setAttribute('src', $fullSignatureUrl);
+                            }
+                        }
+                    }
+                }
+                
+            }
+
+            // 8. บันทึก HTML ที่แก้ไขแล้วกลับเป็น String
+            $bodyNode = $dom->getElementsByTagName('body')->item(0);
+            $updatedHtmlContent = '';
+            foreach ($bodyNode->childNodes as $child) {
+                $updatedHtmlContent .= $dom->saveHTML($child);
+            }
+
+            
+                // ตรวจสอบว่าจำนวนช่องลายเซ็น > 0 และจำนวนที่อนุมัติเท่ากับจำนวนช่องทั้งหมด
+                if ($totalSignerSlots > 0 && $totalSignerSlots === $approvedSignerCount) {
+                    // ถ้าเท่ากัน ให้เพิ่ม 'all_signed' => true เข้าไปใน response
+                    return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $ibDocReviewReport->status,
+                                'all_signed' => true
+                            ]);
+                    $response['all_signed'] = true;
+                }else{
+                        return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $ibDocReviewReport->status,
+                                'all_signed' => false
+                            ]);
+                }
+
+                
+
             return response()->json([
                 'html' => $ibDocReviewReport->template, 
                 'status' => $ibDocReviewReport->status
@@ -3689,7 +4104,7 @@ $certiIb = CertiIb::find($request->ibId);
                 <table style="width: 100%; border-collapse: collapse; table-layout: auto; font-size: 24px;margin-top:-20px">
                     <tr>
                         <td  style="padding: 10px 0; text-align: center; font-size: 26px; font-weight: bold;">
-                            รายงานสรุปผลการตรวจประเมินการรับรองระบบงานหน่วยรับรอง
+                            <br>รายงานสรุปผลการตรวจประเมินการรับรองระบบงานหน่วยรับรอง
                         </td>
                     </tr>
                 </table>

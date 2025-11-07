@@ -12,6 +12,7 @@ use App\User;
 use stdClass;
 use Mpdf\Mpdf;
 use HP_API_PID;
+use App\RoleUser;
 use Carbon\Carbon;
 use App\AttachFile;
 use App\Http\Requests;
@@ -34,8 +35,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Certify\CertiEmailLt;
 use App\Models\Sso\User AS SSO_User;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\CB\CBScopeEditAlertMail;
 
+use App\Mail\CB\CBScopeEditAlertMail;
 use App\Models\Bcertify\StatusAuditor;
 use App\Models\Certify\TransactionPayIn;
 use App\Models\Certify\ApplicantCB\CertiCb;
@@ -272,7 +273,8 @@ class CheckCertificateCBController extends Controller
 
     public function show($token)
     {
-        // dd('ok');
+        
+        
         $model = str_slug('checkcertificatecb','-');
         if(auth()->user()->can('view-'.$model)) {
             $certi_cb = CertiCb::where('token',$token)->first();
@@ -283,7 +285,31 @@ class CheckCertificateCBController extends Controller
                                         ->orderby('id','desc')
                                         ->get();
              $attach_path = $this->attach_path;//path ไฟล์แนบ
-        return view('certify/cb/check_certificate_cb.show', compact('certi_cb','history','attach_path'));
+
+
+
+
+            $targetRoleId = 31;
+            $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->get();
+
+            // dd($certi_lab->id);
+
+            $adminGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $adminGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }
+
+// dd($adminGroups);
+
+
+        return view('certify/cb/check_certificate_cb.show', compact('certi_cb','history','attach_path','adminGroups'));
         }
         abort(403);
     }

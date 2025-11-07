@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Editor - CB รายงานแต่งตั้งตรวจเอกสาร</title>
+    <title>Document Editor | CB รายงานประเมินเอกสาร</title>
     {{-- Make sure this CSS file is adjusted to not have A4 page styling --}}
     <link rel="stylesheet" href="{{ asset('css/editor.css') }}">
         <style>
@@ -99,6 +99,92 @@
             display: none !important;
         }
 
+        
+        @media print {
+            
+            /* --- 1. ตั้งค่าขอบกระดาษ --- */
+            @page {
+                /* ⭐️ 1.1 ตั้งค่า Default สำหรับ "ทุกหน้า" (หน้า 2 เป็นต้นไป) ⭐️ */
+                margin-top: 2cm;    /* กั้นขอบบน (ปรับค่าได้) */
+                margin-bottom: 2cm; /* กั้นขอบล่าง (ปรับค่าได้) */
+                margin-left: 2cm;   /* ชิดขอบซ้าย */
+                margin-right: 2cm;  /* ชิดขอบขวา */
+            }
+
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background-color: #fff !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            
+            #toolbar, 
+            #signature-modal,
+            #table-modal,
+            #table-context-menu,
+            .select-signer-btn,
+            .resizer,
+            .col-resizer {
+                display: none !important; 
+            }
+
+            /* ⭐️ แก้ไข: บังคับลบ border/shadow ของ editor container ทั้งหมด ⭐️ */
+            #editor-container, #document-editor {
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                background-image: none !important;
+                background-color: #fff !important;
+            }
+
+            /* --- 3. บังคับการแบ่งหน้า (สำคัญที่สุด) --- */
+            
+            /* ⭐️ แก้ไข: เพิ่มกฎลบเงาและเส้นขอบให้ครอบคลุมยิ่งขึ้น ⭐️ */
+            #document-editor .page,
+            #document-editor .page::before,
+            #document-editor .page::after {
+                box-shadow: none !important;
+                border: none !important;
+                /* ⭐️ บังคับลบเส้นขอบทุกด้าน ⭐️ */
+                border-top: none !important;
+                border-bottom: none !important;
+                border-left: none !important;
+                border-right: none !important;
+                outline: none !important; /* เพิ่มการลบ outline */
+                background-image: none !important; /* ลบ background ที่อาจสร้างเส้น */
+            }
+
+            #document-editor .page {
+                margin: 0 !important; 
+                padding: 0 !important; /* ⭐️ สำคัญ: padding: 0 เพื่อให้เนื้อหาขยายเต็มขอบ margin */
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                
+                /* ⭐️ บังคับขึ้นหน้าใหม่ */
+                page-break-after: always;
+                
+                /* ⭐️ ป้องกันเนื้อหาใน 1 page ถูกตัดครึ่ง */
+                page-break-inside: avoid;
+            }
+            
+            #document-editor .page:last-child {
+                /* ⭐️ หน้าสุดท้าย ไม่ต้องขึ้นหน้าว่างต่อ */
+                page-break-after: auto; 
+            }
+
+            table, img, .resizable-image-wrapper {
+                page-break-inside: avoid;
+            }
+
+
+        }
+
+
+
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -160,9 +246,9 @@
             <button class="toolbar-button" id="save-html-button" title="Save Final">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
-            {{-- <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
-                <i class="fa-regular fa-file-pdf"></i>
-            </button> --}}
+            <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
+                <i class="fa-solid fa-print"></i>
+            </button>
             <button class="toolbar-button" id="load-default-template-btn" title="Load Default Template">
                 <i class="fa-solid fa-file-arrow-down"></i>
             </button>
@@ -1322,8 +1408,14 @@
             saveDraftButton.addEventListener('click', () => saveData('draft'));
             saveButton.addEventListener('click', () => saveData('final'));
 
+            if (exportButton) { 
+                exportButton.addEventListener('click', () => {
+                    // สั่งพิมพ์หน้าจอ (เบราว์เซอร์จะใช้ @media print CSS ที่เราเพิ่มไป)
+                    window.print();
+                });
+            }
 
-            exportButton.addEventListener('click', () => {
+            exportButton_notuse.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 exportButton.disabled = true;
                 

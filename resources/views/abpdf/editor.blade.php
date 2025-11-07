@@ -83,6 +83,68 @@
             display: none !important;
         }
 
+        /* ==============================================
+           ⬇️ อัปเดต Print Stylesheet (เอา @page header/footer ออก) ⬇️
+          ============================================== */
+        @media print {
+            
+            /* --- 1. ตั้งค่าขอบกระดาษ (ลบ @top-center/bottom-right ออกแล้ว) --- */
+            @page {
+                /* ตั้งค่าขอบกระดาษตามที่คุณต้องการ */
+                margin: 2cm; 
+            }
+            
+            /* ==============================================
+               2. ส่วนเดิม: ซ่อน UI และจัดการแบ่งหน้า
+              ============================================== */
+
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #fff;
+            }
+            
+            #toolbar, 
+            #signature-modal,
+            #table-modal,
+            #table-context-menu,
+            .select-signer-btn,
+            .resizer,
+            .col-resizer {
+                display: none !important; 
+            }
+
+            #editor-container {
+                padding: 0;
+                border: none;
+                box-shadow: none;
+            }
+
+            .page {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0; 
+                padding: 0; 
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+            
+            .page:last-child {
+                page-break-after: auto; 
+            }
+
+            table, img, .resizable-image-wrapper {
+                page-break-inside: avoid;
+            }
+        }
+        /* ==============================================
+           ⬆️ สิ้นสุดส่วนอัปเดต ⬆️
+          ============================================== */
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -144,7 +206,8 @@
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
             <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
-                <i class="fa-regular fa-file-pdf"></i>
+                {{-- <i class="fa-regular fa-file-pdf"></i> --}}
+                 <i class="fa-solid fa-print"></i>
             </button>
             <div id="loading-indicator" style="display: none;">
                 <i class="fa-solid fa-spinner fa-spin"></i>
@@ -1335,6 +1398,7 @@
             });
 
             function saveData(status) {
+                // alert('aha');
                 loadingIndicator.style.display = 'inline-block';
                 saveButton.disabled = true;
                 saveDraftButton.disabled = true;
@@ -1432,8 +1496,13 @@
             saveDraftButton.addEventListener('click', () => saveData('draft'));
             saveButton.addEventListener('click', () => saveData('final'));
 
+            if (exportButton) { // ตรวจสอบเผื่อว่าปุ่มยังเป็น null
+                exportButton.addEventListener('click', () => {
+                    window.print();
+                });
+            }
 
-            exportButton.addEventListener('click', () => {
+            exportButton_notuse.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 exportButton.disabled = true;
                 

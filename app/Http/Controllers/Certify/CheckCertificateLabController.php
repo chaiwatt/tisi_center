@@ -1518,7 +1518,7 @@ class CheckCertificateLabController extends Controller
         //     $adminGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
         // }
 
-                    $targetRoleId = 22;
+            $targetRoleId = 22;
             $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
             $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->where('reg_subdepart',$certi_lab->subgroup)->get();
 

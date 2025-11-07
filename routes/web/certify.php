@@ -579,6 +579,7 @@ Route::group(['prefix' => 'certify'], function () {
     Route::post('/save_assessment-ib/add-reference-document','Certify\IB\\SaveAssessmentIbController@addIbReferenceDocument')->name('delete_assessment.add_ib_reference_document');
     Route::post('/save_assessment-ib/delete-reference-document','Certify\IB\\SaveAssessmentIbController@deleteIbReferenceDocument')->name('delete_assessment.add_ib_reference_document');
 
+    Route::post('/save_assessment-ib/request-admin-group-scope-sign','Certify\IB\\SaveAssessmentIbController@requestAdminGroupScopeSign')->name('save_assessment_ib.api.request_admin_group_scope_sign');
 
     Route::get('setting-team-ib', 'Certify\IB\\IbAuditorTeamController@index');
     Route::get('setting-team-ib/create', 'Certify\IB\\IbAuditorTeamController@create');
@@ -772,6 +773,7 @@ Route::group(['prefix' => 'certify'], function () {
     Route::post('/save_assessment-cb/add-reference-document','Certify\CB\\SaveAssessmentCBController@addReferenceDocument')->name('delete_assessment.add_reference_document');
     Route::post('/save_assessment-cb/delete-reference-document','Certify\CB\\SaveAssessmentCBController@deleteReferenceDocument')->name('delete_assessment.add_reference_document');
 
+    Route::post('/save_assessment-cb/request-admin-group-scope-sign','Certify\CB\\SaveAssessmentCBController@requestAdminGroupScopeSign')->name('save_assessment_cb.api.request_admin_group_scope_sign');
 
      // สรุปรายงานและเสนออนุกรรมการฯ
     Route::post('/check_certificate-cb/save-review/{id?}', 'Certify\CB\\CheckCertificateCBController@SaveReview');
@@ -898,6 +900,13 @@ Route::group(['prefix' => 'certify'], function () {
     Route::get('lab-scope-review/get-signer', 'Certify\\LabScopeReviewController@getSigner')->name('lab_scope_review.get_signer');
     Route::post('lab-scope-review/sign-document', 'Certify\\LabScopeReviewController@signDocument')->name('lab_scope_review.signDocument');
     Route::post('lab-scope-review/api/get-signers', 'Certify\\LabScopeReviewController@apiGetSigners')->name('lab_scope_review.api.get_signers');
+
+
+    Route::get('cb-scope-review/', 'Certify\\CbScopeReviewController@index');
+    Route::get('cb-scope-review/data-list', 'Certify\\CbScopeReviewController@dataList')->name('cb_scope_review.dataList');
+    Route::get('cb-scope-review/get-signer', 'Certify\\CbScopeReviewController@getSigner')->name('cb_scope_review.get_signer');
+    Route::post('cb-scope-review/sign-document', 'Certify\\CbScopeReviewController@signDocument')->name('cb_scope_review.signDocument');
+    Route::post('cb-scope-review/api/get-signers', 'Certify\\CbScopeReviewController@apiGetSigners')->name('cb_scope_review.api.get_signers');
 
 
     //ระบบจัดทำมาตรฐานรับรอง

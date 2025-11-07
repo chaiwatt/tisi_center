@@ -1579,5 +1579,20 @@ if($auditors->main_state == 1){
               HP::getUpdateCertifyLogEmail($log_email->id);
           }
     }
+
+    
+    public function requestAdminGroupScopeSign(Request $request)
+    {
+        // dd($request->all());
+        CertiIb::find($request->app_certi_ib_id)->update([
+            'scope_view_signer_id' => $request->signer_id
+        ]);
+
+            return response()->json([
+                'message' => 'Data updated successfully',
+                'data' => CertiIb::find($request->app_certi_ib_id)
+            ]);
+    }
+   
     
 }

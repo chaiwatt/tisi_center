@@ -1415,6 +1415,92 @@ class CbPdfGeneratorController extends Controller
         // $certiCb = CertiCb::find($request->certiCbId);
         if($cbDocReviewReport !== null)
         {
+            
+            $htmlContent = $cbDocReviewReport->template;
+
+            $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id', $request->certiCbId)
+            ->where('certificate_type' , 0)
+            ->where('report_type' , 1)
+            ->where('approval' , 1)
+            ->where('template' , $request->templateType)
+            ->get();
+
+
+            // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+            $dom = new DOMDocument();
+            // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+            @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+            $xpath = new DOMXPath($dom);
+
+                        // --- ส่วนที่เพิ่มเข้ามา ---
+                // นับจำนวนช่องลายเซ็นทั้งหมดที่มีใน Template จาก attribute 'data-signer-id'
+                $totalSignerSlots = $xpath->query("//div[@data-signer-id]")->length;
+
+                // นับจำนวนผู้ที่อนุมัติแล้ว
+                $approvedSignerCount = $signAssessmentReportTransactions->count();
+                // --- สิ้นสุดส่วนที่เพิ่มเข้ามา ---
+
+            // 2. วนลูปเฉพาะผู้ลงนามที่อนุมัติแล้ว
+            foreach ($signAssessmentReportTransactions as $transaction) {
+                $signerId = $transaction->signer_id;
+
+                // 3. ค้นหา Signer และดึง Path ของลายเซ็น
+                $signer = Signer::find($signerId);
+                
+                // ตรวจสอบให้แน่ใจว่าพบ signer และมีไฟล์แนบ
+                if ($signer && $signer->AttachFileAttachTo) {
+                    // สมมติว่า $this->getSignature() คืนค่า path ที่ถูกต้อง
+                    $signaturePath = $this->getSignature($signer->AttachFileAttachTo);
+                    
+                    // สร้าง URL ที่สมบูรณ์สำหรับรูปภาพ
+                    $fullSignatureUrl = asset($signaturePath);
+
+                    // 4. (แก้ไข) ค้นหา div ของผู้ลงนามใน HTML ทั้งหมด (ไม่ใช่แค่ตัวแรก)
+                    $signerDivNodes = $xpath->query("//div[@data-signer-id='{$signerId}']");
+
+                    // 5. (แก้ไข) วนลูป div ทั้งหมดที่เจอสำหรับ signerId นี้
+                    foreach ($signerDivNodes as $signerDivNode) {
+                        if ($signerDivNode) {
+                            // 6. ค้นหา <img> ที่อยู่ภายใน td แม่ของ div นั้น
+                            $tdNode = $signerDivNode->parentNode;
+                            $imgNode = $xpath->query('.//img', $tdNode)->item(0);
+
+                            if ($imgNode) {
+                                // 7. อัปเดต src ของ <img> ด้วย URL ของลายเซ็น
+                                $imgNode->setAttribute('src', $fullSignatureUrl);
+                            }
+                        }
+                    }
+                }
+                
+            }
+
+            // 8. บันทึก HTML ที่แก้ไขแล้วกลับเป็น String
+            $bodyNode = $dom->getElementsByTagName('body')->item(0);
+            $updatedHtmlContent = '';
+            foreach ($bodyNode->childNodes as $child) {
+                $updatedHtmlContent .= $dom->saveHTML($child);
+            }
+
+            
+                // ตรวจสอบว่าจำนวนช่องลายเซ็น > 0 และจำนวนที่อนุมัติเท่ากับจำนวนช่องทั้งหมด
+                if ($totalSignerSlots > 0 && $totalSignerSlots === $approvedSignerCount) {
+                    // ถ้าเท่ากัน ให้เพิ่ม 'all_signed' => true เข้าไปใน response
+                    return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $cbDocReviewReport->status,
+                                'all_signed' => true
+                            ]);
+                    $response['all_signed'] = true;
+                }else{
+                        return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $cbDocReviewReport->status,
+                                'all_signed' => false
+                            ]);
+                }
+
+
             return response()->json([
                 'html' => $cbDocReviewReport->template, 
                 'status' => $cbDocReviewReport->status
@@ -2470,7 +2556,7 @@ class CbPdfGeneratorController extends Controller
         // dd($reportType);
         try {
             // 5. บันทึกหรืออัปเดตข้อมูลด้วย updateOrCreate
-            CbDocReviewAssessment::updateOrCreate(
+            $cbDocReviewAssessment = CbDocReviewAssessment::updateOrCreate(
                 [
                     'app_certi_cb_id' => $request->input('cbId'),
                     'report_type'      => $reportType,
@@ -2482,74 +2568,142 @@ class CbPdfGeneratorController extends Controller
                 ]
             );
 
+            // dd($cbDocReviewAssessment->id);
 
-        if($status == "final")
-        {
-           
-            foreach ($signers as $key => $signer) {
-                if (!isset($signer['id'], $signer['name'], $signer['position'])) {
-                    continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
+
+            if($status == "final")
+            {
+            
+                foreach ($signers as $key => $signer) {
+                    if (!isset($signer['id'], $signer['name'], $signer['position'])) {
+                        continue; // ข้ามรายการนี้หากข้อมูลไม่ครบถ้วน
+                    }
+
+                    $config = HP::getConfig();
+                    $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+                    $check = MessageRecordTransaction::where('board_auditor_id',$certiCb->id)
+                    ->where('signer_id' , $signer['id'])
+                    ->where('certificate_type' ,0)
+                    ->where('app_id' ,$certiCb->app_no)
+                    ->where('signature_id' , $signer['id'])
+                    ->where('signer_order' , $signer['sequence'])
+                    ->where('job_type' , $request->templateType)
+                    ->first();
+
+                    
+
+                    if($check == null)
+                    {
+                    
+                        MessageRecordTransaction::where('board_auditor_id',$certiCb->id)
+                        ->where('signer_order',$signer['sequence'])
+                        ->where('job_type',$request->templateType)
+                        ->delete();
+
+                        MessageRecordTransaction::create([
+                            'board_auditor_id' => $certiCb->id,
+                            'signer_id' => $signer['id'],
+                            'certificate_type' => 0,
+                            'app_id' => $certiCb->app_no,
+                            'view_url' =>$url . '/certify/cb-doc-assessment-review-html/'. $certiCb->id  ,
+                            'signature_id' => $signer['id'],
+                            'is_enable' => false,
+                            'show_name' => false,
+                            'show_position' => false,
+                            'signer_name' => $signer['name'],
+                            'signer_position' => $signer['position'],
+                            'signer_order' => $signer['sequence'],
+                            'file_path' => null,
+                            'page_no' => 0,
+                            'pos_x' => 0,
+                            'pos_y' => 0,
+                            'linesapce' => 20,
+                            'approval' => 0,
+                            'job_type' => $request->templateType,
+                        ]);
+                        // dd($request->all());
+                    }
                 }
 
-                $config = HP::getConfig();
-                $url  =   !empty($config->url_center) ? $config->url_center : url('');
-
-                $check = MessageRecordTransaction::where('board_auditor_id',$certiCb->id)
-                ->where('signer_id' , $signer['id'])
-                ->where('certificate_type' ,0)
-                ->where('app_id' ,$certiCb->app_no)
-                ->where('signature_id' , $signer['id'])
-                ->where('signer_order' , $signer['sequence'])
-                ->where('job_type' , $request->templateType)
-                ->first();
-
-                
-
-                if($check == null)
-                {
-                 
-                    MessageRecordTransaction::where('board_auditor_id',$certiCb->id)
-                    ->where('signer_order',$signer['sequence'])
-                    ->where('job_type',$request->templateType)
-                    ->delete();
-
-                    MessageRecordTransaction::create([
-                        'board_auditor_id' => $certiCb->id,
-                        'signer_id' => $signer['id'],
-                        'certificate_type' => 0,
-                        'app_id' => $certiCb->app_no,
-                        'view_url' =>$url . '/certify/cb-doc-assessment-review-html/'. $certiCb->id  ,
-                        'signature_id' => $signer['id'],
-                        'is_enable' => false,
-                        'show_name' => false,
-                        'show_position' => false,
-                        'signer_name' => $signer['name'],
-                        'signer_position' => $signer['position'],
-                        'signer_order' => $signer['sequence'],
-                        'file_path' => null,
-                        'page_no' => 0,
-                        'pos_x' => 0,
-                        'pos_y' => 0,
-                        'linesapce' => 20,
-                        'approval' => 0,
-                        'job_type' => $request->templateType,
-                    ]);
-                    // dd($request->all());
+                if($request->send_email == true){
+                    // dd("send mail");
+                    $this->sign_notification_mail($signers,'ลงนามหนังสือแต่งตั้งผู้ตรวจประเมินเอกสาร',$certiCb,$cbDocReviewAssessment) ;
                 }
             }
-        }
-// http://127.0.0.1:8081/certify/check_certificate-cb/J7xcpjKuskA5wpcG/show/272
-            $redirectUrl = url('/certify/check_certificate-cb/' . $certiCb->token . '/show/' .$certiCb->id  );
-            return response()->json([
-                'success' => true,
-                'message' => 'บันทึกรายงานสำเร็จ',
-                'redirect_url' => $redirectUrl // << ส่ง URL กลับไปด้วย
-            ]);
+
+                $redirectUrl = url('/certify/check_certificate-cb/' . $certiCb->token . '/show/' .$certiCb->id  );
+                return response()->json([
+                    'success' => true,
+                    'message' => 'บันทึกรายงานสำเร็จ',
+                    'redirect_url' => $redirectUrl // << ส่ง URL กลับไปด้วย
+                ]);
 
         } catch (\Exception $e) {
             dd('Failed to save IbReportTemplate: ' . $e->getMessage());
             return response()->json(['message' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูลลงฐานข้อมูล'], 500);
         }
+    }
+
+    public function sign_notification_mail($signers,$title,$certiCb,$cbDocReviewAssessment) 
+    {
+        $uniqueIds = collect($signers) // 1. แปลง array เป็น Collection
+                ->pluck('id')    // 2. ดึงค่าของ key 'id' ทั้งหมดออกมา
+                ->unique()       // 3. กรองเอาเฉพาะค่าที่ไม่ซ้ำกัน
+                ->values()       // 4. (Optional) จัดเรียง key ของ array ใหม่
+                ->all();         // 5. แปลงกลับเป็น PHP array ธรรมดา
+
+// แสดงผลลัพธ์
+// dd($uniqueIds);
+//         dd($signers);
+        // $signerIds = SignAssessmentReportTransaction::where('report_info_id', $report->id)
+        //                             ->where('certificate_type',0)
+        //                             ->where('report_type',1)
+        //                             ->pluck('signer_id')
+        //                             ->toArray();
+
+        $signerEmails = Signer::whereIn('id',$uniqueIds)->get()->pluck('user.reg_email')->filter()->values();
+        // $certi_cb = $certiCBSaveAssessment->CertiCBCostTo;
+        // dd($signerEmails);
+
+
+        $config = HP::getConfig();
+        $url  =   !empty($config->url_center) ? $config->url_center : url('');
+
+        $data_app = [
+                        'reportName'  => $title,
+                        'certi_cb'       => $certiCb ,
+                        'url'            => $url.'certify/auditor-assignment' ?? '-',
+                        'email'          =>  !empty($certi_cb->DataEmailCertifyCenter) ? $certiCb->DataEmailCertifyCenter : 'cb@tisi.mail.go.th',
+                        'email_cc'       =>  !empty($mail_cc) ? $mail_cc : 'cb@tisi.mail.go.th',
+                        'email_reply'    => !empty($certi_cb->DataEmailDirectorCBReply) ? $certiCb->DataEmailDirectorCBReply : 'cb@tisi.mail.go.th'
+                ];
+
+        $log_email =  HP::getInsertCertifyLogEmail($certiCb->app_no,
+                                                $certiCb->id,
+                                                (new CertiCb)->getTable(),
+                                                $cbDocReviewAssessment->id,
+                                                (new CertiCBSaveAssessment)->getTable(),
+                                                3,
+                                                $title,
+                                                view('mail.CB.sign_report_notification', $data_app),
+                                                $certiCb->created_by,
+                                                $certiCb->agent_id,
+                                                auth()->user()->getKey(),
+                                                !empty($certi_cb->DataEmailCertifyCenter) ?  implode(',',(array)$certiCb->DataEmailCertifyCenter)  :  'cb@tisi.mail.go.th',
+                                                $certiCb->email,
+                                                !empty($mail_cc) ?  implode(',',(array)$mail_cc)  : 'cb@tisi.mail.go.th',
+                                                !empty($certi_cb->DataEmailDirectorCBReply) ?implode(',',(array)$certiCb->DataEmailDirectorCBReply)   :   'cb@tisi.mail.go.th',
+                                                null
+                                                );
+        //     // dd($data_app);
+            $html = new CBSignReportNotificationMail($data_app);
+            $mail =  Mail::to($signerEmails)->send($html);
+
+            if(is_null($mail) && !empty($log_email)){
+                HP::getUpdateCertifyLogEmail($log_email->id);
+            } 
+     
     }
 
      public function getSignature($attach)
@@ -2616,6 +2770,93 @@ class CbPdfGeneratorController extends Controller
         // $certiCb = CertiCb::find($request->certiCbId);
         if($cbDocReviewReport !== null)
         {
+
+
+            
+            $htmlContent = $cbDocReviewReport->template;
+
+            $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id', $request->certiCbId)
+            ->where('certificate_type' , 0)
+            ->where('report_type' , 1)
+            ->where('approval' , 1)
+            ->where('template' , $request->templateType)
+            ->get();
+
+                        // 1. สร้าง DOMDocument เพื่อจัดการ HTML
+            $dom = new DOMDocument();
+            // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+            @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+            $xpath = new DOMXPath($dom);
+
+                        // --- ส่วนที่เพิ่มเข้ามา ---
+                // นับจำนวนช่องลายเซ็นทั้งหมดที่มีใน Template จาก attribute 'data-signer-id'
+                $totalSignerSlots = $xpath->query("//div[@data-signer-id]")->length;
+
+                // นับจำนวนผู้ที่อนุมัติแล้ว
+                $approvedSignerCount = $signAssessmentReportTransactions->count();
+                // --- สิ้นสุดส่วนที่เพิ่มเข้ามา ---
+
+            // 2. วนลูปเฉพาะผู้ลงนามที่อนุมัติแล้ว
+            foreach ($signAssessmentReportTransactions as $transaction) {
+                $signerId = $transaction->signer_id;
+
+                // 3. ค้นหา Signer และดึง Path ของลายเซ็น
+                $signer = Signer::find($signerId);
+                
+                // ตรวจสอบให้แน่ใจว่าพบ signer และมีไฟล์แนบ
+                if ($signer && $signer->AttachFileAttachTo) {
+                    // สมมติว่า $this->getSignature() คืนค่า path ที่ถูกต้อง
+                    $signaturePath = $this->getSignature($signer->AttachFileAttachTo);
+                    
+                    // สร้าง URL ที่สมบูรณ์สำหรับรูปภาพ
+                    $fullSignatureUrl = asset($signaturePath);
+
+                    // 4. (แก้ไข) ค้นหา div ของผู้ลงนามใน HTML ทั้งหมด (ไม่ใช่แค่ตัวแรก)
+                    $signerDivNodes = $xpath->query("//div[@data-signer-id='{$signerId}']");
+
+                    // 5. (แก้ไข) วนลูป div ทั้งหมดที่เจอสำหรับ signerId นี้
+                    foreach ($signerDivNodes as $signerDivNode) {
+                        if ($signerDivNode) {
+                            // 6. ค้นหา <img> ที่อยู่ภายใน td แม่ของ div นั้น
+                            $tdNode = $signerDivNode->parentNode;
+                            $imgNode = $xpath->query('.//img', $tdNode)->item(0);
+
+                            if ($imgNode) {
+                                // 7. อัปเดต src ของ <img> ด้วย URL ของลายเซ็น
+                                $imgNode->setAttribute('src', $fullSignatureUrl);
+                            }
+                        }
+                    }
+                }
+                
+            }
+
+            // 8. บันทึก HTML ที่แก้ไขแล้วกลับเป็น String
+            $bodyNode = $dom->getElementsByTagName('body')->item(0);
+            $updatedHtmlContent = '';
+            foreach ($bodyNode->childNodes as $child) {
+                $updatedHtmlContent .= $dom->saveHTML($child);
+            }
+
+            
+                // ตรวจสอบว่าจำนวนช่องลายเซ็น > 0 และจำนวนที่อนุมัติเท่ากับจำนวนช่องทั้งหมด
+                if ($totalSignerSlots > 0 && $totalSignerSlots === $approvedSignerCount) {
+                    // ถ้าเท่ากัน ให้เพิ่ม 'all_signed' => true เข้าไปใน response
+                    return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $cbDocReviewReport->status,
+                                'all_signed' => true
+                            ]);
+                    $response['all_signed'] = true;
+                }else{
+                        return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $cbDocReviewReport->status,
+                                'all_signed' => false
+                            ]);
+                }
+
+
             return response()->json([
                 'html' => $cbDocReviewReport->template, 
                 'status' => $cbDocReviewReport->status
@@ -3724,6 +3965,100 @@ class CbPdfGeneratorController extends Controller
 
         if($cbDocReviewReport !== null)
         {
+
+
+
+      
+
+            $signAssessmentReportTransactions = SignAssessmentReportTransaction::where('report_info_id' , $request->certiCbId)
+                ->where('certificate_type',0)
+                ->where('report_type' , 1)
+                ->where('approval' , 1)
+                ->where('template' , $request->templateType)
+                ->get();
+
+                //   dd($signAssessmentReportTransactions);
+
+            // ดึง HTML content เริ่มต้น
+            $htmlContent = $cbDocReviewReport->template;
+
+
+            $dom = new DOMDocument();
+            // เพิ่ม meta tag เพื่อบังคับ UTF-8 ป้องกันภาษาเพี้ยน
+            @$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $htmlContent);
+            $xpath = new DOMXPath($dom);
+
+                        // --- ส่วนที่เพิ่มเข้ามา ---
+                // นับจำนวนช่องลายเซ็นทั้งหมดที่มีใน Template จาก attribute 'data-signer-id'
+                $totalSignerSlots = $xpath->query("//div[@data-signer-id]")->length;
+
+                // นับจำนวนผู้ที่อนุมัติแล้ว
+                $approvedSignerCount = $signAssessmentReportTransactions->count();
+                // --- สิ้นสุดส่วนที่เพิ่มเข้ามา ---
+
+            // 2. วนลูปเฉพาะผู้ลงนามที่อนุมัติแล้ว
+            foreach ($signAssessmentReportTransactions as $transaction) {
+                $signerId = $transaction->signer_id;
+
+                // 3. ค้นหา Signer และดึง Path ของลายเซ็น
+                $signer = Signer::find($signerId);
+                
+                // ตรวจสอบให้แน่ใจว่าพบ signer และมีไฟล์แนบ
+                if ($signer && $signer->AttachFileAttachTo) {
+                    // สมมติว่า $this->getSignature() คืนค่า path ที่ถูกต้อง
+                    $signaturePath = $this->getSignature($signer->AttachFileAttachTo);
+                    
+                    // สร้าง URL ที่สมบูรณ์สำหรับรูปภาพ
+                    $fullSignatureUrl = asset($signaturePath);
+
+                    // 4. (แก้ไข) ค้นหา div ของผู้ลงนามใน HTML ทั้งหมด (ไม่ใช่แค่ตัวแรก)
+                    $signerDivNodes = $xpath->query("//div[@data-signer-id='{$signerId}']");
+
+                    // 5. (แก้ไข) วนลูป div ทั้งหมดที่เจอสำหรับ signerId นี้
+                    foreach ($signerDivNodes as $signerDivNode) {
+                        if ($signerDivNode) {
+                            // 6. ค้นหา <img> ที่อยู่ภายใน td แม่ของ div นั้น
+                            $tdNode = $signerDivNode->parentNode;
+                            $imgNode = $xpath->query('.//img', $tdNode)->item(0);
+
+                            if ($imgNode) {
+                                // 7. อัปเดต src ของ <img> ด้วย URL ของลายเซ็น
+                                $imgNode->setAttribute('src', $fullSignatureUrl);
+                            }
+                        }
+                    }
+                }
+                
+            }
+
+            // 8. บันทึก HTML ที่แก้ไขแล้วกลับเป็น String
+            $bodyNode = $dom->getElementsByTagName('body')->item(0);
+            $updatedHtmlContent = '';
+            foreach ($bodyNode->childNodes as $child) {
+                $updatedHtmlContent .= $dom->saveHTML($child);
+            }
+
+            
+                // ตรวจสอบว่าจำนวนช่องลายเซ็น > 0 และจำนวนที่อนุมัติเท่ากับจำนวนช่องทั้งหมด
+                if ($totalSignerSlots > 0 && $totalSignerSlots === $approvedSignerCount) {
+                    // ถ้าเท่ากัน ให้เพิ่ม 'all_signed' => true เข้าไปใน response
+                    return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $cbDocReviewReport->status,
+                                'all_signed' => true
+                            ]);
+                    $response['all_signed'] = true;
+                }else{
+                        return response()->json([
+                                'html' => $updatedHtmlContent, 
+                                'status' => $cbDocReviewReport->status,
+                                'all_signed' => false
+                            ]);
+                }
+
+                
+              
+
             return response()->json([
                 'html' => $cbDocReviewReport->template, 
                 'status' => $cbDocReviewReport->status

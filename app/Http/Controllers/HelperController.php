@@ -526,6 +526,43 @@ class HelperController extends Controller
         // if (!$admin->hasPermission($set_standard_lt_delete)) {
         //     $admin_role->givePermissionTo($set_standard_lt_delete);
         // }
+
+        // $cb_scope_review_add    = Permission::firstOrCreate(['name' => 'add-cb-scope-review']);
+        // $cb_scope_review_view   = Permission::firstOrCreate(['name' => 'view-cb-scope-review']);
+        // $cb_scope_review_edit   = Permission::firstOrCreate(['name' => 'edit-cb-scope-review']);
+        // $cb_scope_review_delete = Permission::firstOrCreate(['name' => 'delete-cb-scope-review']);
+
+        // if (!$admin->hasPermission($cb_scope_review_add)) {
+        //     $admin_role->givePermissionTo($cb_scope_review_add);
+        // }
+        // if (!$admin->hasPermission($cb_scope_review_view)) {
+        //     $admin_role->givePermissionTo($cb_scope_review_view);
+        // }
+        // if (!$admin->hasPermission($cb_scope_review_edit)) {
+        //     $admin_role->givePermissionTo($cb_scope_review_edit);
+        // }
+        // if (!$admin->hasPermission($cb_scope_review_delete)) {
+        //     $admin_role->givePermissionTo($cb_scope_review_delete);
+        // }
+
+        // $ib_scope_review_add    = Permission::firstOrCreate(['name' => 'add-ib-scope-review']);
+        // $ib_scope_review_view   = Permission::firstOrCreate(['name' => 'view-ib-scope-review']);
+        // $ib_scope_review_edit   = Permission::firstOrCreate(['name' => 'edit-ib-scope-review']);
+        // $ib_scope_review_delete = Permission::firstOrCreate(['name' => 'delete-ib-scope-review']);
+
+        // if (!$admin->hasPermission($ib_scope_review_add)) {
+        //     $admin_role->givePermissionTo($ib_scope_review_add);
+        // }
+        // if (!$admin->hasPermission($ib_scope_review_view)) {
+        //     $admin_role->givePermissionTo($ib_scope_review_view);
+        // }
+        // if (!$admin->hasPermission($ib_scope_review_edit)) {
+        //     $admin_role->givePermissionTo($ib_scope_review_edit);
+        // }
+        // if (!$admin->hasPermission($ib_scope_review_delete)) {
+        //     $admin_role->givePermissionTo($ib_scope_review_delete);
+        // }
+
         return "done";
 
     }

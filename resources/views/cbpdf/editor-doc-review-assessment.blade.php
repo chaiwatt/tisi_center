@@ -84,6 +84,73 @@
         .select2-selection__clear {
             display: none !important;
         }
+        /* เพิ่มคลาสนี้ในไฟล์ CSS ของคุณ */
+        .swal-button-font {
+            font-family: 'Kanit', sans-serif !important;
+        }
+
+
+        /* ==============================================
+           ⬇️ อัปเดต Print Stylesheet (เอา @page header/footer ออก) ⬇️
+          ============================================== */
+        @media print {
+            
+            /* --- 1. ตั้งค่าขอบกระดาษ (ลบ @top-center/bottom-right ออกแล้ว) --- */
+            @page {
+                /* ตั้งค่าขอบกระดาษตามที่คุณต้องการ */
+                margin: 2cm; 
+            }
+            
+            /* ==============================================
+               2. ส่วนเดิม: ซ่อน UI และจัดการแบ่งหน้า
+              ============================================== */
+
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #fff;
+            }
+            
+            #toolbar, 
+            #signature-modal,
+            #table-modal,
+            #table-context-menu,
+            .select-signer-btn,
+            .resizer,
+            .col-resizer {
+                display: none !important; 
+            }
+
+            #editor-container {
+                padding: 0;
+                border: none;
+                box-shadow: none;
+            }
+
+            .page {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0; 
+                padding: 0; 
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+            
+            .page:last-child {
+                page-break-after: auto; 
+            }
+
+            table, img, .resizable-image-wrapper {
+                page-break-inside: avoid;
+            }
+        }
+        /* ==============================================
+           ⬆️ สิ้นสุดส่วนอัปเดต ⬆️
+          ============================================== */
 
     </style>
 
@@ -150,9 +217,9 @@
                 <button class="toolbar-button" id="load-default-template-btn" title="Load Default Template">
                 <i class="fa-solid fa-file-arrow-down"></i>
             </button>
-            {{-- <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
-                <i class="fa-regular fa-file-pdf"></i>
-            </button> --}}
+            <button class="toolbar-button" id="export-pdf-button" title="Export to PDF">
+                <i class="fa-solid fa-print"></i>
+            </button>
             <div id="loading-indicator" style="display: none;">
                 <i class="fa-solid fa-spinner fa-spin"></i>
             </div>
@@ -274,7 +341,7 @@
         </div>
     </div>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const templateType = @json($templateType ?? null);
         const cbId = @json($cbId ?? null);
@@ -1405,6 +1472,10 @@
                         saveDraftButton.disabled = false;
                         return; 
                     }
+
+
+
+
                 }
 
                 signatureBlocks.forEach(block => {
@@ -1432,56 +1503,105 @@
                 
                 const htmlContentForSave = editorCloneForSave.innerHTML;
 
-                fetch("{{ route('cb.save-assessment-review-html-template') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ 
-                        html_content: htmlContentForSave,
-                        cbId: cbId,
-                        templateType: templateType,
-                        status: status,
-                        signers: signersArray
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => { throw new Error(err.message || 'เกิดข้อผิดพลาดในการบันทึก') });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // showCustomAlert(data.message || 'บันทึกสำเร็จ!', 'สำเร็จ');
-                    // if (status === 'final') {
-                    //     lockEditor();
-                    // }
 
-                    //  // ตรวจสอบว่ามี redirect_url ส่งมาหรือไม่
-                    if (data.success && data.redirect_url) {
-                        // สั่งให้เบราว์เซอร์เปลี่ยนหน้าไปยัง URL ที่ได้รับมา
-                        window.location.href = data.redirect_url;
-                    }
-                })
-                .catch(error => {
-                    console.error('Save Error:', error);
-                    showCustomAlert(error.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ');
-                })
-                .finally(() => {
-                    loadingIndicator.style.display = 'none';
-                    if (status !== 'final') {
-                        saveButton.disabled = false;
-                        saveDraftButton.disabled = false;
-                    }
-                });
+            Swal.fire({
+                title: 'ยืนยันการบันทึกและส่งอีเมล์',
+                text: "เอกสารจะถูกล็อคและเข้าสู่กระบวนการลงนาม",
+                icon: 'question',
+                html: `
+                        <div style="margin-top: 25px; text-align: center; font-size: 1.1em;"> <input type="checkbox" id="sendEmailCheckbox" 
+                                class="swal2-checkbox" 
+                                style="
+                                    display: inline-block; 
+                                    vertical-align: middle; 
+                                    width: 20px; /* เพิ่มขนาดความกว้างของ checkbox */
+                                    height: 20px; /* เพิ่มขนาดความสูงของ checkbox */
+                                    transform: scale(1.3); /* ขยายขนาด checkbox เพิ่มเติม */
+                                    margin-right: 10px; /* เพิ่มระยะห่างด้านขวา */
+                                " 
+                                checked>
+                            <label for="sendEmailCheckbox" 
+                                style="
+                                    display: inline-block; 
+                                    vertical-align: middle; 
+                                    font-size: 1.2em; /* เพิ่มขนาดตัวอักษรของ label */
+                                    font-weight: bold; /* ทำให้ตัวอักษรหนาขึ้น */
+                                ">ส่งอีเมล์แจ้งผู้ลงนาม</label>
+                        </div>
+                    `, // <--- ปรับปรุงโค้ดตรงนี้
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'ยืนยันและบันทึก',
+                cancelButtonText: 'ยกเลิก',
+                 // --- เพิ่มส่วนนี้เข้าไป ---
+                customClass: {
+                confirmButton: 'swal-button-font', // ใช้คลาสกับปุ่ม Confirm
+                cancelButton: 'swal-button-font'  // ใช้คลาสกับปุ่ม Cancel
+                },
+                // -------------------------
+
+                // ฟังก์ชันนี้จะทำงานก่อนยืนยัน เพื่อดึงค่าจาก checkbox
+                preConfirm: () => {
+                    return document.getElementById('sendEmailCheckbox').checked;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const sendEmail = document.getElementById('sendEmailCheckbox').checked;
+                    fetch("{{ route('cb.save-assessment-review-html-template') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ 
+                            html_content: htmlContentForSave,
+                            cbId: cbId,
+                            templateType: templateType,
+                            status: status,
+                            signers: signersArray,
+                            send_email: sendEmail 
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => { throw new Error(err.message || 'เกิดข้อผิดพลาดในการบันทึก') });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success && data.redirect_url) {
+                            window.location.href = data.redirect_url;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Save Error:', error);
+                        showCustomAlert(error.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ');
+                    })
+                    .finally(() => {
+                        loadingIndicator.style.display = 'none';
+                        if (status !== 'final') {
+                            saveButton.disabled = false;
+                            saveDraftButton.disabled = false;
+                        }
+                    });
+                }
+            });
+
+
+
             }
 
             saveDraftButton.addEventListener('click', () => saveData('draft'));
             saveButton.addEventListener('click', () => saveData('final'));
 
+            if (exportButton) { // ตรวจสอบเผื่อว่าปุ่มยังเป็น null
+                exportButton.addEventListener('click', () => {
+                    window.print();
+                });
+            }
 
-            exportButton.addEventListener('click', () => {
+            exportButton_notuse.addEventListener('click', () => {
                 loadingIndicator.style.display = 'inline-block';
                 exportButton.disabled = true;
                 

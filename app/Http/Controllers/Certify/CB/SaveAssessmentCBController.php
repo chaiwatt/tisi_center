@@ -1703,6 +1703,18 @@ public function copyScopeCbFromAttachement($certiCbId)
            
         }
 
-        
+    public function requestAdminGroupScopeSign(Request $request)
+    {
+        // dd($request->all());
+        CertiCb::find($request->app_certi_cb_id)->update([
+            'scope_view_signer_id' => $request->signer_id
+        ]);
+
+            return response()->json([
+                'message' => 'Data updated successfully',
+                'data' => CertiCb::find($request->app_certi_cb_id)
+            ]);
+    }
+   
 
 }

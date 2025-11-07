@@ -44,13 +44,24 @@
                         </label>
 
                         <div class="col-md-7 text-left ">
-                            @if(isset($report) && !is_null($report->file_loa) && $report->file_loa != '')
+                            {{-- @if(isset($report) && !is_null($report->file_loa) && $report->file_loa != '')
                                 <p class="text-left">
                                     <a href="{{url('certify/check/file_client/'.$report->file_loa.'/'.( !empty($report->file_loa_client_name) ? $report->file_loa_client_name : basename($report->file_loa)  ))}}" target="_blank">
                                         {!! HP::FileExtension($report->file_loa)  ?? '' !!} {{basename($report->file_loa_client_name)}}
                                     </a>
                                 </p> 
-                            @endif
+                            @endif --}}
+
+                            @php
+                                $lastFile = is_array($certi_cb->certi_cb) ? end($certi_cb->FileAttach3) : $certi_cb->FileAttach3->last();
+                                // dd( $lastFile );
+                            @endphp
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                            <a href="{!! HP::getFileStorage($attach_path.$lastFile->file) !!}" target="_blank" > {!! HP::FileExtension($lastFile->file)  ?? '' !!} {!! $lastFile->file_client_name !!}</a>
+                                    </div>
+                                </div>
+
                         </div>
                     </div>
                 </div>
@@ -76,14 +87,23 @@
 
        
 
-        <div class="modal-footer ">
+        {{-- <div class="modal-footer ">
             <input type="hidden" id="app_certi_lab_id" value="{{ $cc->app_certi_lab_id ?? null}}">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
              @if ($applicant->scope_view_status == null)
                 <button  class="btn btn-primary" id="button_scope_for_admin_group" >นำส่งลงนาม</button>
              @endif
-        </div>
+        </div> --}}
 
+        
+        <div class="modal-footer ">
+            {{-- {{$certi_cb->scope_view_status}} --}}
+            <input type="hidden" id="app_certi_lab_id" value="{{ $certi_cb->id ?? null}}">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
+             @if ($certi_cb->scope_view_status == null)
+                <button  class="btn btn-primary" id="button_scope_for_admin_group" >นำส่งลงนาม</button>
+             @endif
+        </div>
        
   
 
@@ -104,7 +124,9 @@
 
             // รับค่าจากฟอร์ม
             const _token = $('input[name="_token"]').val();
-            var app_certi_lab_id = $('#app_certi_lab_id').val();
+            var app_certi_cb_id = $('#app_certi_cb_id').val();
+
+            // alert("ok")
 
 
             // สร้าง overlay
@@ -134,16 +156,16 @@
             // });
 
             $.ajax({
-                url: "{{ route('save_assessment.api.request_admin_group_scope_sign') }}",
+                url: "{{ route('save_assessment_cb.api.request_admin_group_scope_sign') }}",
                 method: "POST",
                 data: {
                     _token: _token,
-                    app_certi_lab_id: app_certi_lab_id,
-                    app_type:"lab",
+                    app_certi_cb_id: app_certi_cb_id,
+                    app_type:"cb",
                     signer_id: $('#signer_id').val()
                 },
                 success: function(result) {
-                    console.log(result);
+                    // console.log(result);
                     $('#exampleModalScopeReview').modal('hide');
                     
                     // เพิ่มบรรทัดนี้เพื่อ reload หน้าเว็บ

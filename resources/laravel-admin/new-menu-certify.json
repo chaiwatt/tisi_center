@@ -442,9 +442,21 @@
                     },
                     {
                         "title": "lab_scope_review",
-                        "display": "ลงนามกำกับย่อ",
+                        "display": "ลงนามกำกับย่อ (LAB)",
                         "icon": "mdi mdi-file-document-box",
                         "url": "\/certify\/lab-scope-review"
+                    },
+                    {
+                        "title": "cb_scope_review",
+                        "display": "ลงนามกำกับย่อ (CB)",
+                        "icon": "mdi mdi-file-document-box",
+                        "url": "\/certify\/cb-scope-review"
+                    },
+                    {
+                        "title": "ib_scope_review",
+                        "display": "ลงนามกำกับย่อ (IB)",
+                        "icon": "mdi mdi-file-document-box",
+                        "url": "\/certify\/ib-scope-review"
                     },
                     {
                         "title": "SendCertificates",
