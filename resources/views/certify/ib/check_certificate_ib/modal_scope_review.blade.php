@@ -53,7 +53,7 @@
                             @endif --}}
 
                             @php
-                                $lastFile = is_array($certi_cb->certi_cb) ? end($certi_cb->FileAttach3) : $certi_cb->FileAttach3->last();
+                                $lastFile = is_array($certi_ib->certi_ib) ? end($certi_ib->FileAttach3) : $certi_ib->FileAttach3->last();
                                 // dd( $lastFile );
                             @endphp
                                 <div class="form-group">
@@ -114,9 +114,9 @@
             </div>
         </div>
         <div class="modal-footer ">
-            <input type="hidden" id="app_certi_lab_id" value="{{ $certi_cb->id ?? null}}">
+            <input type="hidden" id="app_certi_lab_id" value="{{ $certi_ib->id ?? null}}">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
-             @if ($certi_cb->scope_view_status == null)
+             @if ($certi_ib->scope_view_status == null)
                 <button  class="btn btn-primary" id="button_scope_for_admin_group" >บันทึก</button>
              @endif
         </div>
@@ -138,7 +138,7 @@
 
             // รับค่าจากฟอร์ม
             const _token = $('input[name="_token"]').val();
-            var app_certi_cb_id = $('#app_certi_cb_id').val();
+            var app_certi_ib_id = $('#app_certi_ib_id').val();
             var scope_review_status = $('input[name="scope_review_status"]:checked').val();
         // console.log(scope_review_status)
         //     return;
@@ -171,12 +171,12 @@
             // });
 
             $.ajax({
-                url: "{{ route('save_assessment_cb.api.request_admin_group_scope_sign') }}",
+                url: "{{ route('save_assessment_ib.api.request_admin_group_scope_sign') }}",
                 method: "POST",
                 data: {
                     _token: _token,
-                    app_certi_cb_id: app_certi_cb_id,
-                    app_type:"cb",
+                    app_certi_ib_id: app_certi_ib_id,
+                    app_type:"ib",
                     signer_id: $('#signer_id').val(),
                     scope_review_status: scope_review_status
                 },

@@ -293,7 +293,7 @@ class CheckCertificateCBController extends Controller
             $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
             $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->get();
 
-            // dd($certi_lab->id);
+
 
             $adminGroups = [];
             if(count($groupAdminUsers) != 0){

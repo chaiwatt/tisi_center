@@ -619,16 +619,40 @@
 
 
                             @else 
+                            {{-- {{$report}} --}}
                                 @if ($report->ability_confirm !== null)
-                                    <div class="btn-group form_group">
-                                        <form action="{{ url('/certify/certificate-export-ib/create')}}" method="POST" style="display:inline"  > 
-                                            {{ csrf_field() }}
-                                            {!! Form::hidden('app_token', (!empty($certi_ib->token) ? $certi_ib->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
-                                            <button class=" btn btn-warning" type="submit" >
-                                                ออกใบรับรอง
-                                            </button>
-                                        </form>
-                                    </div>
+                                 @include ('certify.ib.check_certificate_ib.modal_scope_review')
+
+                                @php
+                                    $btnClass ="btn-warning";
+                                   if($certi_ib->scope_view_status == null){
+                                        $btnClass ="btn-warning";
+                                   }else if($certi_ib->scope_view_status == 2){
+                                        $btnClass ="btn-danger";
+                                   }else if($certi_ib->scope_view_status == 1){
+                                        $btnClass ="btn-info";
+                                   }
+                                @endphp
+
+                                <div class="btn-group form_group">
+                                    <input type="hidden" id="app_certi_ib_id" value="{{$certi_ib->id}}">
+                                    <button class="btn {{ $btnClass }}" data-toggle="modal" data-target="#exampleModalScopeReview">
+                                        ตรวจสอบขอบข่าย
+                                    </button>
+                                </div>
+
+                                    @if ($certi_ib->scope_view_status == 1)
+                                            <div class="btn-group form_group">
+                                            <form action="{{ url('/certify/certificate-export-ib/create')}}" method="POST" style="display:inline"  > 
+                                                {{ csrf_field() }}
+                                                {!! Form::hidden('app_token', (!empty($certi_ib->token) ? $certi_ib->token  : null) , ['id' => 'app_token', 'class' => 'form-control' ]); !!}
+                                                <button class=" btn btn-warning" type="submit" >
+                                                    ออกใบรับรอง
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
+                               
                                 @else
                                     <span class="text-warning">รอยืนยันความสามารถ</span>
                                 @endif

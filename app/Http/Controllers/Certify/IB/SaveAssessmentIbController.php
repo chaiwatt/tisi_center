@@ -13,6 +13,7 @@ use App\Http\Requests;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Certify\IbReportInfo;
+use App\Models\Besurv\Signer;
 use App\Mail\Ib\MailToIbExpert;
 use App\Certify\IbReportTwoInfo;
 use App\Certify\IbReportTemplate;
@@ -20,11 +21,11 @@ use App\Http\Controllers\Controller;
 use App\Mail\IB\IBSaveAssessmentMail;
 use App\Mail\IB\IBCheckSaveAssessment;
 use Illuminate\Support\Facades\Mail;    
+
 use App\Mail\IB\IBSaveAssessmentPastMail;
-
 use App\Models\Certify\ApplicantIB\CertiIb;
-use App\Services\CreateIbAssessmentReportPdf;
 
+use App\Services\CreateIbAssessmentReportPdf;
 use App\Models\Certify\ApplicantIB\CertiIBCheck;
 use App\Models\Certify\ApplicantIB\CertiIBReport;
 use App\Models\Certify\ApplicantIB\CertiIBReview;
@@ -1581,18 +1582,55 @@ if($auditors->main_state == 1){
     }
 
     
-    public function requestAdminGroupScopeSign(Request $request)
-    {
-        // dd($request->all());
-        CertiIb::find($request->app_certi_ib_id)->update([
-            'scope_view_signer_id' => $request->signer_id
-        ]);
+    // public function requestAdminGroupScopeSign(Request $request)
+    // {
+    //     // dd($request->all());
+    //     CertiIb::find($request->app_certi_ib_id)->update([
+    //         'scope_view_signer_id' => $request->signer_id
+    //     ]);
 
-            return response()->json([
-                'message' => 'Data updated successfully',
-                'data' => CertiIb::find($request->app_certi_ib_id)
-            ]);
-    }
+    //         return response()->json([
+    //             'message' => 'Data updated successfully',
+    //             'data' => CertiIb::find($request->app_certi_ib_id)
+    //         ]);
+    // }
    
+    public function requestAdminGroupScopeSign(Request $request)
+{
+    
+    $userTax = trim(str_replace('-', '', auth()->user()->reg_13ID));
+    $signer = Signer::find($request->signer_id);
+
+    // --- 1. ตรวจสอบว่าพบ Signer หรือไม่ ---
+    if (!$signer) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'ไม่พบข้อมูลผู้ลงนาม'
+        ], 404); // 404 Not Found
+    }
+
+    // --- 2. ตรวจสอบสิทธิ์ (Tax ID ตรงกันหรือไม่) ---
+    if ($userTax != $signer->tax_number) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'คุณไม่มีสิทธิ์บันทึกรายการนี้'
+        ], 403); // 403 Forbidden (ไม่มีสิทธิ์)
+    }
+
+    // --- 3. (ถ้าผ่านทั้งหมด) ทำ Logic ที่นี่ (เช่น บันทึกข้อมูล) ---
+    // ...
+    // ... (โค้ดบันทึกข้อมูลของคุณ) ...
+    // ...
+
+    CertiIb::find($request->app_certi_ib_id)->update([
+        'scope_view_status' => $request->scope_review_status
+    ]);
+
+    // --- 4. ส่งค่ากลับว่าสำเร็จ ---
+    return response()->json([
+        'status' => 'success', // เพิ่ม status
+        'message' => 'บันทึกข้อมูลสำเร็จ'
+    ]); // 200 OK (default)
+}
     
 }

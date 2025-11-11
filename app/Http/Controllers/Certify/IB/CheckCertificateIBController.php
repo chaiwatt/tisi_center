@@ -12,11 +12,12 @@ use App\User;
 use stdClass;
 use Mpdf\Mpdf;
 use HP_API_PID;
+use App\RoleUser;
 use Carbon\Carbon;
 use App\Http\Requests;
 use App\IbHtmlTemplate;
-use Mpdf\HTMLParserMode;
 
+use Mpdf\HTMLParserMode;
 use App\CheckCertificateIB;
 use App\IpaymentCompanycode;
 use Illuminate\Http\Request;
@@ -30,14 +31,14 @@ use App\Mail\IB\IBDocumentsMail;
 use App\Models\Certify\PayInAll;
 use App\Mail\IB\IBInformPayInOne;
 use App\Mail\IB\IBAssignStaffMail;
-use App\Http\Controllers\Controller;
 
+use App\Http\Controllers\Controller;
 use App\Models\Certify\CertiEmailLt;
 use App\Models\Sso\User AS SSO_User;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\IB\IBScopeEditAlertMail;
-use App\Models\Certify\TransactionPayIn;
 
+use App\Models\Certify\TransactionPayIn;
 use App\Models\Certify\ApplicantIB\CertiIb;
 use App\Models\Certify\CertiSettingPayment;
 use App\Models\Certificate\IbScopeTransaction;
@@ -280,6 +281,7 @@ class CheckCertificateIBController extends Controller
     public function show($token)
     {
 
+        
         $model = str_slug('checkcertificateib','-');
         if(auth()->user()->can('view-'.$model)) {
             $certi_ib = CertiIb::where('token',$token)->first();
@@ -289,7 +291,26 @@ class CheckCertificateIBController extends Controller
                                         ->orderby('id','desc')
                                         ->get();
 
-             return view('certify/ib/check_certificate_ib.show', compact('certi_ib','history'));
+
+             
+            $targetRoleId = 30;
+            $userRunrecnos = RoleUser::where('role_id', $targetRoleId)->pluck('user_runrecno');
+            $groupAdminUsers = User::whereIn('runrecno', $userRunrecnos)->get();
+
+
+
+            $adminGroups = [];
+            if(count($groupAdminUsers) != 0){
+                 $allReg13Ids = [];
+                 foreach ($groupAdminUsers as $groupAdminUser) {
+                    $reg13Id = str_replace('-', '', $groupAdminUser->reg_13ID);
+                    $allReg13Ids[] = $reg13Id;
+                }
+
+                $adminGroups = Signer::whereIn('tax_number',$allReg13Ids)->get();
+            }                           
+$attach_path = $this->attach_path;
+             return view('certify/ib/check_certificate_ib.show', compact('certi_ib','history','attach_path','adminGroups'));
             }else{
                 abort(403);
             }

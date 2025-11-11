@@ -661,13 +661,20 @@ ssss
                             
                             @if ($report->ability_confirm !== null)
 
-                                {{-- {{$certi_cb->scope_view_status }} --}}
+                         
                                 @include ('certify.cb.check_certificate_cb.modal_scope_review')
 
                                 @php
-                                    $btnClass = $certi_cb->scope_view_signer_id == null
-                                        ? 'btn-warning'
-                                        : ($certi_cb->scope_view_status == null ? 'btn-success' : 'btn-info');
+                            $btnClass ="btn-warning";
+
+
+                                   if($certi_cb->scope_view_status == null){
+                                        $btnClass ="btn-warning";
+                                   }else if($certi_cb->scope_view_status == 2){
+                                        $btnClass ="btn-danger";
+                                   }else if($certi_cb->scope_view_status == 1){
+                                        $btnClass ="btn-info";
+                                   }
                                 @endphp
 
                                 <div class="btn-group form_group">
@@ -684,7 +691,7 @@ ssss
 
                                      {{-- <div class="clearfix"></div> --}}
 
-                              
+                              @if ($certi_cb->scope_view_status == 1)
                                 <div class="btn-group form_group">
                                     <form action="{{ url('/certify/certificate-export-cb/create')}}" method="POST" style="display:inline" > 
                                         {{ csrf_field() }}
@@ -694,6 +701,8 @@ ssss
                                         </button>
                                     </form>
                                 </div>
+                              @endif
+                      
                             @else
                                 <span class="text-warning">รอยืนยันความสามารถ</span>
                             @endif

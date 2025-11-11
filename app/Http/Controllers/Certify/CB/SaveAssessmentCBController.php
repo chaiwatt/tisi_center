@@ -16,6 +16,7 @@ use App\SaveAssessmentCB;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Certify\CbReportInfo;
+use App\Models\Besurv\Signer;
 use App\Mail\Cb\MailToCbExpert;
 use App\Certify\CbReportTwoInfo;
 use App\Certify\CbReportTemplate;
@@ -23,8 +24,8 @@ use App\Mail\Lab\MailToLabExpert;
 use App\Certify\CbReportInfoSigner;
 use App\Http\Controllers\Controller;
 use App\Mail\CB\CheckSaveAssessment;
-use Illuminate\Support\Facades\Mail;
 
+use Illuminate\Support\Facades\Mail;
 use App\Mail\CB\CBSaveAssessmentMail;
 use App\Mail\CB\CBSaveAssessmentPastMail;
 use App\Models\Certify\ApplicantCB\CertiCb;
@@ -1703,18 +1704,41 @@ public function copyScopeCbFromAttachement($certiCbId)
            
         }
 
-    public function requestAdminGroupScopeSign(Request $request)
-    {
-        // dd($request->all());
-        CertiCb::find($request->app_certi_cb_id)->update([
-            'scope_view_signer_id' => $request->signer_id
-        ]);
+public function requestAdminGroupScopeSign(Request $request)
+{
+    $userTax = trim(str_replace('-', '', auth()->user()->reg_13ID));
+    $signer = Signer::find($request->signer_id);
 
-            return response()->json([
-                'message' => 'Data updated successfully',
-                'data' => CertiCb::find($request->app_certi_cb_id)
-            ]);
+    // --- 1. ตรวจสอบว่าพบ Signer หรือไม่ ---
+    if (!$signer) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'ไม่พบข้อมูลผู้ลงนาม'
+        ], 404); // 404 Not Found
     }
-   
+
+    // --- 2. ตรวจสอบสิทธิ์ (Tax ID ตรงกันหรือไม่) ---
+    if ($userTax != $signer->tax_number) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'คุณไม่มีสิทธิ์บันทึกรายการนี้'
+        ], 403); // 403 Forbidden (ไม่มีสิทธิ์)
+    }
+
+    // --- 3. (ถ้าผ่านทั้งหมด) ทำ Logic ที่นี่ (เช่น บันทึกข้อมูล) ---
+    // ...
+    // ... (โค้ดบันทึกข้อมูลของคุณ) ...
+    // ...
+
+    CertiCb::find($request->app_certi_cb_id)->update([
+        'scope_view_status' => $request->scope_review_status
+    ]);
+
+    // --- 4. ส่งค่ากลับว่าสำเร็จ ---
+    return response()->json([
+        'status' => 'success', // เพิ่ม status
+        'message' => 'บันทึกข้อมูลสำเร็จ'
+    ]); // 200 OK (default)
+}
 
 }
